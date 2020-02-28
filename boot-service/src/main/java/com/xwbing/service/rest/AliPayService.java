@@ -282,18 +282,23 @@ public class AliPayService {
     }
 
     public static void main(String[] args) {
-        //刷卡支付
+        // ---------------------- 刷卡支付 ----------------------
         AliPayService alipayBuilder = new AliPayService();
         String orderNo = "201805180207";//订单号
         String authCode = "285620814798006808";//二维码
-        AliPayTradePayParam codePayParam = new AliPayTradePayParam(orderNo, authCode, "test", "test", 0.1f);
+        String hbFqNum = "3";//花呗分期数
+        AliPayTradePayParam codePayParam = new AliPayTradePayParam(orderNo, authCode, "test", null, 0.1f);
+        JSONObject extendParams = new JSONObject();
+        extendParams.put("hb_fq_num", hbFqNum);
+        extendParams.put("hb_fq_seller_percent", "0");
+        codePayParam.setExtendParams(extendParams.toJSONString());
         AliPayTradePayResult codePayResult = alipayBuilder.tradePay(codePayParam);
         boolean success = codePayResult.isSuccess();
         if (!success) {
             System.out.println(codePayResult.getMessage());
         }
 
-        //查询订单
+        // ---------------------- 查询订单 ----------------------
         String tradeNo = codePayResult.getTradeNo();//支付宝交易号
         AliPayQueryResult queryResult = alipayBuilder.tradeQuery("", tradeNo);
         if (!queryResult.isSuccess()) {
@@ -304,13 +309,14 @@ public class AliPayService {
             first.ifPresent(aliPayTradeStatusEnum -> System.out.println(aliPayTradeStatusEnum.getName()));
         }
 
-//        //退款操作
+        // ---------------------- 退款操作 ----------------------
         String outRequestNo = "201805180202";//退款请求号
         AliPayTradeRefundParam refundParam = new AliPayTradeRefundParam(outRequestNo, tradeNo, "test", 0.05f);
         AliPayTradeRefundResult refundResult = alipayBuilder.tradeRefund(refundParam);
         System.out.println(refundResult.getMessage());
 
-//        //查询退款 只要success,即为成功
+        // ---------------------- 查询退款 ----------------------
+        //只要success,即为成功
         AliPayRefundQueryResult refund = alipayBuilder.refundQuery("", tradeNo, outRequestNo);
         System.out.println(refund.isSuccess());
     }
