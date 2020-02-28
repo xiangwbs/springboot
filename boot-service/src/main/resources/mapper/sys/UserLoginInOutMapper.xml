@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xwbing.domain.mapper.sys.SysUserLoginInOutMapper">
+    <resultMap id="BaseResultMap" type="sysUserLoginInOut">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <result column="inout_type" property="inoutType"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+    <sql id="Table">
+        sys_user_login_in_out
+    </sql>
+    <sql id="Base_Column_List">
+        id,
+        creator,
+        modifier,
+        create_time,
+        modified_time,
+        ip,
+        inout_type,
+        user_id
+    </sql>
+    <sql id="condition">
+        <where>
+        </where>
+    </sql>
+    <!-- 插入 -->
+    <insert id="insert">
+        <selectKey keyProperty="id" resultType="string" order="BEFORE">
+            SELECT REPLACE(UUID(), '-', '')
+        </selectKey>
+        INSERT INTO
+        <include refid="Table"/>(
+        id,
+        creator,
+        create_time,
+        ip,
+        inout_type,
+        user_id
+        )
+        VALUES(
+        #{id},
+        #{creator},
+        now(),
+        #{ip},
+        #{inoutType},
+        #{userId}
+        )
+    </insert>
+    <select id="findByInoutType" resultMap="BaseResultMap">
+        SELECT a.inout_type,a.ip,date_format(a.create_time,'%Y-%m-%d %H:%i:%s') recordTime,b.name userIdName
+        FROM sys_user_login_in_out a left join sys_user_info b on
+        (a.user_id=b.id)
+        <where>
+            <if test="inout!=null">
+                a.inout_type=#{inout}
+            </if>
+            <if test="startDate!=null">
+                and a.create_time>=#{startDate}
+            </if>
+            <if test="endDate!=null">
+                and a.create_time <![CDATA[ <= ]]> #{endDate}
+            </if>
+        </where>
+        ORDER BY a.create_time DESC
+    </select>
+    <select id="countByType" resultMap="BaseResultMap">
+        SELECT count(1) count,inout_type
+        from
+        <include refid="Table"/>
+        <where>
+            <if test="startDate!=null">
+                and create_time>=#{startDate}
+            </if>
+            <if test="endDate!=null">
+                and create_time <![CDATA[ <= ]]> #{endDate}
+            </if>
+        </where>
+        group by inout_type
+    </select>
+
+</mapper>
