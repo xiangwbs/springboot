@@ -45,12 +45,12 @@
         <repository>
             <id>private-release</id>
             <name>private-release</name>
-            <url>https://maven.jimistore.com/nexus/content/repositories/jimi-private-release/</url>
+            <url>https://xxx/nexus/content/repositories/private-release/</url>
         </repository>
         <snapshotRepository>
             <id>private-snapshot</id>
             <name>private-snapshot</name>
-            <url>https://maven.jimistore.com/nexus/content/repositories/jimi-private-snapshot/</url>
+            <url>https://xxx/nexus/content/repositories/private-snapshot/</url>
         </snapshotRepository>
     </distributionManagement>
 
