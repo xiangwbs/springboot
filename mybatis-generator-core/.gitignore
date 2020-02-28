@@ -1,0 +1,15 @@
+.factorypath
+# /core/
+.project
+.settings
+.classpath
+build.log
+target
+*.iml
+.DS_Store
+.idea
+.mvn
+
+
+
+

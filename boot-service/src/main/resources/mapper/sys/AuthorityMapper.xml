@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xwbing.domain.mapper.sys.SysAuthorityMapper">
+    <resultMap id="BaseResultMap" type="sysAuthority">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <result column="parent_id" property="parentId"/>
+    </resultMap>
+    <sql id="Table">
+        sys_authority
+    </sql>
+    <sql id="Base_Column_List">
+        id,
+        creator,
+        modifier,
+        create_time,
+        modified_time,
+        name,
+        code,
+        enable,
+        url,
+        parent_id,
+        type,
+        sort
+    </sql>
+    <sql id="condition">
+        <where>
+            <if test="code!=null">
+                code=#{code}
+            </if>
+            <if test="id!=null">
+                and id!=#{id}
+            </if>
+            <if test="sort!=null">
+                and sort=#{sort}
+            </if>
+            <if test="parentId!=null">
+                and parent_id=#{parentId}
+            </if>
+            <if test="enable!=null">
+                and enable=#{enable}
+            </if>
+            <if test="authorityIds!=null">
+                and id in
+                <foreach collection="authorityIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+    <!-- 插入 -->
+    <insert id="insert">
+        <selectKey keyProperty="id" resultType="string" order="BEFORE">
+            SELECT REPLACE(UUID(), '-', '')
+        </selectKey>
+        INSERT INTO
+        <include refid="Table"/>(
+        id,
+        creator,
+        create_time,
+        name,
+        code,
+        enable,
+        url,
+        parent_id,
+        type,
+        sort
+        )
+        VALUES(
+        #{id},
+        #{creator},
+        now(),
+        #{name},
+        #{code},
+        #{enable},
+        #{url},
+        #{parentId},
+        #{type},
+        #{sort}
+        )
+    </insert>
+    <!-- 批量插入 -->
+    <insert id="insertBatch">
+        INSERT INTO
+        <include refid="Table"/>(
+        id,
+        creator,
+        create_time,
+        name,
+        code,
+        enable,
+        url,
+        parent_id,
+        type,
+        sort
+        )
+        VALUES
+        <foreach collection="list" item="obj" separator=",">(
+            (SELECT REPLACE(UUID(), '-', '') AS id),
+            #{obj.creator},
+            now(),
+            #{obj.name},
+            #{obj.code},
+            #{obj.enable},
+            #{obj.url},
+            #{obj.parentId},
+            #{obj.type},
+            #{obj.sort}
+            )
+        </foreach>
+    </insert>
+    <!-- 删除 -->
+    <delete id="deleteById">
+        DELETE FROM
+        <include refid="Table"/>
+        WHERE id=#{id}
+    </delete>
+    <!-- 批量删除 -->
+    <delete id="deleteByIds">
+        DELETE FROM
+        <include refid="Table"/>
+        WHERE id IN
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <!-- 条件删除 -->
+    <delete id="delete">
+        DELETE FROM
+        <include refid="Table"/>
+        <include refid="condition"/>
+    </delete>
+    <!-- 更新 -->
+    <update id="update">
+        UPDATE
+        <include refid="Table"/>
+        <set>
+            modified_time=now(),
+            <if test="modifier!=null">modifier=#{modifier},</if>
+            <if test="name!=null">name=#{name},</if>
+            <if test="enable!=null">enable=#{enable},</if>
+            <if test="url!=null">url=#{url},</if>
+            <if test="parentId!=null">parent_id=#{parentId},</if>
+            <if test="type!=null">type=#{type},</if>
+            <if test="sort!=null">sort=#{sort},</if>
+        </set>
+        WHERE id=#{id}
+    </update>
+    <!-- 批量更新 -->
+    <update id="updateBatch">
+        UPDATE
+        <include refid="Table"/>
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="modified_time=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    when id=#{obj.id} then now()
+                </foreach>
+            </trim>
+            <trim prefix="modifier=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.modifier!=null">
+                        when id=#{obj.id} then #{obj.modifier}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="name=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.name!=null">
+                        when id=#{obj.id} then #{obj.name}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="enable=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.enable!=null">
+                        when id=#{obj.id} then #{obj.enable}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="url=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.url!=null">
+                        when id=#{obj.id} then #{obj.url}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="parent_id=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.parentId!=null">
+                        when id=#{obj.id} then #{obj.parentId}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="type=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.type!=null">
+                        when id=#{obj.id} then #{obj.type}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="sort=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.sort!=null">
+                        when id=#{obj.id} then #{obj.sort}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        <where>
+            <foreach collection="list" separator="or" item="obj">
+                id=#{obj.id}
+            </foreach>
+        </where>
+    </update>
+    <!-- 查找 -->
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        <include refid="Table"/>
+        WHERE id=#{id}
+    </select>
+    <!-- 根据ids查找 -->
+    <select id="findByIds" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        <include refid="Table"/>
+        WHERE id IN
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <!-- 条件查询 -->
+    <select id="find" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        <include refid="Table"/>
+        <include refid="condition"/>
+        ORDER BY sort
+    </select>
+    <!-- 查询所有 -->
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        <include refid="Table"/>
+        ORDER BY sort
+    </select>
+    <!-- 获取最大排序号 -->
+    <select id="getMaxSort" resultType="int">
+        SELECT IFNULL(MAX(sort),0)
+        FROM
+        <include refid="Table"/>
+    </select>
+</mapper>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>boot-module-pro</artifactId>
+        <groupId>com.xwbing</groupId>
+        <version>1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>boot-web</artifactId>
+    <packaging>war</packaging>
+    <developers>
+        <developer>
+            <email>xiangwbs@163.com</email>
+            <name>xiangwb</name>
+            <roles>
+                <role>Java Development Engineer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <dependencies>
+        <!-- 各模块 -->
+        <dependency>
+            <groupId>com.xwbing</groupId>
+            <artifactId>boot-service</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <!-- springBoot必备的Jar包,支持Web应用开发。包含Tomcat,Spring WebMvc框架,Spring框架,jackson,SpringBoot提供的自动配置功能等 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion><!-- 去掉默认logback -->
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- maven打war包部署到外部tomcat,去除tomcat -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- aop -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <!-- commonsMultipartResolver需要依赖此jar包 -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>${fileUpLoad.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>boot-web</finalName>
+        <plugins>
+            <!-- 将SpringBoot应用打包为可执行的jar或war 并指定运行类 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.xwbing.BootApplication</mainClass>
+                    <fork>true</fork>
+                    <!-- 本地jar打进jar -->
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
+            </plugin>
+            <!-- war包命名为ROOT.war -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <warName>ROOT</warName>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <!-- 本地jar打进war -->
+                    <webResources>
+                        <resource>
+                            <directory>${basedir}/../boot-service/src/main/resources/data</directory>
+                            <targetPath>WEB-INF/lib/</targetPath>
+                            <includes>
+                                <include>alipay-1.0.jar</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
