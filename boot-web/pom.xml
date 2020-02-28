@@ -84,7 +84,7 @@
                 <configuration>
                     <warName>ROOT</warName>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <!-- 本地jar打进war -->
+                    <!-- 本地jar打进war
                     <webResources>
                         <resource>
                             <directory>${basedir}/../boot-service/src/main/resources/data</directory>
@@ -94,6 +94,7 @@
                             </includes>
                         </resource>
                     </webResources>
+                    -->
                 </configuration>
             </plugin>
         </plugins>
