@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.xwbing</groupId>
-    <artifactId>boot-module-demo</artifactId>
+    <artifactId>boot-module-pro</artifactId>
     <packaging>pom</packaging>
     <version>1.0</version>
     <modules>
@@ -22,6 +22,9 @@
             <id>nexus</id>
             <name>aliyun nexus</name>
             <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -35,29 +38,29 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <fileUpLoad.version>1.3.1</fileUpLoad.version>
-        <zxing.version>3.2.1</zxing.version>
-        <fastjson.version>1.2.20</fastjson.version>
-        <rsa.version>1.45</rsa.version>
-        <commons-io.version>2.2</commons-io.version>
-        <httpclient-version>4.5.1</httpclient-version>
-        <poi.version>3.14</poi.version>
-        <druid-version>1.1.5</druid-version>
         <!-- 打包跳过单元测试 -->
         <skipTests>true</skipTests>
+        <fileUpLoad.version>1.3.1</fileUpLoad.version>
+        <zxing.version>3.2.1</zxing.version>
+        <fastjson.version>1.2.31</fastjson.version>
+        <rsa.version>1.45</rsa.version>
+        <commons-io.version>2.2</commons-io.version>
+        <alipay.version>1.0</alipay.version>
+        <druid.version>1.1.10</druid.version>
+        <poi.verison>3.14</poi.verison>
+        <guava.verison>20.0</guava.verison>
+        <httpclient.version>4.5.1</httpclient.version>
         <swagger2.version>2.4.0</swagger2.version>
+        <mybatis-boot-start.version>1.3.1</mybatis-boot-start.version>
+        <pagehelper-boot-start.version>1.2.3</pagehelper-boot-start.version>
+        <mybatis-generator-maven-plugin.vsrsion>1.3.7</mybatis-generator-maven-plugin.vsrsion>
+        <xxl-job.version>2.1.0-SNAPSHOT</xxl-job.version>
     </properties>
     <dependencies>
         <!-- 子模块需要用到web依赖下的相关注解 -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-        </dependency>
-        <!-- shiro -->
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-spring</artifactId>
-            <version>1.4.0</version>
         </dependency>
         <!-- 支持注解@ConfigurationProperties 需要get/set方法-->
         <dependency>
@@ -113,6 +116,17 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.verison}</version>
+        </dependency>
+        <!-- xxl-job -->
+        <dependency>
+            <groupId>com.xuxueli</groupId>
+            <artifactId>xxl-job-core</artifactId>
+            <version>${xxl-job.version}</version>
         </dependency>
     </dependencies>
     <build>

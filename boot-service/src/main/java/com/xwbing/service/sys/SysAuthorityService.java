@@ -4,33 +4,36 @@ import com.xwbing.constant.CommonConstant;
 import com.xwbing.domain.entity.sys.SysAuthority;
 import com.xwbing.domain.entity.sys.SysRoleAuthority;
 import com.xwbing.domain.entity.vo.SysAuthVo;
+import com.xwbing.domain.mapper.sys.SysAuthorityMapper;
 import com.xwbing.exception.BusinessException;
-import com.xwbing.domain.repository.sys.SysAuthorityRepository;
-import com.xwbing.util.PassWordUtil;
+import com.xwbing.service.BaseService;
+import com.xwbing.util.Pagination;
 import com.xwbing.util.RestMessage;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 项目名称: boot-module-demo
  * 创建时间: 2017/11/14 13:20
  * 作者: xiangwb
  * 说明: 权限服务层
  */
 @Service
-public class SysAuthorityService {
+public class SysAuthorityService extends BaseService<SysAuthorityMapper, SysAuthority> {
     @Resource
-    private SysAuthorityRepository sysAuthorityRepository;
+    private SysAuthorityMapper authorityMapper;
     @Resource
-    private SysRoleAuthorityService sysRoleAuthorityService;
+    private SysRoleAuthorityService roleAuthorityService;
+
+    @Override
+    protected SysAuthorityMapper getMapper() {
+        return authorityMapper;
+    }
 
     /**
      * 保存权限
@@ -39,15 +42,14 @@ public class SysAuthorityService {
      * @return
      */
     public RestMessage save(SysAuthority sysAuthority) {
-        RestMessage result = new RestMessage();
         //检查编码
-        boolean b = uniqueCode(sysAuthority.getCode(), null);
+        boolean b = uniqueCode(sysAuthority.getCode());
         if (!b) {
             throw new BusinessException("该编码已存在");
         }
         //排序处理
         if (sysAuthority.getSort() == null) {
-            int sort = getSort() + 1;
+            int sort = authorityMapper.getMaxSort() + 1;
             sysAuthority.setSort(sort);
         } else {
             boolean sorted = uniqueSort(sysAuthority.getSort(), null);
@@ -55,23 +57,10 @@ public class SysAuthorityService {
                 throw new BusinessException("该排序编号已存在");
             }
         }
-        //添加必要参数
-        String id = PassWordUtil.createId();
-        sysAuthority.setId(id);
-        sysAuthority.setCreateTime(new Date());
         if (StringUtils.isEmpty(sysAuthority.getParentId())) {
             sysAuthority.setParentId(CommonConstant.ROOT);
         }
-        //保存
-        SysAuthority save = sysAuthorityRepository.save(sysAuthority);
-        if (save != null) {
-            result.setSuccess(true);
-            result.setId(id);
-            result.setMessage("保存权限成功");
-        } else {
-            result.setMessage("保存权限失败");
-        }
-        return result;
+        return super.save(sysAuthority);
     }
 
     /**
@@ -80,22 +69,21 @@ public class SysAuthorityService {
      * @param id
      * @return
      */
+    @Transactional
     public RestMessage removeById(String id) {
-        RestMessage result = new RestMessage();
         //判断该权限是否存在
         SysAuthority one = getById(id);
         if (one == null) {
             throw new BusinessException("该权限不存在");
         }
         //删除自身
-        sysAuthorityRepository.delete(id);
+        RestMessage result = super.removeById(id);
         //如果有子节点,递归删除子节点
         List<SysAuthority> list = listChildrenForRemove(id);
         if (CollectionUtils.isNotEmpty(list)) {
-            sysAuthorityRepository.deleteInBatch(list);
+            List<String> ids = list.stream().map(SysAuthority::getId).collect(Collectors.toList());
+            super.removeByIds(ids);
         }
-        result.setMessage("删除成功");
-        result.setSuccess(true);
         return result;
     }
 
@@ -106,10 +94,9 @@ public class SysAuthorityService {
      * @return
      */
     public RestMessage update(SysAuthority sysAuthority) {
-        RestMessage result = new RestMessage();
         String id = sysAuthority.getId();
         //判断该权限是否存在
-        SysAuthority old = getById(id);
+        SysAuthority old = super.getById(id);
         if (old == null) {
             throw new BusinessException("该权限不存在");
         }
@@ -125,25 +112,7 @@ public class SysAuthorityService {
         old.setUrl(sysAuthority.getUrl());
 //        old.setCode(sysAuthority.getCode());编码不能修改
         old.setType(sysAuthority.getType());
-        SysAuthority save = sysAuthorityRepository.save(old);
-        if (save != null) {
-            result.setSuccess(true);
-            result.setId(id);
-            result.setMessage("修改权限成功");
-        } else {
-            result.setMessage("修改权限失败");
-        }
-        return result;
-    }
-
-    /**
-     * 根据主键查找
-     *
-     * @param id
-     * @return
-     */
-    public SysAuthority getById(String id) {
-        return sysAuthorityRepository.findOne(id);
+        return super.update(old);
     }
 
     /**
@@ -153,11 +122,25 @@ public class SysAuthorityService {
      * @return
      */
     public List<SysAuthority> listByEnable(String enable) {
+        Map<String, Object> map = new HashMap<>();
         if (StringUtils.isNotEmpty(enable)) {
-            return sysAuthorityRepository.getByEnableOrderBySort(enable);
-        } else {
-            return sysAuthorityRepository.findAll(new Sort(Sort.Direction.ASC, "sort"));
+            map.put("enable", enable);
         }
+        return super.listByParam(map);
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param enable
+     * @return
+     */
+    public Pagination pageByEnable(String enable, Pagination page) {
+        Map<String, Object> map = new HashMap<>();
+        if (StringUtils.isNotEmpty(enable)) {
+            map.put("enable", enable);
+        }
+        return super.page(page, map);
     }
 
     /**
@@ -168,11 +151,12 @@ public class SysAuthorityService {
      * @return
      */
     public List<SysAuthority> listByParentEnable(String parentId, String enable) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("parentId", parentId);
         if (StringUtils.isNotEmpty(enable)) {
-            return sysAuthorityRepository.getByParentIdAndEnableOrderBySort(parentId, enable);
-        } else {
-            return sysAuthorityRepository.getByParentIdOrderBySort(parentId);
+            map.put("enable", enable);
         }
+        return super.listByParam(map);
     }
 
     /**
@@ -185,18 +169,19 @@ public class SysAuthorityService {
     public List<SysAuthority> listByRoleIdEnable(String roleId, String enable) {
         List<SysAuthority> list = new ArrayList<>();
         // 从角色权限表中获取所有该角色id的权限
-        List<SysRoleAuthority> roleAuthorities = sysRoleAuthorityService.listByRoleId(roleId);
+        List<SysRoleAuthority> roleAuthorities = roleAuthorityService.listByRoleId(roleId);
         if (CollectionUtils.isEmpty(roleAuthorities)) {
             return list;
         }
         //根据权限id获取对应权限列表
         List<String> authorityIds = roleAuthorities.stream().map(SysRoleAuthority::getAuthorityId).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(authorityIds)) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("authorityIds", authorityIds);
             if (StringUtils.isNotEmpty(enable)) {
-                list = sysAuthorityRepository.getByEnableAndIdInOrderBySort(enable, authorityIds);
-            } else {
-                list = sysAuthorityRepository.getByIdInOrderBySort(authorityIds);
+                map.put("enable", enable);
             }
+            list = super.listByParam(map);
         }
         return list;
     }
@@ -213,8 +198,7 @@ public class SysAuthorityService {
         List<SysAuthority> sysAuthorities = disableChildren(parentId);
         //批量修改权限
         if (CollectionUtils.isNotEmpty(sysAuthorities)) {
-            List<SysAuthority> save = sysAuthorityRepository.save(sysAuthorities);
-            return CollectionUtils.isNotEmpty(save);
+            return super.updateBatch(sysAuthorities).isSuccess();
         }
         return false;
     }
@@ -227,38 +211,23 @@ public class SysAuthorityService {
      * @return
      */
     public List<SysAuthVo> listChildren(String parentId, String enable) {
-        List<SysAuthVo> list = new ArrayList<>();
-        List<SysAuthority> authoritys;
+        Map<String, Object> map = new HashMap<>();
+        map.put("parentId", parentId);
         if (StringUtils.isNotEmpty(enable)) {
-            authoritys = sysAuthorityRepository.getByParentIdAndEnableOrderBySort(parentId, enable);
-        } else {
-            authoritys = sysAuthorityRepository.getByParentIdOrderBySort(parentId);
+            map.put("enable", enable);
         }
-        if (CollectionUtils.isEmpty(authoritys)) {
-            return list;
+        List<SysAuthority> authorities = super.listByParam(map);
+        if (CollectionUtils.isEmpty(authorities)) {
+            return Collections.EMPTY_LIST;
         }
         SysAuthVo vo;
-        for (SysAuthority authority : authoritys) {
+        List<SysAuthVo> list = new ArrayList<>();
+        for (SysAuthority authority : authorities) {
             vo = new SysAuthVo(authority);
             vo.setChildren(listChildren(vo.getId(), enable));
             list.add(vo);
         }
         return list;
-    }
-
-    /**
-     * 获取最大顺序
-     *
-     * @return
-     */
-    private int getSort() {
-        Sort sort = new Sort(Sort.Direction.DESC, "sort");
-        List<SysAuthority> all = sysAuthorityRepository.findAll(sort);
-        if (CollectionUtils.isNotEmpty(all)) {
-            return all.get(0).getSort();
-        } else {
-            return 0;
-        }
     }
 
     /**
@@ -269,16 +238,15 @@ public class SysAuthorityService {
      */
     private List<SysAuthority> disableChildren(String parentId) {
         //根据状态查询所有子节点
-        List<SysAuthority> sysAuthoritys = listByParentEnable(parentId, CommonConstant.IS_ENABLE);
+        List<SysAuthority> authorities = listByParentEnable(parentId, CommonConstant.IS_ENABLE);
         //遍历子集
         List<SysAuthority> list = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(sysAuthoritys)) {
-            for (SysAuthority sysAuthority : sysAuthoritys) {
+        if (CollectionUtils.isNotEmpty(authorities)) {
+            authorities.forEach(sysAuthority -> {
                 sysAuthority.setEnable(CommonConstant.IS_NOT_ENABLE);
-                sysAuthority.setModifiedTime(new Date());
                 list.add(sysAuthority);
                 list.addAll(disableChildren(sysAuthority.getId()));
-            }
+            });
         }
         return list;
     }
@@ -291,14 +259,14 @@ public class SysAuthorityService {
      */
     private List<SysAuthority> listChildrenForRemove(String parentId) {
         //根据状态查询所有子节点
-        List<SysAuthority> sysAuthoritys = listByParentEnable(parentId, null);
+        List<SysAuthority> authorities = listByParentEnable(parentId, null);
         //遍历子集
         List<SysAuthority> list = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(sysAuthoritys)) {
-            for (SysAuthority sysAuthority : sysAuthoritys) {
+        if (CollectionUtils.isNotEmpty(authorities)) {
+            authorities.forEach(sysAuthority -> {
                 list.add(sysAuthority);
                 list.addAll(listChildrenForRemove(sysAuthority.getId()));
-            }
+            });
         }
         return list;
     }
@@ -307,19 +275,20 @@ public class SysAuthorityService {
      * 检查code是否唯一 true唯一
      *
      * @param code
-     * @param id
      * @return
      */
-    private boolean uniqueCode(String code, String id) {
+    private boolean uniqueCode(String code) {
         if (StringUtils.isEmpty(code)) {
             throw new BusinessException("code不能为空");
         }
-        SysAuthority one = sysAuthorityRepository.getByCode(code);
-        return one == null || StringUtils.isNotEmpty(id) && id.equals(one.getId());
+        Map<String, Object> map = new HashMap<>();
+        map.put("code", code);
+        List<SysAuthority> authorities = super.listByParam(map);
+        return authorities.size() == 0;
     }
 
     /**
-     * 检查排序是否存在
+     * 检查排序是否存在 true不存在
      *
      * @param sort
      * @param id
@@ -329,7 +298,12 @@ public class SysAuthorityService {
         if (sort == null) {
             throw new BusinessException("sort不能为空");
         }
-        SysAuthority one = sysAuthorityRepository.getBySort(sort);
-        return one == null || StringUtils.isNotEmpty(id) && id.equals(one.getId());
+        Map<String, Object> map = new HashMap<>();
+        map.put("sort", sort);
+        if (StringUtils.isNotEmpty(id)) {
+            map.put("id", id);
+        }
+        List<SysAuthority> authorities = super.listByParam(map);
+        return authorities.size() == 0;
     }
 }

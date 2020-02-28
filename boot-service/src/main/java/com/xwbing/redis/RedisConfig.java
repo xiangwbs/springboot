@@ -1,5 +1,6 @@
 package com.xwbing.redis;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +10,6 @@ import redis.clients.jedis.JedisPoolConfig;
 
 /**
  * 说明: redisConfig
- * 项目名称: boot-module-demo
  * 创建时间: 2017/5/5 16:44
  * 作者:  xiangwb
  */
@@ -28,6 +28,8 @@ public class RedisConfig {
     private Integer port;
     @Value("${timeout}")
     private Integer timeOut;
+    @Value("${password}")
+    private String password;
 
     @Bean
     public JedisPoolConfig jedisPoolConfig() {
@@ -41,6 +43,9 @@ public class RedisConfig {
     @Bean
     public JedisPool jedisPool() {
         JedisPoolConfig config = jedisPoolConfig();
-        return new JedisPool(config, host, port, timeOut);
+        if (StringUtils.isEmpty(password)) {
+            password = null;
+        }
+        return new JedisPool(config, host, port, timeOut, password);
     }
 }

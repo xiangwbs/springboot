@@ -1,6 +1,6 @@
 package com.xwbing.domain.entity.sys;
 
-import io.swagger.annotations.ApiModel;
+import com.xwbing.domain.entity.BaseEntity;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,28 +8,22 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 
 /**
  * 说明: 用户
- * 项目名称: boot-module-demo
  * 创建时间: 2017/5/10 16:36
  * 作者:  xiangwb
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Entity(name = "sys_user_info")
-@ApiModel
 public class SysUser extends BaseEntity {
     private static final long serialVersionUID = -2447528751353457021L;
     public static String table = "sys_user_info";
     @NotBlank(message = "用户名不能为空")
     @Length(min = 1, max = 20, message = "用户名长度为1-20")
     @ApiModelProperty(value = "用户名", required = true)
-    @Column(name = "user_name")
     private String userName;
     @NotBlank(message = "姓名不能为空")
     @Length(min = 1, max = 20, message = "姓名长度为1-5")
@@ -48,11 +42,10 @@ public class SysUser extends BaseEntity {
     @ApiModelProperty(value = "密码", hidden = true)
     private String password;
     @ApiModelProperty(value = "是否为管理员", hidden = true)
-    @Column(name = "is_admin")
     private String isAdmin;
     //临时字段
     @ApiModelProperty(hidden = true)
-    private transient String create;
+    private transient String created;
     @ApiModelProperty(hidden = true)
     private transient String modified;
     @ApiModelProperty(hidden = true)

@@ -1,8 +1,9 @@
 package com.xwbing.util;
 
 /**
- * 作者: xiangwb
- * 说明: 线程变量工具类
+ * 线程变量工具类
+ *
+ * @author xiangwb
  */
 public class ThreadLocalUtil {
     private static ThreadLocal<String> token = new ThreadLocal<>();
@@ -11,7 +12,7 @@ public class ThreadLocalUtil {
     }
 
     public static String getToken() {
-        return (String)token.get();
+        return token.get();
     }
 
     public static void setToken(String tokenVal) {

@@ -1,12 +1,15 @@
 package com.xwbing.util;
 
+import com.xwbing.exception.UtilException;
 import org.apache.commons.lang3.StringUtils;
 
+import java.security.SecureRandom;
 import java.util.UUID;
 
 /**
- * 说明:密码工具类
- * 作者: xiangwb
+ * 密码工具类
+ *
+ * @author xiangwb
  */
 public class PassWordUtil {
     /**
@@ -21,13 +24,14 @@ public class PassWordUtil {
      * hash
      */
     public static int HASH_INTERATIONS = 1024;
+    private static SecureRandom random = new SecureRandom();
 
     public static void main(String[] args) {
         getUserSecret("123456", "123456");
     }
 
     /**
-     * 传入未加密密码，如果为空，随机生成, 传入盐值, 如果为空，随机生成。 返回密码，盐值，和加密后的密码
+     * 传入未加密密码，如果为空，随机生成。传入盐值, 如果为空，随机生成。返回密码，盐值，和加密后的密码
      *
      * @param password
      * @return
@@ -41,16 +45,15 @@ public class PassWordUtil {
         byte[] salt;
         // 密码盐值 如果是为空，那么随机获取；不为空，解析pwdSalt
         if (StringUtils.isEmpty(pwdSalt)) {
-            salt = Digests.generateSalt(SALT_SIZE);
+            salt = generateSalt(SALT_SIZE);
         } else {
-            salt = EncodeUtils.hexDecode(pwdSalt);
+            salt = EncodeUtil.hexDecode(pwdSalt);
         }
         // 密码加密
-        byte[] hashPassword = Digests.sha1(password.getBytes(), salt,
-                HASH_INTERATIONS);
+        byte[] hashPassword = DigestsUtil.sha1(password.getBytes(), salt, HASH_INTERATIONS);
         str[0] = password;
-        str[1] = EncodeUtils.hexEncode(salt);
-        str[2] = EncodeUtils.hexEncode(hashPassword);
+        str[1] = EncodeUtil.hexEncode(salt);
+        str[2] = EncodeUtil.hexEncode(hashPassword);
         return str;
     }
 
@@ -62,5 +65,19 @@ public class PassWordUtil {
     public static String createId() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString().replace("-", "");
+    }
+
+    /**
+     * 生成随机的Byte[]作为salt.
+     *
+     * @param numBytes byte数组的大小
+     */
+    public static byte[] generateSalt(int numBytes) {
+        if (numBytes <= 0) {
+            throw new UtilException("numBytes argument must be a positive integer (1 or larger)");
+        }
+        byte[] bytes = new byte[numBytes];
+        random.nextBytes(bytes);
+        return bytes;
     }
 }

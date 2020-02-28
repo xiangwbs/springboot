@@ -1,0 +1,91 @@
+#server
+server:
+  port: 8080
+  session:
+    timeout: 3600 #秒
+  context-path: /
+
+#spring
+spring:
+#  datasource:
+#    driver-class-name: com.mysql.jdbc.Driver
+#    url: jdbc:mysql://127.0.0.1:3306/springboot2?useUnicode=true&characterEncoding=utf8
+#    username: root
+#    password: xwbing
+  #jpa
+  jpa:
+    database: mysql
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate :
+        naming-strategy : org.hibernate.cfg.ImprovedNamingStrategy
+        dialect : org.hibernate.dialect.MySQL5Dialect
+  #aop
+  aop:
+    auto: true # Add @EnableAspectJAutoProxy
+    proxy-target-class: false
+  #mail
+  mail:
+    host: smtp.163.com
+    username: xwb1ng@163.com
+    password: xwbing000111 #邮箱设置里获取的授权码
+    default-encoding: utf-8
+    properties:
+      mail:
+        smtp:
+          auth: true #授权
+          starttls:
+            enable: true
+            required: true
+  http:
+      #编码
+      encoding:
+        charset: UTF-8
+        enabled: true
+        force: true
+      #MultipartResolver
+      multipart:
+        enabled: false #关闭自带multipartResolver,否则commonsMultipartResolver解析会得不到数据
+  #消息队列
+  rabbitmq:
+     host: 127.0.0.1
+     port: 5672
+     username: guest
+     password: guest
+     virtual-host: /
+     connection-timeout: 60000 #毫秒
+     publisher-confirms: true #支持发布确认
+     publisher-returns: true #支持发布返回
+     cache:
+       channel:
+         size: 1
+
+#mybatis
+#mybatis:
+#  mapper-locations: #classpath:mapper/**/*.xml
+#  type-aliases-package: #com.xwbing.domain.entity
+#  config-location: # classpath:mybatisConfig.xml
+
+#xxl-job
+xxl:
+  job:
+    admin:
+      #admin address list, such as "http://address" or "http://address01,http://address02"
+      addresses: http://127.0.0.1:7777/xxl-job-admin
+  #xxl-job executor address
+    executor:
+      appname: boot-web
+      ip:
+      port: 9990
+      logpath: logs/jobhandler
+      logretentiondays: -1
+    accessToken:
+
+pagehelper:
+  helper-dialect: mysql
+#log
+logging:
+  config: classpath:log4j2.xml
+

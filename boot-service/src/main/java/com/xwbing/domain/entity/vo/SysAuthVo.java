@@ -2,12 +2,11 @@ package com.xwbing.domain.entity.vo;
 
 import com.xwbing.domain.entity.sys.SysAuthority;
 import lombok.Data;
-import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 
 /**
- * 项目名称: boot-module-demo
  * 创建时间: 2017/11/14 15:43
  * 作者: xiangwb
  * 说明: 权限树信息
@@ -20,11 +19,7 @@ public class SysAuthVo extends SysAuthority {
     }
 
     public SysAuthVo(SysAuthority orig) {
-        try {
-            BeanUtils.copyProperties(this, orig);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        BeanUtils.copyProperties(orig, this);
     }
 
     private List<SysAuthVo> children;

@@ -62,7 +62,7 @@
     </Appenders>
     <Loggers>
         <!-- Root Logger -->
-        <root level="debug">
+        <root level="info">
             <appender-ref ref="Console"/>
             <appender-ref ref="info_appender"/>
             <appender-ref ref="error_appender"/>

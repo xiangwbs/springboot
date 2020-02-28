@@ -1,12 +1,9 @@
 package com.xwbing.service.sys;
 
 import com.xwbing.domain.entity.sys.SysConfig;
-import com.xwbing.domain.repository.sys.SysConfigRepository;
+import com.xwbing.domain.repository.SysConfigRepository;
 import com.xwbing.exception.BusinessException;
-import com.xwbing.util.PassWordUtil;
 import com.xwbing.util.RestMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -15,7 +12,6 @@ import java.util.List;
 
 /**
  * 说明: 系统配置服务层
- * 项目名称: boot-module-demo
  * 创建时间: 2017/5/5 16:44
  * 作者:  xiangwb
  */
@@ -23,7 +19,6 @@ import java.util.List;
 public class SysConfigService {
     @Resource
     private SysConfigRepository sysConfigRepository;
-    private static Logger logger = LoggerFactory.getLogger(SysConfigService.class);
 
     /**
      * 保存
@@ -32,7 +27,6 @@ public class SysConfigService {
      * @return
      */
     public RestMessage save(SysConfig sysConfig) {
-        logger.info("保存配置信息");
         RestMessage result = new RestMessage();
         if (sysConfig == null) {
             throw new BusinessException("配置数据不能为空");
@@ -42,7 +36,6 @@ public class SysConfigService {
         if (old != null) {
             throw new BusinessException(sysConfig.getCode() + "已存在");
         }
-        sysConfig.setId(PassWordUtil.createId());
         sysConfig.setCreateTime(new Date());
         SysConfig one = sysConfigRepository.save(sysConfig);
         if (one != null) {
@@ -61,7 +54,6 @@ public class SysConfigService {
      * @return
      */
     public RestMessage removeByCode(String code) {
-        logger.info("删除配置信息");
         RestMessage result = new RestMessage();
         SysConfig old = getByCode(code);
         if (old == null) {
@@ -71,6 +63,16 @@ public class SysConfigService {
         result.setSuccess(true);
         result.setMessage("删除配置成功");
         return result;
+    }
+
+    /**
+     * 根据code查找配置
+     *
+     * @param code
+     * @return
+     */
+    public SysConfig getByCode(String code) {
+        return sysConfigRepository.getByCode(code);
     }
 
     /**
@@ -97,16 +99,6 @@ public class SysConfigService {
             result.setMessage("更新失败");
         }
         return result;
-    }
-
-    /**
-     * 根据code查找配置
-     *
-     * @param code
-     * @return
-     */
-    public SysConfig getByCode(String code) {
-        return sysConfigRepository.getByCode(code);
     }
 
     /**

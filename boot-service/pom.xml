@@ -3,26 +3,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>boot-module-demo</artifactId>
+        <artifactId>boot-module-pro</artifactId>
         <groupId>com.xwbing</groupId>
         <version>1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>boot-service</artifactId>
-    <repositories>
-        <repository>
-            <id>nexus</id>
-            <name>aliyun nexus</name>
-            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>nexus</id>
-            <name>aliyun nexus</name>
-            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
-        </pluginRepository>
-    </pluginRepositories>
     <dependencies>
         <!-- mail -->
         <dependency>
@@ -30,7 +16,17 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
         <!-- 数据库 -->
-        <dependency>
+        <dependency><!-- druid -->
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>${druid.version}</version>
+        </dependency>
+        <dependency> <!-- mysql driver -->
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency> <!-- jpa -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <exclusions>
@@ -40,15 +36,22 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency> <!-- druid连接池 -->
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>${druid-version}</version>
+        <dependency> <!-- mybatis -->
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>${mybatis-boot-start.version}</version>
         </dependency>
-        <dependency> <!-- mysql driver -->
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>runtime</scope>
+        <dependency> <!-- 分页插件 -->
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>${pagehelper-boot-start.version}</version>
+        </dependency>
+        <dependency> <!-- web/test下测试用 -->
+            <groupId>org.mybatis.generator</groupId>
+            <artifactId>mybatis-generator-core</artifactId>
+            <version>1.3.7</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../boot-web/src/main/resources/data/mybatis-generator-core-1.3.7.jar</systemPath>
         </dependency>
         <!-- lombok:实体类自动生成getting和setting方法,以及equals,hashCode,toString等 -->
         <dependency>
@@ -86,24 +89,71 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>${poi.version}</version>
+            <version>${poi.verison}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>${poi.version}</version>
+            <version>${poi.verison}</version>
         </dependency>
         <!-- httpclient -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>${httpclient-version}</version>
+            <version>${httpclient.version}</version>
         </dependency>
-        <!-- servlet 有些类需要HttpServletResponse和HttpServletRequest的支持 -->
+        <!-- servlet 有些方法需要HttpServletResponse和HttpServletRequest的支持 -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- dom -->
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom2</artifactId>
+        </dependency>
+        <!-- aliPay -->
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay</artifactId>
+            <version>${alipay.version}</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/../boot-web/src/main/resources/data/alipay-1.0.jar</systemPath>
+        </dependency>
+        <!-- 消息队列 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <!-- mybatis generator 自动生成代码插件 -->
+            <plugin>
+                <groupId>org.mybatis.generator</groupId>
+                <artifactId>mybatis-generator-maven-plugin</artifactId>
+                <version>${mybatis-generator-maven-plugin.vsrsion}</version>
+                <dependencies>
+                    <dependency> <!-- 自定义mybatis.generator.core -->
+                        <groupId>org.mybatis.generator</groupId>
+                        <artifactId>mybatis-generator-core</artifactId>
+                        <version>1.3.7</version>
+                        <scope>system</scope>
+                        <systemPath>${basedir}/../boot-web/src/main/resources/data/mybatis-generator-core-1.3.7.jar
+                        </systemPath>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configurationFile>${basedir}/src/main/resources/generatorConfig.xml</configurationFile>
+                    <overwrite>false</overwrite>
+                    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

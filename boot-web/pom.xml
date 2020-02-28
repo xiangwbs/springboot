@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>boot-module-demo</artifactId>
+        <artifactId>boot-module-pro</artifactId>
         <groupId>com.xwbing</groupId>
         <version>1.0</version>
     </parent>
@@ -19,25 +19,11 @@
             </roles>
         </developer>
     </developers>
-    <repositories>
-        <repository>
-            <id>nexus</id>
-            <name>aliyun nexus</name>
-            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>nexus</id>
-            <name>aliyun nexus</name>
-            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
-        </pluginRepository>
-    </pluginRepositories>
     <!-- maven打包上传私服地址。id要跟maven->settings->server->id匹配 -->
     <distributionManagement>
         <repository>
-            <id>nexus-drore-team-3rd</id>
-            <url>http://192.168.11.110:8081/nexus/content/repositories/thirdparty/</url>
+            <id>nexus-xwbing</id>
+            <url>http://127.0.0.1:8080/nexus/content/repositories/thirdparty/</url>
         </repository>
     </distributionManagement>
     <dependencies>
@@ -58,21 +44,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context-support</artifactId>
-        </dependency>
         <!-- test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- springBoot运行时需要tomcat支持。maven打war包部署到外部tomcat,去除tomcat -->
+        <!-- maven打war包部署到外部tomcat,去除tomcat -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-            <!--<scope>provided</scope>-->
+            <scope>provided</scope>
         </dependency>
         <!-- aop -->
         <dependency>
@@ -85,12 +67,6 @@
             <artifactId>commons-fileupload</artifactId>
             <version>${fileUpLoad.version}</version>
         </dependency>
-        <!-- shiro-redis-->
-        <dependency>
-            <groupId>org.crazycake</groupId>
-            <artifactId>shiro-redis</artifactId>
-            <version>2.4.2.1-RELEASE</version>
-        </dependency>
     </dependencies>
     <build>
         <finalName>boot-web</finalName>
@@ -102,6 +78,8 @@
                 <configuration>
                     <mainClass>com.xwbing.Application</mainClass>
                     <fork>true</fork>
+                    <!-- 本地jar打进jar -->
+                    <includeSystemScope>true</includeSystemScope>
                 </configuration>
             </plugin>
             <!-- war包命名为ROOT.war -->
@@ -112,6 +90,16 @@
                 <configuration>
                     <warName>ROOT</warName>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <!-- 本地jar打进war -->
+                    <webResources>
+                        <resource>
+                            <directory>${basedir}/src/main/resources/data</directory>
+                            <targetPath>WEB-INF/lib/</targetPath>
+                            <includes>
+                                <include>alipay-1.0.jar</include>
+                            </includes>
+                        </resource>
+                    </webResources>
                 </configuration>
             </plugin>
             <!-- 私服上传源码 -->

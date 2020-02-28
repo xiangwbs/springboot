@@ -8,7 +8,6 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 项目名称: boot-module-demo
  * 创建时间: 2018/2/26 15:29
  * 作者: xiangwb
  * 说明:

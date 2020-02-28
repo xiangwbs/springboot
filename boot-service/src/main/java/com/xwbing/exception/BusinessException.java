@@ -2,7 +2,6 @@ package com.xwbing.exception;
 
 /**
  * 说明:  自定义业务异常
- * 项目名称: boot-module-demo
  * 创建时间: 2017/5/10 16:36
  * 作者:  xiangwb
  */

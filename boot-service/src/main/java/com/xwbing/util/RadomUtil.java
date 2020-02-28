@@ -5,8 +5,9 @@ import com.xwbing.exception.UtilException;
 import java.util.Random;
 
 /**
- * 说明:生成随机码
- * 作者: xiangwb
+ * 生成随机码
+ *
+ * @author xiangwb
  */
 public class RadomUtil {
     public static String buildRandom(int length) {
