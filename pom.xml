@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.xwbing</groupId>
+    <artifactId>boot-module-pro</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0</version>
+    <name>boot</name>
+    <modules>
+        <module>boot-config</module>
+        <module>boot-service</module>
+        <module>boot-web</module>
+    </modules>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.7.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <!-- 建议在settings.xml->mirror配镜像 settings.xml->profile配公司私服地址-->
+    <!--
+    <repositories>
+        <repository>
+            <id>nexus</id>
+            <name>aliyun nexus</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>nexus</id>
+            <name>aliyun nexus</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+        </pluginRepository>
+    </pluginRepositories>
+    -->
+    <!-- maven打包上传私服地址。id要跟maven->settings->server->id匹配 -->
+    <distributionManagement>
+        <repository>
+            <id>private-release</id>
+            <name>private-release</name>
+            <url>https://maven.jimistore.com/nexus/content/repositories/jimi-private-release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>private-snapshot</id>
+            <name>private-snapshot</name>
+            <url>https://maven.jimistore.com/nexus/content/repositories/jimi-private-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <!-- 打包跳过单元测试 -->
+        <skipTests>true</skipTests>
+        <fileUpLoad.version>1.3.1</fileUpLoad.version>
+        <zxing.version>3.2.1</zxing.version>
+        <fastjson.version>1.2.31</fastjson.version>
+        <rsa.version>1.45</rsa.version>
+        <commons-io.version>2.2</commons-io.version>
+        <alipay.version>1.0</alipay.version>
+        <druid.version>1.1.10</druid.version>
+        <poi.verison>3.14</poi.verison>
+        <guava.verison>20.0</guava.verison>
+        <httpclient.version>4.5.1</httpclient.version>
+        <swagger2.version>2.4.0</swagger2.version>
+        <mybatis-boot-start.version>1.3.1</mybatis-boot-start.version>
+        <pagehelper-boot-start.version>1.2.3</pagehelper-boot-start.version>
+        <mybatis-generator-maven-plugin.vsrsion>1.3.7</mybatis-generator-maven-plugin.vsrsion>
+        <mybatis-generator-core.version>1.3.7-cover</mybatis-generator-core.version>
+        <aliyun-log.version>0.6.6</aliyun-log.version>
+        <xxl-job.version>1.0</xxl-job.version>
+    </properties>
+
+    <dependencies>
+        <!-- 子模块需要用到web依赖下的相关注解 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <!-- @ConfigurationProperties annotation processing (metadata for IDE) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- log4j2 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <!-- swagger2 -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${swagger2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${swagger2.version}</version>
+        </dependency>
+        <!-- json -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <!-- commons -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.verison}</version>
+        </dependency>
+        <!-- lombok:实体类自动生成getting和setting方法,以及equals,hashCode,toString等 -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- maven指定jdk版本(可以在settings.xml->profile模块配) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <!-- true:跳过测试 -->
+                    <skip>${skipTests}</skip>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <!-- 生成文档包 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <aggregate>true</aggregate>
+                </configuration>
+            </plugin>
+            <!-- 生成sources源码包 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

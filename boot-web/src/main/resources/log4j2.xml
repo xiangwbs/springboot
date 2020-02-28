@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 优先级:OFF>FATAL>ERROR>WARN>INFO>DEBUG>TRACE>ALL -->
+<!--
+    输出日志的格式 :
+     %d{yyyy-MM-dd HH:mm:ss.SSS} : 日志生产时间
+     %p : 日志输出级别
+     %c : logger的名称
+     %m : 日志内容，即 logger.info("message")
+     %n : 换行符
+     %C : Java类名
+     %L : 日志输出所在行数
+     %M : 日志输出所在方法名
+     %message:日志消息
+     -5:从左显示5个字符宽度
+-->
+<!--
+    status : 这个用于设置log4j2自身内部的信息输出,可以不设置,当设置成trace时,会看到log4j2内部各种详细输出
+    monitorInterval : Log4j2能够自动检测修改配置文件和重新配置本身, 设置间隔秒数。
+-->
+<Configuration status="off" monitorInterval="600">
+    <Properties>
+        <!-- 属性,常量-->
+        <!-- 相对位置，项目路径下-->
+        <Property name="LOG_HOME">logs</Property>
+    </Properties>
+    <Appenders>
+        <!--输出控制台的配置-->
+        <Console name="console" target="SYSTEM_OUT">
+            <!-- 控制台只输出level及以上级别的信息(onMatch),其他的直接拒绝(onMismatch) -->
+            <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %L %-5p %class{36} %M -->%message%xEx%n</pattern>
+            </PatternLayout>
+        </Console>
+        <!-- 自动追加日志信息到文件中，直至文件达到预定的大小，然后自动重新生成另外一个文件来记录之后的日志-->
+        <!-- 设置日志格式并配置回滚日志压缩格式(error.log.年份.gz) -->
+        <RollingRandomAccessFile name="error_appender"
+                                 immediateFlush="false" fileName="${LOG_HOME}/boot-error.log"
+                                 filePattern="${LOG_HOME}/boot-error.%d{yyyy-MM-dd}.log.gz">
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %L %-5p %class{36} %M -->%message%xEx%n</pattern>
+            </PatternLayout>
+            <!-- 指定滚动日志的策略，就是什么时候进行新建日志文件输出日志.-->
+            <Policies>
+                <!-- interval属性用来指定多久滚动一次,单位对应filePattern里的日期格式 此处单位为天-->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingRandomAccessFile>
+        <!-- info.log-->
+        <RollingRandomAccessFile name="info_appender"
+                                 immediateFlush="false" fileName="${LOG_HOME}/boot-info.log"
+                                 filePattern="${LOG_HOME}/boot-info.%d{yyyy-MM-dd}.log.gz">
+            <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %L %-5p %class{36} %M -->%message%xEx%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="exception_appender"
+                                 immediateFlush="false" fileName="${LOG_HOME}/boot-exception.log"
+                                 filePattern="${LOG_HOME}/boot-exception.%d{yyyy-MM-dd}.log.gz">
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %L %-5p %class{36} %M -->%message%xEx%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingRandomAccessFile>
+    </Appenders>
+    <Loggers>
+        <!-- Root Logger -->
+        <root level="info">
+            <appender-ref ref="console"/>
+            <appender-ref ref="info_appender"/>
+            <appender-ref ref="error_appender"/>
+        </root>
+        <!-- 3rdParty Loggers -->
+        <logger name="org.springframework.remoting.support.RemoteInvocationTraceInterceptor" level="error"/>
+        <logger name="org.springframework.core" level="info"/>
+        <logger name="org.springframework.beans" level="info"/>
+        <logger name="org.springframework.context" level="info"/>
+        <logger name="org.springframework.web" level="info"/>
+        <!--  默认为root。匹配该name下的所有子类，由于这个logger也是满足root的,additivity为true，该logger和root都会打印。
+        additivity为false，匹配该logger的信息只会在该logger下打印，不会在root下打印 -->
+        <logger name="com.xwbing.handler.GlobalExceptionHandler" level="error" additivity="false">
+            <appender-ref ref="exception_appender"/>
+        </logger>
+    </Loggers>
+</Configuration>
