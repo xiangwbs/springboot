@@ -1,7 +1,8 @@
 package com.xwbing.util;
 
 import com.xwbing.exception.UtilException;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.*;
@@ -11,24 +12,22 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 /**
- * 基于java8的日期处理类
- *
- * @author xiangwb
+ * 作者: xiangwb
+ * 说明: 日期处理类
  */
-@Slf4j
 public class DateUtil2 {
-    public static final long SECOND = 1;
+    public static final long SECOND = 1000;
     public static final long MINUTE = SECOND * 60;
     public static final long HOUR = MINUTE * 60;
     public static final long DAY = HOUR * 24;
     public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
     public static final String YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
     public static final String YYYY_MM_DD = "yyyy-MM-dd";
-    public static final String YYYYMMDD = "yyyyMMdd";
     public static final String YYYY_MM = "yyyy-MM";
     public static final String YYYY = "yyyy";
     public static final String HH_MM_SS = "HH:mm:ss";
     public static final String HH_MM = "HH:mm";
+    private static final Logger logger = LoggerFactory.getLogger(DateUtil2.class);
     /*
      * ChronoUnit:各种时间单位 | TemporalAdjusters:时态对象 可以获取第一天,最后一天等
      * 获取时间分量:Duration要求是localDateTime/localTime类型 | Period要求是localDate类型
@@ -293,7 +292,7 @@ public class DateUtil2 {
      * 遍历获取两个日期之间天数集合
      *
      * @param startDate yyyy-MM-dd
-     * @param endDate   yyyy-MM-dd
+     * @param endDate yyyy-MM-dd
      * @return
      */
     public static List<String> listDate(String startDate, String endDate) {
@@ -398,11 +397,14 @@ public class DateUtil2 {
      * @param endDateTime   yyyy-MM-dd HH:mm:ss
      * @return
      */
-    public static Map<String, Integer> getDateTimePool(String startDateTime, String endDateTime) {
-        LocalDateTime sDateTime = LocalDateTime.parse(startDateTime, getDateFormat(YYYY_MM_DD_HH_MM_SS));
-        LocalDateTime eDateTime = LocalDateTime.parse(endDateTime, getDateFormat(YYYY_MM_DD_HH_MM_SS));
+    public static Map<String, Integer> getDateTimePool(String startDateTime,
+                                                       String endDateTime) {
+        LocalDateTime sDateTime = LocalDateTime.parse(startDateTime,
+                getDateFormat(YYYY_MM_DD_HH_MM_SS));
+        LocalDateTime eDateTime = LocalDateTime.parse(endDateTime,
+                getDateFormat(YYYY_MM_DD_HH_MM_SS));
         Duration duration = Duration.between(sDateTime, eDateTime);
-        long diff = duration.getSeconds();
+        long diff = duration.toMillis();
         long diffSeconds = diff / SECOND % 60;
         long diffMinutes = diff / MINUTE % 60;
         long diffHours = diff / HOUR % 24;
@@ -413,11 +415,6 @@ public class DateUtil2 {
         map.put("minutes", (int) diffMinutes);
         map.put("seconds", (int) diffSeconds);
         return map;
-    }
-
-    public static void main(String[] args) {
-        Map<String, Integer> dateTimePool = getDateTimePool("2018-11-11 00:00:00", "2018-11-11 01:30:00");
-        System.out.println(dateTimePool);
     }
 
     /**
@@ -449,6 +446,10 @@ public class DateUtil2 {
         return list;
     }
 
+    public static void main(String[] args) {
+        boolean b = compareDate("2017-10-10", "2017-10-11", "2017-10-11", "2017-10-12");
+        System.out.println(b);
+    }
     /**
      * 判断两者时间是否重合 重合返回true
      *

@@ -7,9 +7,8 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 封装对象结果的json结果
- *
- * @author xiangwb
+ * 说明: 封装对象结果的json结果
+ * 作者: xiangwb
  */
 @Data
 public class JsonResult {
@@ -32,8 +31,7 @@ public class JsonResult {
 
     /**
      * 查询返回值为Object
-     *
-     * @param o       Object/List
+     * @param o Object/List
      * @param message
      * @return
      */
@@ -43,13 +41,12 @@ public class JsonResult {
         if (StringUtils.isNotEmpty(message)) {
             jsonObjResult.setMessage(message);
         }
-        jsonObjResult.setData(ConvertUtil.beanToJson(o));
+        jsonObjResult.setData(JsonUtil.beanToMap(o));
         return JSON.parseObject(JSON.toJSONString(jsonObjResult, SerializerFeature.WriteMapNullValue));
     }
 
     /**
      * 增删改返回值为RestMessage
-     *
      * @param rest
      * @return
      */
@@ -57,13 +54,13 @@ public class JsonResult {
         JsonResult jsonObjResult = new JsonResult();
         jsonObjResult.setSuccess(rest.isSuccess());
         jsonObjResult.setMessage(rest.getMessage());
+        jsonObjResult.setData(JsonUtil.beanToMap(rest.getData()));
         jsonObjResult.setId(rest.getId());
         return JSON.parseObject(JSON.toJSONString(jsonObjResult, SerializerFeature.WriteMapNullValue));
     }
 
     /**
      * 直接返回错误提示
-     *
      * @param error
      * @return
      */

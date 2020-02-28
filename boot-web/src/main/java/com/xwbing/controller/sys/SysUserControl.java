@@ -1,40 +1,40 @@
 package com.xwbing.controller.sys;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.annotation.Idempotent;
-import com.xwbing.config.annotation.Lock;
 import com.xwbing.annotation.LogInfo;
 import com.xwbing.constant.CommonEnum;
-import com.xwbing.domain.entity.sys.SysAuthority;
-import com.xwbing.domain.entity.sys.SysRole;
-import com.xwbing.domain.entity.sys.SysUser;
-import com.xwbing.domain.entity.sys.SysUserRole;
+import com.xwbing.domain.entity.sys.*;
 import com.xwbing.domain.entity.vo.*;
-import com.xwbing.service.sys.SysAuthorityService;
-import com.xwbing.service.sys.SysRoleService;
-import com.xwbing.service.sys.SysUserRoleService;
-import com.xwbing.service.sys.SysUserService;
-import com.xwbing.util.*;
-import io.swagger.annotations.*;
+import com.xwbing.redis.RedisService;
+import com.xwbing.service.sys.*;
+import com.xwbing.shiro.UsernamePasswordCaptchaToken;
+import com.xwbing.util.IpUtil;
+import com.xwbing.util.JsonResult;
+import com.xwbing.util.RestMessage;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * 说明: 用户控制层
- * 项目名称: boot-module-pro
+ * 项目名称: boot-module-demo
  * 创建时间: 2017/5/10 16:36
  * 作者:  xiangwb
  */
-@Api(tags = "userApi", description = "用户相关接口")
+@Api(tags = "sysUserApi", description = "用户相关接口")
 @RestController
 @RequestMapping("/user/")
 public class SysUserControl {
@@ -46,11 +46,13 @@ public class SysUserControl {
     private SysRoleService sysRoleService;
     @Resource
     private SysAuthorityService sysAuthorityService;
+    @Resource
+    private RedisService redisService;
+    @Resource
+    private SysUserLoginInOutService loginInOutService;
 
-    @Idempotent
     @LogInfo("添加用户")
     @ApiOperation(value = "添加用户", response = RestMessageVo.class)
-    @ApiImplicitParam(name = "sign", value = "签名", paramType = "header", dataType = "string")
     @PostMapping("save")
     public JSONObject save(@RequestBody @Valid SysUser sysUser) {
         RestMessage result = sysUserService.save(sysUser);
@@ -59,8 +61,8 @@ public class SysUserControl {
 
     @LogInfo("删除用户")
     @ApiOperation(value = "删除用户", response = RestMessageVo.class)
-    @DeleteMapping("removeById/{id}")
-    public JSONObject removeById(@PathVariable String id) {
+    @GetMapping("removeById")
+    public JSONObject removeById(@RequestParam String id) {
         if (StringUtils.isEmpty(id)) {
             return JsonResult.toJSONObj("主键不能为空");
         }
@@ -68,10 +70,9 @@ public class SysUserControl {
         return JsonResult.toJSONObj(result);
     }
 
-    @Lock(value = "#p0.getId()", remark = "用户信息修改中，请稍后", timeout = 60)
     @LogInfo("修改用户信息")
     @ApiOperation(value = "修改用户信息", response = RestMessageVo.class)
-    @PutMapping("update")
+    @PostMapping("update")
     public JSONObject update(@RequestBody @Valid SysUser sysUser) {
         if (StringUtils.isEmpty(sysUser.getId())) {
             return JsonResult.toJSONObj("主键不能为空");
@@ -94,51 +95,82 @@ public class SysUserControl {
         return JsonResult.toJSONObj(sysUser, "");
     }
 
-    @LogInfo("查询所有用户")
-    @ApiOperation(value = "查询所有用户", response = PageSysUserVo.class)
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "currentPage", value = "当前页", defaultValue = "1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "pageSize", value = "每页显示的条数", defaultValue = "10", paramType = "query", dataType = "int")
-    })
-    @GetMapping("page")
-    public JSONObject page(@RequestParam(required = false) String name, @RequestParam(required = false) String sex, @ApiIgnore Pagination page) {
-        Pagination pagination = sysUserService.page(name, sex, page);
-        return JsonResult.toJSONObj(pagination, "");
+    @LogInfo("列表查询所有用户")
+    @ApiOperation(value = "列表查询所有用户", response = ListSysUserVo.class)
+    @GetMapping("listAll")
+    public JSONObject listAll() {
+        List<SysUser> list = sysUserService.listAll();
+        return JsonResult.toJSONObj(list, "");
     }
 
     @LogInfo("登录")
     @ApiOperation(value = "登录", response = RestMessageVo.class)
-    @PostMapping("login")
-    public JSONObject login(HttpServletRequest request, @RequestParam String userName, @RequestParam String passWord, @RequestParam String checkCode) {
+    @GetMapping("login")
+    public JSONObject login(HttpServletRequest request,@RequestParam boolean rememberMe, @RequestParam String userName, @RequestParam String passWord, @RequestParam String captcha) {
         if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(passWord)) {
             return JsonResult.toJSONObj("用户名或密码不能为空");
         }
-        if (StringUtils.isEmpty(checkCode)) {
-            return JsonResult.toJSONObj("请输入验证码");
+        Subject subject = SecurityUtils.getSubject();
+        String ip = IpUtil.getIpAddr(request);
+        UsernamePasswordCaptchaToken token = new UsernamePasswordCaptchaToken(userName, passWord.toCharArray(), rememberMe, ip, captcha);
+        subject.login(token);
+        if (subject.isAuthenticated()) {
+            //保存登录信息
+            SysUser user = (SysUser) subject.getPrincipal();
+            SysUserLoginInOut loginInOut = new SysUserLoginInOut();
+            loginInOut.setCreateTime(new Date());
+            loginInOut.setUserId(user.getId());
+            loginInOut.setInoutType(CommonEnum.LoginInOutEnum.IN.getValue());
+            loginInOut.setIp(ip);
+            RestMessage save = loginInOutService.save(loginInOut);
+            if (!save.isSuccess()) {
+                subject.logout();
+                return JsonResult.toJSONObj("保存用户登录日志失败");
+            }else {
+                return JsonResult.toJSONObj(new Object(), "登录成功");
+            }
+        }else {
+            return JsonResult.toJSONObj("你认证未通过,请重新登录");
         }
-        RestMessage login = sysUserService.login(request, userName, passWord, checkCode);
-        return JsonResult.toJSONObj(login);
     }
 
     @LogInfo("登出")
     @ApiOperation(value = "登出", response = RestMessageVo.class)
     @GetMapping("logout")
     public JSONObject logout(HttpServletRequest request) {
-        RestMessage logout = sysUserService.logout(request);
-        return JsonResult.toJSONObj(logout);
+        Subject subject = SecurityUtils.getSubject();
+        if (subject != null && subject.getPrincipal() != null) {
+            SysUser sysUser = (SysUser) subject.getPrincipal();
+            if (null != sysUser) {
+                SysUserLoginInOut loginInOut = new SysUserLoginInOut();
+                loginInOut.setCreateTime(new Date());
+                loginInOut.setUserId(sysUser.getId());
+                loginInOut.setInoutType(CommonEnum.LoginInOutEnum.OUT.getValue());
+                loginInOut.setIp(IpUtil.getIpAddr(request));
+                RestMessage out = loginInOutService.save(loginInOut);
+                if (out.isSuccess()) {
+                    subject.logout();
+                    return JsonResult.toJSONObj(new Object(), "登出成功");
+                }else {
+                    return JsonResult.toJSONObj("保存用户登出信息失败");
+                }
+            }
+        }
+        return JsonResult.toJSONObj("没有获取到用户登录信息");
     }
 
-    @LogInfo("修改密码")
-    @ApiOperation(value = "修改密码", response = RestMessageVo.class)
+    @LogInfo("当前用户修改密码")
+    @ApiOperation(value = "当前用户修改密码", response = RestMessageVo.class)
     @PostMapping("updatePassWord")
-    public JSONObject updatePassWord(@RequestParam String newPassWord, @RequestParam String oldPassWord, @RequestParam String id) {
-        if (StringUtils.isEmpty(id)) {
-            return JsonResult.toJSONObj("主键不能为空");
+    public JSONObject updatePassWord(@RequestParam String newPassWord, @RequestParam String oldPassWord) {
+        SysUser currentInfo = sysUserService.getCurrentInfo();
+        if(currentInfo==null){
+            return JsonResult.toJSONObj("没有获取到当前登录用户信息");
         }
         if (StringUtils.isEmpty(newPassWord) || StringUtils.isEmpty(oldPassWord)) {
             return JsonResult.toJSONObj("原密码或新密码不能为空");
         }
-        RestMessage restMessage = sysUserService.updatePassWord(newPassWord, oldPassWord, id);
+        RestMessage restMessage = sysUserService.updatePassWord(newPassWord, oldPassWord, currentInfo.getId());
         return JsonResult.toJSONObj(restMessage);
     }
 
@@ -157,28 +189,27 @@ public class SysUserControl {
     @ApiOperation(value = "获取当前登录用户信息")
     @GetMapping("getLoginUserInfo")
     public JSONObject getLoginUserInfo() {
-        String token = ThreadLocalUtil.getToken();
-        String userName = (String) CommonDataUtil.getData(token);
-        SysUser sysUser = sysUserService.getByUserName(userName);
+        SysUser sysUser = sysUserService.getCurrentInfo();
         if (sysUser == null) {
             return JsonResult.toJSONObj("未获取到当前登录用户信息");
         }
         List<SysAuthority> button = new ArrayList<>();
         List<SysAuthority> menu = new ArrayList<>();
         List<SysAuthority> list;
+        //如果是管理员，获取全部权限。否则查询所拥有的权限
         if (CommonEnum.YesOrNoEnum.YES.getCode().equalsIgnoreCase(sysUser.getIsAdmin())) {
             list = sysAuthorityService.listByEnable(CommonEnum.YesOrNoEnum.YES.getCode());
         } else {
             list = sysUserService.listAuthorityByIdAndEnable(sysUser.getId(), CommonEnum.YesOrNoEnum.YES.getCode());
         }
         if (CollectionUtils.isNotEmpty(list)) {
-            list.forEach(sysAuthority -> {
+            for (SysAuthority sysAuthority : list) {
                 if (sysAuthority.getType() == CommonEnum.MenuOrButtonEnum.MENU.getCode()) {
                     menu.add(sysAuthority);
                 } else {
                     button.add(sysAuthority);
                 }
-            });
+            }
         }
         sysUser.setMenus(menu);
         sysUser.setButtons(button);
@@ -202,7 +233,7 @@ public class SysUserControl {
         if (CommonEnum.YesOrNoEnum.YES.getCode().equalsIgnoreCase(old.getIsAdmin())) {
             return JsonResult.toJSONObj("不能对管理员进行操作");
         }
-        String[] ids = roleIds.split(",");
+        String ids[] = roleIds.split(",");
         List<SysUserRole> list = new ArrayList<>();
         SysUserRole userRole;
         for (String id : ids) {
@@ -217,8 +248,9 @@ public class SysUserControl {
 
     @LogInfo("根据用户主键查找所拥有的角色")
     @ApiOperation(value = "根据用户主键查找所拥有的角色", response = ListSysRoleVo.class)
-    @GetMapping("listRoleByUserId")
-    public JSONObject listRoleByUserId(@RequestParam String userId, @RequestParam(required = false) String enable) {
+    @ApiImplicitParam(name = "enable", value = "是否启用,格式Y|N", paramType = "query", dataType = "string")
+    @PostMapping("listRoleByUserId")
+    public JSONObject listRoleByUserId(@RequestParam String userId, String enable) {
         if (StringUtils.isEmpty(userId)) {
             return JsonResult.toJSONObj("用户主键不能为空");
         }
@@ -228,8 +260,9 @@ public class SysUserControl {
 
     @LogInfo("根据用户主键查找所拥有的权限")
     @ApiOperation(value = "根据用户主键查找所拥有的权限", response = ListSysAuthorityVo.class)
-    @GetMapping("listAuthorityByUserId")
-    public JSONObject listAuthorityByUserId(@RequestParam String userId, @RequestParam(required = false) String enable) {
+    @ApiImplicitParam(name = "enable", value = "是否启用,格式Y|N", paramType = "query", dataType = "string")
+    @PostMapping("listAuthorityByUserId")
+    public JSONObject listAuthorityByUserId(@RequestParam String userId, String enable) {
         if (StringUtils.isEmpty(userId)) {
             return JsonResult.toJSONObj("用户主键不能为空");
         }

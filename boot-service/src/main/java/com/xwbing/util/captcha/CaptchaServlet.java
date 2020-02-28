@@ -1,10 +1,10 @@
 package com.xwbing.util.captcha;
 
 import com.xwbing.constant.CommonConstant;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,14 +14,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * 创建验证码的servlet
- *
- * @author xiangwb
+ * 说明: 创建验证码的servlet
+ * 作者: xiangwb
  */
-@Slf4j
-@WebServlet(name = "captchaServlet", urlPatterns = {"/captcha"})
 public class CaptchaServlet extends HttpServlet {
     private static final long serialVersionUID = -8687266469702749102L;
+    private final Logger logger = LoggerFactory.getLogger(CaptchaServlet.class);
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse res) {
@@ -36,13 +34,13 @@ public class CaptchaServlet extends HttpServlet {
             StringBuffer code = new StringBuffer();
             BufferedImage image = tool.genRandomCodeImage(code);
             HttpSession session = req.getSession();
+            session.removeAttribute(CommonConstant.KEY_CAPTCHA);
             session.setAttribute(CommonConstant.KEY_CAPTCHA, code.toString());
-//            CommonDataUtil.setData(CommonConstant.KEY_CAPTCHA, code.toString());
             // 将内存中的图片通过流形式输出到客户端
             OutputStream out = res.getOutputStream();
             ImageIO.write(image, "JPEG", out);
         } catch (IOException e) {
-            log.error(e.getMessage());
+            logger.error(e.getMessage());
             throw new RuntimeException("获取验证码错误");
         }
     }

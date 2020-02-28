@@ -2,8 +2,9 @@ package com.xwbing.service.sys;
 
 import com.xwbing.constant.CommonConstant;
 import com.xwbing.domain.entity.sys.DataDictionary;
-import com.xwbing.domain.repository.DataDictionaryRepository;
+import com.xwbing.domain.repository.sys.DataDictionaryRepository;
 import com.xwbing.exception.BusinessException;
+import com.xwbing.util.PassWordUtil;
 import com.xwbing.util.RestMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * 项目名称: boot-module-demo
  * 创建时间: 2018/2/26 10:29
  * 作者: xiangwb
  * 说明: 数据字典服务层
@@ -30,13 +32,18 @@ public class DataDictionaryService {
         if (!b) {
             throw new BusinessException("该编码已存在");
         }
+        //添加必要参数
+        String id = PassWordUtil.createId();
+        dictionary.setId(id);
         dictionary.setCreateTime(new Date());
         if (StringUtils.isEmpty(dictionary.getParentId())) {
             dictionary.setParentId(CommonConstant.ROOT);
         }
+        //保存
         DataDictionary save = dataDictionaryRepository.save(dictionary);
         if (save != null) {
             result.setSuccess(true);
+            result.setId(id);
             result.setMessage("保存数据字典成功");
         } else {
             result.setMessage("保存数据字典失败");

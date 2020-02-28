@@ -1,13 +1,13 @@
 package com.xwbing.util;
 
 import com.xwbing.exception.UtilException;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,11 +22,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * excel导出工具类
- *
- * @author xiangwb
+ * 作者: xiangwb
+ * 说明: excel导出工具类
  */
-@Slf4j
 public class ExcelUtil {
     /**
      * Excel 2003
@@ -40,6 +38,7 @@ public class ExcelUtil {
      * 分隔符
      */
     public final static String SEPARATOR = ";";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExcelUtil.class);
 
     /**
      * 获取工作簿
@@ -117,10 +116,10 @@ public class ExcelUtil {
                 try {
                     getMethod = classOfT.getMethod(getMethodStr.toString());
                 } catch (NoSuchMethodException e1) {
-                    log.error(e1.getMessage());
+                    LOGGER.error(e1.getMessage());
                     continue;
                 } catch (SecurityException e1) {
-                    log.error(e1.getMessage());
+                    LOGGER.error(e1.getMessage());
                     continue;
                 }
                 // 执行get方法
@@ -129,7 +128,7 @@ public class ExcelUtil {
                     value = Objects.equals("null", value) ? null : value;
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                     // TODO Auto-generated catch block
-                    log.error(e.getMessage());
+                    LOGGER.error(e.getMessage());
                 }
                 temp[i] = value;
             }
@@ -207,7 +206,7 @@ public class ExcelUtil {
             }
             return resultList;
         } catch (IOException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("excel文件生成类失败");
         }
     }

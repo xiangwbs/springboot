@@ -8,12 +8,10 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.servlet.Filter;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 说明: 程序上下文配置
- * 项目名称: boot-module-pro
+ * 项目名称: boot-module-demo
  * 创建时间: 2017/5/10 16:36
  * 作者:  xiangwb
  */
@@ -40,35 +38,26 @@ public class ApplicationContextConfig {
      *
      * @return
      */
-    @Bean(name = "multipartResolver")
+    @Bean
     public CommonsMultipartResolver getCommonsMultipartResolver() {
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
-        multipartResolver.setMaxUploadSize(5 * 1024 * 1024);//5M
+        multipartResolver.setMaxUploadSize(104857600);
         multipartResolver.setDefaultEncoding("UTF-8");
         return multipartResolver;
     }
 
     /**
      * 任务线程池
-     * 无线程可用的处理策略：
-     * AbortPolicy(默认) 抛出RejectedExecutionException
-     * CallerRunsPolicy 调用者的线程会执行该任务，如果执行器已关闭，则丢弃
-     * DiscardPolicy 不能执行的任务将被丢弃
-     * DiscardOldestPolicy 如果执行任务尚未关闭，则位于工作队列头部的任务将被删除，然后重试执行程序（如果再次失败，则重复此过程）
      *
      * @return
      */
     @Bean(name = "taskExecutor")
     public ThreadPoolTaskExecutor getPoolTaskExecutor() {
         ThreadPoolTaskExecutor poolTaskExecutor = new ThreadPoolTaskExecutor();
-        poolTaskExecutor.setKeepAliveSeconds(10);//空闲线程的存活时间
         poolTaskExecutor.setCorePoolSize(5);//核心线程数
-        poolTaskExecutor.setQueueCapacity(200);//任务队列最大长度
         poolTaskExecutor.setMaxPoolSize(1000);//最大线程数
-        //拒绝任务的处理策略
-        RejectedExecutionHandler reject = new ThreadPoolExecutor.CallerRunsPolicy();
-        poolTaskExecutor.setRejectedExecutionHandler(reject);
+        poolTaskExecutor.setKeepAliveSeconds(30000);//空闲线程的存活时间
+        poolTaskExecutor.setQueueCapacity(200);//队列最大长度
         return poolTaskExecutor;
     }
 }
-

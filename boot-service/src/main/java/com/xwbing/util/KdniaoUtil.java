@@ -1,7 +1,8 @@
 package com.xwbing.util;
 
 import com.xwbing.exception.UtilException;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -11,13 +12,13 @@ import java.security.MessageDigest;
 import java.util.Map;
 
 /**
+ * 作者: xiangwb
  * 说明: 快递鸟工具类
  * 文档: http://www.kdniao.com/documents
- *
- * @author xiangwb
  */
-@Slf4j
 public class KdniaoUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(KdniaoUtil.class);
+
     /**
      * 向指定 URL 发送POST方法的请求
      *
@@ -69,7 +70,7 @@ public class KdniaoUtil {
                 result.append(line);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("快递鸟接口请求失败");
         }
         // 使用finally块来关闭输出流、输入流
@@ -97,7 +98,7 @@ public class KdniaoUtil {
         try {
             return URLEncoder.encode(str, charset);
         } catch (UnsupportedEncodingException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("urlEncoder失败");
         }
     }
@@ -118,7 +119,7 @@ public class KdniaoUtil {
             }
             return base64(MD5(content, charset), charset);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("快递鸟签名出错");
         }
     }
@@ -151,7 +152,7 @@ public class KdniaoUtil {
             }
             return sb.toString().toLowerCase();
         } catch (Exception e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("快递鸟加密出错");
         }
     }
@@ -166,7 +167,7 @@ public class KdniaoUtil {
         try {
             return base64Encode(str.getBytes(charset));
         } catch (UnsupportedEncodingException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("快递鸟编码出错");
         }
     }

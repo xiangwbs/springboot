@@ -5,12 +5,11 @@ import com.xwbing.exception.UtilException;
 import java.math.BigDecimal;
 
 /**
- * 数字工具类
- *
- * @author xiangwb
+ * 作者: xiangwb
+ * 说明: 数字工具类
  */
 public class DecimalUtil {
-    private static final int DEF_DIV_SCALE = 5;
+    private static final int DEF_DIV_SCALE = 10;
 
     /**
      * 两个Double数相加
@@ -88,7 +87,7 @@ public class DecimalUtil {
      * @param scale 小数位
      * @return
      */
-    public static Double format(Double v1, int scale) {
+    public static Double formate(Double v1, int scale) {
         BigDecimal bg = new BigDecimal(v1);
         return bg.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
@@ -118,12 +117,12 @@ public class DecimalUtil {
     }
 
     public static void main(String[] args) {
-        Double div = div((9.0), 8.0, 2);
+        Double div = div((double) 9, (double) 8, 2);
         System.out.println(div);
-        div = format(div, 1);
+        div = formate(div, 1);
         System.out.println(div);
-        Double format = format(6.2, 1);
-        System.out.println(format);
+        Double formate = formate(6.2, 1);
+        System.out.println(formate);
         Double d = 1.11;
         int i = d.intValue();
         System.out.println(i);

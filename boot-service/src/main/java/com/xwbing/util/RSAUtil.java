@@ -1,9 +1,10 @@
 package com.xwbing.util;
 
 import com.xwbing.exception.UtilException;
-import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.pkcs.RSAPrivateKeyStructure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
@@ -12,8 +13,6 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.*;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -24,10 +23,12 @@ import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 /**
- * @author xiangwb
+ * 作者: xiangwb
+ * 说明: RSAUtil
  */
-@Slf4j
 public class RSAUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RSAUtil.class);
+
     /**
      * 从文件中加载公钥 测试的时候使用
      *
@@ -51,7 +52,7 @@ public class RSAUtil {
             br.close();
             return loadPublicKey(sb.toString());
         } catch (IOException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("公钥数据流读取错误");
         }
     }
@@ -60,6 +61,7 @@ public class RSAUtil {
      * 从字符串中加载公钥
      *
      * @param publicKeyStr 公钥数据字符串
+     * @throws Exception 加载公钥时产生的异常
      */
     public static RSAPublicKey loadPublicKey(String publicKeyStr) {
         try {
@@ -69,13 +71,13 @@ public class RSAUtil {
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(buffer);
             return (RSAPublicKey) keyFactory.generatePublic(keySpec);
         } catch (NoSuchAlgorithmException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("无此算法");
         } catch (InvalidKeySpecException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("公钥非法");
         } catch (IOException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("公钥数据内容读取错误");
         }
     }
@@ -108,10 +110,11 @@ public class RSAUtil {
     }
 
     /**
-     * 从字符串中加载私钥
+     * 功能描述： 从字符串中加载私钥
      *
      * @param privateKeyStr
      * @return
+     * @throws Exception
      */
     public static RSAPrivateKey loadPrivateKey(String privateKeyStr) {
         try {
@@ -127,33 +130,23 @@ public class RSAUtil {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return (RSAPrivateKey) keyFactory.generatePrivate(rsaPrivKeySpec);
         } catch (NoSuchAlgorithmException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("无此算法");
         } catch (InvalidKeySpecException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("私钥非法");
         } catch (IOException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("私钥数据内容读取错误");
         }
-    }
-
-    /***
-     * 默认加密方式
-     *
-     * @param data 明文数据
-     * @return 密文
-     */
-    public static String encrypt(String data) {
-        return encrypt(loadPublicKey(), data);
     }
 
     /**
      * 加密过程
      *
-     * @param publicKey 公钥
-     * @param data      明文数据
-     * @return 密文
+     * @param publicKey 公钥 明文数据
+     * @return
+     * @throws Exception 加密过程中的异常信息
      */
     public static String encrypt(RSAPublicKey publicKey, String data) {
         if (publicKey == null) {
@@ -168,36 +161,36 @@ public class RSAUtil {
             BASE64Encoder base64Encoder = new BASE64Encoder();
             return base64Encoder.encode(output);// Base64编码成字符串
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("无此加密算法");
         } catch (InvalidKeyException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("加密公钥非法,请检查");
         } catch (IllegalBlockSizeException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("明文长度非法");
         } catch (BadPaddingException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("明文数据已损坏");
         }
     }
 
-    /**
-     * 默认解密方式
+    /***
+     * 默认加密方式
      *
-     * @param data 密文
-     * @return 明文
+     * @param data
+     * @return
      */
-    public static String decrypt(String data) {
-        return decrypt(loadPrivateKey(), data);
+    public static String encrypt(String data) {
+        return encrypt(loadPublicKey(), data);
     }
 
     /**
      * 解密过程
      *
-     * @param privateKey 私钥
-     * @param data       密文数据
+     * @param privateKey 私钥 密文数据
      * @return 明文
+     * @throws Exception 解密过程中的异常信息
      */
     public static String decrypt(RSAPrivateKey privateKey, String data) {
         if (privateKey == null) {
@@ -212,41 +205,48 @@ public class RSAUtil {
             byte[] output = cipher.doFinal(cipherData);
             return new String(output);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("无此解密算法");
         } catch (InvalidKeyException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("解密私钥非法,请检查");
         } catch (IllegalBlockSizeException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("密文长度非法");
         } catch (BadPaddingException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("密文数据已损坏");
         } catch (IOException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("解密数据读取失败");
         }
     }
 
-    //////////////////////////////////////////测试/////////////////////////////////////
-    public static void main(String[] args) throws Exception {
+    /**
+     * 功能描述： 默认解密方式
+     *
+     * @param data
+     * @return
+     */
+    public static String decrypt(String data) {
+        return decrypt(loadPrivateKey(), data);
+    }
+
+    public static void main(String[] args) {
         String en = testJiami();// 密文
         String de = testJiemi(en);// 明文
         System.out.println(de);
     }
 
-    private static String testJiami() throws Exception {
-        String plainText = encrypt(loadPublicKey(), "123456");//加密后的密文有换行
+    private static String testJiami() {
+        String plainText = encrypt(loadPublicKey(), "123456");
         System.out.println("加密结果:" + plainText);
-        System.out.println("加密结果encode:" + URLEncoder.encode(plainText, "utf-8"));
         return plainText;
     }
 
-    private static String testJiemi(String str) throws Exception {
+    private static String testJiemi(String str) {
         String plainText = decrypt(loadPrivateKey(), str);
         System.out.println("解密结果:" + plainText);
-        System.out.println("加密结果encode:" + URLDecoder.decode(plainText, "utf-8"));
         return plainText;
     }
 }

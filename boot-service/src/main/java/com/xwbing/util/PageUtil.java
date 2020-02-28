@@ -3,13 +3,12 @@ package com.xwbing.util;
 import java.util.*;
 
 /**
- * 列表分页工具类
- *
- * @author xiangwb
+ * 作者: xiangwb
+ * 说明: 列表分页工具类
  */
 public class PageUtil {
     public static Map<String, Object> page(List list, int currentPage, int pageSize) {
-        Map<String, Object> pageMap = new HashMap<>(5);
+        Map<String, Object> pageMap = new HashMap<>();
         int size = list.size();
         pageMap.put("count", size);
         int totalPage;

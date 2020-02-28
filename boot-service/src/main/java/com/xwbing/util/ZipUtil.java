@@ -1,7 +1,8 @@
 package com.xwbing.util;
 
 import com.xwbing.exception.UtilException;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -10,12 +11,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * ZipUtil
- *
- * @author xiangwb
+ * 作者: xiangwb
+ * 说明: ZipUtil
  */
-@Slf4j
 public class ZipUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZipUtil.class);
+
     /**
      * @param response 响应
      * @param files    所有文件
@@ -62,7 +63,7 @@ public class ZipUtil {
             out.close();
             zipFile.delete();
         } catch (Exception e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("文件压缩错误");
         }
     }
@@ -88,7 +89,7 @@ public class ZipUtil {
                 fis.close();
                 bos.close();
             } catch (IOException e) {
-                log.error(e.getMessage());
+                LOGGER.error(e.getMessage());
                 throw new UtilException("文件转化错误");
             }
             return bytes;

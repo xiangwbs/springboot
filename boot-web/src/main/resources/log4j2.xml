@@ -25,7 +25,7 @@
     </Properties>
     <Appenders>
         <!--输出控制台的配置-->
-        <Console name="console" target="SYSTEM_OUT">
+        <Console name="Console" target="SYSTEM_OUT">
             <!-- 控制台只输出level及以上级别的信息(onMatch),其他的直接拒绝(onMismatch) -->
             <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout>
@@ -35,8 +35,8 @@
         <!-- 自动追加日志信息到文件中，直至文件达到预定的大小，然后自动重新生成另外一个文件来记录之后的日志-->
         <!-- 设置日志格式并配置回滚日志压缩格式(error.log.年份.gz) -->
         <RollingRandomAccessFile name="error_appender"
-                                 immediateFlush="false" fileName="${LOG_HOME}/boot-error.log"
-                                 filePattern="${LOG_HOME}/boot-error.%d{yyyy-MM-dd}.log.gz">
+                                 immediateFlush="false" fileName="${LOG_HOME}/error.log"
+                                 filePattern="${LOG_HOME}/error.%d{yyyy-MM-dd}.log.gz">
             <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout>
                 <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %L %-5p %class{36} %M -->%message%xEx%n</pattern>
@@ -49,20 +49,9 @@
         </RollingRandomAccessFile>
         <!-- info.log-->
         <RollingRandomAccessFile name="info_appender"
-                                 immediateFlush="false" fileName="${LOG_HOME}/boot-info.log"
-                                 filePattern="${LOG_HOME}/boot-info.%d{yyyy-MM-dd}.log.gz">
+                                 immediateFlush="false" fileName="${LOG_HOME}/info.log"
+                                 filePattern="${LOG_HOME}/info.%d{yyyy-MM-dd}.log.gz">
             <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
-            <PatternLayout>
-                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %L %-5p %class{36} %M -->%message%xEx%n</pattern>
-            </PatternLayout>
-            <Policies>
-                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-            </Policies>
-        </RollingRandomAccessFile>
-        <RollingRandomAccessFile name="exception_appender"
-                                 immediateFlush="false" fileName="${LOG_HOME}/boot-exception.log"
-                                 filePattern="${LOG_HOME}/boot-exception.%d{yyyy-MM-dd}.log.gz">
-            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
             <PatternLayout>
                 <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %L %-5p %class{36} %M -->%message%xEx%n</pattern>
             </PatternLayout>
@@ -73,21 +62,27 @@
     </Appenders>
     <Loggers>
         <!-- Root Logger -->
-        <root level="info">
-            <appender-ref ref="console"/>
+        <root level="debug">
+            <appender-ref ref="Console"/>
             <appender-ref ref="info_appender"/>
             <appender-ref ref="error_appender"/>
         </root>
-        <!-- 3rdParty Loggers -->
-        <logger name="org.springframework.remoting.support.RemoteInvocationTraceInterceptor" level="error"/>
+        <!-- 3rdparty Loggers -->
         <logger name="org.springframework.core" level="info"/>
         <logger name="org.springframework.beans" level="info"/>
         <logger name="org.springframework.context" level="info"/>
         <logger name="org.springframework.web" level="info"/>
+        <logger name="org.jboss.netty" level="warn"/>
+        <logger name="org.apache.http" level="warn"/>
         <!--  默认为root。匹配该name下的所有子类，由于这个logger也是满足root的,additivity为true，该logger和root都会打印。
         additivity为false，匹配该logger的信息只会在该logger下打印，不会在root下打印 -->
-        <logger name="com.xwbing.handler.GlobalExceptionHandler" level="error" additivity="false">
-            <appender-ref ref="exception_appender"/>
+        <!--
+        <logger name="com.xwbing.handler.WebLogAspect" level="INFO" additivity="true">
+            <appender-ref ref="info_appender"/>
         </logger>
+        <logger name="com.xwbing.handler.GlobalExceptionHandler" level="ERROR" additivity="true">
+            <appender-ref ref="error_appender"/>
+        </logger>
+        -->
     </Loggers>
 </Configuration>

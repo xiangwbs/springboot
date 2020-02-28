@@ -2,7 +2,8 @@ package com.xwbing.util;
 
 
 import com.xwbing.exception.UtilException;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,12 +13,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * PingUtil
- *
- * @author xiangwb
+ * 作者: xiangwb
+ * 说明: PingUtil
  */
-@Slf4j
 public class PingUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PingUtil.class);
+
     /**
      * Jdk1.5的InetAddresss,代码简单
      *
@@ -29,7 +30,7 @@ public class PingUtil {
         try {
             return InetAddress.getByName(ipAddress).isReachable(timeOut);// 当返回值是true时，说明host是可用的，false则不可。
         } catch (IOException e) {
-            log.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             throw new UtilException("无法连接该地址");
         }
     }
@@ -50,7 +51,7 @@ public class PingUtil {
             }
             return true;
         } catch (Exception ex) {
-            log.error(ex.getMessage());
+            LOGGER.error(ex.getMessage());
             throw new UtilException("无法连接该地址");
         }
     }
@@ -83,7 +84,7 @@ public class PingUtil {
             br.close();
             return connectedCount == pingTimes;
         } catch (Exception ex) {
-            log.error(ex.getMessage());
+            LOGGER.error(ex.getMessage());
             throw new UtilException("无法连接该地址");
         }
     }
