@@ -91,7 +91,7 @@ public class TraceIdGenerateWorker implements InitializingBean {
     public void afterPropertiesSet() {
         String localIp = IpUtil.localIp();
         workerId = Math.abs(localIp.hashCode() & maxWorkerId);
-        String zone = System.getProperty("com.xwbing.zone");
+        String zone = System.getenv("zone");
         if (StringUtils.isNotBlank(zone)) {
             datacenterId = Math.abs(zone.toUpperCase().hashCode() & maxDatacenterId);
         }

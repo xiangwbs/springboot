@@ -49,6 +49,8 @@ public class StringDemo {
         /**
          * 正则表达式：分割
          */
+        String abc = "a|b|c";
+        String abcs[] = abc.split("\\|");
         String imagName = "1.jpg";
         String names[] = imagName.split("\\.");
         imagName = System.currentTimeMillis() + "." + names[1];

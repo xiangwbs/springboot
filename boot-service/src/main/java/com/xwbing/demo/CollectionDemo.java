@@ -35,8 +35,11 @@ public class CollectionDemo {
         int[] arr1 = new int[4];
         int[] arr2 = new int[]{1, 3, 5, 7};
         int[] arr3 = {12, 3, 5, 6, 2, 8, 9, 4};
-        //输出字符串
+
+        //打印数组
         System.out.println(Arrays.toString(arr3));
+        String[] arr4 = {"1","2"};
+        System.out.println(Arrays.deepToString(arr4));
 
         for (int i = 0; i < arr3.length - 1; i++) {//选择排序
             for (int j = i + 1; j < arr3.length; j++) {

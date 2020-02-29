@@ -76,22 +76,20 @@ public class LockAspect {
         key = String.format("%s%s", key, SUFFIX);
         Long now = System.currentTimeMillis();
         try {
+            //判断key是否存在
             Long lock = redisService.setNx(key, String.valueOf(now));
-            if (!(lock != null && lock.equals(1L))) {
-                //如果已经加过锁,则判断加锁是否已经失效
+            if (!(lock != null && lock.equals(1L))) {//已经加过锁
                 String current = redisService.get(key);
-                now = System.currentTimeMillis();
+                //判断key是否过期
                 if (current != null && now - Long.parseLong(current) > timeout) {
-                    //如果加锁已经失效,则加锁
                     String old = redisService.getSet(key, String.valueOf(now));
-                    //判断上一次的锁是否就是失效的锁
+                    //判断上一次的value是否就是失效的value
                     if (old != null && old.equals(current)) {
-                        //如果是则加锁成功
                         return;
-                    }  //如果不是则加锁异常
-                }  //如果未失效则返回异常
-                throw new LockException(remark);
-            }
+                    }//value不相等，获取锁失败
+                }//未过期，获取锁失败
+                throw new LockException(remark);//获取锁失败，抛异常
+            }//key不存在，获取锁成功
         } finally {
             //统一设置过期时间，防止发生死锁
             redisService.expire(key, timeout);
