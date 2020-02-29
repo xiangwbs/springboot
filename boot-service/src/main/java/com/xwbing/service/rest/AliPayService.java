@@ -291,7 +291,7 @@ public class AliPayService {
         JSONObject extendParams = new JSONObject();
         extendParams.put("hb_fq_num", hbFqNum);
         extendParams.put("hb_fq_seller_percent", "0");
-        codePayParam.setExtendParams(extendParams.toJSONString());
+        codePayParam.setExtendParams(extendParams);
         AliPayTradePayResult codePayResult = alipayBuilder.tradePay(codePayParam);
         boolean success = codePayResult.isSuccess();
         if (!success) {

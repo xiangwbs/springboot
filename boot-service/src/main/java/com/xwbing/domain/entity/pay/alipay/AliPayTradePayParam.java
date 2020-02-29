@@ -1,5 +1,6 @@
 package com.xwbing.domain.entity.pay.alipay;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
@@ -52,7 +53,7 @@ public class AliPayTradePayParam {
      * hb_fq_seller_percent 卖家承担收费比例 商家承担手续费传入 100，用户承担手续费传入 0，仅支持传入 100、0 两种
      */
     @JSONField(name = "extend_params")
-    private String extendParams;
+    private JSONObject extendParams;
 
     public AliPayTradePayParam(String outTradeNo, String authCode, String subject, String body, float totalAmount) {
         this.outTradeNo = outTradeNo;
