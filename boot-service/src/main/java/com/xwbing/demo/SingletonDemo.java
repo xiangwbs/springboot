@@ -34,4 +34,19 @@ public class SingletonDemo {
         }
         return singleton;
     }
+
+    /**
+     * 饿汉式
+     */
+    public static class Single {
+        private static Single single = new Single();
+
+        private Single() {
+        }
+
+        public static Single getInstanse() {
+            return single;
+        }
+    }
 }
+
