@@ -158,12 +158,13 @@ public class OgnlDemo {
             }
         }
     }
+
+    @Data
+    public static class Use {
+        private String name;
+        private String color;
+        private int age;
+        private JSONObject detail;
+    }
 }
 
-@Data
-class Use {
-    private String name;
-    private String color;
-    private int age;
-    private JSONObject detail;
-}

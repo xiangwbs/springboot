@@ -83,48 +83,49 @@ public class ReflectDemo {
             }
         }
     }
+
+    @Slf4j
+    @Component("annotation")
+    public static class Reflect extends BaseEntity implements Serializable {
+        private String name;
+        private int age;
+
+        public Reflect() {
+            log.info("无参构造器,给反射用");
+        }
+
+        public Reflect(String name, int age) {
+            log.info("有参构造器");
+            this.name = name;
+            this.age = age;
+        }
+
+        private void privateMethod() {
+            log.info("私有方法");
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setName(String name, int age) {
+            this.name = name;
+            this.age = age;
+            System.out.println("name: " + name);
+            System.out.println("age:" + age);
+        }
+
+        public int getAge() {
+            return age;
+        }
+
+        public void setAge(int age) {
+            this.age = age;
+        }
+    }
 }
 
-@Slf4j
-@Component("annotation")
-class Reflect extends BaseEntity implements Serializable {
-    private String name;
-    private int age;
-
-    public Reflect() {
-        log.info("无参构造器,给反射用");
-    }
-
-    public Reflect(String name, int age) {
-        log.info("有参构造器");
-        this.name = name;
-        this.age = age;
-    }
-
-    private void privateMethod() {
-        log.info("私有方法");
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setName(String name, int age) {
-        this.name = name;
-        this.age = age;
-        System.out.println("name: " + name);
-        System.out.println("age:" + age);
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-}
