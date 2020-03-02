@@ -64,8 +64,8 @@ boot:
   aliYun:
     enabled: true
     log:
-      access-id:
-      access-key:
+      access-id: xxx
+      access-key: xxx
       endpoint: cn-hangzhou.log.aliyuncs.com
       project: boot-api
       topic: boot_moddule
