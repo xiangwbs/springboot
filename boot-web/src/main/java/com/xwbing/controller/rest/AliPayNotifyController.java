@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.xwbing.annotation.LogInfo;
 import com.xwbing.domain.entity.pay.alipay.AliPayTradePayNotifyRequest;
 import com.xwbing.domain.entity.vo.RestMessageVo;
-import com.xwbing.service.rest.AliPayNotifyService;
+import com.xwbing.service.pay.AliPayNotifyService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

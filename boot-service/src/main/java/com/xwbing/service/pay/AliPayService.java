@@ -1,4 +1,4 @@
-package com.xwbing.service.rest;
+package com.xwbing.service.pay;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;

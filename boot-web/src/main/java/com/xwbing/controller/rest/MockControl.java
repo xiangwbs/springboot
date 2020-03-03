@@ -1,7 +1,6 @@
 package com.xwbing.controller.rest;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.annotation.LogInfo;
 import com.xwbing.config.aliyun.AliYunLog;
 import com.xwbing.config.redis.RedisService;
 import com.xwbing.config.spring.ApplicationContextHelper;
@@ -14,6 +13,7 @@ import com.xwbing.util.EncodeUtil;
 import com.xwbing.util.JsonResult;
 import com.xwbing.util.RestMessage;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 说明: mock控制层
@@ -51,8 +52,9 @@ public class MockControl {
     private RedisService redisService;
     @Resource
     private AliYunLog aliYunLog;
+    private List<byte[]> memoryBytes = new ArrayList<>();
 
-    @LogInfo("导出zip")
+    @ApiOperation("导出zip")
     @GetMapping("batchGetImage")
     public JSONObject batchGetImage(HttpServletResponse response, @RequestParam String[] names, @RequestParam String fileName) {
         if (StringUtils.isEmpty(fileName)) {
@@ -62,7 +64,7 @@ public class MockControl {
         return JsonResult.toJSONObj(restMessage);
     }
 
-    @LogInfo("获取数据库图片")
+    @ApiOperation("获取数据库图片")
     @GetMapping("getDbPic")
     public void getDbPic(HttpServletResponse response, @RequestParam String name, @RequestParam(required = false) String type) throws IOException {
         if (StringUtils.isNotEmpty(name)) {
@@ -82,32 +84,32 @@ public class MockControl {
         }
     }
 
-    @LogInfo("session")
+    @ApiOperation("session")
     @GetMapping("session")
     public JSONObject session(HttpServletRequest request) {
         return JsonResult.toJSONObj(cookieSessionService.session(request));
     }
 
-    @LogInfo("cookie")
+    @ApiOperation("cookie")
     @GetMapping("cookie")
     public JSONObject cookie(HttpServletRequest request, HttpServletResponse response) {
         return JsonResult.toJSONObj(cookieSessionService.cookie(response, request));
     }
 
-    @LogInfo("redis")
+    @ApiOperation("redis")
     @GetMapping("redis")
     public JSONObject redis(@RequestParam String kv) {
         redisService.set(kv, kv);
         return JsonResult.toJSONObj(redisService.get(kv), "redis success");
     }
 
-    @LogInfo("钉钉群发送文本信息")
+    @ApiOperation("钉钉群发送文本信息")
     @GetMapping("sendTextMessage")
     public void sendTextMessage(@RequestParam boolean atAll, @RequestParam List<String> atMobiles) {
         aliYunLog.sendTextMessage("我是一个文本", atAll, atMobiles, "test");
     }
 
-    @LogInfo("钉钉群发送markdown信息")
+    @ApiOperation("钉钉群发送markdown信息")
     @GetMapping("sendMarkdownMessage")
     public void sendMarkdownMessage(@RequestParam boolean atAll, @RequestParam List<String> atMobiles) {
         MarkdownMessage message = new MarkdownMessage();
@@ -132,11 +134,77 @@ public class MockControl {
         aliYunLog.sendMarkdownMessage(message);
     }
 
-    @LogInfo("spring上下文")
+    @ApiOperation("spring上下文")
     @GetMapping("applicationContext")
     public void applicationContext() {
         String port = ApplicationContextHelper.getProperty("server.port", String.class);
         MockControl bean = ApplicationContextHelper.getBean(MockControl.class);
+    }
+
+    @ApiOperation("死锁模拟")
+    @GetMapping("deadlock")
+    public String deadlock() {
+        new Thread(() -> {
+            synchronized (Integer.class) {
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                    synchronized (String.class) {
+                        System.out.println("获取string锁成功");
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }).start();
+        synchronized (String.class) {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+                synchronized (Integer.class) {
+                    System.out.println("获取integer锁成功");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return "死锁";
+    }
+
+    @ApiOperation("cpu100%")
+    @GetMapping("loop")
+    public String loop() {
+        boolean b = true;
+        while (b) {
+            System.out.println("死循环");
+        }
+        return "cpu100%";
+    }
+
+    @ApiOperation("内存溢出")
+    @GetMapping("oom")
+    public void oom() {
+        List<byte[]> oomBytes = new ArrayList<>();
+        while (true) {
+            oomBytes.add(new byte[1024 * 2024 * 4]);
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @ApiOperation("内存泄露")
+    @GetMapping("memoryLeak")
+    public void memoryLeak() {
+        while (true) {
+            memoryBytes.add(new byte[1024 * 2024 * 4]);
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
 

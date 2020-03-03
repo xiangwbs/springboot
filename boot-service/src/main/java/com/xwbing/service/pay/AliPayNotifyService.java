@@ -1,4 +1,4 @@
-package com.xwbing.service.rest;
+package com.xwbing.service.pay;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -78,8 +78,8 @@ public class AliPayNotifyService {
             }
             //更新流水
             //检查总成功流水金额是否大于订单金额,重复支付提醒
-            //更新订单
-            //后续业务处理
+            //更新账期
+            //更新订单，后续业务处理
         }
     }
 }
