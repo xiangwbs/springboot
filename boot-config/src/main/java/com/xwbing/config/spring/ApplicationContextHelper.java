@@ -3,6 +3,7 @@ package com.xwbing.config.spring;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
@@ -54,5 +55,9 @@ public class ApplicationContextHelper implements ApplicationContextAware {
 
     public static Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotation) {
         return applicationContext.getBeansWithAnnotation(annotation);
+    }
+
+    public static void publishEvent(ApplicationEvent applicationEvent) {
+        applicationContext.publishEvent(applicationEvent);
     }
 }

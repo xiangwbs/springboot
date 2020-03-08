@@ -9,14 +9,14 @@ spring:
     password: guest
     virtual-host: /
     connection-timeout: 60000
-    publisher-confirms: true
-    publisher-returns: true
+    publisher-confirms: true #确认消息已发送到交换机ack
+    publisher-returns: true #确认消息已发送到队列ack
     cache:
       channel:
         size: 1
     listener:
       simple:
-        acknowledge-mode: manual
+        acknowledge-mode: manual #手动确认消费ack
 
 xxl:
   job:

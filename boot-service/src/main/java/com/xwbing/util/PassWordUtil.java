@@ -62,7 +62,7 @@ public class PassWordUtil {
      *
      * @return
      */
-    public static String createId() {
+    public static String createUuId() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString().replace("-", "");
     }

@@ -146,7 +146,7 @@ public class ServiceTest extends BaseTest {
 
     @Test
     public void sendTest() {
-        sender.sendMessage(new String[]{"mq测试"});
+        sender.sendMessage("mq测试");
     }
 
     @Test
