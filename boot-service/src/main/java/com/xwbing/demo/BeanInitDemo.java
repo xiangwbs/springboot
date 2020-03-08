@@ -1,14 +1,44 @@
 package com.xwbing.demo;
 
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+
 /**
  * @author xiangwb
- * 类初始化先后顺序
+ * 对象初始化先后顺序
  * 父静态>子静态>父构造代码块>父构造方法>子构造代码块>子构造方法
+ * 静态代码块>构造代码块>构造函数>@PostConstruct>afterPropertiesSet>init-method
  */
-public class ClassInitDemo {
+@Component
+public class BeanInitDemo implements InitializingBean {
     public static void main(String[] args) {
         B ab = new B();
         ab = new B();
+    }
+
+    static {
+        System.out.print("1");
+    }
+
+    {
+        System.out.println("2");
+    }
+
+    public BeanInitDemo() {
+        System.out.println("3");
+
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        System.out.println("4");
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("5");
     }
 
     public static class A {
