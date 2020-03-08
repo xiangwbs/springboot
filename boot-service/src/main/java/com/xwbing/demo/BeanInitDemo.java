@@ -9,7 +9,10 @@ import javax.annotation.PostConstruct;
  * @author xiangwb
  * 对象初始化先后顺序
  * 父静态>子静态>父构造代码块>父构造方法>子构造代码块>子构造方法
- * 静态代码块>构造代码块>构造函数>@PostConstruct>afterPropertiesSet>init-method
+ * <p>
+ * InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation>静态代码块>构造代码块>无参构造函数>InstantiationAwareBeanPostProcessor.postProcessAfterInstantiation>
+ * setXXX|autowire>BeanPostProcessor.postProcessBeforeInitialization>@PostConstruct>afterPropertiesSet>init-method
+ * >BeanPostProcessor.postProcessAfterInitialization>DisposableBean.destroy>destroy-method
  */
 @Component
 public class BeanInitDemo implements InitializingBean {
