@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author xiangwb
  * @version $Id$
  * @since 2020年03月18日 下午6:51
- * 敏感词过滤
+ * 敏感词过滤引擎
  */
 @Slf4j
 @Component
@@ -30,19 +30,23 @@ public class SensitiveWordEngine {
      */
     public static Map sensitiveWordMap;
     /**
+     * 敏感词文件地址
+     */
+    private static final String path = "data/illegal_words.txt";
+    /**
      * 最小匹配规则
      */
-    public static int minMatchTYpe = 1;
+    public static final int minMatchTYpe = 1;
     /**
      * 最大匹配规则
      */
-    public static int maxMatchType = 2;
+    public static final int maxMatchType = 2;
 
-    public SensitiveWordEngine() {
+    static {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start("---初始化敏感词词库---");
-        Set<String> strings = readSensitiveWordFile();
-        addSensitiveWordToHashMap(strings);
+        Set<String> keyWordSet = readSensitiveWordFile();
+        addSensitiveWordToHashMap(keyWordSet);
         stopWatch.stop();
         log.info("{}:{} ms", stopWatch.getLastTaskName(), stopWatch.getTotalTimeMillis());
     }
@@ -56,24 +60,6 @@ public class SensitiveWordEngine {
      */
     public boolean isContainSensitiveWord(String txt) {
         return isContainSensitiveWord(txt, minMatchTYpe);
-    }
-
-    /**
-     * 是否包含敏感词
-     *
-     * @param matchType 匹配规则 1：最小匹配规则，2：最大匹配规则
-     */
-    public boolean isContainSensitiveWord(String txt, int matchType) {
-        boolean flag = false;
-        for (int i = 0; i < txt.length(); i++) {
-            //判断是否包含敏感字符
-            int matchFlag = this.CheckSensitiveWord(txt, i, matchType);
-            //大于0存在，返回true
-            if (matchFlag > 0) {
-                flag = true;
-            }
-        }
-        return flag;
     }
 
     /**
@@ -97,6 +83,11 @@ public class SensitiveWordEngine {
 
     /**
      * 替换敏感字字符,默认*
+     *
+     * @param txt
+     * @param matchType
+     * @param replaceChar
+     * @return
      */
     public String replaceSensitiveWord(String txt, int matchType, String replaceChar) {
         replaceChar = StringUtils.isNotEmpty(replaceChar) ? replaceChar : "*";
@@ -114,32 +105,16 @@ public class SensitiveWordEngine {
         return resultTxt;
     }
 
-    /**
-     * 获取替换字符串
-     *
-     * @param replaceChar
-     * @param length
-     *
-     * @return
-     */
-    private String getReplaceChars(String replaceChar, int length) {
-        StringBuilder resultReplace = new StringBuilder(replaceChar);
-        for (int i = 1; i < length; i++) {
-            resultReplace.append(replaceChar);
-        }
-        return resultReplace.toString();
-    }
-
+    // ---------------------- private ----------------------
     /**
      * 读取敏感词库中的内容，将内容添加到set集合中
      *
      * @return
      */
-    private Set<String> readSensitiveWordFile() {
+    private static Set<String> readSensitiveWordFile() {
         Set<String> keyWordSet = new HashSet<>();
-        try {
-            ClassPathResource resource = new ClassPathResource("data/illegal_words.txt");
-            BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream(), "UTF-8"));
+        ClassPathResource resource = new ClassPathResource(path);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream(), "UTF-8"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 keyWordSet.add(line);
@@ -180,7 +155,7 @@ public class SensitiveWordEngine {
      *          }
      *      }
      */
-    private void addSensitiveWordToHashMap(Set<String> keyWordSet) {
+    private static void addSensitiveWordToHashMap(Set<String> keyWordSet) {
         //初始化敏感词容器，减少扩容操作
         sensitiveWordMap = new HashMap(keyWordSet.size());
         //敏感词
@@ -209,12 +184,30 @@ public class SensitiveWordEngine {
                     nowMap.put(keyChar, newWorMap);
                     nowMap = newWorMap;
                 }
-                // 如果该字是当前敏感词的最后一个字，则标识为结尾字
+                //如果该字是当前敏感词的最后一个字，则标识为结尾字
                 if (i == key.length() - 1) {
                     nowMap.put("isEnd", "1");
                 }
             }
         }
+    }
+
+    /**
+     * 是否包含敏感词
+     *
+     * @param matchType 匹配规则 1：最小匹配规则，2：最大匹配规则
+     */
+    private boolean isContainSensitiveWord(String txt, int matchType) {
+        boolean flag = false;
+        for (int i = 0; i < txt.length(); i++) {
+            //判断是否包含敏感字符
+            int matchFlag = this.CheckSensitiveWord(txt, i, matchType);
+            //大于0存在，返回true
+            if (matchFlag > 0) {
+                flag = true;
+            }
+        }
+        return flag;
     }
 
     /**
@@ -258,6 +251,22 @@ public class SensitiveWordEngine {
             matchFlag = 0;
         }
         return matchFlag;
+    }
+
+    /**
+     * 获取替换字符串
+     *
+     * @param replaceChar
+     * @param length
+     *
+     * @return
+     */
+    private String getReplaceChars(String replaceChar, int length) {
+        StringBuilder resultReplace = new StringBuilder(replaceChar);
+        for (int i = 1; i < length; i++) {
+            resultReplace.append(replaceChar);
+        }
+        return resultReplace.toString();
     }
 
     /**
