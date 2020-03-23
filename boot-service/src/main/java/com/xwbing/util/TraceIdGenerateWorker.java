@@ -1,14 +1,15 @@
 package com.xwbing.util;
 
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * traceId生成服务, 参考snowflake算法
@@ -85,7 +86,7 @@ public class TraceIdGenerateWorker implements InitializingBean {
     /**
      * 分表前缀
      */
-    private static String TABLE_PREFIX = "";
+    private static String TABLE_PREFIX = "boot";
 
     @Override
     public void afterPropertiesSet() {

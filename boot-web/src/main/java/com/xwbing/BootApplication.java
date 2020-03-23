@@ -1,9 +1,12 @@
 package com.xwbing;
 
-import com.xwbing.config.annotation.EnableRedis;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.scheduling.annotation.EnableAsync;
+
+import com.xwbing.config.annotation.EnableRedis;
 
 /**
  * 项目名称: boot-module-pro
@@ -14,8 +17,12 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 @EnableRedis
 @ServletComponentScan
 @SpringBootApplication
+@EnableAspectJAutoProxy
+@EnableAsync
 public class BootApplication {
     public static void main(String[] args) {
         SpringApplication.run(BootApplication.class, args);
+        // SpringApplication springApplication = new SpringApplication(BootApplication.class);
+        // springApplication.run(args);
     }
 }
