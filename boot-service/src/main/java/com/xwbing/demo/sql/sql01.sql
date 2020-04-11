@@ -17,9 +17,9 @@ ALTER TABLE XWBING ADD(
   HIREDATE DATE DEFAULT SYSDATE
 )
 ALTER TABLE `table`
-ADD COLUMN `col` bigint(20) DEFAULT NULL COMMENT 'xxx',
-ADD COLUMN `col` bit(1) DEFAULT NULL COMMENT 'xxx',
-ADD COLUMN `col` varchar(32) DEFAULT NULL COMMENT 'xxx';
+ADD COLUMN `col` bigint(20) DEFAULT NULL COMMENT 'xxx' after `col`,
+ADD COLUMN `col` bit(1) DEFAULT NULL COMMENT 'xxx' after `col`,
+ADD COLUMN `col` varchar(32) DEFAULT NULL COMMENT 'xxx' after `col`;
 
 
 DML

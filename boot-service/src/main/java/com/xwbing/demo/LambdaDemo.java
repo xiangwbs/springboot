@@ -1,10 +1,15 @@
 package com.xwbing.demo;
 
-import com.alibaba.fastjson.JSONObject;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
-import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.IntSummaryStatistics;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -12,6 +17,12 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import javax.annotation.Resource;
+
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * Date: 2017/6/15 17:09
@@ -170,14 +181,27 @@ public class LambdaDemo {
     }
 
     private static List<SysUser> listAll() {
-        return Collections.EMPTY_LIST;
+        List<SysUser>  list=new ArrayList<>();
+        SysUser a = new SysUser();
+        a.setName("aa");
+        SysUser aa = new SysUser();
+        aa.setName("aa");
+        SysUser bb = new SysUser();
+        bb.setName("bb");
+        SysUser cc = new SysUser();
+        bb.setName("cc");
+        list.add(a);
+        list.add(aa);
+        list.add(bb);
+        list.add(cc);
+        return list;
     }
 
     private String isAdmin(String id) {
         return "Y";
     }
 
-    private class SysUser {
+    private static class SysUser {
         private String name;
         private String sex;
         private String id;
