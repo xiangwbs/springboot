@@ -143,11 +143,11 @@ public class DispatcherServletConfig extends WebMvcConfigurerAdapter {
         FastJsonHttpMessageConverter messageConverter = new FastJsonHttpMessageConverter();
         //设置支持的Content-Type
         List<MediaType> mediaTypes = new ArrayList<>();
-        mediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
-        mediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);
-        mediaTypes.add(MediaType.MULTIPART_FORM_DATA);
-        mediaTypes.add(MediaType.APPLICATION_OCTET_STREAM);
-        mediaTypes.add(MediaType.TEXT_HTML);
+        mediaTypes.add(MediaType.APPLICATION_JSON_UTF8);//json
+        mediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);//表单
+        mediaTypes.add(MediaType.MULTIPART_FORM_DATA);//多媒体，包含文件，post
+        mediaTypes.add(MediaType.APPLICATION_OCTET_STREAM);//二进制流，文件类型
+        mediaTypes.add(MediaType.TEXT_HTML);//文本
         messageConverter.setSupportedMediaTypes(mediaTypes);
         //不忽略对象属性中的null值
         FastJsonConfig fastJsonConfig = new FastJsonConfig();

@@ -1,5 +1,22 @@
 package com.xwbing.controller.rest;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.config.aliyun.AliYunLog;
 import com.xwbing.config.redis.RedisService;
@@ -9,27 +26,14 @@ import com.xwbing.domain.entity.rest.FilesUpload;
 import com.xwbing.service.rest.CookieSessionService;
 import com.xwbing.service.rest.QRCodeZipService;
 import com.xwbing.service.rest.UploadService;
+import com.xwbing.util.EasyExcelUtil;
 import com.xwbing.util.EncodeUtil;
 import com.xwbing.util.JsonResult;
 import com.xwbing.util.RestMessage;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 说明: mock控制层
@@ -56,7 +60,8 @@ public class MockControl {
 
     @ApiOperation("导出zip")
     @GetMapping("batchGetImage")
-    public JSONObject batchGetImage(HttpServletResponse response, @RequestParam String[] names, @RequestParam String fileName) {
+    public JSONObject batchGetImage(HttpServletResponse response, @RequestParam String[] names,
+            @RequestParam String fileName) {
         if (StringUtils.isEmpty(fileName)) {
             return JsonResult.toJSONObj("zip名称不能为空");
         }
@@ -66,7 +71,8 @@ public class MockControl {
 
     @ApiOperation("获取数据库图片")
     @GetMapping("getDbPic")
-    public void getDbPic(HttpServletResponse response, @RequestParam String name, @RequestParam(required = false) String type) throws IOException {
+    public void getDbPic(HttpServletResponse response, @RequestParam String name,
+            @RequestParam(required = false) String type) throws IOException {
         if (StringUtils.isNotEmpty(name)) {
             List<FilesUpload> files = uploadService.findByName(name, type);
             if (CollectionUtils.isNotEmpty(files)) {
@@ -127,7 +133,8 @@ public class MockControl {
         unOrderList.add("无序列表1");
         unOrderList.add("无序列表2");
         message.addItem(MarkdownMessage.getUnOrderListText(unOrderList));
-        message.addItem(MarkdownMessage.getImageText("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png"));
+        message.addItem(
+                MarkdownMessage.getImageText("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png"));
         message.addItem(MarkdownMessage.getLinkText("天气", "https://www.seniverse.com"));
         message.setAtAll(atAll);
         message.addAtMobiles(atMobiles);
@@ -205,6 +212,34 @@ public class MockControl {
                 e.printStackTrace();
             }
         }
+    }
+
+    @ApiOperation("excel文件下载")
+    @GetMapping("download")
+    public void exportStream(HttpServletResponse response) throws IOException {
+        List<String> titles = new ArrayList<>();
+        titles.add("姓名");
+        titles.add("年龄");
+        List<List<Object>> excelData = new ArrayList<>();
+        List<Object> data = new ArrayList<>();
+        data.add("项伟兵");
+        data.add(18);
+        excelData.add(data);
+        EasyExcelUtil.download(response, "人员名单统计", "人员名单", titles, excelData);
+    }
+
+    @ApiOperation("生成excel")
+    @GetMapping("write")
+    public void write() {
+        List<String> titles = new ArrayList<>();
+        titles.add("姓名");
+        titles.add("年龄");
+        List<List<Object>> excelData = new ArrayList<>();
+        List<Object> data = new ArrayList<>();
+        data.add("项伟兵");
+        data.add(18);
+        excelData.add(data);
+        EasyExcelUtil.write("/Users/xwbing/Downloads", "人员名单统计", "人员名单", titles, excelData);
     }
 }
 
