@@ -1,11 +1,21 @@
 package com.xwbing.configuration;
 
-import com.xwbing.constant.CommonEnum;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
-import springfox.documentation.builders.*;
+
+import com.xwbing.constant.CommonEnum;
+
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.ParameterBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.builders.ResponseMessageBuilder;
 import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
@@ -14,9 +24,6 @@ import springfox.documentation.service.ResponseMessage;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 说明: swagger配置
@@ -91,14 +98,12 @@ public class SwaggerConfig {
      */
     private List<Parameter> addParams() {
         ParameterBuilder ticketPar = new ParameterBuilder();
-        List<Parameter> pars = new ArrayList<>();
         ticketPar.name("token")
                 .description("令牌")
                 .modelRef(new ModelRef("string"))
                 .parameterType("header")
                 .required(false).build();
-        pars.add(ticketPar.build());
-        return pars;
+        return Collections.singletonList(ticketPar.build());
     }
 
     /**

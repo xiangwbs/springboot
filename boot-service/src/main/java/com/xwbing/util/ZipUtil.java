@@ -1,13 +1,20 @@
 package com.xwbing.util;
 
-import com.xwbing.exception.UtilException;
-import lombok.extern.slf4j.Slf4j;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import javax.servlet.http.HttpServletResponse;
+
+import com.xwbing.exception.UtilException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * ZipUtil
@@ -57,41 +64,13 @@ public class ZipUtil {
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Disposition", "attachment;filename=" + fileName + ".zip");//在消息头里命名输出的zip文件夹名称
             response.setContentType("application/octet-stream; charset=utf-8");
-            out.write(toByte(zipFile));
+            out.write(FileUtil.toByte(zipFile));
 //            out.flush();
             out.close();
             zipFile.delete();
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new UtilException("文件压缩错误");
-        }
-    }
-
-    /**
-     * 文件转换byte字节数组
-     *
-     * @param file
-     * @return
-     */
-    private static byte[] toByte(File file) {
-        {
-            byte[] bytes;
-            try {
-                FileInputStream fis = new FileInputStream(file);
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                byte[] data = new byte[fis.available()];
-                int len;
-                while ((len = fis.read(data)) != -1) {
-                    bos.write(data, 0, len);
-                }
-                bytes = bos.toByteArray();
-                fis.close();
-                bos.close();
-            } catch (IOException e) {
-                log.error(e.getMessage());
-                throw new UtilException("文件转化错误");
-            }
-            return bytes;
         }
     }
 }

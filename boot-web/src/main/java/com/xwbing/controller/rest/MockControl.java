@@ -228,9 +228,9 @@ public class MockControl {
         EasyExcelUtil.download(response, "人员名单统计", "人员名单", titles, excelData);
     }
 
-    @ApiOperation("生成excel")
-    @GetMapping("write")
-    public void write() {
+    @ApiOperation("生成加密excel")
+    @GetMapping("encryptWrite")
+    public void write() throws IOException {
         List<String> titles = new ArrayList<>();
         titles.add("姓名");
         titles.add("年龄");
@@ -239,7 +239,7 @@ public class MockControl {
         data.add("项伟兵");
         data.add(18);
         excelData.add(data);
-        EasyExcelUtil.write("/Users/xwbing/Downloads", "人员名单统计", "人员名单", titles, excelData);
+        EasyExcelUtil.encryptWrite("/Users/xwbing/Documents", "人员名单统计", "人员名单", "123456", titles, excelData);
     }
 }
 

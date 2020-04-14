@@ -13,6 +13,13 @@ import java.util.List;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackageAccess;
+import org.apache.poi.poifs.crypt.EncryptionInfo;
+import org.apache.poi.poifs.crypt.EncryptionMode;
+import org.apache.poi.poifs.crypt.Encryptor;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
@@ -39,9 +46,7 @@ public class EasyExcelUtil {
      */
     public static void download(HttpServletResponse response, String fileName, String sheetName, List<String> heads,
             List<List<Object>> excelData) throws IOException {
-        ServletOutputStream outputStream = null;
-        try {
-            outputStream = response.getOutputStream();
+        try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/octet-stream");
             //防止中文乱码
@@ -61,10 +66,6 @@ public class EasyExcelUtil {
             response.setContentType("application/json");
             response.setCharacterEncoding("utf-8");
             response.getWriter().println("下载文件失败");
-        } finally {
-            if (outputStream != null) {
-                outputStream.close();
-            }
         }
     }
 
@@ -81,11 +82,48 @@ public class EasyExcelUtil {
             List<List<Object>> excelData) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
         try (OutputStream out = Files.newOutputStream(path)) {
-            //自动列宽
+            //自动列宽,自动关闭流
             EasyExcel.write(out).head(getHead(heads)).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                     .sheet(sheetName).doWrite(excelData);
         } catch (IOException e) {
             log.error("excel write error:{}", e.getMessage());
+        }
+    }
+
+    /**
+     * 生成加密excel
+     *
+     * @param basedir
+     * @param fileName
+     * @param sheetName
+     * @param password
+     * @param heads
+     * @param excelData
+     */
+    public static void encryptWrite(String basedir, String fileName, String sheetName, String password,
+            List<String> heads, List<List<Object>> excelData) throws IOException {
+        Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
+        OPCPackage opc = null;
+        try (OutputStream out = Files.newOutputStream(path);
+                OutputStream encryptOut = Files.newOutputStream(path);
+                POIFSFileSystem fs = new POIFSFileSystem()) {
+            //自动列宽,自动关闭流
+            EasyExcel.write(out).head(getHead(heads)).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                    .sheet(sheetName).doWrite(excelData);
+            //添加密码保护
+            EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
+            Encryptor enc = info.getEncryptor();
+            enc.confirmPassword(password);
+            //加密文件
+            opc = OPCPackage.open(path.toFile(), PackageAccess.READ_WRITE);
+            opc.save(enc.getDataStream(fs));
+            fs.writeFilesystem(encryptOut);
+        } catch (Exception e) {
+            log.error("excel write error:{}", e.getMessage());
+        } finally {
+            if (opc != null) {
+                opc.close();
+            }
         }
     }
 
