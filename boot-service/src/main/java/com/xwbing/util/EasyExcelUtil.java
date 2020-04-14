@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +22,9 @@ import org.apache.poi.poifs.crypt.Encryptor;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelReader;
+import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.excel.read.metadata.ReadSheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 
@@ -125,6 +129,24 @@ public class EasyExcelUtil {
                 opc.close();
             }
         }
+    }
+
+    /**
+     * 读取excel
+     * analysisEventListener不能被spring管理，要每次读取excel都要new，如果里面用到springBean可以用构造方法传进去
+     *
+     * @param filePath
+     * @param sheetNo
+     * @param analysisEventListener
+     */
+    public static void read(String filePath, int sheetNo,
+            AnalysisEventListener<Map<String, Object>> analysisEventListener) {
+        String fileName = FileSystems.getDefault().getPath(filePath).toString();
+        ExcelReader excelReader = EasyExcel.read(fileName, analysisEventListener).build();
+        ReadSheet readSheet = EasyExcel.readSheet(sheetNo).build();
+        excelReader.read(readSheet);
+        //这里千万别忘记关闭，读的时候会创建临时文件，到时磁盘会崩的
+        excelReader.finish();
     }
 
     /**

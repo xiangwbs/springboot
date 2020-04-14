@@ -22,6 +22,7 @@ import com.xwbing.config.aliyun.AliYunLog;
 import com.xwbing.config.redis.RedisService;
 import com.xwbing.config.spring.ApplicationContextHelper;
 import com.xwbing.config.util.dingTalk.MarkdownMessage;
+import com.xwbing.demo.ExcelReadListener;
 import com.xwbing.domain.entity.rest.FilesUpload;
 import com.xwbing.service.rest.CookieSessionService;
 import com.xwbing.service.rest.QRCodeZipService;
@@ -230,7 +231,7 @@ public class MockControl {
 
     @ApiOperation("生成加密excel")
     @GetMapping("encryptWrite")
-    public void write() throws IOException {
+    public void encryptWrite() throws IOException {
         List<String> titles = new ArrayList<>();
         titles.add("姓名");
         titles.add("年龄");
@@ -240,6 +241,26 @@ public class MockControl {
         data.add(18);
         excelData.add(data);
         EasyExcelUtil.encryptWrite("/Users/xwbing/Documents", "人员名单统计", "人员名单", "123456", titles, excelData);
+    }
+
+    @ApiOperation("生成excel")
+    @GetMapping("write")
+    public void write() {
+        List<String> titles = new ArrayList<>();
+        titles.add("姓名");
+        titles.add("年龄");
+        List<List<Object>> excelData = new ArrayList<>();
+        List<Object> data = new ArrayList<>();
+        data.add("项伟兵");
+        data.add(18);
+        excelData.add(data);
+        EasyExcelUtil.write("/Users/xwbing/Documents", "人员名单统计", "人员名单", titles, excelData);
+    }
+
+    @ApiOperation("读取excel")
+    @GetMapping("read")
+    public void read() {
+        EasyExcelUtil.read("/Users/xwbing/Documents/人员名单统计.xlsx", 0, new ExcelReadListener());
     }
 }
 
