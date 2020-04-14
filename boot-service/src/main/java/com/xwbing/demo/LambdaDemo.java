@@ -84,8 +84,8 @@ public class LambdaDemo {
         //聚合(最好给默认值,不然如果list为空时,聚合计算时会报错)
         System.out.println("reduce sum:" + lists.stream().reduce((o1, o2) -> o1 + o2).orElse(0));//聚合
         System.out.println("reduce sum:" + lists.stream().reduce(0, (o1, o2) -> o1 + o2));//聚合(给定默认值)
-        System.out.println("reduce ids:" + abc.stream().reduce((sum, item) -> sum + "," + item).orElse(""));//abc(a,b,c)-->a,b,c
-        System.out.println("reduce ids:" + abc.stream().reduce("", (sum, item) -> sum + "," + item).substring(1));//abc(a,b,c)-->,a,b,c-->a,b,c
+        System.out.println("reduce ids:" + abc.stream().filter(Objects::nonNull).reduce((sum, item) -> sum + "," + item).orElse(""));//abc(a,b,c)-->a,b,c
+        // System.out.println("reduce ids:" + abc.stream().reduce("", (sum, item) -> sum + "," + item).substring(1));//abc(a,b,c)-->,a,b,c-->a,b,c
         String s = abc.stream().reduce("", (sum, item) -> sum + "'" + item + "',");//abc(a,b,c)-->'a','b','c',-->'a','b','c'
         System.out.println("reduce id in:" + s.substring(0, s.lastIndexOf(",")));
         //join
@@ -108,7 +108,9 @@ public class LambdaDemo {
         //解决key重复 value为null
         Map<String, String> fixMap = listAll().stream().filter(sysUser -> sysUser.getSex() != null).collect(Collectors.toMap(SysUser::getName, SysUser::getSex, (sex1, sex2) -> sex1 + "," + sex2));
         //分组
-        Map<String, List<SysUser>> groupMap = listAll().stream().collect(Collectors.groupingBy(SysUser::getSex));//(分组条件为key，分组成员为value)
+        Map<String, List<SysUser>> groupMap = listAll().stream().collect(Collectors.groupingBy(SysUser::getSex));
+        Map<String, Integer> sexAgeMap = listAll().stream()
+                .collect(Collectors.groupingBy(SysUser::getSex, Collectors.summingInt(SysUser::getAge)));
         //非空判断
         Optional<String> optional = abc.stream().reduce((sum, item) -> sum + "," + item);
         String reduce;
@@ -180,7 +182,7 @@ public class LambdaDemo {
         return Collections.EMPTY_LIST;
     }
 
-    private static List<SysUser> listAll() {
+    public static List<SysUser> listAll() {
         List<SysUser>  list=new ArrayList<>();
         SysUser a = new SysUser();
         a.setName("aa");
@@ -201,10 +203,11 @@ public class LambdaDemo {
         return "Y";
     }
 
-    private static class SysUser {
+    public static class SysUser {
         private String name;
         private String sex;
         private String id;
+        private int age;
 
         public String getName() {
             return name;
@@ -229,6 +232,13 @@ public class LambdaDemo {
         public void setId(String id) {
             this.id = id;
         }
-    }
 
+        public int getAge() {
+            return age;
+        }
+
+        public void setAge(int age) {
+            this.age = age;
+        }
+    }
 }
