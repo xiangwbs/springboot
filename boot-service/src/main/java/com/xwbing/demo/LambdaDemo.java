@@ -2,7 +2,6 @@ package com.xwbing.demo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.IntSummaryStatistics;
 import java.util.List;
@@ -42,7 +41,7 @@ public class LambdaDemo {
         /**
          * stream api 高级版本的迭代器
          */
-        Integer[] ints = {1, 2, 4, 2, 3, 5, 5, 6, 8, 9, 7, 10};
+        Integer[] ints = { 1, 2, 4, 2, 3, 5, 5, 6, 8, 9, 7, 10 };
         List<Integer> lists = new ArrayList<>(Arrays.asList(ints));
         //获取stream
         Arrays.stream(ints);
@@ -59,16 +58,19 @@ public class LambdaDemo {
         System.out.println("map:" + lists.stream().map(o1 -> o1 * 2).collect(Collectors.toList()));//转换成新元素
         List<String> words = Arrays.asList("hello welcome", "world hello", "hello world", "hello world welcome");
         List<String[]> map = words.stream().map(item -> item.split(" ")).distinct().collect(Collectors.toList());
-        System.out.println("flatMap:" + words.stream().flatMap(item -> Arrays.stream(item.split(" "))).distinct().collect(Collectors.toList()));
+        System.out.println("flatMap:" + words.stream().flatMap(item -> Arrays.stream(item.split(" "))).distinct()
+                .collect(Collectors.toList()));
 
-        System.out.println("peak:" + lists.stream().peek(String::valueOf).collect(Collectors.toList()));//生成一个包含原Stream元素的新Stream
+        System.out.println(
+                "peak:" + lists.stream().peek(String::valueOf).collect(Collectors.toList()));//生成一个包含原Stream元素的新Stream
         System.out.println("distinct:" + lists.stream().distinct().collect(Collectors.toList()));//去重(去重逻辑依赖元素的equals方法)
         System.out.println("limit:" + lists.stream().limit(4).collect(Collectors.toList()));//截取
         System.out.println("skip:" + lists.stream().skip(4).collect(Collectors.toList()));//丢弃
         //去重
-        listAll().stream().collect(Collectors.collectingAndThen(Collectors
-                .toCollection(() -> new TreeSet<>(Comparator.comparing(SysUser::getName))), ArrayList::new));
-        listAll().stream().filter(distinctByKey(SysUser::getName)).collect(Collectors.toList());
+        ArrayList<SysUser> collect = listAll().stream().collect(Collectors
+                .collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(SysUser::getName))),
+                        ArrayList::new));
+        List<SysUser> collect1 = listAll().stream().filter(distinctByKey(SysUser::getName)).collect(Collectors.toList());
 
         //匹配
         boolean b1 = lists.stream().anyMatch(o -> o == 1);
@@ -83,8 +85,10 @@ public class LambdaDemo {
         lists.removeIf(item -> item > 3);//根据条件删除，不用收集
 
         //聚合
-        System.out.println("reduce sum:" + lists.stream().filter(Objects::nonNull).reduce(0, (o1, o2) -> o1 + o2));//数字聚合
-        System.out.println("reduce ids:" + abc.stream().filter(Objects::nonNull).reduce("",(sum, item) -> sum + "," + item));//(a,b,c)-->a,b,c
+        System.out
+                .println("reduce sum:" + lists.stream().filter(Objects::nonNull).reduce(0, (o1, o2) -> o1 + o2));//数字聚合
+        System.out.println("reduce ids:" + abc.stream().filter(Objects::nonNull)
+                .reduce("", (sum, item) -> sum + "," + item));//(a,b,c)-->a,b,c
         String reduce = abc.stream().filter(Objects::nonNull).reduce("", (sum, item) -> sum + "'" + item + "',");
         reduce = StringUtils.isNotEmpty(reduce) ? reduce.substring(0, reduce.lastIndexOf(",")) : "";
         System.out.println("reduce id in:" + reduce);//(a,b,c)-->'a','b','c',-->'a','b','c'
@@ -101,25 +105,31 @@ public class LambdaDemo {
         System.out.println("List所有数字的平均值: " + statistics.getAverage());
         System.out.println("List成员个数: " + statistics.getCount());
         //all example
-        System.out.println("all:" + lists.stream().filter(Objects::nonNull).distinct().mapToInt(num -> num * 2).skip(2).limit(4).sum());
+        System.out.println(
+                "all:" + lists.stream().filter(Objects::nonNull).distinct().mapToInt(num -> num * 2).skip(2).limit(4)
+                        .sum());
 
         //toMap 遍历list存入map里 key不能重复 value不能为null
-        Map<String, SysUser> userMap = listAll().stream().collect(Collectors.toMap(SysUser::getId, Function.identity()));
+        Map<String, SysUser> userMap = listAll().stream()
+                .collect(Collectors.toMap(SysUser::getId, Function.identity()));
         userMap = listAll().stream().collect(Collectors.toMap(SysUser::getId, sysUser -> sysUser));
-        Map<String, String> nameMap = listAll().stream().collect(Collectors.toMap(SysUser::getName, SysUser::getSex));
-        Map<String, String> jsonMap = getList().stream().collect(Collectors.toMap(o1 -> o1.getString(""), o2 -> o2.getString("")));
+        // Map<String, String> nameMap = listAll().stream().collect(Collectors.toMap(SysUser::getName, SysUser::getSex));
+        Map<Integer, String> jsonMap = getList().stream()
+                .collect(Collectors.toMap(o1 -> o1.getInteger("id"), o2 -> o2.getString("name")));
         //解决key重复 value为null
-        Map<String, String> fixMap = listAll().stream().filter(sysUser -> sysUser.getName() != null).collect(Collectors.toMap(SysUser::getName, SysUser::getSex, (sex1, sex2) -> sex1 + "," + sex2));
+        Map<String, String> fixMap = listAll().stream().filter(sysUser -> sysUser.getName() != null)
+                .collect(Collectors.toMap(SysUser::getName, SysUser::getSex, (sex1, sex2) -> sex1 + "," + sex2));
 
         //分组
-        Map<String, List<SysUser>> groupMap = listAll().stream().collect(Collectors.groupingBy(SysUser::getSex));
-        Map<String, Integer> sexAgeMap = listAll().stream()
+        Map<String, List<SysUser>> sexMap = listAll().stream().collect(Collectors.groupingBy(SysUser::getSex));
+        Map<String, Integer> sexSumAgeMap = listAll().stream()
                 .collect(Collectors.groupingBy(SysUser::getSex, Collectors.summingInt(SysUser::getAge)));
         Map<String, Long> sexCountMap = listAll().stream()
                 .collect(Collectors.groupingBy(SysUser::getSex, Collectors.counting()));
 
         //异步回调
-        List<JSONObject> sysUsers = CompletableFuture.supplyAsync(LambdaDemo::getList).join();//线程等待,效果等同于get(),会拋出CompletionException
+        List<JSONObject> sysUsers = CompletableFuture.supplyAsync(LambdaDemo::getList)
+                .join();//线程等待,效果等同于get(),会拋出CompletionException
     }
 
     /**
@@ -140,13 +150,13 @@ public class LambdaDemo {
             futures[i] = CompletableFuture.supplyAsync(() -> finalList.set(pos, integer), taskExecutor);//按原来顺序存
         }
         CompletableFuture.allOf(futures).join();//线程等待,效果等同于get(),会拋出CompletionException
-//        CompletableFuture<Void> completableFuture = CompletableFuture.allOf(futures);
-//        try {
-//            completableFuture.get();
-//        } catch (InterruptedException | ExecutionException e) {
-//            log.error(e.getMessage());
-//            throw new BusinessException("获取数据出错");
-//        }
+        //        CompletableFuture<Void> completableFuture = CompletableFuture.allOf(futures);
+        //        try {
+        //            completableFuture.get();
+        //        } catch (InterruptedException | ExecutionException e) {
+        //            log.error(e.getMessage());
+        //            throw new BusinessException("获取数据出错");
+        //        }
         return finalList;
     }
 
@@ -180,21 +190,48 @@ public class LambdaDemo {
      */
 
     private static List<JSONObject> getList() {
-        return Collections.EMPTY_LIST;
+        List<JSONObject> list = new ArrayList<>();
+        JSONObject j1 = new JSONObject();
+        j1.put("id", 1);
+        j1.put("name", "a");
+        list.add(j1);
+        JSONObject j2 = new JSONObject();
+        j2.put("id", 2);
+        j2.put("name", "b");
+        list.add(j2);
+        return list;
     }
 
     public static List<SysUser> listAll() {
-        List<SysUser>  list=new ArrayList<>();
+        List<SysUser> list = new ArrayList<>();
         SysUser a = new SysUser();
+        a.setId("1");
         a.setName("aa");
+        a.setSex("男");
+        a.setAge(10);
         SysUser aa = new SysUser();
+        aa.setId("2");
         aa.setName("aa");
+        aa.setSex("男");
+        aa.setAge(20);
+        SysUser aaa = new SysUser();
+        aaa.setId("3");
+        aaa.setName("aa");
+        aaa.setSex("男");
+        aaa.setAge(30);
         SysUser bb = new SysUser();
+        bb.setId("4");
         bb.setName("bb");
+        bb.setSex("女");
+        bb.setAge(40);
         SysUser cc = new SysUser();
-        bb.setName("cc");
+        cc.setId("5");
+        cc.setName("cc");
+        cc.setSex("女");
+        cc.setAge(50);
         list.add(a);
         list.add(aa);
+        list.add(aaa);
         list.add(bb);
         list.add(cc);
         return list;
