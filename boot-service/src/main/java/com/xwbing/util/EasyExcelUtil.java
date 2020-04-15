@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -139,8 +138,7 @@ public class EasyExcelUtil {
      * @param sheetNo
      * @param analysisEventListener
      */
-    public static void read(String filePath, int sheetNo,
-            AnalysisEventListener<Map<String, Object>> analysisEventListener) {
+    public static void read(String filePath, int sheetNo, AnalysisEventListener analysisEventListener) {
         String fileName = FileSystems.getDefault().getPath(filePath).toString();
         ExcelReader excelReader = EasyExcel.read(fileName, analysisEventListener).build();
         ReadSheet readSheet = EasyExcel.readSheet(sheetNo).build();
