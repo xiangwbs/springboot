@@ -8,7 +8,6 @@ import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,6 +19,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.alibaba.fastjson.JSONObject;
@@ -81,16 +81,18 @@ public class LambdaDemo {
         System.out.println("重用filter:" + lists.stream().filter(gt.and(lt)).collect(Collectors.toList()));
         //删除
         lists.removeIf(item -> item > 3);//根据条件删除，不用收集
-        //聚合(最好给默认值,不然如果list为空时,聚合计算时会报错)
-        System.out.println("reduce sum:" + lists.stream().reduce((o1, o2) -> o1 + o2).orElse(0));//聚合
-        System.out.println("reduce sum:" + lists.stream().reduce(0, (o1, o2) -> o1 + o2));//聚合(给定默认值)
-        System.out.println("reduce ids:" + abc.stream().filter(Objects::nonNull).reduce((sum, item) -> sum + "," + item).orElse(""));//abc(a,b,c)-->a,b,c
-        // System.out.println("reduce ids:" + abc.stream().reduce("", (sum, item) -> sum + "," + item).substring(1));//abc(a,b,c)-->,a,b,c-->a,b,c
-        String s = abc.stream().reduce("", (sum, item) -> sum + "'" + item + "',");//abc(a,b,c)-->'a','b','c',-->'a','b','c'
-        System.out.println("reduce id in:" + s.substring(0, s.lastIndexOf(",")));
+
+        //聚合
+        System.out.println("reduce sum:" + lists.stream().filter(Objects::nonNull).reduce(0, (o1, o2) -> o1 + o2));//数字聚合
+        System.out.println("reduce ids:" + abc.stream().filter(Objects::nonNull).reduce("",(sum, item) -> sum + "," + item));//(a,b,c)-->a,b,c
+        String reduce = abc.stream().filter(Objects::nonNull).reduce("", (sum, item) -> sum + "'" + item + "',");
+        reduce = StringUtils.isNotEmpty(reduce) ? reduce.substring(0, reduce.lastIndexOf(",")) : "";
+        System.out.println("reduce id in:" + reduce);//(a,b,c)-->'a','b','c',-->'a','b','c'
+
         //join
-        System.out.println("join:" + abc.stream().collect(Collectors.joining(",")));//abc(a,b,c)-->a,b,c
+        System.out.println("join:" + abc.stream().collect(Collectors.joining(",")));//(a,b,c)-->a,b,c
         System.out.println("join:" + String.join(",", abc));
+
         //统计
         IntSummaryStatistics statistics = lists.stream().mapToInt(x -> x).summaryStatistics();
         System.out.println("List中最大的数字 : " + statistics.getMax());
@@ -100,23 +102,22 @@ public class LambdaDemo {
         System.out.println("List成员个数: " + statistics.getCount());
         //all example
         System.out.println("all:" + lists.stream().filter(Objects::nonNull).distinct().mapToInt(num -> num * 2).skip(2).limit(4).sum());
+
         //toMap 遍历list存入map里 key不能重复 value不能为null
         Map<String, SysUser> userMap = listAll().stream().collect(Collectors.toMap(SysUser::getId, Function.identity()));
         userMap = listAll().stream().collect(Collectors.toMap(SysUser::getId, sysUser -> sysUser));
         Map<String, String> nameMap = listAll().stream().collect(Collectors.toMap(SysUser::getName, SysUser::getSex));
         Map<String, String> jsonMap = getList().stream().collect(Collectors.toMap(o1 -> o1.getString(""), o2 -> o2.getString("")));
         //解决key重复 value为null
-        Map<String, String> fixMap = listAll().stream().filter(sysUser -> sysUser.getSex() != null).collect(Collectors.toMap(SysUser::getName, SysUser::getSex, (sex1, sex2) -> sex1 + "," + sex2));
+        Map<String, String> fixMap = listAll().stream().filter(sysUser -> sysUser.getName() != null).collect(Collectors.toMap(SysUser::getName, SysUser::getSex, (sex1, sex2) -> sex1 + "," + sex2));
+
         //分组
         Map<String, List<SysUser>> groupMap = listAll().stream().collect(Collectors.groupingBy(SysUser::getSex));
         Map<String, Integer> sexAgeMap = listAll().stream()
                 .collect(Collectors.groupingBy(SysUser::getSex, Collectors.summingInt(SysUser::getAge)));
-        //非空判断
-        Optional<String> optional = abc.stream().reduce((sum, item) -> sum + "," + item);
-        String reduce;
-        if (optional.isPresent()) {
-            reduce = optional.get();
-        }
+        Map<String, Long> sexCountMap = listAll().stream()
+                .collect(Collectors.groupingBy(SysUser::getSex, Collectors.counting()));
+
         //异步回调
         List<JSONObject> sysUsers = CompletableFuture.supplyAsync(LambdaDemo::getList).join();//线程等待,效果等同于get(),会拋出CompletionException
     }
