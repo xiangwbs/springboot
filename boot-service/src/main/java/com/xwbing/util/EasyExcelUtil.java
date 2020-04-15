@@ -132,7 +132,7 @@ public class EasyExcelUtil {
 
     /**
      * 读取excel
-     * analysisEventListener不能被spring管理，要每次读取excel都要new，如果里面用到springBean可以用构造方法传进去
+     * analysisEventListener不能被spring管理，每次读取excel都要new，如果里面用到springBean可以用构造方法传进去
      *
      * @param filePath
      * @param sheetNo
