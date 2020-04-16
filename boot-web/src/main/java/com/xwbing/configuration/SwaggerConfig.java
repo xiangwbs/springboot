@@ -1,7 +1,6 @@
 package com.xwbing.configuration;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -12,16 +11,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.xwbing.constant.CommonEnum;
 
 import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.builders.ResponseMessageBuilder;
-import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
 import springfox.documentation.service.Contact;
-import springfox.documentation.service.Parameter;
 import springfox.documentation.service.ResponseMessage;
+import springfox.documentation.service.SecurityReference;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
@@ -39,7 +39,6 @@ public class SwaggerConfig {
 
     @Bean
     public Docket sysDocket() {
-        List<Parameter> pars = addParams();
         return new Docket(DocumentationType.SWAGGER_2)
                 .enable(enable)
                 .groupName("system")
@@ -47,26 +46,53 @@ public class SwaggerConfig {
                 .useDefaultResponseMessages(false)
                 .globalResponseMessage(RequestMethod.GET, customerResponseMessage())
                 .globalResponseMessage(RequestMethod.POST, customerResponseMessage())
-                .globalOperationParameters(pars)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.xwbing.controller.sys"))
                 .paths(PathSelectors.any())
-                .build();
+                .build().securitySchemes(securitySchemes()).securityContexts(securityContexts());
     }
 
     private ApiInfo sysApiInf() {
         return new ApiInfoBuilder()
                 .title("RESTful API Document")
                 .description("系统接口文档")
-                .termsOfServiceUrl("host:port/swagger-ui.html")
+                .termsOfServiceUrl("http://localhost:8080/")
                 .contact(new Contact("项伟兵", "https://github.com/xiangwbs/springboot.git", "xiangwbs@163.com"))
                 .version("1.0.0")
                 .build();
     }
 
+    private List<ApiKey> securitySchemes() {
+        List<ApiKey> apiKeyList= new ArrayList<>();
+        apiKeyList.add(new ApiKey("令牌", "token", "header"));
+        apiKeyList.add(new ApiKey("签名", "sign", "header"));
+        return apiKeyList;
+    }
+
+    private List<SecurityContext> securityContexts() {
+        List<SecurityContext> securityContexts=new ArrayList<>();
+        securityContexts.add(
+                SecurityContext.builder()
+                        .securityReferences(defaultAuth())
+                        .forPaths(PathSelectors.regex("^(?!auth).*$"))
+                        .build());
+        return securityContexts;
+    }
+
+    private List<SecurityReference> defaultAuth() {
+        AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
+        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+        authorizationScopes[0] = authorizationScope;
+        List<SecurityReference> securityReferences=new ArrayList<>();
+        securityReferences.add(new SecurityReference("令牌", authorizationScopes));
+        securityReferences.add(new SecurityReference("签名", authorizationScopes));
+        return securityReferences;
+    }
+
+
     @Bean
     public Docket restDocket() {
-        List<Parameter> pars = addParams();
+        // List<Parameter> pars = addParams();
         return new Docket(DocumentationType.SWAGGER_2)
                 .enable(enable)
                 .groupName("rest")
@@ -74,11 +100,11 @@ public class SwaggerConfig {
                 .useDefaultResponseMessages(false)
                 .globalResponseMessage(RequestMethod.GET, customerResponseMessage())
                 .globalResponseMessage(RequestMethod.POST, customerResponseMessage())
-                .globalOperationParameters(pars)
+                // .globalOperationParameters(pars)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.xwbing.controller.rest"))
                 .paths(PathSelectors.any())
-                .build();
+                .build().securitySchemes(securitySchemes()).securityContexts(securityContexts());
     }
 
     private ApiInfo restApiInf() {
@@ -91,20 +117,21 @@ public class SwaggerConfig {
                 .build();
     }
 
-    /**
-     * 添加消息头参数
-     *
-     * @return
-     */
-    private List<Parameter> addParams() {
-        ParameterBuilder ticketPar = new ParameterBuilder();
-        ticketPar.name("token")
-                .description("令牌")
-                .modelRef(new ModelRef("string"))
-                .parameterType("header")
-                .required(false).build();
-        return Collections.singletonList(ticketPar.build());
-    }
+    // /**
+    //  * 添加消息头参数
+    //  *
+    //  * @return
+    //  */
+    // private List<Parameter> addParams() {
+    //     ParameterBuilder ticketPar = new ParameterBuilder();
+    //     ticketPar.name("token")
+    //             .description("令牌")
+    //             .modelRef(new ModelRef("string"))
+    //             .parameterType("header")
+    //             .required(false).build();
+    //     return Collections.singletonList(ticketPar.build());
+    // }
+
 
     /**
      * 自定义返回状态信息描述
