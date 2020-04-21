@@ -3,10 +3,13 @@ package com.xwbing.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import com.xwbing.exception.UtilException;
 
@@ -28,12 +31,21 @@ public class FileUtil {
         }
     }
 
+    public static byte[] toByte(String url) {
+        try (InputStream inputStream = new URL(url).openConnection().getInputStream()) {
+            return toByte(inputStream);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new UtilException("图片url转化为byte错误");
+        }
+    }
+
     public static byte[] toByte(InputStream inputStream) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             byte[] data = new byte[inputStream.available()];
-            int len;
-            while ((len = inputStream.read(data)) != -1) {
-                bos.write(data, 0, len);
+            int index;
+            while ((index = inputStream.read(data)) != -1) {
+                bos.write(data, 0, index);
             }
             return bos.toByteArray();
         } catch (IOException e) {
@@ -42,35 +54,30 @@ public class FileUtil {
         }
     }
 
-    public static byte[] toByte(String picUrl) {
-        HttpURLConnection conn = null;
-        InputStream inStream = null;
-        try {
-            //new一个URL对象
-            URL url = new URL(picUrl);
-            //打开链接
-            conn = (HttpURLConnection)url.openConnection();
-            //设置请求方式为"GET"
-            conn.setRequestMethod("GET");
-            //超时响应时间为5秒
-            conn.setConnectTimeout(5 * 1000);
-            //通过输入流获取图片数据
-            inStream = conn.getInputStream();
-            return toByte(inStream);
+    public static File toFile(InputStream inputStream, String fullPath) throws IOException {
+        Path path = FileSystems.getDefault().getPath(fullPath);
+        if (Files.exists(path)) {
+            Files.delete(path);
+        }
+        try (FileOutputStream output = new FileOutputStream(Files.createFile(path).toFile())) {
+            byte[] data = new byte[inputStream.available()];
+            int index;
+            while ((index = inputStream.read(data)) != -1) {
+                output.write(data, 0, index);
+            }
+            return path.toFile();
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new UtilException("流转化为文件错误");
+        }
+    }
+
+    public static File toFile(String url, String fullPath) {
+        try (InputStream inputStream = new URL(url).openConnection().getInputStream()) {
+            return toFile(inputStream, fullPath);
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new UtilException("图片url转化为byte错误");
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-            if (inStream != null) {
-                try {
-                    inStream.close();
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                }
-            }
         }
     }
 }

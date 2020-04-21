@@ -1,10 +1,13 @@
 package com.xwbing.demo;
 
-import org.springframework.core.io.ClassPathResource;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * 说明: java.io.File File的每一个实例可以表示文件系统中的一个文件或目录 使用file可以：
@@ -15,21 +18,28 @@ import java.io.InputStream;
 
 public class FileDemo {
     public static void main(String[] args) throws IOException {
-        /*
-         *
-         * 文件
-         * 尽量使用相对路径
-         * 在eclipse中，"."当前目录，指的是
-         * 项目的根目录
-         */
+        Path basedir = FileSystems.getDefault().getPath("/tmp");
+        Path boot = Files.createTempFile(basedir, "boot", ".txt");//创建随机文件名
+        Path tmp = Files.createTempDirectory("tmp");//创建临时随机目录
+
         //创建文件对象
-        File file = new File("." + File.separator + "demo.txt");//创建文件对象，并不创建文件
+        File file = new File("/tmp" + File.separator + "file.txt");//创建文件对象，并不创建文件
         if (!file.exists()) {
-            file.createNewFile(); //创建文件
+            boolean newFile = file.createNewFile();//创建文件
         }
         if (file.exists()) {
-            file.delete();//删除文件
+            boolean delete = file.delete();//删除文件
         }
+        Path path = FileSystems.getDefault().getPath("/tmp" + File.separator, "path.txt");
+        String pathStr = path.toString();
+        File pathFile = path.toFile();
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+        }
+        if (Files.exists(path)) {
+            Files.delete(path);
+        }
+
         String name = file.getName();//获取文件名
         long length = file.length();//获取文件大小
         long time = file.lastModified();//获取文件最后修改时间
