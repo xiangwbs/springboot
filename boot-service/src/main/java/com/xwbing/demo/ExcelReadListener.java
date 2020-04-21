@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.excel.exception.ExcelDataConvertException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
@@ -54,6 +55,27 @@ public class ExcelReadListener extends AnalysisEventListener<Map<Integer, Object
         //这里也要保存数据，确保最后遗留的数据也会处理
         dealData();
         log.info("所有数据解析完成！");
+    }
+
+    @Override
+    public void onException(Exception exception, AnalysisContext context) {
+        log.error("解析失败，但是继续解析下一行:{}", exception.getMessage());
+        if (exception instanceof ExcelDataConvertException) {
+            ExcelDataConvertException excelDataConvertException = (ExcelDataConvertException)exception;
+            log.error("第{}行，第{}列解析异常，数据为:{}", excelDataConvertException.getRowIndex(),
+                    excelDataConvertException.getColumnIndex(), excelDataConvertException.getCellData());
+        }
+    }
+
+    /**
+     * 这里会一行行的返回头
+     *
+     * @param headMap
+     * @param context
+     */
+    @Override
+    public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
+        log.info("解析到一条头数据:{}", JSON.toJSONString(headMap));
     }
 
     /**

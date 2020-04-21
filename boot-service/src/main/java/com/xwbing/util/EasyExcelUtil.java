@@ -1,6 +1,7 @@
 package com.xwbing.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.file.FileSystems;
@@ -19,6 +20,7 @@ import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.crypt.EncryptionMode;
 import org.apache.poi.poifs.crypt.Encryptor;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelReader;
@@ -139,12 +141,33 @@ public class EasyExcelUtil {
      * @param analysisEventListener
      */
     public static void read(String filePath, int sheetNo, AnalysisEventListener analysisEventListener) {
-        String fileName = FileSystems.getDefault().getPath(filePath).toString();
-        ExcelReader excelReader = EasyExcel.read(fileName, analysisEventListener).build();
-        ReadSheet readSheet = EasyExcel.readSheet(sheetNo).build();
-        excelReader.read(readSheet);
-        //这里千万别忘记关闭，读的时候会创建临时文件，到时磁盘会崩的
-        excelReader.finish();
+        ExcelReader excelReader = null;
+        try {
+            String fileName = FileSystems.getDefault().getPath(filePath).toString();
+            excelReader = EasyExcel.read(fileName, analysisEventListener).build();
+            ReadSheet readSheet = EasyExcel.readSheet(sheetNo).build();
+            excelReader.read(readSheet);
+        } finally {
+            if (excelReader != null) {
+                //这里千万别忘记关闭，读的时候会创建临时文件，到时磁盘会崩的
+                excelReader.finish();
+            }
+        }
+    }
+
+    public static void read(MultipartFile excel, int sheetNo, AnalysisEventListener analysisEventListener) {
+        ExcelReader excelReader = null;
+        try (InputStream inputStream = excel.getInputStream()) {
+            excelReader = EasyExcel.read(inputStream, analysisEventListener).build();
+            ReadSheet readSheet = EasyExcel.readSheet(sheetNo).build();
+            excelReader.read(readSheet);
+        } catch (IOException e) {
+            log.error("excel readData error:{}", e.getMessage());
+        } finally {
+            if (excelReader != null) {
+                excelReader.finish();
+            }
+        }
     }
 
     /**
