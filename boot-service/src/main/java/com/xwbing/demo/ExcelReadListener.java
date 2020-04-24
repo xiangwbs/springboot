@@ -3,10 +3,18 @@ package com.xwbing.demo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.exception.ExcelDataConvertException;
+import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
@@ -26,6 +34,8 @@ public class ExcelReadListener extends AnalysisEventListener<Map<Integer, Object
      */
     private static final int BATCH_COUNT = 3000;
     private List<Map<Integer, Object>> list = new ArrayList<>();
+    private int totalCount;
+    private AtomicInteger count = new AtomicInteger();
 
     /**
      * 这个每一条数据解析都会来调用
@@ -36,6 +46,7 @@ public class ExcelReadListener extends AnalysisEventListener<Map<Integer, Object
     @Override
     public void invoke(Map<Integer, Object> data, AnalysisContext context) {
         log.info("解析到一条数据:{}", JSON.toJSONString(data));
+        getSession().setAttribute("excelDealCount", count.incrementAndGet());
         list.add(data);
         // 达到BATCH_COUNT了，需要去处理一次数据，防止数据几万条数据在内存，容易OOM
         if (list.size() > BATCH_COUNT) {
@@ -54,7 +65,7 @@ public class ExcelReadListener extends AnalysisEventListener<Map<Integer, Object
     public void doAfterAllAnalysed(AnalysisContext context) {
         //这里也要保存数据，确保最后遗留的数据也会处理
         dealData();
-        log.info("所有数据解析完成！");
+        log.info("所有数据解析完成:{}",totalCount);
     }
 
     @Override
@@ -75,7 +86,11 @@ public class ExcelReadListener extends AnalysisEventListener<Map<Integer, Object
      */
     @Override
     public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
-        log.info("解析到一条头数据:{}", JSON.toJSONString(headMap));
+        ReadSheetHolder readSheetHolder = context.readSheetHolder();
+        log.info("invokeHead:{}", JSON.toJSONString(headMap));
+        this.totalCount = readSheetHolder.getApproximateTotalRowNumber() - 1;
+        getSession().setAttribute("excelTotalCount", totalCount);
+        log.info("totalCount:{}", totalCount);
     }
 
     /**
@@ -85,5 +100,13 @@ public class ExcelReadListener extends AnalysisEventListener<Map<Integer, Object
         log.info("{}条数据，开始处理！", list.size());
         System.out.println(JSONObject.toJSONString(list));
         log.info("处理成功！");
+    }
+
+    private HttpSession getSession() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = attributes.getRequest();
+        HttpSession session = request.getSession();
+        session.setMaxInactiveInterval(60 * 60 * 30);
+        return session;
     }
 }

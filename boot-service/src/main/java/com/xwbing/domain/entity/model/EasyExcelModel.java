@@ -12,9 +12,9 @@ import lombok.Data;
  */
 @Data
 public class EasyExcelModel {
-    @ExcelProperty("姓名")
+    @ExcelProperty(value = "姓名",index = 0)
     private String name;
-    @ExcelProperty("年龄")
+    @ExcelProperty(value = "年龄", index = 1)
     private int age;
     @ExcelIgnore
     private String ignore;
