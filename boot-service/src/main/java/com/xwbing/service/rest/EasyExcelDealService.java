@@ -98,14 +98,14 @@ public class EasyExcelDealService {
         if (CollectionUtils.isNotEmpty(excelData)) {
             try (ServletOutputStream outputStream = response.getOutputStream()) {
                 response.setCharacterEncoding("UTF-8");
-                response.setContentType("application/vnd.ms-excel");
+                response.setContentType("application/octet-stream");
                 //防止中文乱码
                 String fileName = URLEncoder.encode(importTask.getFileName(), "UTF-8");
                 response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
                 response.setHeader("Pragma", "No-cache");
                 response.setHeader("Cache-Control", "no-cache");
                 response.setDateHeader("Expires", 0);
-                EasyExcel.write(outputStream, EasyExcelHeadVo.class).sheet("sheet1").doWrite(excelData);
+                EasyExcel.write(outputStream, EasyExcelHeadVo.class).sheet("sheet0").doWrite(excelData);
             } catch (Exception e) {
                 log.error("downloadExcelError with importId={}", importId, e);
                 throw new BusinessException("下载文件失败");
@@ -148,6 +148,13 @@ public class EasyExcelDealService {
         return importId;
     }
 
+    /**
+     * 获取excel进度条
+     *
+     * @param importId
+     *
+     * @return
+     */
     public ExcelProcessVo getExcelProgress(String importId) {
         String deal = redisService.get(EXCEL_DEAL_COUNT_PREFIX + importId);
         String total = redisService.get(EXCEL_TOTAL_COUNT_PREFIX + importId);
