@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xwbing.domain.mapper.rest.ImportFailLogMapper">
+    <resultMap id="BaseResultMap" type="com.xwbing.domain.entity.rest.ImportFailLog">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <result column="import_Id" property="importId"/>
+    </resultMap>
+
+    <sql id="Table">
+        import_fail_log
+    </sql>
+
+    <sql id="Base_Column_List">
+        id, creator, create_time, modifier, modified_time, import_Id, remark, content
+    </sql>
+
+    <sql id="Condition">
+        <where>
+            <if test="importId!=null">
+                import_Id=#{importId}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insert">
+        <selectKey keyProperty="id" order="BEFORE" resultType="string">
+            select replace(UUID(), '-', '')
+        </selectKey>
+        insert into 
+        <include refid="Table"/>(
+        id, 
+        creator, 
+        create_time, 
+        modified_time, 
+        import_Id, 
+        remark, 
+        content
+        )
+        values (
+        #{id}, 
+        #{creator}, 
+        now(), 
+        now(), 
+        #{importId}, 
+        #{remark}, 
+        #{content}
+        )
+    </insert>
+
+    <insert id="insertBatch">
+        insert into 
+        <include refid="Table"/>(
+        id, 
+        creator, 
+        create_time, 
+        modified_time, 
+        import_Id, 
+        remark, 
+        content
+        )
+        values
+        <foreach collection="list" item="obj" separator=",">(
+            (select replace(UUID(), '-', '') as id), 
+            #{obj.creator}, 
+            now(), 
+            now(), 
+            #{obj.importId}, 
+            #{obj.remark}, 
+            #{obj.content}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteById">
+        delete from 
+        <include refid="Table"/>
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from 
+        <include refid="Table"/>
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="delete">
+        delete from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </delete>
+
+    <update id="update">
+        update 
+        <include refid="Table"/>
+        <set>
+            <if test="modifier!=null">modifier=#{modifier},</if>
+            modified_time=now(),
+            <if test="importId!=null">import_Id=#{importId},</if>
+            <if test="remark!=null">remark=#{remark},</if>
+            <if test="content!=null">content=#{content},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateBatch">
+        update 
+        <include refid="Table"/>
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="modifier=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.modifier!=null">
+                        when id=#{obj.id} then #{obj.modifier}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="modified_time=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    when id=#{obj.id} then now()
+                </foreach>
+            </trim>
+            <trim prefix="import_Id=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.importId!=null">
+                        when id=#{obj.id} then #{obj.importId}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="remark=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.remark!=null">
+                        when id=#{obj.id} then #{obj.remark}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="content=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.content!=null">
+                        when id=#{obj.id} then #{obj.content}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" item="obj" separator="," open="(" close=")">
+            #{obj.id}
+        </foreach>
+    </update>
+
+    <select id="findById" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where id = #{id}
+    </select>
+
+    <select id="findByIds" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="find" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+    </select>
+
+</mapper>

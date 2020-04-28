@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xwbing.domain.mapper.rest.ImportTaskMapper">
+    <resultMap id="BaseResultMap" type="com.xwbing.domain.entity.rest.ImportTask">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <result column="file_name" property="fileName"/>
+        <result column="total_count" property="totalCount"/>
+        <result column="fail_count" property="failCount"/>
+        <result column="need_download" property="needDownload"/>
+    </resultMap>
+
+    <sql id="Table">
+        import_task
+    </sql>
+
+    <sql id="Base_Column_List">
+        id, create_time, creator, modified_time, modifier, file_name, total_count, fail_count, 
+        `status`, detail, need_download
+    </sql>
+
+    <sql id="Condition">
+        <where>
+        </where>
+    </sql>
+
+    <insert id="insert">
+        <selectKey keyProperty="id" order="BEFORE" resultType="string">
+            select replace(UUID(), '-', '')
+        </selectKey>
+        insert into 
+        <include refid="Table"/>(
+        id, 
+        create_time, 
+        creator, 
+        modified_time, 
+        file_name, 
+        total_count, 
+        fail_count, 
+        `status`, 
+        detail, 
+        need_download
+        )
+        values (
+        #{id}, 
+        now(), 
+        #{creator}, 
+        now(), 
+        #{fileName}, 
+        #{totalCount}, 
+        #{failCount}, 
+        #{status}, 
+        #{detail}, 
+        #{needDownload}
+        )
+    </insert>
+
+    <insert id="insertBatch">
+        insert into 
+        <include refid="Table"/>(
+        id, 
+        create_time, 
+        creator, 
+        modified_time, 
+        file_name, 
+        total_count, 
+        fail_count, 
+        `status`, 
+        detail, 
+        need_download
+        )
+        values
+        <foreach collection="list" item="obj" separator=",">(
+            (select replace(UUID(), '-', '') as id), 
+            now(), 
+            #{obj.creator}, 
+            now(), 
+            #{obj.fileName}, 
+            #{obj.totalCount}, 
+            #{obj.failCount}, 
+            #{obj.status}, 
+            #{obj.detail}, 
+            #{obj.needDownload}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteById">
+        delete from 
+        <include refid="Table"/>
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from 
+        <include refid="Table"/>
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="delete">
+        delete from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </delete>
+
+    <update id="update">
+        update 
+        <include refid="Table"/>
+        <set>
+            modified_time=now(),
+            <if test="modifier!=null">modifier=#{modifier},</if>
+            <if test="fileName!=null">file_name=#{fileName},</if>
+            <if test="totalCount!=null">total_count=#{totalCount},</if>
+            <if test="failCount!=null">fail_count=#{failCount},</if>
+            <if test="status!=null">`status`=#{status},</if>
+            <if test="detail!=null">detail=#{detail},</if>
+            <if test="needDownload!=null">need_download=#{needDownload},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateBatch">
+        update 
+        <include refid="Table"/>
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="modified_time=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    when id=#{obj.id} then now()
+                </foreach>
+            </trim>
+            <trim prefix="modifier=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.modifier!=null">
+                        when id=#{obj.id} then #{obj.modifier}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="file_name=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.fileName!=null">
+                        when id=#{obj.id} then #{obj.fileName}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="total_count=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.totalCount!=null">
+                        when id=#{obj.id} then #{obj.totalCount}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="fail_count=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.failCount!=null">
+                        when id=#{obj.id} then #{obj.failCount}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="`status`=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.status!=null">
+                        when id=#{obj.id} then #{obj.status}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="detail=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.detail!=null">
+                        when id=#{obj.id} then #{obj.detail}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="need_download=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.needDownload!=null">
+                        when id=#{obj.id} then #{obj.needDownload}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" item="obj" separator="," open="(" close=")">
+            #{obj.id}
+        </foreach>
+    </update>
+
+    <select id="findById" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where id = #{id}
+    </select>
+
+    <select id="findByIds" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="find" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+    </select>
+
+</mapper>

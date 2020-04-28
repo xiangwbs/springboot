@@ -1,10 +1,16 @@
 package com.xwbing.controller.rest;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -13,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,15 +29,16 @@ import com.xwbing.config.aliyun.AliYunLog;
 import com.xwbing.config.redis.RedisService;
 import com.xwbing.config.spring.ApplicationContextHelper;
 import com.xwbing.config.util.dingTalk.MarkdownMessage;
-import com.xwbing.demo.ExcelReadListener;
 import com.xwbing.domain.entity.rest.FilesUpload;
 import com.xwbing.service.rest.CookieSessionService;
+import com.xwbing.service.rest.EasyExcelDealService;
 import com.xwbing.service.rest.QRCodeZipService;
 import com.xwbing.service.rest.UploadService;
-import com.xwbing.util.EasyExcelUtil;
 import com.xwbing.util.EncodeUtil;
+import com.xwbing.util.FileUtil;
 import com.xwbing.util.JsonResult;
 import com.xwbing.util.RestMessage;
+import com.xwbing.util.ZipUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -57,17 +65,33 @@ public class MockControl {
     private RedisService redisService;
     @Resource
     private AliYunLog aliYunLog;
+    @Resource
+    private EasyExcelDealService easyExcelDealService;
     private List<byte[]> memoryBytes = new ArrayList<>();
 
     @ApiOperation("导出zip")
-    @GetMapping("batchGetImage")
-    public JSONObject batchGetImage(HttpServletResponse response, @RequestParam String[] names,
+    @GetMapping("downloadFileZip")
+    public JSONObject downloadFileZip(HttpServletResponse response, @RequestParam String[] names,
             @RequestParam String fileName) {
         if (StringUtils.isEmpty(fileName)) {
             return JsonResult.toJSONObj("zip名称不能为空");
         }
         RestMessage restMessage = qrCodeZipService.batchGetImage(response, names, fileName);
         return JsonResult.toJSONObj(restMessage);
+    }
+
+    @ApiOperation("urlZip")
+    @GetMapping("urlZip")
+    public void urlZip(@RequestParam String[] urls, @RequestParam String fileName, @RequestParam String path)
+            throws IOException {
+        //创建临时随机目录
+        Path tmp = Files.createTempDirectory("tmp");
+        ArrayList<File> files = Arrays.stream(urls).map(url -> {
+            String tmpFilePath = url.substring(url.lastIndexOf("/"), url.length());
+            return FileUtil.toFile(url, tmp + tmpFilePath);
+        }).collect(Collectors.toCollection(ArrayList::new));
+        ZipUtil.zipFile(files, fileName, path, "123456");
+        Files.delete(tmp);
     }
 
     @ApiOperation("获取数据库图片")
@@ -217,7 +241,7 @@ public class MockControl {
 
     @ApiOperation("excel文件下载")
     @GetMapping("download")
-    public void exportStream(HttpServletResponse response) throws IOException {
+    public void exportStream(HttpServletResponse response) {
         List<String> titles = new ArrayList<>();
         titles.add("姓名");
         titles.add("年龄");
@@ -226,41 +250,54 @@ public class MockControl {
         data.add("项伟兵");
         data.add(18);
         excelData.add(data);
-        EasyExcelUtil.download(response, "人员名单统计", "人员名单", titles, excelData);
-    }
-
-    @ApiOperation("生成加密excel")
-    @GetMapping("encryptWrite")
-    public void encryptWrite() throws IOException {
-        List<String> titles = new ArrayList<>();
-        titles.add("姓名");
-        titles.add("年龄");
-        List<List<Object>> excelData = new ArrayList<>();
-        List<Object> data = new ArrayList<>();
-        data.add("项伟兵");
-        data.add(18);
-        excelData.add(data);
-        EasyExcelUtil.encryptWrite("/Users/xwbing/Documents", "人员名单统计", "人员名单", "123456", titles, excelData);
+        easyExcelDealService.download(response, "人员名单统计", "人员名单", null, titles, excelData);
     }
 
     @ApiOperation("生成excel")
     @GetMapping("write")
     public void write() {
-        List<String> titles = new ArrayList<>();
-        titles.add("姓名");
-        titles.add("年龄");
         List<List<Object>> excelData = new ArrayList<>();
         List<Object> data = new ArrayList<>();
         data.add("项伟兵");
         data.add(18);
+        data.add("13488888888");
+        data.add("这是一条简介");
         excelData.add(data);
-        EasyExcelUtil.write("/Users/xwbing/Documents", "人员名单统计", "人员名单", titles, excelData);
+        List<Object> data1 = new ArrayList<>();
+        data1.add("李四");
+        data1.add(18);
+        data1.add("13488888888");
+        data1.add("法轮功");
+        excelData.add(data1);
+        List<Object> data2 = new ArrayList<>();
+        data2.add(null);
+        data2.add(18);
+        data2.add("13488888888");
+        data2.add("法轮功");
+        excelData.add(data2);
+        easyExcelDealService.write("/Users/xwbing/Documents", "人员名单统计", "人员名单", null, excelData);
     }
 
     @ApiOperation("读取excel")
     @GetMapping("read")
-    public void read() {
-        EasyExcelUtil.read("/Users/xwbing/Documents/人员名单统计.xlsx", 0, new ExcelReadListener());
+    public JSONObject read() {
+        String importId = easyExcelDealService.read("/Users/xwbing/Documents/导入模板.xlsx", 0, 1);
+        return JsonResult.toJSONObj(importId, "");
+    }
+
+    @ApiOperation("读取excel进度")
+    @PostMapping("getExcelProgress")
+    public JSONObject read(@RequestParam String importId) {
+        String total = redisService.get(EasyExcelDealService.EXCEL_TOTAL_COUNT_PREFIX + importId);
+        String deal = redisService.get(EasyExcelDealService.EXCEL_DEAL_COUNT_PREFIX + importId);
+        if (StringUtils.isEmpty(total)) {
+            JsonResult.toJSONObj(0, "");
+        }
+        int dealCount = StringUtils.isEmpty(deal) ? 0 : Integer.valueOf(deal);
+        Integer percent = new BigDecimal(dealCount)
+                .divide(new BigDecimal(Integer.valueOf(total)), 2, BigDecimal.ROUND_HALF_UP)
+                .multiply(new BigDecimal(100)).intValue();
+        return JsonResult.toJSONObj(percent, "");
     }
 }
 

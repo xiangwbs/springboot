@@ -1,15 +1,16 @@
 package com.xwbing.config.redis;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.xwbing.config.exception.ConfigException;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * redis服务加载类,封装jedis接口
@@ -316,6 +317,16 @@ public class RedisService {
             jedis = getJedis();
             key = prefix + key;
             return jedis.incr(key);
+        } finally {
+            returnJedis(jedis);
+        }
+    }
+    public Long incrBy(String key,Integer value) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            key = prefix + key;
+            return jedis.incrBy(key,value);
         } finally {
             returnJedis(jedis);
         }

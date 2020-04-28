@@ -1,13 +1,20 @@
 package com.xwbing.util;
 
-import com.alibaba.fastjson.JSONObject;
-import com.xwbing.exception.UtilException;
-import lombok.extern.slf4j.Slf4j;
+import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.springframework.beans.BeanUtils;
 
-import java.beans.PropertyDescriptor;
-import java.util.*;
+import com.alibaba.fastjson.JSONObject;
+import com.xwbing.exception.UtilException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 实体转换
@@ -20,24 +27,23 @@ public class ConvertUtil {
      * 实体对象不序列化转换成jsonObject
      *
      * @param obj
+     *
      * @return
      */
     public static Object beanToJson(Object obj) {
         if (obj == null) {
             return null;
-        } else if (obj instanceof String || obj instanceof JSONObject || obj instanceof Map) {
+        } else if (obj instanceof String || obj instanceof JSONObject || obj instanceof Map || obj instanceof Integer) {
             return obj;
         } else if (obj instanceof List) {
             ArrayList<JSONObject> result = new ArrayList<>();
-            ((List<?>) obj).forEach(one -> result.add((JSONObject) beanToJson(one)));
+            ((List<?>)obj).forEach(one -> result.add((JSONObject)beanToJson(one)));
             return result;
         } else {
             Map<String, Object> params = new HashMap<>(20);
             PropertyUtilsBean propertyUtilsBean = new PropertyUtilsBean();
             PropertyDescriptor[] descriptors = propertyUtilsBean.getPropertyDescriptors(obj);
-            Arrays.stream(descriptors)
-                    .map(PropertyDescriptor::getName)
-                    .filter(name -> !"class".equals(name))
+            Arrays.stream(descriptors).map(PropertyDescriptor::getName).filter(name -> !"class".equals(name))
                     .forEach(name -> {
                         try {
                             params.put(name, propertyUtilsBean.getNestedProperty(obj, name));
@@ -57,6 +63,7 @@ public class ConvertUtil {
      * @param toClass
      * @param <F>
      * @param <T>
+     *
      * @return
      */
     public static <F, T> T convert(F fromObj, Class<T> toClass) {
@@ -80,6 +87,7 @@ public class ConvertUtil {
      * @param toClass
      * @param <F>
      * @param <T>
+     *
      * @return
      */
     public static <F, T> List<T> convertList(List<F> fromList, Class<T> toClass) {
