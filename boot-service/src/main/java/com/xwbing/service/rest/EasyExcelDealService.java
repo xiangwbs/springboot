@@ -79,7 +79,7 @@ public class EasyExcelDealService {
     public void download(HttpServletResponse response, String importId) {
         ImportTask importTask = importTaskService.getById(importId);
         if (importTask == null) {
-            throw new BusinessException("下载记录不存在");
+            throw new BusinessException("导入任务不存在");
         }
         List<List<Object>> excelData = new ArrayList<>();
         List<ImportFailLog> importFailLogs = importFailLogService.listByImportId(importId);
