@@ -162,12 +162,17 @@ public class EasyExcelDealService {
         Integer totalCount = Optional.ofNullable(importTask.getTotalCount()).orElse(0);
         Integer failCount = Optional.ofNullable(importTask.getFailCount()).orElse(0);
         Integer successCount = totalCount - failCount;
-        if (ImportStatusEnum.FAIL.getCode().equals(importTask.getStatus())) {
+        String status = importTask.getStatus();
+        if (ImportStatusEnum.FAIL.getCode().equals(status)) {
             return ExcelProcessVo.builder().process(100).errorCount(failCount).successCount(successCount)
                     .msg(importTask.getDetail()).success(false).build();
         } else {
-            int process = 0;
-            if (!totalCount.equals(0)) {
+            int process;
+            if (ImportStatusEnum.SUCCESS.getCode().equals(status)) {
+                process = 100;
+            } else if (totalCount.equals(0)) {
+                process = 0;
+            } else {
                 String deal = redisService.get(EXCEL_DEAL_COUNT_PREFIX + importId);
                 int dealCount = StringUtils.isEmpty(deal) ? 0 : Integer.valueOf(deal);
                 process = new BigDecimal(dealCount).divide(new BigDecimal(totalCount), 2, BigDecimal.ROUND_HALF_UP)
