@@ -56,7 +56,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class EasyExcelDealService {
-    public static final String EXCEL_DEAL_COUNT_PREFIX = "excel_deal_count_";
+    private static final String EXCEL_DEAL_COUNT_PREFIX = "excel_deal_count_";
     @Resource
     private RedisService redisService;
     @Resource
