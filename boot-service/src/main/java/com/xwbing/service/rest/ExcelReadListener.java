@@ -14,7 +14,6 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.redis.RedisService;
 import com.xwbing.constant.ImportStatusEnum;
 import com.xwbing.domain.entity.rest.ImportFailLog;
 import com.xwbing.domain.entity.rest.ImportTask;
@@ -44,15 +43,13 @@ public class ExcelReadListener extends AnalysisEventListener<ExcelVo> {
     private final String importId;
     private final int headRowNum;
     private final EasyExcelDealService easyExcelDealService;
-    private final RedisService redisService;
     private final ThreadPoolTaskExecutor taskExecutor;
     private final ImportTaskService importTaskService;
     private final ImportFailLogService importFailLogService;
 
-    public ExcelReadListener(RedisService redisService, String importId, int headRowNum,
-            EasyExcelDealService easyExcelDealService, ThreadPoolTaskExecutor taskExecutor,
-            ImportTaskService importTaskService, ImportFailLogService importFailLogService) {
-        this.redisService = redisService;
+    public ExcelReadListener(String importId, int headRowNum, EasyExcelDealService easyExcelDealService,
+            ThreadPoolTaskExecutor taskExecutor, ImportTaskService importTaskService,
+            ImportFailLogService importFailLogService) {
         this.importId = importId;
         this.headRowNum = headRowNum;
         this.easyExcelDealService = easyExcelDealService;
