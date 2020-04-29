@@ -109,6 +109,8 @@ public class EasyExcelDealService {
                 log.error("downloadExcelError with importId={}", importId, e);
                 throw new BusinessException("下载文件失败");
             }
+        } else {
+            throw new BusinessException("无失败数据");
         }
     }
 
