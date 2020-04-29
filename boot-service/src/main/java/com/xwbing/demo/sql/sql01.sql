@@ -21,6 +21,8 @@ ADD COLUMN `col` bigint(20) DEFAULT NULL COMMENT 'xxx' after `col`,
 ADD COLUMN `col` bit(1) DEFAULT NULL COMMENT 'xxx' after `col`,
 ADD COLUMN `col` varchar(32) DEFAULT NULL COMMENT 'xxx' after `col`;
 
+ALTER TABLE `table` MODIFY COLUMN `col`varchar(10) not null COMMENT 'xxx'
+
 
 DML
 插入数据

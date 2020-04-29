@@ -57,7 +57,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class EasyExcelDealService {
     public static final String EXCEL_DEAL_COUNT_PREFIX = "excel_deal_count_";
-    public static final String EXCEL_TOTAL_COUNT_PREFIX = "excel_total_count_";
     @Resource
     private RedisService redisService;
     @Resource
@@ -155,24 +154,28 @@ public class EasyExcelDealService {
      *
      * @return
      */
-    public ExcelProcessVo getExcelProgress(String importId) {
-        String deal = redisService.get(EXCEL_DEAL_COUNT_PREFIX + importId);
-        String total = redisService.get(EXCEL_TOTAL_COUNT_PREFIX + importId);
-        int process = 0;
-        if (StringUtils.isNotEmpty(total)) {
-            int dealCount = StringUtils.isEmpty(deal) ? 0 : Integer.valueOf(deal);
-            process = Integer.valueOf(total) == 0 ?
-                    0 :
-                    new BigDecimal(dealCount)
-                            .divide(new BigDecimal(Integer.valueOf(total)), 2, BigDecimal.ROUND_HALF_UP)
-                            .multiply(new BigDecimal(100)).intValue();
-        }
+    public ExcelProcessVo getProcess(String importId) {
         ImportTask importTask = importTaskService.getById(importId);
+        if (importTask == null) {
+            throw new BusinessException("导入任务不存在");
+        }
         Integer totalCount = Optional.ofNullable(importTask.getTotalCount()).orElse(0);
         Integer failCount = Optional.ofNullable(importTask.getFailCount()).orElse(0);
-        boolean success = !"fail".equals(importTask.getStatus());
-        return ExcelProcessVo.builder().process(success ? process : 100).errorCount(importTask.getFailCount())
-                .successCount(totalCount - failCount).msg(importTask.getDetail()).success(success).build();
+        Integer successCount = totalCount - failCount;
+        if (ImportStatusEnum.FAIL.getCode().equals(importTask.getStatus())) {
+            return ExcelProcessVo.builder().process(100).errorCount(failCount).successCount(successCount)
+                    .msg(importTask.getDetail()).success(false).build();
+        } else {
+            int process = 0;
+            if (!totalCount.equals(0)) {
+                String deal = redisService.get(EXCEL_DEAL_COUNT_PREFIX + importId);
+                int dealCount = StringUtils.isEmpty(deal) ? 0 : Integer.valueOf(deal);
+                process = new BigDecimal(dealCount).divide(new BigDecimal(totalCount), 2, BigDecimal.ROUND_HALF_UP)
+                        .multiply(new BigDecimal(100)).intValue();
+            }
+            return ExcelProcessVo.builder().process(process).errorCount(importTask.getFailCount())
+                    .successCount(successCount).msg(importTask.getDetail()).success(true).build();
+        }
     }
 
     /**

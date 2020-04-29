@@ -137,7 +137,6 @@ public class ExcelReadListener extends AnalysisEventListener<ExcelVo> {
         ReadSheetHolder readSheetHolder = context.readSheetHolder();
         Integer totalRowNumber = readSheetHolder.getApproximateTotalRowNumber();
         this.totalCount = totalRowNumber <= SAMPLE_LINES ? 0 : totalRowNumber - SAMPLE_LINES;
-        redisService.set(EasyExcelDealService.EXCEL_TOTAL_COUNT_PREFIX + importId, String.valueOf(totalCount), 60 * 30);
         log.info("invokeHeadMap importId:{} totalCount:{}", importId, totalCount);
         //校验
         String errorMsg = null;

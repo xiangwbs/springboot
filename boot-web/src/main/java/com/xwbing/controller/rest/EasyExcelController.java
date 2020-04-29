@@ -42,9 +42,9 @@ public class EasyExcelController {
     }
 
     @ApiOperation("读取excel进度")
-    @GetMapping("getExcelProgress")
+    @GetMapping("getProcess")
     public JSONObject read(@RequestParam String importId) {
-        ExcelProcessVo excelProgress = easyExcelDealService.getExcelProgress(importId);
+        ExcelProcessVo excelProgress = easyExcelDealService.getProcess(importId);
         return JsonResult.toJSONObj(excelProgress, "");
     }
 

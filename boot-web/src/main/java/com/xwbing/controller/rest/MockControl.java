@@ -3,7 +3,6 @@ package com.xwbing.controller.rest;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -283,21 +281,6 @@ public class MockControl {
     public JSONObject read() {
         String importId = easyExcelDealService.read("/Users/xwbing/Documents/导入模板.xlsx", 0, 1);
         return JsonResult.toJSONObj(importId, "");
-    }
-
-    @ApiOperation("读取excel进度")
-    @PostMapping("getExcelProgress")
-    public JSONObject read(@RequestParam String importId) {
-        String total = redisService.get(EasyExcelDealService.EXCEL_TOTAL_COUNT_PREFIX + importId);
-        String deal = redisService.get(EasyExcelDealService.EXCEL_DEAL_COUNT_PREFIX + importId);
-        if (StringUtils.isEmpty(total)) {
-            JsonResult.toJSONObj(0, "");
-        }
-        int dealCount = StringUtils.isEmpty(deal) ? 0 : Integer.valueOf(deal);
-        Integer percent = new BigDecimal(dealCount)
-                .divide(new BigDecimal(Integer.valueOf(total)), 2, BigDecimal.ROUND_HALF_UP)
-                .multiply(new BigDecimal(100)).intValue();
-        return JsonResult.toJSONObj(percent, "");
     }
 }
 
