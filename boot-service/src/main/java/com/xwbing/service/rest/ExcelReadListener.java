@@ -41,17 +41,15 @@ public class ExcelReadListener extends AnalysisEventListener<ExcelVo> {
     private List<ExcelVo> list = new ArrayList<>();
     private int totalCount;
     private final String importId;
-    private final int headRowNum;
     private final EasyExcelDealService easyExcelDealService;
     private final ThreadPoolTaskExecutor taskExecutor;
     private final ImportTaskService importTaskService;
     private final ImportFailLogService importFailLogService;
 
-    public ExcelReadListener(String importId, int headRowNum, EasyExcelDealService easyExcelDealService,
+    public ExcelReadListener(String importId, EasyExcelDealService easyExcelDealService,
             ThreadPoolTaskExecutor taskExecutor, ImportTaskService importTaskService,
             ImportFailLogService importFailLogService) {
         this.importId = importId;
-        this.headRowNum = headRowNum;
         this.easyExcelDealService = easyExcelDealService;
         this.taskExecutor = taskExecutor;
         this.importTaskService = importTaskService;
