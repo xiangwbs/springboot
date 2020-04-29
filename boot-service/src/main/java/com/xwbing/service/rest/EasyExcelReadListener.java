@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2020年04月14日 下午9:51
  */
 @Slf4j
-public class ExcelReadListener extends AnalysisEventListener<ExcelVo> {
+public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
     /**
      * 每隔500条处理数据,然后清理list,方便内存回收
      */
@@ -46,7 +46,7 @@ public class ExcelReadListener extends AnalysisEventListener<ExcelVo> {
     private final ImportTaskService importTaskService;
     private final ImportFailLogService importFailLogService;
 
-    public ExcelReadListener(String importId, EasyExcelDealService easyExcelDealService,
+    public EasyExcelReadListener(String importId, EasyExcelDealService easyExcelDealService,
             ThreadPoolTaskExecutor taskExecutor, ImportTaskService importTaskService,
             ImportFailLogService importFailLogService) {
         this.importId = importId;

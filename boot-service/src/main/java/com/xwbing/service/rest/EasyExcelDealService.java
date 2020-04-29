@@ -137,7 +137,7 @@ public class EasyExcelDealService {
         CompletableFuture.runAsync(() -> {
             try (InputStream inputStream = excel.getInputStream()) {
                 EasyExcel.read(inputStream, ExcelVo.class,
-                        new ExcelReadListener(importId, this, taskExecutor, importTaskService, importFailLogService))
+                        new EasyExcelReadListener(importId, this, taskExecutor, importTaskService, importFailLogService))
                         .readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).sheet(sheetNo)
                         .headRowNumber(headRowNum).doRead();
             } catch (IOException e) {
@@ -328,7 +328,7 @@ public class EasyExcelDealService {
         }
         String importId = PassWordUtil.createUuId();
         CompletableFuture.runAsync(() -> EasyExcel.read(fileName,
-                new ExcelReadListener(importId, this, taskExecutor, importTaskService, importFailLogService))
+                new EasyExcelReadListener(importId, this, taskExecutor, importTaskService, importFailLogService))
                 .head(ExcelVo.class).readCache(new MapCache()).headRowNumber(headRowNum).ignoreEmptyRow(Boolean.FALSE)
                 .sheet(sheetNo).build());
         return importId;
