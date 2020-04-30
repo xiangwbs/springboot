@@ -1,24 +1,26 @@
 package com.xwbing.controller.sys;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.xwbing.annotation.LogInfo;
-import com.xwbing.domain.entity.vo.PageSysUserLoginInOutVo;
-import com.xwbing.service.sys.SysUserLoginInOutService;
-import com.xwbing.util.JsonResult;
-import com.xwbing.util.Pagination;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.annotations.ApiIgnore;
 
-import javax.annotation.Resource;
-import java.util.Map;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.xwbing.domain.entity.vo.PageSysUserLoginInOutVo;
+import com.xwbing.service.sys.SysUserLoginInOutService;
+import com.xwbing.util.JsonResult;
+import com.xwbing.util.Pagination;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * 项目名称: boot-module-pro
@@ -33,7 +35,6 @@ public class SysUserLoginInOutControl {
     @Resource
     private SysUserLoginInOutService inOutService;
 
-    @LogInfo("获取登录或登出信息")
     @ApiOperation(value = "获取登录或登出信息", response = PageSysUserLoginInOutVo.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "currentPage", value = "当前页", defaultValue = "1", paramType = "query", dataType = "int"),
@@ -45,7 +46,6 @@ public class SysUserLoginInOutControl {
         return JsonResult.toJSONObj(pagination, "获取列表成功");
     }
 
-    @LogInfo("获取饼图数据")
     @ApiOperation(value = "获取饼图数据")
     @GetMapping("pie")
     public JSONObject pie(@RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate) {
@@ -53,7 +53,6 @@ public class SysUserLoginInOutControl {
         return JsonResult.toJSONObj(pie, "");
     }
 
-    @LogInfo("获取柱状图数据")
     @ApiOperation(value = "获取柱状图数据")
     @GetMapping("bar")
     public JSONObject bar(@RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate) {

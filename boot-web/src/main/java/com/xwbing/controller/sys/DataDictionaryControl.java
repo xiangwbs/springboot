@@ -1,8 +1,19 @@
 package com.xwbing.controller.sys;
 
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.annotation.Idempotent;
-import com.xwbing.annotation.LogInfo;
 import com.xwbing.constant.CommonConstant;
 import com.xwbing.domain.entity.sys.DataDictionary;
 import com.xwbing.domain.entity.vo.DataDictionaryVo;
@@ -11,13 +22,9 @@ import com.xwbing.domain.entity.vo.RestMessageVo;
 import com.xwbing.service.sys.DataDictionaryService;
 import com.xwbing.util.JsonResult;
 import com.xwbing.util.RestMessage;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * 项目名称: boot-module-pro
@@ -32,8 +39,6 @@ public class DataDictionaryControl {
     @Resource
     private DataDictionaryService dataDictionaryService;
 
-    @Idempotent
-    @LogInfo("添加字典")
     @ApiOperation(value = "添加字典", response = RestMessageVo.class)
     @PostMapping("save")
     public JSONObject save(@RequestBody DataDictionary dictionary) {
@@ -41,7 +46,6 @@ public class DataDictionaryControl {
         return JsonResult.toJSONObj(result);
     }
 
-    @LogInfo("修改字典")
     @ApiOperation(value = "修改字典", response = RestMessageVo.class)
     @PutMapping("update")
     public JSONObject update(@RequestBody DataDictionary dictionary) {
@@ -52,7 +56,6 @@ public class DataDictionaryControl {
         return JsonResult.toJSONObj(result);
     }
 
-    @LogInfo("获取字典详情")
     @ApiOperation(value = "获取字典详情", response = DataDictionaryVo.class)
     @GetMapping("getById")
     public JSONObject getById(@RequestParam String id) {
@@ -66,7 +69,6 @@ public class DataDictionaryControl {
         return JsonResult.toJSONObj(dataDictionary, "");
     }
 
-    @LogInfo("校验编码")
     @ApiOperation(value = "校验编码", response = RestMessageVo.class)
     @PostMapping("uniqueCode")
     public JSONObject uniqueCode(@RequestParam String code, @RequestParam(required = false) String id) {
@@ -76,7 +78,6 @@ public class DataDictionaryControl {
         return JsonResult.toJSONObj(result);
     }
 
-    @LogInfo("根据父id列表查询")
     @ApiOperation(value = "根据父id列表查询", response = ListDataDictionaryVo.class)
     @GetMapping("findListByParent")
     public JSONObject findListByParent(@RequestParam(required = false, defaultValue = "Y") String enable, @RequestParam(required = false) String parentId) {
@@ -87,7 +88,6 @@ public class DataDictionaryControl {
         return JsonResult.toJSONObj(listByParent, "");
     }
 
-    @LogInfo("根据编码查询字典列表")
     @ApiOperation(value = "根据编码查询字典列表", response = ListDataDictionaryVo.class)
     @GetMapping("findListByCode")
     public JSONObject findListByCode(@RequestParam String code, @RequestParam(required = false, defaultValue = "Y") String enable) {

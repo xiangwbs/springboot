@@ -1,32 +1,53 @@
 package com.xwbing.controller.sys;
 
-import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.annotation.Idempotent;
-import com.xwbing.config.annotation.Lock;
-import com.xwbing.annotation.LogInfo;
-import com.xwbing.constant.CommonEnum;
-import com.xwbing.domain.entity.sys.SysAuthority;
-import com.xwbing.domain.entity.sys.SysRole;
-import com.xwbing.domain.entity.sys.SysUser;
-import com.xwbing.domain.entity.sys.SysUserRole;
-import com.xwbing.domain.entity.vo.*;
-import com.xwbing.service.sys.SysAuthorityService;
-import com.xwbing.service.sys.SysRoleService;
-import com.xwbing.service.sys.SysUserRoleService;
-import com.xwbing.service.sys.SysUserService;
-import com.xwbing.util.*;
-import io.swagger.annotations.*;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.*;
-import springfox.documentation.annotations.ApiIgnore;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.alibaba.fastjson.JSONObject;
+import com.xwbing.config.annotation.Idempotent;
+import com.xwbing.config.annotation.Lock;
+import com.xwbing.constant.CommonEnum;
+import com.xwbing.domain.entity.sys.SysAuthority;
+import com.xwbing.domain.entity.sys.SysRole;
+import com.xwbing.domain.entity.sys.SysUser;
+import com.xwbing.domain.entity.sys.SysUserRole;
+import com.xwbing.domain.entity.vo.ListSysAuthorityVo;
+import com.xwbing.domain.entity.vo.ListSysRoleVo;
+import com.xwbing.domain.entity.vo.PageSysUserVo;
+import com.xwbing.domain.entity.vo.RestMessageVo;
+import com.xwbing.domain.entity.vo.SysUserVo;
+import com.xwbing.service.sys.SysAuthorityService;
+import com.xwbing.service.sys.SysRoleService;
+import com.xwbing.service.sys.SysUserRoleService;
+import com.xwbing.service.sys.SysUserService;
+import com.xwbing.util.CommonDataUtil;
+import com.xwbing.util.JsonResult;
+import com.xwbing.util.Pagination;
+import com.xwbing.util.RestMessage;
+import com.xwbing.util.ThreadLocalUtil;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * 说明: 用户控制层
@@ -48,7 +69,6 @@ public class SysUserControl {
     private SysAuthorityService sysAuthorityService;
 
     @Idempotent
-    @LogInfo("添加用户")
     @ApiOperation(value = "添加用户", response = RestMessageVo.class)
     @ApiImplicitParam(name = "sign", value = "签名", paramType = "header", dataType = "string")
     @PostMapping("save")
@@ -57,7 +77,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(result);
     }
 
-    @LogInfo("删除用户")
     @ApiOperation(value = "删除用户", response = RestMessageVo.class)
     @DeleteMapping("removeById/{id}")
     public JSONObject removeById(@PathVariable String id) {
@@ -69,7 +88,6 @@ public class SysUserControl {
     }
 
     @Lock(value = "#p0.getId()", remark = "用户信息修改中，请稍后", timeout = 60)
-    @LogInfo("修改用户信息")
     @ApiOperation(value = "修改用户信息", response = RestMessageVo.class)
     @PutMapping("update")
     public JSONObject update(@RequestBody @Valid SysUser sysUser) {
@@ -80,7 +98,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(result);
     }
 
-    @LogInfo("获取用户详情")
     @ApiOperation(value = "获取用户详情", response = SysUserVo.class)
     @GetMapping("getById")
     public JSONObject getById(@RequestParam String id) {
@@ -94,7 +111,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(sysUser, "");
     }
 
-    @LogInfo("查询所有用户")
     @ApiOperation(value = "查询所有用户", response = PageSysUserVo.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "currentPage", value = "当前页", defaultValue = "1", paramType = "query", dataType = "int"),
@@ -106,7 +122,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(pagination, "");
     }
 
-    @LogInfo("登录")
     @ApiOperation(value = "登录", response = RestMessageVo.class)
     @PostMapping("login")
     public JSONObject login(HttpServletRequest request, @RequestParam String userName, @RequestParam String passWord, @RequestParam String checkCode) {
@@ -120,7 +135,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(login);
     }
 
-    @LogInfo("登出")
     @ApiOperation(value = "登出", response = RestMessageVo.class)
     @GetMapping("logout")
     public JSONObject logout(HttpServletRequest request) {
@@ -128,7 +142,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(logout);
     }
 
-    @LogInfo("修改密码")
     @ApiOperation(value = "修改密码", response = RestMessageVo.class)
     @PostMapping("updatePassWord")
     public JSONObject updatePassWord(@RequestParam String newPassWord, @RequestParam String oldPassWord, @RequestParam String id) {
@@ -142,7 +155,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(restMessage);
     }
 
-    @LogInfo("重置密码")
     @ApiOperation(value = "重置密码", response = RestMessageVo.class)
     @GetMapping("resetPassWord")
     public JSONObject resetPassWord(@RequestParam String id) {
@@ -153,7 +165,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(restMessage);
     }
 
-    @LogInfo("获取当前登录用户信息")
     @ApiOperation(value = "获取当前登录用户信息")
     @GetMapping("getLoginUserInfo")
     public JSONObject getLoginUserInfo() {
@@ -185,7 +196,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(sysUser, "");
     }
 
-    @LogInfo("保存用户角色")
     @ApiOperation(value = "保存用户角色", response = RestMessageVo.class)
     @PostMapping("saveRole")
     public JSONObject saveRole(@RequestParam String roleIds, @RequestParam String userId) {
@@ -215,7 +225,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(restMessage);
     }
 
-    @LogInfo("根据用户主键查找所拥有的角色")
     @ApiOperation(value = "根据用户主键查找所拥有的角色", response = ListSysRoleVo.class)
     @GetMapping("listRoleByUserId")
     public JSONObject listRoleByUserId(@RequestParam String userId, @RequestParam(required = false) String enable) {
@@ -226,7 +235,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(list, "");
     }
 
-    @LogInfo("根据用户主键查找所拥有的权限")
     @ApiOperation(value = "根据用户主键查找所拥有的权限", response = ListSysAuthorityVo.class)
     @GetMapping("listAuthorityByUserId")
     public JSONObject listAuthorityByUserId(@RequestParam String userId, @RequestParam(required = false) String enable) {
@@ -237,7 +245,6 @@ public class SysUserControl {
         return JsonResult.toJSONObj(list, "");
     }
 
-    @LogInfo("导出用户excel表")
     @ApiOperation(value = "导出用户excel表")
     @GetMapping("exportReport")
     public void exportReport(HttpServletResponse response) {

@@ -1,8 +1,23 @@
 package com.xwbing.controller.sys;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.config.annotation.Idempotent;
-import com.xwbing.annotation.LogInfo;
 import com.xwbing.domain.entity.sys.SysAuthority;
 import com.xwbing.domain.entity.sys.SysRole;
 import com.xwbing.domain.entity.sys.SysRoleAuthority;
@@ -15,17 +30,12 @@ import com.xwbing.service.sys.SysRoleService;
 import com.xwbing.util.JsonResult;
 import com.xwbing.util.Pagination;
 import com.xwbing.util.RestMessage;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 项目名称: boot-module-pro
@@ -45,7 +55,6 @@ public class SysRoleControl {
     private SysRoleAuthorityService sysRoleAuthorityService;
 
     @Idempotent
-    @LogInfo("添加角色")
     @ApiOperation(value = "添加角色", response = RestMessageVo.class)
     @ApiImplicitParam(name = "sign", value = "签名", paramType = "header", dataType = "string")
     @PostMapping("save")
@@ -54,7 +63,6 @@ public class SysRoleControl {
         return JsonResult.toJSONObj(result);
     }
 
-    @LogInfo("删除角色")
     @ApiOperation(value = "删除角色", response = RestMessageVo.class)
     @DeleteMapping("removeById/{id}")
     public JSONObject removeById(@PathVariable String id) {
@@ -65,7 +73,6 @@ public class SysRoleControl {
         return JsonResult.toJSONObj(result);
     }
 
-    @LogInfo("修改角色")
     @ApiOperation(value = "修改角色", response = RestMessageVo.class)
     @PutMapping("update")
     public JSONObject update(@RequestBody SysRole sysRole) {
@@ -76,7 +83,6 @@ public class SysRoleControl {
         return JsonResult.toJSONObj(result);
     }
 
-    @LogInfo("获取角色详情")
     @ApiOperation(value = "获取角色详情", response = SysRoleVo.class)
     @GetMapping("getById")
     public JSONObject getById(@RequestParam String id) {
@@ -90,7 +96,6 @@ public class SysRoleControl {
         return JsonResult.toJSONObj(sysRole, "");
     }
 
-    @LogInfo("根据是否启用分页查询所有角色")
     @ApiOperation(value = "根据是否启用分页查询所有角色", response = PageSysRoleVo.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "currentPage", value = "当前页", defaultValue = "1", paramType = "query", dataType = "int"),
@@ -102,7 +107,6 @@ public class SysRoleControl {
         return JsonResult.toJSONObj(pagination, "");
     }
 
-    @LogInfo("根据角色主键查找权限")
     @ApiOperation(value = "根据角色主键查找权限", response = PageSysRoleVo.class)
     @GetMapping("listAuthorityByRoleId")
     public JSONObject listAuthorityByRoleId(@RequestParam String roleId, @RequestParam(required = false) String enable) {
@@ -117,7 +121,6 @@ public class SysRoleControl {
         return JsonResult.toJSONObj(authoritys, "");
     }
 
-    @LogInfo("保存角色权限")
     @ApiOperation(value = "保存角色权限", response = RestMessageVo.class)
     @PostMapping("saveAuthority")
     public JSONObject saveAuthority(@RequestParam String authorityIds, @RequestParam String roleId) {
