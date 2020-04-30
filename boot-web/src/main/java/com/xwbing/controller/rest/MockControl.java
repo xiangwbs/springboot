@@ -80,7 +80,7 @@ public class MockControl {
 
     @ApiOperation("urlZip")
     @GetMapping("urlZip")
-    public void urlZip(@RequestParam String[] urls, @RequestParam String fileName, @RequestParam String path)
+    public void urlZip(HttpServletResponse response,@RequestParam String[] urls, @RequestParam String fileName, @RequestParam String path)
             throws IOException {
         //创建临时随机目录
         Path tmp = Files.createTempDirectory("tmp");
@@ -88,7 +88,7 @@ public class MockControl {
             String tmpFilePath = url.substring(url.lastIndexOf("/"), url.length());
             return FileUtil.toFile(url, tmp + tmpFilePath);
         }).collect(Collectors.toCollection(ArrayList::new));
-        ZipUtil.zipFile(files, fileName, path, "123456");
+        ZipUtil.zipFile(response,files, path, fileName);
         Files.delete(tmp);
     }
 
