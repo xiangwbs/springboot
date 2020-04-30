@@ -1,26 +1,15 @@
 package com.xwbing.service;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.xwbing.BaseTest;
-import com.xwbing.domain.entity.model.ExpressInfo;
-import com.xwbing.domain.entity.sys.DataDictionary;
-import com.xwbing.domain.entity.sys.SysRole;
-import com.xwbing.domain.entity.sys.SysUserLoginInOut;
-import com.xwbing.domain.entity.vo.ExpressInfoVo;
-import com.xwbing.domain.mapper.sys.SysUserLoginInOutMapper;
-import com.xwbing.rabbit.Sender;
-import com.xwbing.config.redis.RedisService;
-import com.xwbing.service.rest.ExpressDeliveryService;
-import com.xwbing.service.rest.QRCodeZipService;
-import com.xwbing.service.sys.DataDictionaryService;
-import com.xwbing.service.sys.SysRoleService;
-import com.xwbing.util.Pagination;
-import com.xwbing.util.RSAUtil;
-import com.xwbing.util.RestMessage;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,14 +20,28 @@ import org.mybatis.generator.internal.DefaultShellCallback;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.xwbing.BaseTest;
+import com.xwbing.config.redis.RedisService;
+import com.xwbing.domain.entity.model.ExpressInfo;
+import com.xwbing.domain.entity.sys.DataDictionary;
+import com.xwbing.domain.entity.sys.SysRole;
+import com.xwbing.domain.entity.sys.SysUserLoginInOut;
+import com.xwbing.domain.entity.vo.ExpressInfoVo;
+import com.xwbing.domain.mapper.sys.SysUserLoginInOutMapper;
+import com.xwbing.rabbit.Sender;
+import com.xwbing.service.rest.ExpressDeliveryService;
+import com.xwbing.service.rest.QRCodeZipService;
+import com.xwbing.service.sys.DataDictionaryService;
+import com.xwbing.service.sys.SysRoleService;
+import com.xwbing.util.Pagination;
+import com.xwbing.util.RSAUtil;
+import com.xwbing.util.RestMessage;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 项目名称: boot-module-pro
@@ -146,7 +149,7 @@ public class ServiceTest extends BaseTest {
 
     @Test
     public void sendTest() {
-        sender.sendMessage("mq测试");
+        sender.sendMessage(new String[]{"mq测试"});
     }
 
     @Test
