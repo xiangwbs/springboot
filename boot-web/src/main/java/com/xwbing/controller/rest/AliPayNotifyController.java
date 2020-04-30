@@ -1,20 +1,22 @@
 package com.xwbing.controller.rest;
 
-import com.alibaba.fastjson.JSONObject;
-import com.xwbing.annotation.LogInfo;
-import com.xwbing.domain.entity.pay.alipay.AliPayTradePayNotifyRequest;
-import com.xwbing.domain.entity.vo.RestMessageVo;
-import com.xwbing.service.pay.AliPayNotifyService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import com.alibaba.fastjson.JSONObject;
+import com.xwbing.domain.entity.pay.alipay.AliPayTradePayNotifyRequest;
+import com.xwbing.domain.entity.vo.RestMessageVo;
+import com.xwbing.service.pay.AliPayNotifyService;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xiangwb
@@ -28,7 +30,6 @@ public class AliPayNotifyController {
     @Resource
     private AliPayNotifyService aliPayNotifyService;
 
-    @LogInfo("支付宝统一收单交易支付异步通知")
     @ApiOperation(value = "支付宝统一收单交易支付异步通知", response = RestMessageVo.class)
     @PostMapping("tradePay")
     public void tradePayNotify(AliPayTradePayNotifyRequest alipayTradePayNotifyRequest, HttpServletResponse response) throws IOException {

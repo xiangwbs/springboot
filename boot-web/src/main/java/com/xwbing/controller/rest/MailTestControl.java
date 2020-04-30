@@ -1,19 +1,21 @@
 package com.xwbing.controller.rest;
 
-import com.alibaba.fastjson.JSONObject;
-import com.xwbing.annotation.LogInfo;
-import com.xwbing.service.rest.MailService;
-import com.xwbing.util.JsonResult;
-import com.xwbing.util.RestMessage;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import java.io.IOException;
+
+import javax.annotation.Resource;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import java.io.IOException;
+import com.alibaba.fastjson.JSONObject;
+import com.xwbing.service.rest.MailService;
+import com.xwbing.util.JsonResult;
+import com.xwbing.util.RestMessage;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 /**
  * 项目名称: sb-boot-module-pro
@@ -28,7 +30,6 @@ public class MailTestControl {
     @Resource
     private MailService mailService;
 
-    @LogInfo("发送纯文本邮件")
     @GetMapping("sendSimpleMail")
     @ApiOperation(value = "发送纯文本邮件")
     public JSONObject sendSimpleMail() {
@@ -36,7 +37,6 @@ public class MailTestControl {
         return JsonResult.toJSONObj(restMessage);
     }
 
-    @LogInfo("发送html格式邮件")
     @GetMapping("sendHtmlMail")
     @ApiOperation(value = "发送html格式邮件")
     public JSONObject sendHtmlMail() {
@@ -49,7 +49,6 @@ public class MailTestControl {
         return JsonResult.toJSONObj(restMessage);
     }
 
-    @LogInfo("发送带附件邮件")
     @GetMapping("sendAttachmentsMail")
     @ApiOperation(value = "发送带附件邮件")
     public JSONObject sendAttachmentsMail() throws IOException {
@@ -61,7 +60,6 @@ public class MailTestControl {
         return JsonResult.toJSONObj(restMessage);
     }
 
-    @LogInfo("发送文本内嵌图片邮件")
     @GetMapping("sendInlineResourceMail")
     @ApiOperation(value = "发送文本内嵌图片邮件")
     public JSONObject sendInlineResourceMail() {

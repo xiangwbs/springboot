@@ -1,21 +1,28 @@
 package com.xwbing.handler;
 
-import com.alibaba.fastjson.JSONObject;
-import com.xwbing.annotation.LogInfo;
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import com.alibaba.fastjson.JSONObject;
+import com.xwbing.annotation.LogInfo;
+
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 说明: web层日志记录切面
@@ -30,8 +37,8 @@ public class WebLogAspect {
     private final ThreadLocal<Long> startTime = new ThreadLocal<>();
 
     //类型限定表达式
-    @Pointcut("within(com.xwbing.controller..*) && @annotation(logInfo)")
-    public void pointCutWithMsg(LogInfo logInfo) {
+    @Pointcut("within(com.xwbing.controller..*) && @annotation(operation)")
+    public void pointCutWithMsg(ApiOperation operation) {
     }
 
     //名称限定表达式
@@ -42,13 +49,13 @@ public class WebLogAspect {
     /**
      * 前置通知
      *
-     * @param logInfo
+     * @param operation
      */
-    @Before(value = "pointCutWithMsg(logInfo)", argNames = "joinPoint,logInfo")
-    public void before(JoinPoint joinPoint, LogInfo logInfo) {
+    @Before(value = "pointCutWithMsg(operation)", argNames = "joinPoint,operation")
+    public void before(JoinPoint joinPoint, ApiOperation operation) {
         startTime.set(System.currentTimeMillis());
         //注解信息
-        String info = logInfo.value();
+        String info = operation.value();
         //获取相应类名
         String targetName = joinPoint.getTarget().getClass().getName();
         //获取方法名
@@ -67,14 +74,14 @@ public class WebLogAspect {
     /**
      * 后置通知
      *
-     * @param logInfo
+     * @param operation
      */
-    @AfterReturning(pointcut = "pointCutWithMsg(logInfo)", argNames = "joinPoint,logInfo")
-    public void afterReturning(JoinPoint joinPoint, LogInfo logInfo) {
+    @AfterReturning(pointcut = "pointCutWithMsg(operation)", argNames = "joinPoint,operation")
+    public void afterReturning(JoinPoint joinPoint, ApiOperation operation) {
         long end = System.currentTimeMillis();
         long ms = end - startTime.get();
         startTime.remove();
-        String info = logInfo.value();
+        String info = operation.value();
         String targetName = joinPoint.getTarget().getClass().getName();
         String methodName = joinPoint.getSignature().getName();
         log.info("{}.{}: {} completed in {} ms", targetName, methodName, info, ms);

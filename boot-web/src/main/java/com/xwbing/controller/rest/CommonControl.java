@@ -1,21 +1,22 @@
 package com.xwbing.controller.rest;
 
-import com.alibaba.fastjson.JSONObject;
-import com.xwbing.annotation.LogInfo;
-import com.xwbing.domain.entity.vo.RestMessageVo;
-import com.xwbing.service.rest.CommonService;
-import com.xwbing.util.JsonResult;
-import com.xwbing.util.RestMessage;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import javax.annotation.Resource;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import com.alibaba.fastjson.JSONObject;
+import com.xwbing.domain.entity.vo.RestMessageVo;
+import com.xwbing.service.rest.CommonService;
+import com.xwbing.util.JsonResult;
+import com.xwbing.util.RestMessage;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 
 /**
  * 项目名称: boot-module-pro
@@ -30,7 +31,6 @@ public class CommonControl {
     @Resource
     private CommonService commonService;
 
-    @LogInfo("获取签名")
     @ApiOperation(value = "获取签名", response = RestMessageVo.class)
     @GetMapping("getSign")
     public JSONObject getSign() {
@@ -38,7 +38,7 @@ public class CommonControl {
         return JsonResult.toJSONObj(sign, "");
     }
 
-    @LogInfo("上传文件")
+    @ApiOperation("上传文件")
     @PostMapping("upload")
     public JSONObject upload(@ApiParam(value = "文件", required = true) MultipartFile file) {
         RestMessage restMessage = commonService.upload(file);
