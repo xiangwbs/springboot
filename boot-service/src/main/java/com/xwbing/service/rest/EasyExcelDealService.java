@@ -104,7 +104,8 @@ public class EasyExcelDealService {
                 response.setHeader("Pragma", "No-cache");
                 response.setHeader("Cache-Control", "no-cache");
                 response.setDateHeader("Expires", 0);
-                EasyExcel.write(outputStream, EasyExcelHeadVo.class).sheet("sheet0").doWrite(excelData);
+                EasyExcel.write(outputStream, EasyExcelHeadVo.class).autoTrim(Boolean.TRUE).sheet("sheet0")
+                        .doWrite(excelData);
             } catch (Exception e) {
                 log.error("downloadExcelError with importId={}", importId, e);
                 throw new BusinessException("下载文件失败");
@@ -116,14 +117,14 @@ public class EasyExcelDealService {
 
     /**
      * 读取excel
-     * headRowNum如果从0开始 会读取到表头数据 默认从1开始
+     *
      * analysisEventListener不能被spring管理，每次读取excel都要new，如果里面用到springBean可以用构造方法传进去
      * 超过5M，默认会用ehcache
      * ignoreEmptyRow默认为true 如要要统计进度条 改为false比较好
      *
      * @param excel
      * @param sheetNo
-     * @param headRowNum
+     * @param headRowNum 如果从0开始 会读取到表头数据 默认为1
      *
      * @return
      */
@@ -139,9 +140,9 @@ public class EasyExcelDealService {
         CompletableFuture.runAsync(() -> {
             try (InputStream inputStream = excel.getInputStream()) {
                 EasyExcel.read(inputStream, ExcelVo.class,
-                        new EasyExcelReadListener(importId, this, taskExecutor, importTaskService, importFailLogService))
-                        .readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).sheet(sheetNo)
-                        .headRowNumber(headRowNum).doRead();
+                        new EasyExcelReadListener(importId, this, taskExecutor, importTaskService,
+                                importFailLogService)).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE)
+                        .headRowNumber(headRowNum).sheet(sheetNo).doRead();
             } catch (IOException e) {
                 log.error("readExcelError importId:{} error:{}", importId, ExceptionUtils.getStackTrace(e));
             }
@@ -272,8 +273,8 @@ public class EasyExcelDealService {
             List<List<Object>> excelData) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
         try (OutputStream out = Files.newOutputStream(path)) {
-            EasyExcel.write(out).head(ExcelVo.class).password(password).sheet(sheetName).autoTrim(Boolean.TRUE)
-                    .doWrite(excelData);
+            EasyExcel.write(out).head(ExcelVo.class).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                    .password(password).sheet(sheetName).autoTrim(Boolean.TRUE).doWrite(excelData);
         } catch (IOException e) {
             log.error("excel write error:{}", e.getMessage());
         }
@@ -332,7 +333,7 @@ public class EasyExcelDealService {
         CompletableFuture.runAsync(() -> EasyExcel.read(fileName,
                 new EasyExcelReadListener(importId, this, taskExecutor, importTaskService, importFailLogService))
                 .head(ExcelVo.class).readCache(new MapCache()).headRowNumber(headRowNum).ignoreEmptyRow(Boolean.FALSE)
-                .sheet(sheetNo).build());
+                .sheet(sheetNo).doRead());
         return importId;
     }
 
