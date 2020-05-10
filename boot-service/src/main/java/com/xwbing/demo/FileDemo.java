@@ -76,7 +76,7 @@ public class FileDemo {
         ClassPathResource pic = new ClassPathResource("pic");//获取classes下file文件夹路径
         String absolutePath = pic.getFile().getAbsolutePath();
         //配置文件
-        String filePath = IODemo.class.getResource("/redis.properties").getPath();
+        String filePath = IODemo.class.getClassLoader().getResource("/redis.properties").getPath();
         InputStream in = IODemo.class.getResourceAsStream("/redis.properties");
     }
 }

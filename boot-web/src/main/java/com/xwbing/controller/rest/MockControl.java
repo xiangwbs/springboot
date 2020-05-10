@@ -282,5 +282,11 @@ public class MockControl {
         String importId = easyExcelDealService.read("/Users/xwbing/Documents/导入模板.xlsx", 0, 1);
         return JsonResult.toJSONObj(importId, "");
     }
+
+    @ApiOperation("test")
+    @GetMapping("test")
+    public void test() {
+
+    }
 }
 
