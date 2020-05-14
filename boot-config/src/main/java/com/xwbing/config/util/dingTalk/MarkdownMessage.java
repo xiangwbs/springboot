@@ -1,13 +1,14 @@
 package com.xwbing.config.util.dingTalk;
 
-import com.alibaba.fastjson.JSON;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.alibaba.fastjson.JSON;
 
 /**
  * @author xiangwb
@@ -74,12 +75,12 @@ public class MarkdownMessage implements Message {
         }
     }
 
-
     /**
      * 标题，总共六级
      *
      * @param headerType
      * @param text
+     *
      * @return
      */
     public static String getHeaderText(int headerType, String text) {
@@ -98,6 +99,7 @@ public class MarkdownMessage implements Message {
      * 引用
      *
      * @param text
+     *
      * @return
      */
     public static String getReferenceText(String text) {
@@ -108,6 +110,7 @@ public class MarkdownMessage implements Message {
      * 加粗
      *
      * @param text
+     *
      * @return
      */
     public static String getBoldText(String text) {
@@ -118,6 +121,7 @@ public class MarkdownMessage implements Message {
      * 斜体
      *
      * @param text
+     *
      * @return
      */
     public static String getItalicText(String text) {
@@ -129,6 +133,7 @@ public class MarkdownMessage implements Message {
      *
      * @param text
      * @param href
+     *
      * @return
      */
     public static String getLinkText(String text, String href) {
@@ -139,6 +144,7 @@ public class MarkdownMessage implements Message {
      * 图片
      *
      * @param imageUrl
+     *
      * @return
      */
     public static String getImageText(String imageUrl) {
@@ -149,6 +155,7 @@ public class MarkdownMessage implements Message {
      * 有序列表
      *
      * @param orderItem
+     *
      * @return
      */
     public static String getOrderListText(List<String> orderItem) {
@@ -167,6 +174,7 @@ public class MarkdownMessage implements Message {
      * 无序列表
      *
      * @param unOrderItem
+     *
      * @return
      */
     public static String getUnOrderListText(List<String> unOrderItem) {
@@ -181,6 +189,7 @@ public class MarkdownMessage implements Message {
         }
     }
 
+    @Override
     public String toJsonString() {
         Map<String, Object> items = new HashMap<>();
         //msgtype

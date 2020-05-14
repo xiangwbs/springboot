@@ -1,8 +1,8 @@
 package com.xwbing.util;
 
-import com.xwbing.exception.UtilException;
-
 import java.math.BigDecimal;
+
+import com.xwbing.exception.UtilException;
 
 /**
  * 数字工具类
@@ -17,11 +17,12 @@ public class DecimalUtil {
      *
      * @param v1
      * @param v2
+     *
      * @return Double
      */
     public static Double add(Double v1, Double v2) {
-        BigDecimal b1 = new BigDecimal(v1.toString());
-        BigDecimal b2 = new BigDecimal(v2.toString());
+        BigDecimal b1 = BigDecimal.valueOf(v1);
+        BigDecimal b2 = BigDecimal.valueOf(v2);
         return b1.add(b2).doubleValue();
     }
 
@@ -30,11 +31,12 @@ public class DecimalUtil {
      *
      * @param v1
      * @param v2
+     *
      * @return Double
      */
     public static Double sub(Double v1, Double v2) {
-        BigDecimal b1 = new BigDecimal(v1.toString());
-        BigDecimal b2 = new BigDecimal(v2.toString());
+        BigDecimal b1 = BigDecimal.valueOf(v1);
+        BigDecimal b2 = BigDecimal.valueOf(v2);
         return b1.subtract(b2).doubleValue();
     }
 
@@ -43,11 +45,12 @@ public class DecimalUtil {
      *
      * @param v1
      * @param v2
+     *
      * @return Double
      */
     public static Double mul(Double v1, Double v2) {
-        BigDecimal b1 = new BigDecimal(v1.toString());
-        BigDecimal b2 = new BigDecimal(v2.toString());
+        BigDecimal b1 = BigDecimal.valueOf(v1);
+        BigDecimal b2 = BigDecimal.valueOf(v2);
         return b1.multiply(b2).doubleValue();
     }
 
@@ -56,11 +59,12 @@ public class DecimalUtil {
      *
      * @param v1
      * @param v2
+     *
      * @return Double
      */
     public static Double div(Double v1, Double v2) {
-        BigDecimal b1 = new BigDecimal(v1.toString());
-        BigDecimal b2 = new BigDecimal(v2.toString());
+        BigDecimal b1 = BigDecimal.valueOf(v1);
+        BigDecimal b2 = BigDecimal.valueOf(v2);
         return b1.divide(b2, DEF_DIV_SCALE, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
@@ -70,26 +74,28 @@ public class DecimalUtil {
      * @param v1
      * @param v2
      * @param scale
+     *
      * @return Double
      */
     public static Double div(Double v1, Double v2, int scale) {
         if (scale < 0) {
             throw new UtilException("小数位数不能为负数");
         }
-        BigDecimal b1 = new BigDecimal(v1.toString());
-        BigDecimal b2 = new BigDecimal(v2.toString());
+        BigDecimal b1 = BigDecimal.valueOf(v1);
+        BigDecimal b2 = BigDecimal.valueOf(v2);
         return b1.divide(b2, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
     /**
      * 格式化double 四舍五入 保留n位小数
      *
-     * @param v1
+     * @param d
      * @param scale 小数位
+     *
      * @return
      */
-    public static Double format(Double v1, int scale) {
-        BigDecimal bg = new BigDecimal(v1);
+    public static Double format(Double d, int scale) {
+        BigDecimal bg = BigDecimal.valueOf(d);
         return bg.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
@@ -98,10 +104,11 @@ public class DecimalUtil {
      *
      * @param scale 小数位
      * @param d
+     *
      * @return
      */
     public static double decimalND(Double d, int scale) {
-        BigDecimal bg = new BigDecimal(d);
+        BigDecimal bg = BigDecimal.valueOf(d);
         return bg.setScale(scale, BigDecimal.ROUND_DOWN).doubleValue();
     }
 
@@ -110,23 +117,37 @@ public class DecimalUtil {
      *
      * @param scale 小数位
      * @param d
+     *
      * @return
      */
     public static double decimalNU(Double d, int scale) {
-        BigDecimal bg = new BigDecimal(d);
+        BigDecimal bg = BigDecimal.valueOf(d);
         return bg.setScale(scale, BigDecimal.ROUND_UP).doubleValue();
     }
 
     public static void main(String[] args) {
-        Double div = div((9.0), 8.0, 2);
-        System.out.println(div);
-        div = format(div, 1);
-        System.out.println(div);
-        Double format = format(6.2, 1);
-        System.out.println(format);
-        Double d = 1.11;
-        int i = d.intValue();
-        System.out.println(i);
+        BigDecimal a = BigDecimal.valueOf(1);
+        BigDecimal b = BigDecimal.valueOf(2);
+        //前提为a、b均不能为null
+        if (a.compareTo(b) == -1) {
+            System.out.println("a小于b");
+        }
+
+        if (a.compareTo(b) == 0) {
+            System.out.println("a等于b");
+        }
+
+        if (a.compareTo(b) == 1) {
+            System.out.println("a大于b");
+        }
+
+        if (a.compareTo(b) > -1) {
+            System.out.println("a大于等于b");
+        }
+
+        if (a.compareTo(b) < 1) {
+            System.out.println("a小于等于b");
+        }
     }
 }
 
