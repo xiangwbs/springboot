@@ -88,7 +88,7 @@ public class MockControl {
             String tmpFilePath = url.substring(url.lastIndexOf("/"), url.length());
             return FileUtil.toFile(url, tmp + tmpFilePath);
         }).collect(Collectors.toCollection(ArrayList::new));
-        ZipUtil.zipFile(response,files, path, fileName);
+        ZipUtil.downloadZip(response,files, path, fileName);
         Files.delete(tmp);
     }
 

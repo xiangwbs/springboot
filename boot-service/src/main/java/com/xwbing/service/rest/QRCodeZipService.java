@@ -118,7 +118,7 @@ public class QRCodeZipService {
     private RestMessage zipFile(HttpServletResponse response, List<File> files, String fileName) {
         RestMessage restMessage = new RestMessage();
         String path = getPath();
-        ZipUtil.zipFile(response, files, path, fileName);
+        ZipUtil.downloadZip(response, files, path, fileName);
         restMessage.setSuccess(true);
         restMessage.setMessage("导出zip文件成功");
         return restMessage;

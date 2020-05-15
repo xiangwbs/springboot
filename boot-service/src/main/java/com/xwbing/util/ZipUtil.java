@@ -2,12 +2,17 @@ package com.xwbing.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
@@ -25,10 +30,10 @@ import lombok.extern.slf4j.Slf4j;
 public class ZipUtil {
     /**
      * @param response 响应
-     * @param files    所有文件
+     * @param files 所有文件
      * @param fileName 文件名
      */
-    public static void zipFile(HttpServletResponse response, List<File> files, String path, String fileName) {
+    public static void downloadZip(HttpServletResponse response, List<File> files, String path, String fileName) {
         try {
             //classpath下有file文件夹
             File zipFile = new File(path + File.separator + fileName + ".zip");
@@ -65,13 +70,31 @@ public class ZipUtil {
             response.setHeader("Content-Disposition", "attachment;filename=" + fileName + ".zip");//在消息头里命名输出的zip文件夹名称
             response.setContentType("application/octet-stream; charset=utf-8");
             out.write(FileUtil.toByte(zipFile));
-//            out.flush();
+            //            out.flush();
             out.close();
             zipFile.delete();
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new UtilException("文件压缩错误");
         }
+    }
+
+    public void dealInputStream(InputStream inputStream, Charset charset) throws IOException {
+        ZipInputStream zin = new ZipInputStream(inputStream, charset);
+        BufferedInputStream bs = new BufferedInputStream(zin);
+        ZipEntry ze;
+        //循环读取压缩包里面的文件
+        while ((ze = zin.getNextEntry()) != null) {
+            if (ze.toString().endsWith("xxx.csv")) {
+                byte[] bytes = new byte[(int)ze.getSize()];
+                bs.read(bytes, 0, (int)ze.getSize());
+                //将文件转成流
+                InputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+                //处理文件
+            }
+        }
+        zin.closeEntry();
+        inputStream.close();
     }
 }
 

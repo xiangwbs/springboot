@@ -1,12 +1,29 @@
 package com.xwbing.demo;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.alibaba.fastjson.JSONObject;
+import com.csvreader.CsvReader;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 创建日期: 2017年2月21日 上午10:12:20
  * 作者: xiangwb
  */
-
+@Slf4j
 public class IODemo {
     public static void main(String[] args) throws Exception {
         /**
@@ -34,7 +51,6 @@ public class IODemo {
         byte[] da = new byte[is.available()];
         is.read(da);
         is.close();
-
 
         /**
          * 缓冲流
@@ -86,8 +102,41 @@ public class IODemo {
         PrintWriter pw = new PrintWriter("io.txt", "utf-8");//PrintWriter可以直接创建基于文件进行写操作
         pw.close();
 
-        PrintWriter pw1 = new PrintWriter(new OutputStreamWriter(new FileOutputStream("io.txt"),"utf-8"), true);//当第一个参数为流，可以使用第二个参数来指定是否自动flush
+        PrintWriter pw1 = new PrintWriter(new OutputStreamWriter(new FileOutputStream("io.txt"), "utf-8"),
+                true);//当第一个参数为流，可以使用第二个参数来指定是否自动flush
         pw1.println("......");
         pw1.close();
+    }
+
+    private void dealCsv(InputStream inputStream) {
+        log.info("dealCsv start");
+        CsvReader reader = null;
+        try {
+            //如果生产文件乱码，windows下用gbk，linux用UTF-8
+            reader = new CsvReader(inputStream, ',', Charset.forName("gbk"));
+            List<JSONObject> list = new ArrayList<>();
+            while (reader.readRecord()) {
+                String accountLogId = reader.get(0);
+                if (accountLogId.contains("#")) {
+                    continue;
+                }
+                String merchantOrderNo = reader.get(2);
+                if (merchantOrderNo.startsWith("")) {
+                    list.add(null);
+                    if (list.size() >= 500) {
+                        // TODO: 2020/5/15 处理集合数据
+                        list.clear();
+                    }
+                }
+            }
+            // TODO: 2020/5/15 处理集合数据
+        } catch (Exception e) {
+            log.error("dealCsv error", e);
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
+        log.info("dealCsv end");
     }
 }
