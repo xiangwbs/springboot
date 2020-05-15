@@ -22,21 +22,39 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class FileUtil {
+    public static InputStream urlToStream(String url) {
+        try (InputStream inputStream = new URL(url).openConnection().getInputStream()) {
+            return inputStream;
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new UtilException("url转化为流错误");
+        }
+    }
+
+    public static byte[] urlToByte(String url) {
+        try (InputStream inputStream = new URL(url).openConnection().getInputStream()) {
+            return toByte(inputStream);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new UtilException("url转化为byte错误");
+        }
+    }
+
+    public static File urlToFile(String url, String fullPath) {
+        try (InputStream inputStream = new URL(url).openConnection().getInputStream()) {
+            return toFile(inputStream, fullPath);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new UtilException("图片url转化为byte错误");
+        }
+    }
+
     public static byte[] toByte(File file) {
         try (FileInputStream fis = new FileInputStream(file)) {
             return toByte(fis);
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new UtilException("文件转为byte错误");
-        }
-    }
-
-    public static byte[] toByte(String url) {
-        try (InputStream inputStream = new URL(url).openConnection().getInputStream()) {
-            return toByte(inputStream);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            throw new UtilException("图片url转化为byte错误");
         }
     }
 
@@ -69,15 +87,6 @@ public class FileUtil {
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new UtilException("流转化为文件错误");
-        }
-    }
-
-    public static File toFile(String url, String fullPath) {
-        try (InputStream inputStream = new URL(url).openConnection().getInputStream()) {
-            return toFile(inputStream, fullPath);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            throw new UtilException("图片url转化为byte错误");
         }
     }
 }

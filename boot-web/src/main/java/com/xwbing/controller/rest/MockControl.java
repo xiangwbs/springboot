@@ -86,7 +86,7 @@ public class MockControl {
         Path tmp = Files.createTempDirectory("tmp");
         ArrayList<File> files = Arrays.stream(urls).map(url -> {
             String tmpFilePath = url.substring(url.lastIndexOf("/"), url.length());
-            return FileUtil.toFile(url, tmp + tmpFilePath);
+            return FileUtil.urlToFile(url, tmp + tmpFilePath);
         }).collect(Collectors.toCollection(ArrayList::new));
         ZipUtil.downloadZip(response,files, path, fileName);
         Files.delete(tmp);
