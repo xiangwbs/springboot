@@ -1,6 +1,7 @@
 package com.xwbing.util;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
 import com.xwbing.exception.UtilException;
 
@@ -148,6 +149,15 @@ public class DecimalUtil {
         if (a.compareTo(b) < 1) {
             System.out.println("a小于等于b");
         }
+
+        DecimalFormat df1 = new DecimalFormat("0.0");
+        DecimalFormat df2 = new DecimalFormat("#.#");
+        DecimalFormat df3 = new DecimalFormat("000.000");
+        DecimalFormat df4 = new DecimalFormat("###.###");
+        System.out.println(df1.format(12.34));
+        System.out.println(df2.format(12.34));
+        System.out.println(df3.format(12.34));
+        System.out.println(df4.format(12.34));
     }
 }
 
