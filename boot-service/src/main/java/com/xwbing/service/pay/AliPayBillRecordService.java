@@ -79,7 +79,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
     public void loadBill(String date) {
         log.info("loadBill date:{} start", date);
         try {
-            LocalDateTime localDateTime = DateUtil2.dateTStroLocalDateTime(date);
+            LocalDateTime localDateTime = DateUtil2.dateStrToLocalDateTime(date);
             Date startDate = DateUtil2.localDateTimeToDate(DateUtil2.startTimeOfDay(localDateTime));
             Date endDate = DateUtil2.localDateTimeToDate(DateUtil2.endTimeOfDay(localDateTime));
             List<AliPayBillRecord> aliPayBillRecords = listBetweenPaidDate(startDate, endDate);

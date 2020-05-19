@@ -162,7 +162,7 @@ public class DateUtil2 {
         return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
     }
 
-    public static LocalDateTime dateTStroLocalDateTime(String dateStr) {
+    public static LocalDateTime dateStrToLocalDateTime(String dateStr) {
         return LocalDateTime.parse(dateStr, getDateFormat(YYYY_MM_DD_HH_MM_SS));
     }
 
