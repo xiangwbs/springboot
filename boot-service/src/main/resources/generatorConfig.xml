@@ -34,7 +34,7 @@
                         password="${db1.password}">
         </jdbcConnection>
         <javaTypeResolver>
-            <property name="forceBigDecimals" value="false"/>
+            <property name="forceBigDecimals" value="true"/>
         </javaTypeResolver>
         <!-- model -->
         <javaModelGenerator targetPackage="com.xwbing.domain.entity" targetProject="src/main/java">
@@ -53,10 +53,7 @@
             <property name="rootInterface" value="com.xwbing.domain.mapper.BaseMapper"/>
         </javaClientGenerator>
         <!-- table -->
-        <table tableName="import_fail_log" domainObjectName="rest.ImportFailLog" mapperName="rest.ImportFailLogMapper">
-            <generatedKey column="id" sqlStatement="select replace(UUID(), '-', '')" identity="false"/>
-        </table>
-        <table tableName="import_task" domainObjectName="rest.ImportTask" mapperName="rest.ImportTaskMapper">
+        <table tableName="trade_record" domainObjectName="rest.TradeRecord" mapperName="rest.TradeRecordMapper">
             <generatedKey column="id" sqlStatement="select replace(UUID(), '-', '')" identity="false"/>
         </table>
     </context>

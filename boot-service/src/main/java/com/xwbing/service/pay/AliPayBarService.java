@@ -1,5 +1,14 @@
 package com.xwbing.service.pay;
 
+import java.util.Arrays;
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
@@ -12,27 +21,26 @@ import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
 import com.alipay.api.response.AlipayTradePayResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
-import com.xwbing.domain.entity.pay.alipay.*;
+import com.xwbing.domain.entity.pay.alipay.AliPayQueryResult;
+import com.xwbing.domain.entity.pay.alipay.AliPayRefundQueryResult;
+import com.xwbing.domain.entity.pay.alipay.AliPayTradePayParam;
+import com.xwbing.domain.entity.pay.alipay.AliPayTradePayResult;
+import com.xwbing.domain.entity.pay.alipay.AliPayTradeRefundParam;
+import com.xwbing.domain.entity.pay.alipay.AliPayTradeRefundResult;
+import com.xwbing.domain.entity.pay.alipay.AliPayTradeStatusEnum;
 import com.xwbing.exception.PayException;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * 说明: 支付宝支付接口实现
+ * 说明: 支付宝扫码支付接口
  * 创建时间: 2017/5/10 17:50
  * 作者:  xiangwb
  */
 @Slf4j
 @Service
 @PropertySource("classpath:pay.properties")
-public class AliPayService {
+public class AliPayBarService {
     @Value("${aliPay.serverUrl}")
     private String serverUrl;
     /**
@@ -57,7 +65,7 @@ public class AliPayService {
     private String publicKey;
     private AlipayClient alipayClient;
 
-    public AliPayService() {
+    public AliPayBarService() {
         alipayClient = new DefaultAlipayClient(serverUrl, appId, privateKey, "json", "UTF-8", publicKey, "RSA2");
     }
 
@@ -283,7 +291,7 @@ public class AliPayService {
 
     public static void main(String[] args) {
         // ---------------------- 刷卡支付 ----------------------
-        AliPayService alipayBuilder = new AliPayService();
+        AliPayBarService alipayBuilder = new AliPayBarService();
         String orderNo = "201805180207";//订单号
         String authCode = "285620814798006808";//二维码
         String hbFqNum = "3";//花呗分期数

@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xwbing.domain.mapper.rest.TradeRecordMapper">
+    <resultMap id="BaseResultMap" type="com.xwbing.domain.entity.rest.TradeRecord">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <result column="sub_code" property="subCode"/>
+        <result column="sub_msg" property="subMsg"/>
+        <result column="out_trade_no" property="outTradeNo"/>
+        <result column="trade_no" property="tradeNo"/>
+        <result column="paid_date" property="paidDate"/>
+        <result column="notify_msg" property="notifyMsg"/>
+        <result column="notify_status" property="notifyStatus"/>
+        <result column="pay_type" property="payType"/>
+    </resultMap>
+
+    <sql id="Table">
+        trade_record
+    </sql>
+
+    <sql id="Base_Column_List">
+        id, create_time, creator, modified_time, modifier, code, msg, sub_code, sub_msg, 
+        out_trade_no, trade_no, amount, `status`, subject, paid_date, notify_msg, notify_status, 
+        pay_type
+    </sql>
+
+    <sql id="Condition">
+        <where>
+        </where>
+    </sql>
+
+    <insert id="insert">
+        <selectKey keyProperty="id" order="BEFORE" resultType="string">
+            select replace(UUID(), '-', '')
+        </selectKey>
+        insert into 
+        <include refid="Table"/>(
+        id, 
+        create_time, 
+        creator, 
+        modified_time, 
+        code, 
+        msg, 
+        sub_code, 
+        sub_msg, 
+        out_trade_no, 
+        trade_no, 
+        amount, 
+        `status`, 
+        subject, 
+        paid_date, 
+        notify_msg, 
+        notify_status, 
+        pay_type
+        )
+        values (
+        #{id}, 
+        now(), 
+        #{creator}, 
+        now(), 
+        #{code}, 
+        #{msg}, 
+        #{subCode}, 
+        #{subMsg}, 
+        #{outTradeNo}, 
+        #{tradeNo}, 
+        #{amount}, 
+        #{status}, 
+        #{subject}, 
+        #{paidDate}, 
+        #{notifyMsg}, 
+        #{notifyStatus}, 
+        #{payType}
+        )
+    </insert>
+
+    <insert id="insertBatch">
+        insert into 
+        <include refid="Table"/>(
+        id, 
+        create_time, 
+        creator, 
+        modified_time, 
+        code, 
+        msg, 
+        sub_code, 
+        sub_msg, 
+        out_trade_no, 
+        trade_no, 
+        amount, 
+        `status`, 
+        subject, 
+        paid_date, 
+        notify_msg, 
+        notify_status, 
+        pay_type
+        )
+        values
+        <foreach collection="list" item="obj" separator=",">(
+            (select replace(UUID(), '-', '') as id), 
+            now(), 
+            #{obj.creator}, 
+            now(), 
+            #{obj.code}, 
+            #{obj.msg}, 
+            #{obj.subCode}, 
+            #{obj.subMsg}, 
+            #{obj.outTradeNo}, 
+            #{obj.tradeNo}, 
+            #{obj.amount}, 
+            #{obj.status}, 
+            #{obj.subject}, 
+            #{obj.paidDate}, 
+            #{obj.notifyMsg}, 
+            #{obj.notifyStatus}, 
+            #{obj.payType}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteById">
+        delete from 
+        <include refid="Table"/>
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from 
+        <include refid="Table"/>
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="delete">
+        delete from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </delete>
+
+    <update id="update">
+        update 
+        <include refid="Table"/>
+        <set>
+            modified_time=now(),
+            <if test="modifier!=null">modifier=#{modifier},</if>
+            <if test="code!=null">code=#{code},</if>
+            <if test="msg!=null">msg=#{msg},</if>
+            <if test="subCode!=null">sub_code=#{subCode},</if>
+            <if test="subMsg!=null">sub_msg=#{subMsg},</if>
+            <if test="outTradeNo!=null">out_trade_no=#{outTradeNo},</if>
+            <if test="tradeNo!=null">trade_no=#{tradeNo},</if>
+            <if test="amount!=null">amount=#{amount},</if>
+            <if test="status!=null">`status`=#{status},</if>
+            <if test="subject!=null">subject=#{subject},</if>
+            <if test="paidDate!=null">paid_date=#{paidDate},</if>
+            <if test="notifyMsg!=null">notify_msg=#{notifyMsg},</if>
+            <if test="notifyStatus!=null">notify_status=#{notifyStatus},</if>
+            <if test="payType!=null">pay_type=#{payType},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateBatch">
+        update 
+        <include refid="Table"/>
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="modified_time=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    when id=#{obj.id} then now()
+                </foreach>
+            </trim>
+            <trim prefix="modifier=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.modifier!=null">
+                        when id=#{obj.id} then #{obj.modifier}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="code=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.code!=null">
+                        when id=#{obj.id} then #{obj.code}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="msg=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.msg!=null">
+                        when id=#{obj.id} then #{obj.msg}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="sub_code=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.subCode!=null">
+                        when id=#{obj.id} then #{obj.subCode}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="sub_msg=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.subMsg!=null">
+                        when id=#{obj.id} then #{obj.subMsg}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="out_trade_no=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.outTradeNo!=null">
+                        when id=#{obj.id} then #{obj.outTradeNo}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="trade_no=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.tradeNo!=null">
+                        when id=#{obj.id} then #{obj.tradeNo}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="amount=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.amount!=null">
+                        when id=#{obj.id} then #{obj.amount}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="`status`=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.status!=null">
+                        when id=#{obj.id} then #{obj.status}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="subject=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.subject!=null">
+                        when id=#{obj.id} then #{obj.subject}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="paid_date=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.paidDate!=null">
+                        when id=#{obj.id} then #{obj.paidDate}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="notify_msg=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.notifyMsg!=null">
+                        when id=#{obj.id} then #{obj.notifyMsg}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="notify_status=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.notifyStatus!=null">
+                        when id=#{obj.id} then #{obj.notifyStatus}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="pay_type=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.payType!=null">
+                        when id=#{obj.id} then #{obj.payType}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" item="obj" separator="," open="(" close=")">
+            #{obj.id}
+        </foreach>
+    </update>
+
+    <select id="findById" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where id = #{id}
+    </select>
+
+    <select id="findByIds" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="find" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+    </select>
+
+</mapper>

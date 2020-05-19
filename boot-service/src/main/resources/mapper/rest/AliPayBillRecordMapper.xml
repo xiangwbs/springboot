@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xwbing.domain.mapper.rest.AliPayBillRecordMapper">
+    <resultMap id="BaseResultMap" type="com.xwbing.domain.entity.rest.AliPayBillRecord">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <result column="account_log_id" property="accountLogId"/>
+        <result column="alipay_order_no" property="alipayOrderNo"/>
+        <result column="merchant_order_no" property="merchantOrderNo"/>
+        <result column="paid_date" property="paidDate"/>
+        <result column="other_account" property="otherAccount"/>
+        <result column="in_amount" property="inAmount"/>
+        <result column="out_amount" property="outAmount"/>
+    </resultMap>
+
+    <sql id="Table">
+        alipay_bill_record
+    </sql>
+
+    <sql id="Base_Column_List">
+        id, creator, create_time, modifier, modified_time, account_log_id, alipay_order_no, 
+        merchant_order_no, paid_date, other_account, in_amount, out_amount, balance, `type`, 
+        remark
+    </sql>
+
+    <sql id="Condition">
+        <where>
+            <if test="startDate!=null and endDate!=null">
+               paid_date between #{startDate} and #{endDate}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insert">
+        <selectKey keyProperty="id" order="BEFORE" resultType="string">
+            select replace(UUID(), '-', '')
+        </selectKey>
+        insert into 
+        <include refid="Table"/>(
+        id, 
+        creator, 
+        create_time, 
+        modified_time, 
+        account_log_id, 
+        alipay_order_no, 
+        merchant_order_no, 
+        paid_date, 
+        other_account, 
+        in_amount, 
+        out_amount, 
+        balance, 
+        `type`, 
+        remark
+        )
+        values (
+        #{id}, 
+        #{creator}, 
+        now(), 
+        now(), 
+        #{accountLogId}, 
+        #{alipayOrderNo}, 
+        #{merchantOrderNo}, 
+        #{paidDate}, 
+        #{otherAccount}, 
+        #{inAmount}, 
+        #{outAmount}, 
+        #{balance}, 
+        #{type}, 
+        #{remark}
+        )
+    </insert>
+
+    <insert id="insertBatch">
+        insert into 
+        <include refid="Table"/>(
+        id, 
+        creator, 
+        create_time, 
+        modified_time, 
+        account_log_id, 
+        alipay_order_no, 
+        merchant_order_no, 
+        paid_date, 
+        other_account, 
+        in_amount, 
+        out_amount, 
+        balance, 
+        `type`, 
+        remark
+        )
+        values
+        <foreach collection="list" item="obj" separator=",">(
+            (select replace(UUID(), '-', '') as id), 
+            #{obj.creator}, 
+            now(), 
+            now(), 
+            #{obj.accountLogId}, 
+            #{obj.alipayOrderNo}, 
+            #{obj.merchantOrderNo}, 
+            #{obj.paidDate}, 
+            #{obj.otherAccount}, 
+            #{obj.inAmount}, 
+            #{obj.outAmount}, 
+            #{obj.balance}, 
+            #{obj.type}, 
+            #{obj.remark}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteById">
+        delete from 
+        <include refid="Table"/>
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from 
+        <include refid="Table"/>
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="delete">
+        delete from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </delete>
+
+    <update id="update">
+        update 
+        <include refid="Table"/>
+        <set>
+            <if test="modifier!=null">modifier=#{modifier},</if>
+            modified_time=now(),
+            <if test="accountLogId!=null">account_log_id=#{accountLogId},</if>
+            <if test="alipayOrderNo!=null">alipay_order_no=#{alipayOrderNo},</if>
+            <if test="merchantOrderNo!=null">merchant_order_no=#{merchantOrderNo},</if>
+            <if test="paidDate!=null">paid_date=#{paidDate},</if>
+            <if test="otherAccount!=null">other_account=#{otherAccount},</if>
+            <if test="inAmount!=null">in_amount=#{inAmount},</if>
+            <if test="outAmount!=null">out_amount=#{outAmount},</if>
+            <if test="balance!=null">balance=#{balance},</if>
+            <if test="type!=null">`type`=#{type},</if>
+            <if test="remark!=null">remark=#{remark},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateBatch">
+        update 
+        <include refid="Table"/>
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="modifier=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.modifier!=null">
+                        when id=#{obj.id} then #{obj.modifier}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="modified_time=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    when id=#{obj.id} then now()
+                </foreach>
+            </trim>
+            <trim prefix="account_log_id=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.accountLogId!=null">
+                        when id=#{obj.id} then #{obj.accountLogId}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="alipay_order_no=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.alipayOrderNo!=null">
+                        when id=#{obj.id} then #{obj.alipayOrderNo}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="merchant_order_no=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.merchantOrderNo!=null">
+                        when id=#{obj.id} then #{obj.merchantOrderNo}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="paid_date=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.paidDate!=null">
+                        when id=#{obj.id} then #{obj.paidDate}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="other_account=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.otherAccount!=null">
+                        when id=#{obj.id} then #{obj.otherAccount}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="in_amount=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.inAmount!=null">
+                        when id=#{obj.id} then #{obj.inAmount}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="out_amount=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.outAmount!=null">
+                        when id=#{obj.id} then #{obj.outAmount}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="balance=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.balance!=null">
+                        when id=#{obj.id} then #{obj.balance}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="`type`=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.type!=null">
+                        when id=#{obj.id} then #{obj.type}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="remark=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.remark!=null">
+                        when id=#{obj.id} then #{obj.remark}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" item="obj" separator="," open="(" close=")">
+            #{obj.id}
+        </foreach>
+    </update>
+
+    <select id="findById" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where id = #{id}
+    </select>
+
+    <select id="findByIds" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="find" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+    </select>
+
+</mapper>
