@@ -1,10 +1,13 @@
 package com.xwbing.datasource;
 
-import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
+import javax.sql.DataSource;
+
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.SpringBootVFS;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,9 +15,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.sql.DataSource;
+import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
 
 /**
  * 说明: MybatisDataSourceConfig
@@ -22,7 +25,7 @@ import javax.sql.DataSource;
  * 作者:  xiangwb
  */
 @Configuration
-@MapperScan(basePackages = {"com.xwbing.domain.mapper"}, sqlSessionFactoryRef = "mybatisSqlSessionFactory")
+@MapperScan(basePackages = { "com.xwbing.domain.mapper" }, sqlSessionFactoryRef = "mybatisSqlSessionFactory")
 @PropertySource("classpath:druid.properties")
 public class MybatisDataSourceConfig {
     @Primary
@@ -46,7 +49,23 @@ public class MybatisDataSourceConfig {
 
     @Primary
     @Bean(name = "mybatisTransactionManager")
-    public PlatformTransactionManager dataSourceTransactionManager() {
+    public DataSourceTransactionManager dataSourceTransactionManager() {
         return new DataSourceTransactionManager(dataSource());
+    }
+
+    @Bean(name = "mybatisSqlSessionTemplate")
+    @Primary
+    public SqlSessionTemplate sqlSessionTemplate(
+            @Qualifier("mybatisSqlSessionFactory") SqlSessionFactory sqlSessionFactory) {
+        return new SqlSessionTemplate(sqlSessionFactory);
+    }
+
+    @Bean(name = "mybatisTransactionTemplate")
+    @Primary
+    public TransactionTemplate transactionTemplate(
+            @Qualifier("mybatisTransactionManager") DataSourceTransactionManager dataSourceTransactionManager) {
+        TransactionTemplate bean = new TransactionTemplate();
+        bean.setTransactionManager(dataSourceTransactionManager);
+        return bean;
     }
 }
