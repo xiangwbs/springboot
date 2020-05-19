@@ -142,7 +142,9 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
                     list.clear();
                 }
             }
-            super.saveBatch(list);
+            if (list.size() != 0) {
+                super.saveBatch(list);
+            }
         } catch (Exception e) {
             log.error("saveByInputStream error", e);
         } finally {
