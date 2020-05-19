@@ -55,7 +55,7 @@ public class AliPayTransferService {
     private String aliPayUserId;
     @Value("${aliPay.rsaPrivateKey}")
     private String privateKey;
-    private AlipayClient alipayClient;
+    private volatile AlipayClient alipayClient;
     private final TradeRecordService tradeRecordService;
 
     public AliPayTransferService(TradeRecordService tradeRecordService) {
@@ -73,7 +73,7 @@ public class AliPayTransferService {
             //查询的账号类型 查询余额账户
             bizContent.put("account_type", "ACCTRANS_ACCOUNT");
             request.setBizContent(JSONObject.toJSONString(bizContent));
-            AlipayFundAccountQueryResponse response = getAliPayClient().certificateExecute(request);
+            AlipayFundAccountQueryResponse response = getAliPayCertClient().certificateExecute(request);
             log.error("accountQuery response:{}", JSONObject.toJSONString(response));
             if (response.isSuccess()) {
                 return new BigDecimal(response.getAvailableAmount());
@@ -107,7 +107,6 @@ public class AliPayTransferService {
         AlipayFundTransCommonQueryResponse response = transferQuery(orderId);
         //支付宝接口异常
         if (response == null) {
-            //流水
             tradeRecordService.updateFail(orderId, null, "20000", "服务不可用", "unknow-error", "服务暂不可用", null, null);
             return false;
         }
@@ -156,7 +155,7 @@ public class AliPayTransferService {
             bizContent.put("payee_info", payeeInfo);
             request.setBizContent(JSONObject.toJSONString(bizContent));
             log.info("transfer orderId={} request:{}", orderId, JSONObject.toJSONString(request));
-            AlipayFundTransUniTransferResponse response = getAliPayClient().certificateExecute(request);
+            AlipayFundTransUniTransferResponse response = getAliPayCertClient().certificateExecute(request);
             log.info("transfer orderId={} response:{}", orderId, JSONObject.toJSONString(response));
             //转账失败接口会直接同步返回错误，只要判断status=SUCCESS即可，如果出现其他都是不成功的
             if (response.isSuccess() && TransferStatusEnum.SUCCESS.getCode().equals(response.getStatus())) {
@@ -186,7 +185,7 @@ public class AliPayTransferService {
             bizContent.put("out_biz_no", orderId);
             request.setBizContent(JSONObject.toJSONString(bizContent));
             log.info("transferQuery orderId={}", orderId);
-            AlipayFundTransCommonQueryResponse response = getAliPayClient().certificateExecute(request);
+            AlipayFundTransCommonQueryResponse response = getAliPayCertClient().certificateExecute(request);
             log.info("transferQuery orderId={} response:{}", orderId, JSONObject.toJSONString(response));
             return response;
         } catch (Exception e) {
@@ -213,7 +212,8 @@ public class AliPayTransferService {
             bizContent.put("bill_type", "signcustomer");
             bizContent.put("bill_date", billDate);
             request.setBizContent(JSONObject.toJSONString(bizContent));
-            AlipayDataDataserviceBillDownloadurlQueryResponse response = getAliPayClient().certificateExecute(request);
+            AlipayDataDataserviceBillDownloadurlQueryResponse response = getAliPayCertClient()
+                    .certificateExecute(request);
             log.info("queryBillDownloadUrl response:{}", JSONObject.toJSONString(response));
             if (response.isSuccess()) {
                 return response.getBillDownloadUrl();
@@ -227,32 +227,35 @@ public class AliPayTransferService {
         }
     }
 
-    private AlipayClient getAliPayClient() {
-        if (alipayClient != null) {
-            return alipayClient;
-        }
-        synchronized (AliPayTransferService.class) {
-            if (alipayClient != null) {
-                return alipayClient;
+    /**
+     * 获取支付宝证书客户端
+     * 避免无证书报错，采用懒加载
+     *
+     * @return
+     */
+    private AlipayClient getAliPayCertClient() {
+        if (alipayClient == null) {
+            synchronized (AliPayTransferService.class) {
+                if (alipayClient == null) {
+                    try {
+                        CertAlipayRequest certAlipayRequest = new CertAlipayRequest();
+                        certAlipayRequest.setServerUrl(serverUrl);
+                        certAlipayRequest.setAppId(appId);
+                        certAlipayRequest.setPrivateKey(privateKey);
+                        certAlipayRequest.setFormat("json");
+                        certAlipayRequest.setCharset("UTF-8");
+                        certAlipayRequest.setSignType("RSA2");
+                        certAlipayRequest.setCertPath(certificatePath + "/appCertPublicKey.crt");
+                        certAlipayRequest.setAlipayPublicCertPath(certificatePath + "/alipayCertPublicKey_RSA2.crt");
+                        certAlipayRequest.setRootCertPath(certificatePath + "/alipayRootCert.crt");
+                        alipayClient = new DefaultAlipayClient(certAlipayRequest);
+                        log.info("initAliPayCertClient success");
+                    } catch (Exception e) {
+                        log.error("initAliPayCertClient error", e);
+                    }
+                }
             }
-            try {
-                CertAlipayRequest certAlipayRequest = new CertAlipayRequest();
-                certAlipayRequest.setServerUrl(serverUrl);
-                certAlipayRequest.setAppId(appId);
-                certAlipayRequest.setPrivateKey(privateKey);
-                certAlipayRequest.setFormat("json");
-                certAlipayRequest.setCharset("UTF-8");
-                certAlipayRequest.setSignType("RSA2");
-                certAlipayRequest.setCertPath(certificatePath + "/appCertPublicKey.crt");
-                certAlipayRequest.setAlipayPublicCertPath(certificatePath + "/alipayCertPublicKey_RSA2.crt");
-                certAlipayRequest.setRootCertPath(certificatePath + "/alipayRootCert.crt");
-                alipayClient = new DefaultAlipayClient(certAlipayRequest);
-                log.info("initAliPayClient success");
-                return alipayClient;
-            } catch (Exception e) {
-                log.error("initAliPayClient error", e);
-            }
         }
-        return null;
+        return alipayClient;
     }
 }
