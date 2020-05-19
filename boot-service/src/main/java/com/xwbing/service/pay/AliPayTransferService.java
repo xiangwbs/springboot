@@ -45,10 +45,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class AliPayTransferService {
-    private static final String SERVER_URL = "https://openapi.alipay.com/gateway.do";
-    @Value("${spring.profiles.active:test}")
-    private String env;
-    private AlipayClient alipayClient;
+    @Value("${aliPay.serverUrl}")
+    private String serverUrl;
     @Value("${aliPay.certificatePath}")
     private String certificatePath;
     @Value("${aliPay.appId}")
@@ -57,12 +55,10 @@ public class AliPayTransferService {
     private String aliPayUserId;
     @Value("${aliPay.rsaPrivateKey}")
     private String privateKey;
-    private final AliPayBillRecordService aliPayBillRecordService;
+    private AlipayClient alipayClient;
     private final TradeRecordService tradeRecordService;
 
-    public AliPayTransferService(AliPayBillRecordService aliPayBillRecordService,
-            TradeRecordService tradeRecordService) {
-        this.aliPayBillRecordService = aliPayBillRecordService;
+    public AliPayTransferService(TradeRecordService tradeRecordService) {
         this.tradeRecordService = tradeRecordService;
     }
 
@@ -241,7 +237,7 @@ public class AliPayTransferService {
             }
             try {
                 CertAlipayRequest certAlipayRequest = new CertAlipayRequest();
-                certAlipayRequest.setServerUrl(SERVER_URL);
+                certAlipayRequest.setServerUrl(serverUrl);
                 certAlipayRequest.setAppId(appId);
                 certAlipayRequest.setPrivateKey(privateKey);
                 certAlipayRequest.setFormat("json");
