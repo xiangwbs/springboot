@@ -1,26 +1,12 @@
 package com.xwbing.service.pay;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayClient;
@@ -34,7 +20,6 @@ import com.alipay.api.response.AlipayDataDataserviceBillDownloadurlQueryResponse
 import com.alipay.api.response.AlipayFundAccountQueryResponse;
 import com.alipay.api.response.AlipayFundTransCommonQueryResponse;
 import com.alipay.api.response.AlipayFundTransUniTransferResponse;
-import com.xwbing.domain.entity.rest.AliPayBillRecord;
 import com.xwbing.exception.BusinessException;
 import com.xwbing.service.pay.enums.TransferStatusEnum;
 import com.xwbing.util.DateUtil2;
@@ -244,65 +229,6 @@ public class AliPayTransferService {
             log.error("queryBillDownloadUrl error", e);
             throw new BusinessException("查询对账单下载地址异常");
         }
-    }
-
-    /**
-     * 导入账单
-     *
-     * @param csv
-     */
-    public void loadBillByCsv(MultipartFile csv) {
-        log.info("loadBillByCsv start");
-        try {
-            aliPayBillRecordService.saveByInputStream(csv.getInputStream());
-        } catch (IOException e) {
-            log.error("loadBillByCsv error", e);
-        }
-        log.info("loadBillByCsv end");
-    }
-
-    /**
-     * 导入账单
-     */
-    public void loadBill(String date) {
-        log.info("loadBill date:{} start", date);
-        try {
-            LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-            Date startDate = DateUtil2.localDateTimeToDate(DateUtil2.startTimeOfDay(yesterday));
-            Date endDate = DateUtil2.localDateTimeToDate(DateUtil2.endTimeOfDay(yesterday));
-            List<AliPayBillRecord> aliPayBillRecords = aliPayBillRecordService.listBetweenPaidDate(startDate, endDate);
-            if (CollectionUtils.isNotEmpty(aliPayBillRecords)) {
-                log.info("loadBill date:{} hasLoad", date);
-                return;
-            }
-            String urlStr = queryBillDownloadUrl(date);
-            URL url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-            //设置超时间为3秒
-            conn.setConnectTimeout(3 * 1000);
-            //得到输入流
-            InputStream inputStream = conn.getInputStream();
-            ZipInputStream zin = new ZipInputStream(inputStream, Charset.forName("gbk"));
-            BufferedInputStream bs = new BufferedInputStream(zin);
-            byte[] bytes;
-            ZipEntry ze;
-            //循环读取压缩包里面的文件
-            while ((ze = zin.getNextEntry()) != null) {
-                if (ze.toString().endsWith("账务明细.csv")) {
-                    //读取每个文件的字节，并放进数组
-                    bytes = new byte[(int)ze.getSize()];
-                    bs.read(bytes, 0, (int)ze.getSize());
-                    //将文件转成流
-                    InputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-                    aliPayBillRecordService.saveByInputStream(byteArrayInputStream);
-                }
-            }
-            zin.closeEntry();
-            inputStream.close();
-        } catch (Exception e) {
-            log.error("loadBill date:{} error", date, e);
-        }
-        log.info("loadBill date:{} end", date);
     }
 
     private AlipayClient getAliPayClient() {

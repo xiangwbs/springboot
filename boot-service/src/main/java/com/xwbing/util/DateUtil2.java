@@ -157,6 +157,15 @@ public class DateUtil2 {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 
+    public static LocalDateTime dateToLocalDateTime(Date date) {
+        Instant instant = date.toInstant();
+        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+    }
+
+    public static LocalDateTime dateTStroLocalDateTime(String dateStr) {
+        return LocalDateTime.parse(dateStr, getDateFormat(YYYY_MM_DD_HH_MM_SS));
+    }
+
     /////////////////////////////获取数据////////////获取数据/////////////////////////////////////////////////////////////
 
     public static LocalDateTime startTimeOfDay(LocalDateTime dateTime) {
