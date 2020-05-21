@@ -18,9 +18,10 @@ import org.springframework.core.io.ClassPathResource;
 
 public class FileDemo {
     public static void main(String[] args) throws IOException {
-        Path basedir = FileSystems.getDefault().getPath("/tmp");
-        Path boot = Files.createTempFile(basedir, "boot", ".txt");//创建随机文件名
-        Path tmp = Files.createTempDirectory("tmp");//创建临时随机目录
+        Path basedir = FileSystems.getDefault().getPath("/tmp");//文件夹必须存在存在，否则报错
+        Path tempFileNamePath = Files.createTempFile(basedir, "boot", ".txt");//创建随机文件名
+
+        Path tmpDirectory = Files.createTempDirectory("tmp");//创建临时随机目录
 
         //创建文件对象
         File file = new File("/tmp" + File.separator + "file.txt");//创建文件对象，并不创建文件
