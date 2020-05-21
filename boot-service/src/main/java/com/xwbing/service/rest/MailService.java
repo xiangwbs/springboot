@@ -1,7 +1,11 @@
 package com.xwbing.service.rest;
 
-import com.xwbing.exception.BusinessException;
-import com.xwbing.util.RestMessage;
+import java.io.File;
+
+import javax.annotation.Resource;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailException;
@@ -10,10 +14,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import java.io.File;
+import com.xwbing.exception.BusinessException;
+import com.xwbing.util.RestMessage;
 
 /**
  * 创建时间: 2017/9/18 11:31
@@ -26,12 +28,11 @@ public class MailService {
     private JavaMailSender mailSender;
     @Value("${spring.mail.username}")
     private String from;
-    private MimeMessageHelper helper = null;
 
     /**
      * 发送纯文本的简单邮件
      *
-     * @param to      收件人
+     * @param to 收件人
      * @param subject 主题
      * @param content 文本内容
      */
@@ -56,7 +57,7 @@ public class MailService {
     /**
      * 发送html格式的邮件
      *
-     * @param to      收件人
+     * @param to 收件人
      * @param subject 主题
      * @param content 文本内容
      */
@@ -73,9 +74,9 @@ public class MailService {
     /**
      * 发送带附件的邮件
      *
-     * @param to       收件人
-     * @param subject  主题
-     * @param content  文本内容
+     * @param to 收件人
+     * @param subject 主题
+     * @param content 文本内容
      * @param rscPaths 附件文件路径
      */
     public RestMessage sendAttachmentsMail(String to, String subject, String content, String... rscPaths) {
@@ -104,11 +105,11 @@ public class MailService {
     /**
      * 发送嵌入静态资源（一般是图片）的邮件
      *
-     * @param to      收件人
+     * @param to 收件人
      * @param subject 主题
      * @param content 邮件内容，需要包括一个静态资源的id，比如：<img src='cid:rscId01'>
      * @param rscPath 静态资源路径
-     * @param rscId   静态资源id
+     * @param rscId 静态资源id
      */
     public RestMessage sendInlineResourceMail(String to, String subject, String content, String rscPath, String rscId) {
         RestMessage restMessage = new RestMessage();
@@ -131,22 +132,21 @@ public class MailService {
      * 获取邮件助手
      *
      * @param message
+     *
      * @return
      */
     private MimeMessageHelper getHelper(MimeMessage message, String to, String subject, String content) {
-        if (helper == null) {
-            try {
-                //true表示需要创建一个multipart message
-                helper = new MimeMessageHelper(message, true);
-                helper.setFrom(from);
-                helper.setTo(to);
-                helper.setSubject(subject);
-                //启用html
-                helper.setText(content, true);
-            } catch (MessagingException e) {
-                throw new BusinessException("获取邮件助手失败");
-            }
+        try {
+            //true表示需要创建一个multipart message
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom(from);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            //启用html
+            helper.setText(content, true);
+            return helper;
+        } catch (MessagingException e) {
+            throw new BusinessException("获取邮件助手失败");
         }
-        return helper;
     }
 }
