@@ -27,8 +27,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.cache.MapCache;
 import com.alibaba.excel.support.ExcelTypeEnum;
+import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.config.redis.RedisService;
@@ -81,19 +83,13 @@ public class EasyExcelDealService {
         if (importTask == null) {
             throw new BusinessException("导入任务不存在");
         }
-        List<List<Object>> excelData = new ArrayList<>();
         List<ImportFailLog> importFailLogs = importFailLogService.listByImportId(importId);
-        importFailLogs.forEach(importFailLog -> {
-            List<Object> list = new ArrayList<>();
-            String content = importFailLog.getContent();
-            EasyExcelHeadVo headVo = JSONObject.parseObject(content, EasyExcelHeadVo.class);
-            list.add(headVo.getName());
-            list.add(headVo.getAge());
-            list.add(headVo.getTel());
-            list.add(headVo.getIntroduction());
-            list.add(importFailLog.getRemark());
-            excelData.add(list);
-        });
+        List<EasyExcelHeadVo> excelData = importFailLogs.stream().map(importFailLog -> {
+            EasyExcelHeadVo headVo = JSONObject.parseObject(importFailLog.getContent(), EasyExcelHeadVo.class);
+            headVo.setRemark(importFailLog.getRemark());
+            return headVo;
+
+        }).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(excelData)) {
             try (ServletOutputStream outputStream = response.getOutputStream()) {
                 response.setCharacterEncoding("UTF-8");
@@ -269,14 +265,40 @@ public class EasyExcelDealService {
      * @param password
      * @param excelData
      */
-    public void write(String basedir, String fileName, String sheetName, String password,
-            List<List<Object>> excelData) {
+    public void write(String basedir, String fileName, String sheetName, String password, List<ExcelVo> excelData) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
         try (OutputStream out = Files.newOutputStream(path)) {
             EasyExcel.write(out).head(ExcelVo.class).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                     .password(password).sheet(sheetName).autoTrim(Boolean.TRUE).doWrite(excelData);
         } catch (IOException e) {
             log.error("excel write error:{}", e.getMessage());
+        }
+    }
+
+    /**
+     * 生成多个sheet
+     *
+     * @param basedir
+     * @param fileName
+     */
+    public void repeatedWrite(String basedir, String fileName) {
+        Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
+        ExcelWriter excelWriter = null;
+        try (OutputStream out = Files.newOutputStream(path)) {
+            excelWriter = EasyExcel.write(out).build();
+            for (int i = 0; i < 2; i++) {
+                WriteSheet writeSheet = EasyExcel.writerSheet(i, "sheet" + i)
+                        .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).head(ExcelVo.class).build();
+                ExcelVo java = ExcelVo.builder().name("java").age(18).tel("1348888888" + i).introduction("这是sheet" + i)
+                        .build();
+                excelWriter.write(Collections.singletonList(java), writeSheet);
+            }
+        } catch (IOException e) {
+            log.error("repeatedWrite error", e.getMessage());
+        } finally {
+            if (excelWriter != null) {
+                excelWriter.finish();
+            }
         }
     }
 

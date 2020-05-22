@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.annotation.Resource;
 
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,10 +51,11 @@ public class MailTestControl {
     @GetMapping("sendAttachmentsMail")
     @ApiOperation(value = "发送带附件邮件")
     public JSONObject sendAttachmentsMail() throws IOException {
-        ClassPathResource file = new ClassPathResource("file");
-        String path = file.getFile().getAbsolutePath();
-        String path1 = path + "\\QRCode.png";
-        String path2 = path + "\\QRCode.png";
+        // ClassPathResource file = new ClassPathResource("file");
+        // String path = file.getFile().getAbsolutePath();
+        String path1 = "/Users/xwbing/Documents/异常企业.xlsx";
+        String path2 = "/Users/xwbing/Documents/异常企业.xlsx";
+        // String path2 = path + "\\QRCode.png";
         RestMessage restMessage = mailService.sendAttachmentsMail("786461501@qq.com", "附件测试邮件", "收到一个带附件邮件", path1, path2);
         return JsonResult.toJSONObj(restMessage);
     }

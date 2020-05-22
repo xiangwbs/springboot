@@ -28,6 +28,7 @@ import com.xwbing.config.redis.RedisService;
 import com.xwbing.config.spring.ApplicationContextHelper;
 import com.xwbing.config.util.dingTalk.MarkdownMessage;
 import com.xwbing.domain.entity.rest.FilesUpload;
+import com.xwbing.domain.entity.vo.ExcelVo;
 import com.xwbing.service.rest.CookieSessionService;
 import com.xwbing.service.rest.EasyExcelDealService;
 import com.xwbing.service.rest.QRCodeZipService;
@@ -80,15 +81,15 @@ public class MockControl {
 
     @ApiOperation("urlZip")
     @GetMapping("urlZip")
-    public void urlZip(HttpServletResponse response,@RequestParam String[] urls, @RequestParam String fileName, @RequestParam String path)
-            throws IOException {
+    public void urlZip(HttpServletResponse response, @RequestParam String[] urls, @RequestParam String fileName,
+            @RequestParam String path) throws IOException {
         //创建临时随机目录
         Path tmp = Files.createTempDirectory("tmp");
         ArrayList<File> files = Arrays.stream(urls).map(url -> {
             String tmpFilePath = url.substring(url.lastIndexOf("/"), url.length());
             return FileUtil.urlToFile(url, tmp + tmpFilePath);
         }).collect(Collectors.toCollection(ArrayList::new));
-        ZipUtil.downloadZip(response,files, path, fileName);
+        ZipUtil.downloadZip(response, files, path, fileName);
         Files.delete(tmp);
     }
 
@@ -254,26 +255,22 @@ public class MockControl {
     @ApiOperation("生成excel")
     @GetMapping("write")
     public void write() {
-        List<List<Object>> excelData = new ArrayList<>();
-        List<Object> data = new ArrayList<>();
-        data.add("项伟兵");
-        data.add(18);
-        data.add("13488888888");
-        data.add("这是一条简介");
+        List<ExcelVo> excelData = new ArrayList<>();
+        ExcelVo data = ExcelVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
+        ExcelVo data1 = ExcelVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
+        ExcelVo data2 = ExcelVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功").build();
+        ExcelVo data3 = ExcelVo.builder().name("null").age(18).tel("13488888888").introduction("法轮功").build();
         excelData.add(data);
-        List<Object> data1 = new ArrayList<>();
-        data1.add("李四");
-        data1.add(18);
-        data1.add("13488888888");
-        data1.add("法轮功");
         excelData.add(data1);
-        List<Object> data2 = new ArrayList<>();
-        data2.add(null);
-        data2.add(18);
-        data2.add("13488888888");
-        data2.add("法轮功");
         excelData.add(data2);
+        excelData.add(data3);
         easyExcelDealService.write("/Users/xwbing/Documents", "人员名单统计", "人员名单", null, excelData);
+    }
+
+    @ApiOperation("生成多个sheet")
+    @GetMapping("repeatedWrite")
+    public void repeatedWrite() {
+        easyExcelDealService.repeatedWrite("/Users/xwbing/Documents", "人员名单统计");
     }
 
     @ApiOperation("读取excel")
