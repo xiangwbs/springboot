@@ -283,22 +283,19 @@ public class EasyExcelDealService {
      */
     public void repeatedWrite(String basedir, String fileName) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
-        ExcelWriter excelWriter = null;
         try (OutputStream out = Files.newOutputStream(path)) {
-            excelWriter = EasyExcel.write(out).build();
+            ExcelWriter excelWriter = EasyExcel.write(out).build();
+            WriteSheet writeSheet;
             for (int i = 0; i < 2; i++) {
-                WriteSheet writeSheet = EasyExcel.writerSheet(i, "sheet" + i)
+                writeSheet = EasyExcel.writerSheet(i, "sheet" + i)
                         .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).head(ExcelVo.class).build();
                 ExcelVo java = ExcelVo.builder().name("java").age(18).tel("1348888888" + i).introduction("这是sheet" + i)
                         .build();
                 excelWriter.write(Collections.singletonList(java), writeSheet);
             }
+            excelWriter.finish();
         } catch (IOException e) {
             log.error("repeatedWrite error", e.getMessage());
-        } finally {
-            if (excelWriter != null) {
-                excelWriter.finish();
-            }
         }
     }
 
