@@ -22,6 +22,7 @@ spring:
       enabled: false #关闭自带multipartResolver,否则commonsMultipartResolver解析会得不到数据
   mail:
     host: smtp.163.com
+    port: 465 #设置端口465，因为阿里25端口默认禁用
     username: xwb1ng@163.com
     password: xwbing000111 #邮箱设置里获取的授权码
     default-encoding: utf-8
@@ -29,7 +30,11 @@ spring:
       mail:
         smtp:
           auth: true #授权
-          starttls:
+          socketFactory: #因为阿里云服务器25端口默认加密，需要改用sl加密465端口发送邮件
+            class: javax.net.ssl.SSLSocketFactory #SSL证书Socket工厂(指定Socket工厂)
+            port: 465 #设置ssl端口
+            fallback: true #当指定的socket工厂创建socket失败时，是否使用默认的socket工厂创建
+          starttls: #对纯文本通信协议的扩展。它提供一种方式将纯文本连接升级为加密连接（TLS或SSL），而不是另外使用一个端口作加密通信。
             enable: true
             required: true
   jpa:
