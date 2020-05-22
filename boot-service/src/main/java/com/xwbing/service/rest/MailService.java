@@ -5,6 +5,7 @@ import java.io.File;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -90,14 +91,14 @@ public class MailService {
                 for (String rscPath : rscPaths) {
                     file = new FileSystemResource(new File(rscPath));
                     String fileName = rscPath.substring(rscPath.lastIndexOf(File.separator) + 1);
-                    helper.addAttachment(fileName, file);
+                    helper.addAttachment(MimeUtility.encodeWord(fileName, "utf-8", "B"), file);
                 }
             }
             mailSender.send(message);
             restMessage.setSuccess(true);
             restMessage.setMessage("带附件的邮件已经发送!");
             return restMessage;
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             throw new BusinessException("发送带附件的邮件时发生异常");
         }
     }
@@ -138,7 +139,7 @@ public class MailService {
     private MimeMessageHelper getHelper(MimeMessage message, String to, String subject, String content) {
         try {
             //true表示需要创建一个multipart message
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
             helper.setFrom(from);
             helper.setTo(to);
             helper.setSubject(subject);
