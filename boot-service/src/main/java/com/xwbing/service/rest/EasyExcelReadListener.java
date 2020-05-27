@@ -1,8 +1,10 @@
 package com.xwbing.service.rest;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.lang3.StringUtils;
@@ -41,15 +43,17 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
     private List<ExcelVo> list = new ArrayList<>();
     private int totalCount;
     private final String importId;
+    private final File tmpFile;
     private final EasyExcelDealService easyExcelDealService;
     private final ThreadPoolTaskExecutor taskExecutor;
     private final ImportTaskService importTaskService;
     private final ImportFailLogService importFailLogService;
 
-    public EasyExcelReadListener(String importId, EasyExcelDealService easyExcelDealService,
+    public EasyExcelReadListener(String importId, File tmpFile, EasyExcelDealService easyExcelDealService,
             ThreadPoolTaskExecutor taskExecutor, ImportTaskService importTaskService,
             ImportFailLogService importFailLogService) {
         this.importId = importId;
+        this.tmpFile = tmpFile;
         this.easyExcelDealService = easyExcelDealService;
         this.taskExecutor = taskExecutor;
         this.importTaskService = importTaskService;
@@ -79,6 +83,7 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
 
     @Override
     public void onException(Exception exception, AnalysisContext context) {
+        deleteTmpFile();
         if (!(exception instanceof BusinessException)) {
             log.error("onException importId:{} error:{}", importId, ExceptionUtils.getStackTrace(exception));
             ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
@@ -116,6 +121,7 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
         ImportTask build = ImportTask.builder().id(importId).status(ImportStatusEnum.SUCCESS.getCode())
                 .failCount(failSize).detail(detail).needDownload(failSize != 0).build();
         importTaskService.update(build);
+        deleteTmpFile();
         log.info("doAfterAllAnalysed importId:{} end", importId);
     }
 
@@ -173,5 +179,15 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
         CompletableFuture<Void> completableFuture = CompletableFuture
                 .runAsync(() -> easyExcelDealService.dealExcelData(lists, importId), taskExecutor);
         completableFutures.add(completableFuture);
+    }
+
+    /**
+     * 删除临时文件
+     */
+    private void deleteTmpFile() {
+        if (!Objects.isNull(tmpFile) && tmpFile.exists()) {
+            boolean delete = tmpFile.delete();
+            log.info("deleteTmpFile importId:{} {}", importId, delete);
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.xwbing.service.rest;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
@@ -20,6 +20,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -126,7 +127,8 @@ public class EasyExcelDealService {
      */
     public String read(MultipartFile excel, int sheetNo, int headRowNum) {
         String filename = excel.getOriginalFilename();
-        if (!checkType(filename)) {
+        String type = filename.substring(filename.lastIndexOf("."));
+        if (!(ExcelTypeEnum.XLSX.getValue().equals(type) || ExcelTypeEnum.XLS.getValue().equals(type))) {
             throw new BusinessException("文件格式不正确");
         }
         ImportTask importTask = ImportTask.builder().fileName(filename).status(ImportStatusEnum.EXPORT.getCode())
@@ -134,9 +136,12 @@ public class EasyExcelDealService {
         RestMessage restMessage = importTaskService.save(importTask);
         String importId = restMessage.getId();
         CompletableFuture.runAsync(() -> {
-            try (InputStream inputStream = excel.getInputStream()) {
-                EasyExcel.read(inputStream, ExcelVo.class,
-                        new EasyExcelReadListener(importId, this, taskExecutor, importTaskService,
+            try {
+                //将上传文件复制到临时文件,提高效率
+                File tmpFile = File.createTempFile(filename, type);
+                FileUtils.copyInputStreamToFile(excel.getInputStream(), tmpFile);
+                EasyExcel.read(tmpFile, ExcelVo.class,
+                        new EasyExcelReadListener(importId, tmpFile, this, taskExecutor, importTaskService,
                                 importFailLogService)).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE)
                         .headRowNumber(headRowNum).sheet(sheetNo).doRead();
             } catch (IOException e) {
@@ -176,6 +181,8 @@ public class EasyExcelDealService {
                 int dealCount = StringUtils.isEmpty(deal) ? 0 : Integer.valueOf(deal);
                 process = new BigDecimal(dealCount).divide(new BigDecimal(totalCount), 2, BigDecimal.ROUND_HALF_UP)
                         .multiply(new BigDecimal(100)).intValue();
+                //特殊处理，100时，前端不会再请求接口问题
+                process = process == 100 ? 99 : process;
             }
             return ExcelProcessVo.builder().process(process).errorCount(importTask.getFailCount())
                     .successCount(successCount).msg(importTask.getDetail()).success(true).build();
@@ -344,13 +351,13 @@ public class EasyExcelDealService {
      * @return
      */
     public String read(String filePath, int sheetNo, int headRowNum) {
-        String fileName = FileSystems.getDefault().getPath(filePath).toString();
-        if (!checkType(fileName)) {
+        String pathName = FileSystems.getDefault().getPath(filePath).toString();
+        if (!checkType(pathName)) {
             throw new BusinessException("文件格式不正确");
         }
         String importId = PassWordUtil.createUuId();
-        CompletableFuture.runAsync(() -> EasyExcel.read(fileName,
-                new EasyExcelReadListener(importId, this, taskExecutor, importTaskService, importFailLogService))
+        CompletableFuture.runAsync(() -> EasyExcel.read(pathName,
+                new EasyExcelReadListener(importId, null, this, taskExecutor, importTaskService, importFailLogService))
                 .head(ExcelVo.class).readCache(new MapCache()).headRowNumber(headRowNum).ignoreEmptyRow(Boolean.FALSE)
                 .sheet(sheetNo).doRead());
         return importId;

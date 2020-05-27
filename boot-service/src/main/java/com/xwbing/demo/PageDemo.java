@@ -3,6 +3,7 @@ package com.xwbing.demo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -15,34 +16,64 @@ import com.github.pagehelper.PageHelper;
  * @since 2020年05月23日 下午11:34
  */
 public class PageDemo {
-    private static final int PAGE_SIZE = 20;
 
-    public void pageHelper() {
+    public void pageHelper(int pageSize) {
         Page<Object> page = PageHelper.startPage(1, 1);
         long count = page.getTotal();
         if (count == 0) {
             return;
         }
-        long times = (count % PAGE_SIZE == 0) ? count / PAGE_SIZE : (count / PAGE_SIZE + 1);
+        long times = (count % pageSize == 0) ? count / pageSize : (count / pageSize + 1);
         for (int i = 1; i <= times; i++) {
-            PageHelper.startPage(i, PAGE_SIZE);
+            PageHelper.startPage(i, pageSize);
             List<Object> list = query();
             // TODO: 处理业务逻辑
         }
     }
 
-    public void pageQuery() {
+    public void pageQuery(int pageSize) {
         int pageNum = 0;
         List<Object> responseList;
         do {
             pageNum++;
-            responseList = pageQuery(pageNum, PAGE_SIZE);
+            responseList = pageQuery(pageNum, pageSize);
             if (CollectionUtils.isNotEmpty(responseList)) {
                 responseList.forEach(ordersResponse -> {
                     // TODO: 处理业务逻辑
                 });
             }
         } while (CollectionUtils.isNotEmpty(responseList));
+    }
+
+    public void page(int pageSize) {
+        Page<Object> checkPage = PageHelper.startPage(1, 1);
+        long count = checkPage.getTotal();
+        if (count == 0) {
+            return;
+        }
+        List<Object> preList = new ArrayList<>();
+        List<Object> postList = new ArrayList<>();
+        long times = (count % pageSize == 0) ? count / pageSize : (count / pageSize + 1);
+        for (int i = 1; i <= times; i++) {
+            PageHelper.startPage(i, pageSize);
+            List<Object> list = query();
+            preList.addAll(list);
+        }
+        preList.forEach(object -> {
+            postList.add(object);
+            if (postList.size() >= pageSize) {
+                List<Object> lists = new ArrayList<>(postList);
+                postList.clear();
+                CompletableFuture.runAsync(() -> lists.forEach(o -> {
+                    // TODO: 处理业务逻辑
+                }));
+            }
+        });
+        if (!postList.isEmpty()) {
+            CompletableFuture.runAsync(() -> postList.forEach(o -> {
+                // TODO: 处理业务逻辑
+            }));
+        }
     }
 
     public List<Object> page(List<Object> list, int pageNum, int pageSize) {
