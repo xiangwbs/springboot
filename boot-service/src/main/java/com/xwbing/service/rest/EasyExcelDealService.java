@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -79,7 +78,7 @@ public class EasyExcelDealService {
      * @param response
      * @param importId
      */
-    public void download(HttpServletResponse response, String importId) {
+    public void writeToBrowser(HttpServletResponse response, String importId) {
         ImportTask importTask = importTaskService.getById(importId);
         if (importTask == null) {
             throw new BusinessException("导入任务不存在");
@@ -104,10 +103,11 @@ public class EasyExcelDealService {
                 EasyExcel.write(outputStream, EasyExcelHeadVo.class).autoTrim(Boolean.TRUE).sheet("sheet0")
                         .doWrite(excelData);
             } catch (Exception e) {
-                log.error("downloadExcelError with importId={}", importId, e);
+                log.error("writeToBrowser importId={} error", importId, e);
                 throw new BusinessException("下载文件失败");
             }
         } else {
+            log.error("writeToBrowser importId={} no fail data", importId);
             throw new BusinessException("无失败数据");
         }
     }
@@ -125,7 +125,7 @@ public class EasyExcelDealService {
      *
      * @return
      */
-    public String read(MultipartFile excel, int sheetNo, int headRowNum) {
+    public String readByStream(MultipartFile excel, int sheetNo, int headRowNum) {
         String filename = excel.getOriginalFilename();
         String type = filename.substring(filename.lastIndexOf("."));
         if (!(ExcelTypeEnum.XLSX.getValue().equals(type) || ExcelTypeEnum.XLS.getValue().equals(type))) {
@@ -137,7 +137,7 @@ public class EasyExcelDealService {
         String importId = restMessage.getId();
         CompletableFuture.runAsync(() -> {
             try {
-                //将上传文件复制到临时文件,提高效率
+                //将上传文件复制到自定义临时文件,提高效率。用默认临时文件，多线程高并发下会出现找不到不文件报错
                 File tmpFile = File.createTempFile(filename, type);
                 FileUtils.copyInputStreamToFile(excel.getInputStream(), tmpFile);
                 EasyExcel.read(tmpFile, ExcelVo.class,
@@ -145,7 +145,7 @@ public class EasyExcelDealService {
                                 importFailLogService)).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE)
                         .headRowNumber(headRowNum).sheet(sheetNo).doRead();
             } catch (IOException e) {
-                log.error("readExcelError importId:{} error:{}", importId, ExceptionUtils.getStackTrace(e));
+                log.error("readByStream importId:{} error", importId, e);
             }
         });
         return importId;
@@ -215,7 +215,7 @@ public class EasyExcelDealService {
                 //处理正确数据
             }
         } catch (Exception e) {
-            log.error("dealExcelDataError importId:{} error:{}", importId, ExceptionUtils.getStackTrace(e));
+            log.error("dealExcelData importId:{} error", importId, e);
         } finally {
             redisService.incrBy(EXCEL_DEAL_COUNT_PREFIX + importId, size);
             redisService.expire(EXCEL_DEAL_COUNT_PREFIX + importId, 60 * 30);
@@ -225,7 +225,7 @@ public class EasyExcelDealService {
     // ---------------------- 示例 ----------------------
 
     /**
-     * 文件下载
+     * 文件下载到浏览器
      * 动态头
      * 默认关闭流,如果错误信息以流的形式呈现，不能关闭流 .autoCloseStream(Boolean.FALSE)
      * password为null不加密
@@ -237,7 +237,7 @@ public class EasyExcelDealService {
      * @param heads
      * @param excelData
      */
-    public void download(HttpServletResponse response, String fileName, String sheetName, String password,
+    public void writeToBrowser(HttpServletResponse response, String fileName, String sheetName, String password,
             List<String> heads, List<List<Object>> excelData) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
@@ -254,7 +254,7 @@ public class EasyExcelDealService {
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password)
                     .sheet(sheetName).autoTrim(Boolean.TRUE).doWrite(excelData);
         } catch (Exception e) {
-            log.error("excel download error:{}", e.getMessage());
+            log.error("writeToBrowser error", e);
             throw new UtilException("下载文件失败");
             // response.reset();
             // response.setContentType("application/json");
@@ -264,7 +264,7 @@ public class EasyExcelDealService {
     }
 
     /**
-     * 生成excel
+     * 生成excel到本地
      *
      * @param basedir
      * @param fileName
@@ -272,23 +272,24 @@ public class EasyExcelDealService {
      * @param password
      * @param excelData
      */
-    public void write(String basedir, String fileName, String sheetName, String password, List<ExcelVo> excelData) {
+    public void writeToLocal(String basedir, String fileName, String sheetName, String password,
+            List<ExcelVo> excelData) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
         try (OutputStream out = Files.newOutputStream(path)) {
             EasyExcel.write(out).head(ExcelVo.class).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                     .password(password).sheet(sheetName).autoTrim(Boolean.TRUE).doWrite(excelData);
         } catch (IOException e) {
-            log.error("excel write error:{}", e.getMessage());
+            log.error("writeToLocal error", e);
         }
     }
 
     /**
-     * 生成多个sheet
+     * 生成多个sheet的excel到本地
      *
      * @param basedir
      * @param fileName
      */
-    public void repeatedWrite(String basedir, String fileName) {
+    public void repeatedWriteToLocal(String basedir, String fileName) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
         try (OutputStream out = Files.newOutputStream(path)) {
             ExcelWriter excelWriter = EasyExcel.write(out).build();
@@ -302,7 +303,7 @@ public class EasyExcelDealService {
             }
             excelWriter.finish();
         } catch (IOException e) {
-            log.error("repeatedWrite error", e.getMessage());
+            log.error("repeatedWriteToLocal error", e);
         }
     }
 
@@ -350,7 +351,7 @@ public class EasyExcelDealService {
      *
      * @return
      */
-    public String read(String filePath, int sheetNo, int headRowNum) {
+    public String readByLocal(String filePath, int sheetNo, int headRowNum) {
         String pathName = FileSystems.getDefault().getPath(filePath).toString();
         if (!checkType(pathName)) {
             throw new BusinessException("文件格式不正确");

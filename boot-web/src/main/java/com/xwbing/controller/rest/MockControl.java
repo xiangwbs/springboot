@@ -249,11 +249,11 @@ public class MockControl {
         data.add("项伟兵");
         data.add(18);
         excelData.add(data);
-        easyExcelDealService.download(response, "人员名单统计", "人员名单", null, titles, excelData);
+        easyExcelDealService.writeToBrowser(response, "人员名单统计", "人员名单", null, titles, excelData);
     }
 
     @ApiOperation("生成excel")
-    @GetMapping("write")
+    @GetMapping("writeToLocal")
     public void write() {
         List<ExcelVo> excelData = new ArrayList<>();
         ExcelVo data = ExcelVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
@@ -264,19 +264,19 @@ public class MockControl {
         excelData.add(data1);
         excelData.add(data2);
         excelData.add(data3);
-        easyExcelDealService.write("/Users/xwbing/Documents", "人员名单统计", "人员名单", null, excelData);
+        easyExcelDealService.writeToLocal("/Users/xwbing/Documents", "人员名单统计", "人员名单", null, excelData);
     }
 
     @ApiOperation("生成多个sheet")
-    @GetMapping("repeatedWrite")
+    @GetMapping("repeatedWriteToLocal")
     public void repeatedWrite() {
-        easyExcelDealService.repeatedWrite("/Users/xwbing/Documents", "人员名单统计");
+        easyExcelDealService.repeatedWriteToLocal("/Users/xwbing/Documents", "人员名单统计");
     }
 
     @ApiOperation("读取excel")
-    @GetMapping("read")
+    @GetMapping("readByLocal")
     public JSONObject read() {
-        String importId = easyExcelDealService.read("/Users/xwbing/Documents/导入模板.xlsx", 0, 1);
+        String importId = easyExcelDealService.readByLocal("/Users/xwbing/Documents/导入模板.xlsx", 0, 1);
         return JsonResult.toJSONObj(importId, "");
     }
 
