@@ -37,7 +37,7 @@ public class EasyExcelController {
     @ApiOperation(value = "批量导入")
     @PostMapping("import")
     public JSONObject readExcel(@RequestParam MultipartFile excel) {
-        String sign = easyExcelDealService.read(excel, 0, 1);
+        String sign = easyExcelDealService.readByStream(excel, 0, 1);
         return JsonResult.toJSONObj(sign, "");
     }
 
@@ -51,7 +51,7 @@ public class EasyExcelController {
     @ApiOperation("下载导入失败记录")
     @GetMapping("downloadFailRecord")
     public void downloadFailRecord(HttpServletResponse response, @RequestParam String importId) {
-        easyExcelDealService.download(response, importId);
+        easyExcelDealService.writeToBrowser(response, importId);
     }
 
     @ApiOperation("导入记录")
