@@ -127,6 +127,9 @@ public class EasyExcelDealService {
      */
     public String readByStream(MultipartFile excel, int sheetNo, int headRowNum) {
         String filename = excel.getOriginalFilename();
+        if (StringUtils.isEmpty(filename)) {
+            throw new BusinessException("请选择文件");
+        }
         String type = filename.substring(filename.lastIndexOf("."));
         if (!(ExcelTypeEnum.XLSX.getValue().equals(type) || ExcelTypeEnum.XLS.getValue().equals(type))) {
             throw new BusinessException("文件格式不正确");
@@ -144,7 +147,7 @@ public class EasyExcelDealService {
                         new EasyExcelReadListener(importId, tmpFile, this, taskExecutor, importTaskService,
                                 importFailLogService)).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE)
                         .headRowNumber(headRowNum).sheet(sheetNo).doRead();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.error("readByStream importId:{} error", importId, e);
             }
         });
