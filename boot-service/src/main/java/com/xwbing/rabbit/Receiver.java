@@ -1,14 +1,18 @@
 package com.xwbing.rabbit;
 
-import com.xwbing.exception.BusinessException;
-import com.xwbing.service.rest.MailService;
-import com.xwbing.util.RestMessage;
-import lombok.extern.slf4j.Slf4j;
+import java.text.MessageFormat;
+
+import javax.annotation.Resource;
+
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.text.MessageFormat;
+import com.xwbing.exception.BusinessException;
+import com.xwbing.service.rest.MailService;
+import com.xwbing.util.RestMessage;
+
+import lombok.extern.slf4j.Slf4j;
+
 
 import static com.xwbing.rabbit.RabbitConstant.EMAIL_QUEUE;
 import static com.xwbing.rabbit.RabbitConstant.MESSAGE_QUEUE;
@@ -35,7 +39,7 @@ public class Receiver {
         String content = MessageFormat.format("你的用户名是:{0},密码是:{1}", msg[1], msg[2]);
         RestMessage restMessage = new RestMessage();
         try {
-            restMessage = mailService.sendSimpleMail(msg[0], "注册成功", content);
+            restMessage = mailService.sendSimpleMail( "注册成功", content,msg[0]);
         } catch (BusinessException e) {
             log.error("发送邮件给{}失败", msg[0]);
         }

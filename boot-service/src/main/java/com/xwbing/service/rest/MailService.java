@@ -37,11 +37,14 @@ public class MailService {
      * @param subject 主题
      * @param content 文本内容
      */
-    public RestMessage sendSimpleMail(String to, String subject, String content) {
+    public RestMessage sendSimpleMail(String subject, String content, String[] ccs, String... to) {
         RestMessage restMessage = new RestMessage();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from);
         message.setTo(to);
+        if (ccs != null && ccs.length > 0) {
+            message.setCc(ccs);
+        }
         message.setSubject(subject);
         message.setText(content);
         try {
@@ -62,10 +65,10 @@ public class MailService {
      * @param subject 主题
      * @param content 文本内容
      */
-    public RestMessage sendHtmlMail(String to, String subject, String content) {
+    public RestMessage sendHtmlMail(String subject, String content, String[] ccs, String... to) {
         RestMessage restMessage = new RestMessage();
         MimeMessage message = mailSender.createMimeMessage();
-        getHelper(message, to, subject, content);
+        getHelper(message, subject, content, ccs, to);
         mailSender.send(message);
         restMessage.setSuccess(true);
         restMessage.setMessage("html邮件已经发送!");
@@ -80,10 +83,11 @@ public class MailService {
      * @param content 文本内容
      * @param rscPaths 附件文件路径
      */
-    public RestMessage sendAttachmentsMail(String to, String subject, String content, String... rscPaths) {
+    public RestMessage sendAttachmentsMail(String subject, String content, String[] rscPaths, String[] ccs,
+            String... to) {
         RestMessage restMessage = new RestMessage();
         MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = getHelper(message, to, subject, content);
+        MimeMessageHelper helper = getHelper(message, subject, content, ccs, to);
         try {
             //添加附件
             if (rscPaths != null && rscPaths.length > 0) {
@@ -112,10 +116,11 @@ public class MailService {
      * @param rscPath 静态资源路径
      * @param rscId 静态资源id
      */
-    public RestMessage sendInlineResourceMail(String to, String subject, String content, String rscPath, String rscId) {
+    public RestMessage sendInlineResourceMail(String subject, String content, String rscPath, String rscId,
+            String[] ccs, String... to) {
         RestMessage restMessage = new RestMessage();
         MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = getHelper(message, to, subject, content);
+        MimeMessageHelper helper = getHelper(message, subject, content, ccs, to);
         try {
             //添加多个图片可以使用多条 <img src='cid:" + rscId + "' > 和 helper.addInline(rscId, res) 来实现
             FileSystemResource res = new FileSystemResource(new File(rscPath));
@@ -136,12 +141,16 @@ public class MailService {
      *
      * @return
      */
-    private MimeMessageHelper getHelper(MimeMessage message, String to, String subject, String content) {
+    private MimeMessageHelper getHelper(MimeMessage message, String subject, String content, String[] ccs,
+            String... to) {
         try {
             //true表示需要创建一个multipart message
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
             helper.setFrom(from);
             helper.setTo(to);
+            if (ccs != null && ccs.length > 0) {
+                helper.setCc(ccs);
+            }
             helper.setSubject(subject);
             //启用html
             helper.setText(content, true);
