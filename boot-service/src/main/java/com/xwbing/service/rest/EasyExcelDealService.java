@@ -33,6 +33,8 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.xwbing.config.redis.RedisService;
 import com.xwbing.constant.ImportStatusEnum;
 import com.xwbing.domain.entity.rest.ImportFailLog;
@@ -59,6 +61,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class EasyExcelDealService {
     private static final String EXCEL_DEAL_COUNT_PREFIX = "excel_deal_count_";
+    private static final int EXPORT_PAGE_SIZE = 500;
     @Resource
     private RedisService redisService;
     @Resource
@@ -83,32 +86,43 @@ public class EasyExcelDealService {
         if (importTask == null) {
             throw new BusinessException("导入任务不存在");
         }
-        List<ImportFailLog> importFailLogs = importFailLogService.listByImportId(importId);
-        List<EasyExcelHeadVo> excelData = importFailLogs.stream().map(importFailLog -> {
-            EasyExcelHeadVo headVo = JSONObject.parseObject(importFailLog.getContent(), EasyExcelHeadVo.class);
-            headVo.setRemark(importFailLog.getRemark());
-            return headVo;
-
-        }).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(excelData)) {
-            try (ServletOutputStream outputStream = response.getOutputStream()) {
-                response.setCharacterEncoding("UTF-8");
-                response.setContentType("application/octet-stream");
-                //防止中文乱码
-                String fileName = URLEncoder.encode(importTask.getFileName(), "UTF-8");
-                response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-                response.setHeader("Pragma", "No-cache");
-                response.setHeader("Cache-Control", "no-cache");
-                response.setDateHeader("Expires", 0);
-                EasyExcel.write(outputStream, EasyExcelHeadVo.class).autoTrim(Boolean.TRUE).sheet("sheet0")
-                        .doWrite(excelData);
-            } catch (Exception e) {
-                log.error("writeToBrowser importId={} error", importId, e);
-                throw new BusinessException("下载文件失败");
+        Page<Object> page = PageHelper.startPage(1, 1);
+        importFailLogService.listByImportId(importId);
+        long count = page.getTotal();
+        if (count == 0) {
+            return;
+        }
+        ExcelWriter excelWriter = null;
+        long times = (count % EXPORT_PAGE_SIZE == 0) ? count / EXPORT_PAGE_SIZE : (count / EXPORT_PAGE_SIZE + 1);
+        try (ServletOutputStream outputStream = response.getOutputStream()) {
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/octet-stream");
+            //防止中文乱码
+            String fileName = URLEncoder.encode(importTask.getFileName(), "UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+            response.setHeader("Pragma", "No-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires", 0);
+            excelWriter = EasyExcel.write(outputStream, EasyExcelHeadVo.class).build();
+            WriteSheet writeSheet = EasyExcel.writerSheet("sheet0").autoTrim(Boolean.TRUE).build();
+            List<ImportFailLog> importFailLogs;
+            for (int i = 1; i <= times; i++) {
+                PageHelper.startPage(i, EXPORT_PAGE_SIZE);
+                importFailLogs = importFailLogService.listByImportId(importId);
+                List<EasyExcelHeadVo> excelData = importFailLogs.stream().map(importFailLog -> {
+                    EasyExcelHeadVo headVo = JSONObject.parseObject(importFailLog.getContent(), EasyExcelHeadVo.class);
+                    headVo.setRemark(importFailLog.getRemark());
+                    return headVo;
+                }).collect(Collectors.toList());
+                excelWriter.write(excelData, writeSheet);
             }
-        } else {
-            log.error("writeToBrowser importId={} no fail data", importId);
-            throw new BusinessException("无失败数据");
+        } catch (Exception e) {
+            log.error("writeToBrowser importId={} error", importId, e);
+            throw new BusinessException("下载文件失败");
+        } finally {
+            if (excelWriter != null) {
+                excelWriter.finish();
+            }
         }
     }
 
