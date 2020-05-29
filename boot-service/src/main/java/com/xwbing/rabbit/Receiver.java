@@ -39,7 +39,7 @@ public class Receiver {
         String content = MessageFormat.format("你的用户名是:{0},密码是:{1}", msg[1], msg[2]);
         RestMessage restMessage = new RestMessage();
         try {
-            restMessage = mailService.sendSimpleMail( "注册成功", content,msg[0]);
+            restMessage = mailService.sendSimpleMail( "注册成功", content,null,msg[0]);
         } catch (BusinessException e) {
             log.error("发送邮件给{}失败", msg[0]);
         }
