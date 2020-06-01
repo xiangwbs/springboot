@@ -162,6 +162,7 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
             ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
                     .totalCount(totalCount).failCount(totalCount).detail(errorMsg).build();
             importTaskService.update(fail);
+            throw new BusinessException("导入失败");
         } else {
             ImportTask importTask = ImportTask.builder().id(importId).totalCount(totalCount).build();
             importTaskService.update(importTask);

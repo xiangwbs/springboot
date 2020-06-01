@@ -152,19 +152,23 @@ public class EasyExcelDealService {
                 .needDownload(false).build();
         RestMessage restMessage = importTaskService.save(importTask);
         String importId = restMessage.getId();
-        CompletableFuture.runAsync(() -> {
-            try {
-                //将上传文件复制到自定义临时文件,提高效率。用默认临时文件，多线程高并发下会出现找不到不文件报错
-                File tmpFile = File.createTempFile(filename, type);
-                FileUtils.copyInputStreamToFile(excel.getInputStream(), tmpFile);
-                EasyExcel.read(tmpFile, ExcelVo.class,
-                        new EasyExcelReadListener(importId, tmpFile, this, taskExecutor, importTaskService,
-                                importFailLogService)).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE)
-                        .headRowNumber(headRowNum).sheet(sheetNo).doRead();
-            } catch (Exception e) {
-                log.error("readByStream importId:{} error", importId, e);
-            }
-        });
+        try {
+            //将上传文件复制到自定义临时文件,提高效率。用默认临时文件，多线程高并发下会出现FileNotFoundException
+            File tmpFile = File.createTempFile(filename.substring(0, filename.lastIndexOf(".")), type);
+            FileUtils.copyInputStreamToFile(excel.getInputStream(), tmpFile);
+            CompletableFuture.runAsync(() -> EasyExcel.read(tmpFile, ExcelVo.class,
+                    new EasyExcelReadListener(importId, tmpFile, this, taskExecutor, importTaskService,
+                            importFailLogService)).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE)
+                    .headRowNumber(headRowNum).sheet(sheetNo).doRead()).exceptionally(throwable -> {
+                log.error("readByStream importId:{} error", importId, throwable);
+                throw new BusinessException(throwable);
+            });
+        } catch (Exception e) {
+            ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
+                    .detail("系统异常，请重新导入").build();
+            importTaskService.update(fail);
+            log.error("readByStream importId:{} error", importId, e);
+        }
         return importId;
     }
 
