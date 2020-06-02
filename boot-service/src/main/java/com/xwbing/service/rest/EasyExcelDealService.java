@@ -77,6 +77,7 @@ public class EasyExcelDealService {
 
     /**
      * 导出失败数据到浏览器
+     * cell最大长度为32767
      *
      * @param response
      * @param importId
@@ -154,7 +155,7 @@ public class EasyExcelDealService {
         String importId = restMessage.getId();
         try {
             //将上传文件复制到自定义临时文件,提高效率。用默认临时文件，多线程高并发下会出现FileNotFoundException
-            File tmpFile = File.createTempFile(filename.substring(0, filename.lastIndexOf(".")), type);
+            File tmpFile = File.createTempFile(filename, type);
             FileUtils.copyInputStreamToFile(excel.getInputStream(), tmpFile);
             CompletableFuture.runAsync(() -> EasyExcel.read(tmpFile, ExcelVo.class,
                     new EasyExcelReadListener(importId, tmpFile, this, taskExecutor, importTaskService,
