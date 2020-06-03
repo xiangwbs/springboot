@@ -162,7 +162,7 @@ public class EasyExcelDealService {
                             importFailLogService)).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE)
                     .headRowNumber(headRowNum).sheet(sheetNo).doRead()).exceptionally(throwable -> {
                 log.error("readByStream importId:{} error", importId, throwable);
-                if (!(throwable instanceof ExcelException)) {
+                if (!(throwable.getCause().getCause() instanceof ExcelException)) {
                     ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
                             .detail("系统异常，请重新导入").build();
                     importTaskService.update(fail);
