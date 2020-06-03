@@ -47,6 +47,7 @@ import com.xwbing.exception.UtilException;
 import com.xwbing.util.PassWordUtil;
 import com.xwbing.util.RestMessage;
 import com.xwbing.util.SensitiveWordEngine;
+import com.xwbing.util.ThreadUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -158,11 +159,11 @@ public class EasyExcelDealService {
             File tmpFile = File.createTempFile(filename, type);
             FileUtils.copyInputStreamToFile(file.getInputStream(), tmpFile);
             CompletableFuture.runAsync(() -> EasyExcel.read(tmpFile, ExcelVo.class,
-                    new EasyExcelReadListener(importId, tmpFile, this, taskExecutor, importTaskService,
-                            importFailLogService)).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE)
-                    .headRowNumber(headRowNum).sheet(sheetNo).doRead()).exceptionally(throwable -> {
+                    new EasyExcelReadListener(importId, tmpFile, this, importTaskService, importFailLogService))
+                    .readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum).sheet(sheetNo)
+                    .doRead(), ThreadUtil.build().excelThreadPool()).exceptionally(throwable -> {
                 log.error("readByStream importId:{} error", importId, throwable);
-                if (!(throwable.getCause().getCause() instanceof ExcelException)) {
+                if (!(throwable.getCause() instanceof ExcelException)) {
                     ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
                             .detail("系统异常，请重新导入").build();
                     importTaskService.update(fail);
@@ -385,7 +386,7 @@ public class EasyExcelDealService {
         }
         String importId = PassWordUtil.createUuId();
         CompletableFuture.runAsync(() -> EasyExcel.read(fullPath,
-                new EasyExcelReadListener(importId, null, this, taskExecutor, importTaskService, importFailLogService))
+                new EasyExcelReadListener(importId, null, this, importTaskService, importFailLogService))
                 .head(ExcelVo.class).readCache(new MapCache()).headRowNumber(headRowNum).ignoreEmptyRow(Boolean.FALSE)
                 .sheet(sheetNo).doRead());
         return importId;

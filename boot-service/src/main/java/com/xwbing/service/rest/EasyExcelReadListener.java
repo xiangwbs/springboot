@@ -6,16 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.xwbing.constant.ImportStatusEnum;
 import com.xwbing.domain.entity.rest.ImportFailLog;
 import com.xwbing.domain.entity.rest.ImportTask;
@@ -41,21 +44,20 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
     private static final int SAMPLE_LINES = 0;
     private List<CompletableFuture> completableFutures = new ArrayList<>();
     private List<ExcelVo> list = new ArrayList<>();
+    private ThreadPoolExecutor excelThreadPool = new ThreadPoolExecutor(3, 3, 600L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("EasyExcelReadListener").build());
     private int totalCount;
     private final String importId;
     private final File tmpFile;
     private final EasyExcelDealService easyExcelDealService;
-    private final ThreadPoolTaskExecutor taskExecutor;
     private final ImportTaskService importTaskService;
     private final ImportFailLogService importFailLogService;
 
     public EasyExcelReadListener(String importId, File tmpFile, EasyExcelDealService easyExcelDealService,
-            ThreadPoolTaskExecutor taskExecutor, ImportTaskService importTaskService,
-            ImportFailLogService importFailLogService) {
+            ImportTaskService importTaskService, ImportFailLogService importFailLogService) {
         this.importId = importId;
         this.tmpFile = tmpFile;
         this.easyExcelDealService = easyExcelDealService;
-        this.taskExecutor = taskExecutor;
         this.importTaskService = importTaskService;
         this.importFailLogService = importFailLogService;
     }
@@ -178,7 +180,7 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
         List<ExcelVo> lists = new ArrayList<>(list);
         list.clear();
         CompletableFuture<Void> completableFuture = CompletableFuture
-                .runAsync(() -> easyExcelDealService.dealExcelData(lists, importId), taskExecutor);
+                .runAsync(() -> easyExcelDealService.dealExcelData(lists, importId), excelThreadPool);
         completableFutures.add(completableFuture);
     }
 
