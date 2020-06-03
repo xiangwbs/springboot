@@ -20,7 +20,7 @@ import com.xwbing.constant.ImportStatusEnum;
 import com.xwbing.domain.entity.rest.ImportFailLog;
 import com.xwbing.domain.entity.rest.ImportTask;
 import com.xwbing.domain.entity.vo.ExcelVo;
-import com.xwbing.exception.BusinessException;
+import com.xwbing.exception.ExcelException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -84,14 +84,14 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
     @Override
     public void onException(Exception exception, AnalysisContext context) {
         deleteTmpFile();
-        if (!(exception instanceof BusinessException)) {
+        if (!(exception instanceof ExcelException)) {
             log.error("onException importId:{} error:{}", importId, ExceptionUtils.getStackTrace(exception));
             ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
                     .detail("系统异常，请重新导入").build();
             importTaskService.update(fail);
-            throw new BusinessException("系统异常，导入结束");
+            throw new ExcelException("系统异常，导入结束");
         } else {
-            throw new BusinessException(exception.getMessage());
+            throw new ExcelException(exception.getMessage());
         }
     }
 
@@ -162,7 +162,7 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
             ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
                     .totalCount(totalCount).failCount(totalCount).detail(errorMsg).build();
             importTaskService.update(fail);
-            throw new BusinessException("导入失败");
+            throw new ExcelException("导入失败");
         } else {
             ImportTask importTask = ImportTask.builder().id(importId).totalCount(totalCount).build();
             importTaskService.update(importTask);

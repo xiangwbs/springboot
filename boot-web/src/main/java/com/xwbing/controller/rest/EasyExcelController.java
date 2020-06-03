@@ -36,8 +36,8 @@ public class EasyExcelController {
 
     @ApiOperation(value = "批量导入")
     @PostMapping("import")
-    public JSONObject readExcel(@RequestParam MultipartFile excel) {
-        String sign = easyExcelDealService.readByStream(excel, 0, 1);
+    public JSONObject readExcel(@RequestParam MultipartFile file) {
+        String sign = easyExcelDealService.readByStream(file, 0, 1);
         return JsonResult.toJSONObj(sign, "");
     }
 

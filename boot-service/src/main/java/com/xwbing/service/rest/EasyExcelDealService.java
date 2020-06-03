@@ -42,7 +42,7 @@ import com.xwbing.domain.entity.rest.ImportTask;
 import com.xwbing.domain.entity.vo.EasyExcelHeadVo;
 import com.xwbing.domain.entity.vo.ExcelProcessVo;
 import com.xwbing.domain.entity.vo.ExcelVo;
-import com.xwbing.exception.BusinessException;
+import com.xwbing.exception.ExcelException;
 import com.xwbing.exception.UtilException;
 import com.xwbing.util.PassWordUtil;
 import com.xwbing.util.RestMessage;
@@ -85,7 +85,7 @@ public class EasyExcelDealService {
     public void writeToBrowser(HttpServletResponse response, String importId) {
         ImportTask importTask = importTaskService.getById(importId);
         if (importTask == null) {
-            throw new BusinessException("导入任务不存在");
+            throw new ExcelException("导入任务不存在");
         }
         Page<Object> page = PageHelper.startPage(1, 1);
         importFailLogService.listByImportId(importId);
@@ -119,7 +119,7 @@ public class EasyExcelDealService {
             }
         } catch (Exception e) {
             log.error("writeToBrowser importId={} error", importId, e);
-            throw new BusinessException("下载文件失败");
+            throw new ExcelException("下载文件失败");
         } finally {
             if (excelWriter != null) {
                 excelWriter.finish();
@@ -134,20 +134,20 @@ public class EasyExcelDealService {
      * 超过5M，默认会用ehcache
      * ignoreEmptyRow默认为true 如要要统计进度条 改为false比较好
      *
-     * @param excel
+     * @param file
      * @param sheetNo
      * @param headRowNum 如果从0开始 会读取到表头数据 默认为1
      *
      * @return
      */
-    public String readByStream(MultipartFile excel, int sheetNo, int headRowNum) {
-        String filename = excel.getOriginalFilename();
+    public String readByStream(MultipartFile file, int sheetNo, int headRowNum) {
+        String filename = file.getOriginalFilename();
         if (StringUtils.isEmpty(filename)) {
-            throw new BusinessException("请选择文件");
+            throw new ExcelException("请选择文件");
         }
         String type = filename.substring(filename.lastIndexOf("."));
         if (!(ExcelTypeEnum.XLSX.getValue().equals(type) || ExcelTypeEnum.XLS.getValue().equals(type))) {
-            throw new BusinessException("文件格式不正确");
+            throw new ExcelException("文件格式不正确");
         }
         ImportTask importTask = ImportTask.builder().fileName(filename).status(ImportStatusEnum.EXPORT.getCode())
                 .needDownload(false).build();
@@ -156,13 +156,18 @@ public class EasyExcelDealService {
         try {
             //将上传文件复制到自定义临时文件,提高效率。用默认临时文件，多线程高并发下会出现FileNotFoundException
             File tmpFile = File.createTempFile(filename, type);
-            FileUtils.copyInputStreamToFile(excel.getInputStream(), tmpFile);
+            FileUtils.copyInputStreamToFile(file.getInputStream(), tmpFile);
             CompletableFuture.runAsync(() -> EasyExcel.read(tmpFile, ExcelVo.class,
                     new EasyExcelReadListener(importId, tmpFile, this, taskExecutor, importTaskService,
                             importFailLogService)).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE)
                     .headRowNumber(headRowNum).sheet(sheetNo).doRead()).exceptionally(throwable -> {
                 log.error("readByStream importId:{} error", importId, throwable);
-                throw new BusinessException(throwable);
+                if (!(throwable instanceof ExcelException)) {
+                    ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
+                            .detail("系统异常，请重新导入").build();
+                    importTaskService.update(fail);
+                }
+                throw new ExcelException(throwable);
             });
         } catch (Exception e) {
             ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
@@ -183,7 +188,7 @@ public class EasyExcelDealService {
     public ExcelProcessVo getProcess(String importId) {
         ImportTask importTask = importTaskService.getById(importId);
         if (importTask == null) {
-            throw new BusinessException("导入任务不存在");
+            throw new ExcelException("导入任务不存在");
         }
         Integer totalCount = Optional.ofNullable(importTask.getTotalCount()).orElse(0);
         Integer failCount = Optional.ofNullable(importTask.getFailCount()).orElse(0);
@@ -367,19 +372,19 @@ public class EasyExcelDealService {
     // }
 
     /**
-     * @param filePath
+     * @param fullPath
      * @param sheetNo
      * @param headRowNum
      *
      * @return
      */
-    public String readByLocal(String filePath, int sheetNo, int headRowNum) {
-        String pathName = FileSystems.getDefault().getPath(filePath).toString();
-        if (!checkType(pathName)) {
-            throw new BusinessException("文件格式不正确");
+    public String readByLocal(String fullPath, int sheetNo, int headRowNum) {
+        String type = fullPath.substring(fullPath.lastIndexOf("."));
+        if (!(ExcelTypeEnum.XLSX.getValue().equals(type) || ExcelTypeEnum.XLS.getValue().equals(type))) {
+            throw new ExcelException("文件格式不正确");
         }
         String importId = PassWordUtil.createUuId();
-        CompletableFuture.runAsync(() -> EasyExcel.read(pathName,
+        CompletableFuture.runAsync(() -> EasyExcel.read(fullPath,
                 new EasyExcelReadListener(importId, null, this, taskExecutor, importTaskService, importFailLogService))
                 .head(ExcelVo.class).readCache(new MapCache()).headRowNumber(headRowNum).ignoreEmptyRow(Boolean.FALSE)
                 .sheet(sheetNo).doRead());
@@ -397,10 +402,5 @@ public class EasyExcelDealService {
         List<List<String>> list = new ArrayList<>();
         heads.forEach(title -> list.add(Collections.singletonList(title)));
         return list;
-    }
-
-    private boolean checkType(String fileName) {
-        String type = fileName.substring(fileName.lastIndexOf("."));
-        return ExcelTypeEnum.XLSX.getValue().equals(type) || ExcelTypeEnum.XLS.getValue().equals(type);
     }
 }
