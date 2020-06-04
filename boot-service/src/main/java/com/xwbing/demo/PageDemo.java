@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -84,6 +85,13 @@ public class PageDemo {
         int start = (pageNum - 1) * pageSize > size ? size : (pageNum - 1) * pageSize;
         int end = pageSize * pageNum > size ? size : pageSize * pageNum;
         return new ArrayList<>(list.subList(start, end));
+    }
+
+    public void partition(List<Object> list, int size) {
+        List<List<Object>> partition = ListUtils.partition(list, size);
+        partition.forEach(objects -> {
+            // TODO: 处理业务逻辑
+        });
     }
 
     /**

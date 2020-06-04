@@ -108,6 +108,7 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
         int size = completableFutures.size();
         CompletableFuture[] arrays = completableFutures.toArray(new CompletableFuture[size]);
         CompletableFuture.allOf(arrays).join();
+        excelThreadPool.shutdown();
         //更新导入任务
         List<ImportFailLog> importFailLogs = importFailLogService.listByImportId(importId);
         int failSize = importFailLogs.size();
