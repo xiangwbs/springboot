@@ -11,7 +11,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
@@ -87,10 +86,8 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
     public void onException(Exception exception, AnalysisContext context) {
         deleteTmpFile();
         if (!(exception instanceof ExcelException)) {
-            log.error("onException importId:{} error:{}", importId, ExceptionUtils.getStackTrace(exception));
-            ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
-                    .detail("系统异常，请重新导入").build();
-            importTaskService.update(fail);
+            log.error("onException importId:{} error", importId, exception);
+            importTaskService.updateExceptionFail(importId);
             throw new ExcelException("系统异常，导入结束");
         } else {
             throw new ExcelException(exception.getMessage());

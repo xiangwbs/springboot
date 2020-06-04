@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,8 +64,6 @@ public class EasyExcelDealService {
     private static final int EXPORT_PAGE_SIZE = 500;
     @Resource
     private RedisService redisService;
-    @Resource
-    private ThreadPoolTaskExecutor taskExecutor;
     @Resource
     private ImportTaskService importTaskService;
     @Resource
@@ -163,18 +160,15 @@ public class EasyExcelDealService {
                     .readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum).sheet(sheetNo)
                     .doRead(), ThreadUtil.build().excelThreadPool()).exceptionally(throwable -> {
                 log.error("readByStream importId:{} error", importId, throwable);
-                if (!(throwable.getCause() instanceof ExcelException)) {
-                    ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
-                            .detail("系统异常，请重新导入").build();
-                    importTaskService.update(fail);
+                ImportTask task = importTaskService.getById(importId);
+                if (ImportStatusEnum.EXPORT.getCode().equals(task.getStatus())) {
+                    importTaskService.updateExceptionFail(importId);
                 }
                 throw new ExcelException(throwable);
             });
         } catch (Exception e) {
-            ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
-                    .detail("系统异常，请重新导入").build();
-            importTaskService.update(fail);
             log.error("readByStream importId:{} error", importId, e);
+            importTaskService.updateExceptionFail(importId);
         }
         return importId;
     }
