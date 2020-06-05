@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.xwbing.domain.mapper.sys.SysAuthorityMapper">
-    <resultMap id="BaseResultMap" type="sysAuthority">
+    <resultMap id="BaseResultMap" type="com.xwbing.domain.entity.sys.SysAuthority">
         <id column="id" property="id"/>
         <result column="create_time" property="createTime"/>
         <result column="modified_time" property="modifiedTime"/>
         <result column="parent_id" property="parentId"/>
     </resultMap>
+
     <sql id="Table">
         sys_authority
     </sql>
+
     <sql id="Base_Column_List">
         id,
         creator,
@@ -24,6 +26,7 @@
         type,
         sort
     </sql>
+    <!-- 查询条件 -->
     <sql id="condition">
         <where>
             <if test="code!=null">
@@ -249,7 +252,7 @@
         <include refid="Table"/>
         ORDER BY sort
     </select>
-    <!-- 获取最大排序号 -->
+
     <select id="getMaxSort" resultType="int">
         SELECT IFNULL(MAX(sort),0)
         FROM

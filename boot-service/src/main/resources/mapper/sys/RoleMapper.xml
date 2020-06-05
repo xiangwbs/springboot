@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.xwbing.domain.mapper.sys.SysRoleMapper">
-    <resultMap id="BaseResultMap" type="sysRole">
+    <resultMap id="BaseResultMap" type="com.xwbing.domain.entity.sys.SysRole">
         <id column="id" property="id"/>
         <result column="create_time" property="createTime"/>
         <result column="modified_time" property="modifiedTime"/>
     </resultMap>
+
     <sql id="Table">
         sys_role
     </sql>
+
     <sql id="Base_Column_List">
         id,
         creator,
@@ -20,6 +22,7 @@
         enable,
         remark
     </sql>
+
     <sql id="condition">
         <where>
             <if test="code!=null">
@@ -39,7 +42,7 @@
             </if>
         </where>
     </sql>
-    <!-- 插入 -->
+
     <insert id="insert">
         <selectKey keyProperty="id" resultType="string" order="BEFORE">
             SELECT REPLACE(UUID(), '-', '')
@@ -64,7 +67,7 @@
         #{remark}
         )
     </insert>
-    <!-- 批量插入 -->
+
     <insert id="insertBatch">
         INSERT INTO
         <include refid="Table"/>(
@@ -88,13 +91,13 @@
             )
         </foreach>
     </insert>
-    <!-- 删除 -->
+
     <delete id="deleteById">
         DELETE FROM
         <include refid="Table"/>
         WHERE id=#{id}
     </delete>
-    <!-- 批量删除 -->
+
     <delete id="deleteByIds">
         DELETE FROM
         <include refid="Table"/>
@@ -103,13 +106,13 @@
             #{id}
         </foreach>
     </delete>
-    <!-- 条件删除 -->
+
     <delete id="delete">
         DELETE FROM
         <include refid="Table"/>
         <include refid="condition"/>
     </delete>
-    <!-- 更新 -->
+
     <update id="update">
         UPDATE
         <include refid="Table"/>
@@ -123,7 +126,7 @@
         </set>
         WHERE id=#{id}
     </update>
-    <!-- 批量更新 -->
+
     <update id="updateBatch">
         UPDATE
         <include refid="Table"/>
@@ -175,7 +178,7 @@
             </foreach>
         </where>
     </update>
-    <!-- 查找 -->
+
     <select id="findById" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
@@ -183,7 +186,7 @@
         <include refid="Table"/>
         WHERE id=#{id}
     </select>
-    <!-- 根据ids查找 -->
+
     <select id="findByIds" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
@@ -194,7 +197,7 @@
             #{id}
         </foreach>
     </select>
-    <!-- 条件查询 -->
+
     <select id="find" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
@@ -202,7 +205,7 @@
         <include refid="Table"/>
         <include refid="condition"/>
     </select>
-    <!-- 查询所有 -->
+
     <select id="findAll" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
@@ -210,4 +213,5 @@
         <include refid="Table"/>
         ORDER BY create_time DESC
     </select>
+
 </mapper>
