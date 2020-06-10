@@ -427,6 +427,11 @@ public class DateUtil2 {
         return ChronoUnit.DAYS.between(start, end);
     }
 
+    public static void main(String[] args) {
+        long l = daysBetween("2019-12-25", "2020-06-06");
+        System.out.println("");
+    }
+
     /**
      * 比较两个日期相差的月数
      *
@@ -478,11 +483,6 @@ public class DateUtil2 {
         map.put("minutes", (int)diffMinutes);
         map.put("seconds", (int)diffSeconds);
         return map;
-    }
-
-    public static void main(String[] args) {
-        Map<String, Integer> dateTimePool = getDateTimePool("2018-11-11 00:00:00", "2018-11-11 01:30:00");
-        System.out.println(dateTimePool);
     }
 
     /**
@@ -544,6 +544,21 @@ public class DateUtil2 {
             return true;
         }
         return false;
+    }
+
+    private static String formatDate(LocalDateTime date) {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        String dateStr;
+        if (currentDateTime.getDayOfMonth() == date.getDayOfMonth()) {
+            dateStr = date.format(getDateFormat("HH:mm"));
+        } else if (currentDateTime.getDayOfMonth() - date.getDayOfMonth() == 1) {
+            dateStr = "昨天 " + date.format(getDateFormat("HH:mm"));
+        } else if (currentDateTime.getYear() != currentDateTime.getYear()) {
+            dateStr = date.format(getDateFormat("yyyy-MM-dd HH:mm"));
+        } else {
+            dateStr = date.format(getDateFormat("MM月dd日 HH:mm"));
+        }
+        return dateStr;
     }
 
     /**
