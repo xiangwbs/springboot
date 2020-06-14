@@ -7,8 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -239,27 +241,26 @@ public class MockControl {
     }
 
     @ApiOperation("下载excel文件")
-    @GetMapping("exportStream")
-    public void exportStream(HttpServletResponse response) {
+    @GetMapping("writeToBrowser")
+    public void writeToBrowser(HttpServletResponse response) {
         List<String> titles = new ArrayList<>();
         titles.add("姓名");
-        titles.add("姓名");
-        List<List<Object>> excelData = new ArrayList<>();
+        titles.add("年龄");
         List<Object> data = new ArrayList<>();
         data.add("项伟兵");
-        data.add("xwj");
-        excelData.add(data);
+        data.add("18");
+        List<List<Object>> excelData = Collections.singletonList(data);
         easyExcelDealService.writeToBrowser(response, "人员名单统计", "人员名单", null, titles, excelData);
     }
 
     @ApiOperation("生成excel到本地")
     @GetMapping("writeToLocal")
-    public void write() {
+    public void writeToLocal() {
         List<ExcelVo> excelData = new ArrayList<>();
         ExcelVo data = ExcelVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
         ExcelVo data1 = ExcelVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
         ExcelVo data2 = ExcelVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功").build();
-        ExcelVo data3 = ExcelVo.builder().name("null").age(18).tel("13488888888").introduction("法轮功").build();
+        ExcelVo data3 = ExcelVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功").build();
         excelData.add(data);
         excelData.add(data1);
         excelData.add(data2);
@@ -267,7 +268,30 @@ public class MockControl {
         easyExcelDealService.writeToLocal("/Users/xwbing/Documents", "人员名单统计", "人员名单", null, excelData);
     }
 
-    @ApiOperation("生成多个sheet")
+    @ApiOperation("生成excel到本地")
+    @GetMapping("writeToLocalByPage")
+    public void writeToLocalByPage() {
+        Function<Integer, List<ExcelVo>> dataFunction = pageNumber -> {
+            if (pageNumber == 2) {
+                return Collections.emptyList();
+            }
+            //模拟分页
+            // PageHelper.startPage(pageNumber, 500);
+            List<ExcelVo> excelData = new ArrayList<>();
+            ExcelVo data = ExcelVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
+            ExcelVo data1 = ExcelVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
+            ExcelVo data2 = ExcelVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功").build();
+            ExcelVo data3 = ExcelVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功").build();
+            excelData.add(data);
+            excelData.add(data1);
+            excelData.add(data2);
+            excelData.add(data3);
+            return excelData;
+        };
+        easyExcelDealService.writeToLocalByPage("/Users/xwbing/Documents", "人员名单统计", "人员名单", null, dataFunction);
+    }
+
+    @ApiOperation("生成多个sheet到本地")
     @GetMapping("repeatedWriteToLocal")
     public void repeatedWriteToLocal() {
         easyExcelDealService.repeatedWriteToLocal("/Users/xwbing/Documents", "人员名单统计");

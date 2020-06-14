@@ -86,7 +86,7 @@
         <logger name="org.springframework.web" level="info"/>
         <!--  默认为root。匹配该name下的所有子类，由于这个logger也是满足root的,additivity为true，该logger和root都会打印。
         additivity为false，匹配该logger的信息只会在该logger下打印，不会在root下打印 -->
-        <logger name="com.xwbing.handler.GlobalExceptionHandler" level="error" additivity="false">
+        <logger name="com.xwbing.handler.GlobalExceptionHandler" level="error" additivity="true">
             <appender-ref ref="exception_appender"/>
         </logger>
     </Loggers>

@@ -5,7 +5,10 @@ import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.alibaba.excel.annotation.write.style.ContentRowHeight;
 import com.alibaba.excel.annotation.write.style.HeadRowHeight;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author daofeng
@@ -16,8 +19,11 @@ import lombok.Data;
 @HeadRowHeight(20)
 @ContentRowHeight(15)
 @Data
+@SuperBuilder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class EasyExcelHeadVo {
-    @ExcelProperty(value = "姓名",index = 0)
+    @ExcelProperty(value = "姓名", index = 0)
     private String name;
     @ExcelProperty(value = "年龄", index = 1)
     private Integer age;

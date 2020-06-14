@@ -1,15 +1,16 @@
 package com.xwbing.configuration;
 
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import javax.servlet.Filter;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-
-import javax.servlet.Filter;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 说明: 程序上下文配置
@@ -43,7 +44,7 @@ public class ApplicationContextConfig {
     @Bean(name = "multipartResolver")
     public CommonsMultipartResolver getCommonsMultipartResolver() {
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
-        multipartResolver.setMaxUploadSize(5 * 1024 * 1024);//5M
+        multipartResolver.setMaxUploadSize(10 * 1024 * 1024);//10M
         multipartResolver.setDefaultEncoding("UTF-8");
         return multipartResolver;
     }

@@ -60,7 +60,7 @@ public class FileUtil {
 
     public static byte[] toByte(InputStream inputStream) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            byte[] data = new byte[inputStream.available()];
+            byte[] data = new byte[1024 * 2];
             int index;
             while ((index = inputStream.read(data)) != -1) {
                 bos.write(data, 0, index);
@@ -78,7 +78,7 @@ public class FileUtil {
             Files.delete(path);
         }
         try (FileOutputStream output = new FileOutputStream(Files.createFile(path).toFile())) {
-            byte[] data = new byte[inputStream.available()];
+            byte[] data = new byte[1024 * 2];
             int index;
             while ((index = inputStream.read(data)) != -1) {
                 output.write(data, 0, index);

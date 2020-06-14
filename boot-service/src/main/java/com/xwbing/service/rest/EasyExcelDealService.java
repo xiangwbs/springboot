@@ -1,18 +1,16 @@
 package com.xwbing.service.rest;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -32,8 +30,6 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.xwbing.config.redis.RedisService;
 import com.xwbing.constant.ImportStatusEnum;
 import com.xwbing.domain.entity.rest.ImportFailLog;
@@ -41,6 +37,7 @@ import com.xwbing.domain.entity.rest.ImportTask;
 import com.xwbing.domain.entity.vo.EasyExcelHeadVo;
 import com.xwbing.domain.entity.vo.ExcelProcessVo;
 import com.xwbing.domain.entity.vo.ExcelVo;
+import com.xwbing.exception.BusinessException;
 import com.xwbing.exception.ExcelException;
 import com.xwbing.exception.UtilException;
 import com.xwbing.util.PassWordUtil;
@@ -61,7 +58,6 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class EasyExcelDealService {
     private static final String EXCEL_DEAL_COUNT_PREFIX = "excel_deal_count_";
-    private static final int EXPORT_PAGE_SIZE = 500;
     @Resource
     private RedisService redisService;
     @Resource
@@ -75,7 +71,6 @@ public class EasyExcelDealService {
 
     /**
      * 导出失败数据到浏览器
-     * cell最大长度为32767
      *
      * @param response
      * @param importId
@@ -83,45 +78,32 @@ public class EasyExcelDealService {
     public void writeToBrowser(HttpServletResponse response, String importId) {
         ImportTask importTask = importTaskService.getById(importId);
         if (importTask == null) {
-            throw new ExcelException("导入任务不存在");
+            throw new BusinessException("导入任务不存在");
         }
-        Page<Object> page = PageHelper.startPage(1, 1);
-        importFailLogService.listByImportId(importId);
-        long count = page.getTotal();
-        if (count == 0) {
-            return;
-        }
-        ExcelWriter excelWriter = null;
-        long times = (count % EXPORT_PAGE_SIZE == 0) ? count / EXPORT_PAGE_SIZE : (count / EXPORT_PAGE_SIZE + 1);
-        try (ServletOutputStream outputStream = response.getOutputStream()) {
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType("application/octet-stream");
-            //防止中文乱码
-            String fileName = URLEncoder.encode(importTask.getFileName(), "UTF-8");
-            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-            response.setHeader("Pragma", "No-cache");
-            response.setHeader("Cache-Control", "no-cache");
-            response.setDateHeader("Expires", 0);
-            excelWriter = EasyExcel.write(outputStream, EasyExcelHeadVo.class).build();
-            WriteSheet writeSheet = EasyExcel.writerSheet("sheet0").autoTrim(Boolean.TRUE).build();
-            List<ImportFailLog> importFailLogs;
-            for (int i = 1; i <= times; i++) {
-                PageHelper.startPage(i, EXPORT_PAGE_SIZE);
-                importFailLogs = importFailLogService.listByImportId(importId);
-                List<EasyExcelHeadVo> excelData = importFailLogs.stream().map(importFailLog -> {
-                    EasyExcelHeadVo headVo = JSONObject.parseObject(importFailLog.getContent(), EasyExcelHeadVo.class);
-                    headVo.setRemark(importFailLog.getRemark());
-                    return headVo;
-                }).collect(Collectors.toList());
-                excelWriter.write(excelData, writeSheet);
+        List<ImportFailLog> importFailLogs = importFailLogService.listByImportId(importId);
+        List<EasyExcelHeadVo> excelData = importFailLogs.stream().map(importFailLog -> {
+            EasyExcelHeadVo headVo = JSONObject.parseObject(importFailLog.getContent(), EasyExcelHeadVo.class);
+            return headVo.toBuilder().remark(importFailLog.getRemark()).build();
+        }).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(excelData)) {
+            try (ServletOutputStream outputStream = response.getOutputStream()) {
+                response.setCharacterEncoding("UTF-8");
+                response.setContentType("application/octet-stream");
+                //防止中文乱码
+                String fileName = URLEncoder.encode(importTask.getFileName(), "UTF-8");
+                response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+                response.setHeader("Pragma", "No-cache");
+                response.setHeader("Cache-Control", "no-cache");
+                response.setDateHeader("Expires", 0);
+                EasyExcel.write(outputStream, EasyExcelHeadVo.class).autoTrim(Boolean.TRUE).sheet("sheet0")
+                        .doWrite(excelData);
+            } catch (Exception e) {
+                log.error("writeToBrowser importId:{} error", importId, e);
+                throw new BusinessException("下载文件失败");
             }
-        } catch (Exception e) {
-            log.error("writeToBrowser importId={} error", importId, e);
-            throw new ExcelException("下载文件失败");
-        } finally {
-            if (excelWriter != null) {
-                excelWriter.finish();
-            }
+        } else {
+            log.error("writeToBrowser importId:{} no fail data", importId);
+            throw new BusinessException("无失败数据");
         }
     }
 
@@ -249,8 +231,11 @@ public class EasyExcelDealService {
     /**
      * 文件下载到浏览器
      * 动态头
+     * 自动列宽
      * 默认关闭流,如果错误信息以流的形式呈现，不能关闭流 .autoCloseStream(Boolean.FALSE)
      * password为null不加密
+     * cell最大长度为32767
+     * 数据量大时，可能会oom，建议上传到oss
      *
      * @param response
      * @param fileName
@@ -297,11 +282,32 @@ public class EasyExcelDealService {
     public void writeToLocal(String basedir, String fileName, String sheetName, String password,
             List<ExcelVo> excelData) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
-        try (OutputStream out = Files.newOutputStream(path)) {
-            EasyExcel.write(out).head(ExcelVo.class).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
-                    .password(password).sheet(sheetName).autoTrim(Boolean.TRUE).doWrite(excelData);
-        } catch (IOException e) {
-            log.error("writeToLocal error", e);
+        EasyExcel.write(path.toString()).head(ExcelVo.class)
+                .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).sheet(sheetName)
+                .autoTrim(Boolean.TRUE).doWrite(excelData);
+    }
+
+    public void writeToLocalByPage(String basedir, String fileName, String sheetName, String password,
+            Function<Integer, List<ExcelVo>> dataFunction) {
+        Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
+        ExcelWriter excelWriter = null;
+        try {
+            excelWriter = EasyExcel.write(path.toString()).head(ExcelVo.class)
+                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
+            WriteSheet writeSheet = EasyExcel.writerSheet(sheetName).autoTrim(Boolean.TRUE).build();
+            int pageNumber = 1;
+            while (true) {
+                List<ExcelVo> data = dataFunction.apply(pageNumber);
+                if (data.isEmpty()) {
+                    break;
+                }
+                excelWriter.write(data, writeSheet);
+                pageNumber++;
+            }
+        } finally {
+            if (excelWriter != null) {
+                excelWriter.finish();
+            }
         }
     }
 
@@ -313,20 +319,16 @@ public class EasyExcelDealService {
      */
     public void repeatedWriteToLocal(String basedir, String fileName) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
-        try (OutputStream out = Files.newOutputStream(path)) {
-            ExcelWriter excelWriter = EasyExcel.write(out).build();
-            WriteSheet writeSheet;
-            for (int i = 0; i < 2; i++) {
-                writeSheet = EasyExcel.writerSheet(i, "sheet" + i)
-                        .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).head(ExcelVo.class).build();
-                ExcelVo java = ExcelVo.builder().name("java").age(18).tel("1348888888" + i).introduction("这是sheet" + i)
-                        .build();
-                excelWriter.write(Collections.singletonList(java), writeSheet);
-            }
-            excelWriter.finish();
-        } catch (IOException e) {
-            log.error("repeatedWriteToLocal error", e);
+        ExcelWriter excelWriter = EasyExcel.write(path.toString()).build();
+        WriteSheet writeSheet;
+        for (int i = 0; i < 2; i++) {
+            writeSheet = EasyExcel.writerSheet(i, "sheet" + i)
+                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).head(ExcelVo.class).build();
+            ExcelVo java = ExcelVo.builder().name("java").age(18).tel("1348888888" + i).introduction("这是sheet" + i)
+                    .build();
+            excelWriter.write(Collections.singletonList(java), writeSheet);
         }
+        excelWriter.finish();
     }
 
     // /**
