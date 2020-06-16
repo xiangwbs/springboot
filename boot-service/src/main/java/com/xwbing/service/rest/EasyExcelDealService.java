@@ -235,7 +235,7 @@ public class EasyExcelDealService {
      * 默认关闭流,如果错误信息以流的形式呈现，不能关闭流 .autoCloseStream(Boolean.FALSE)
      * password为null不加密
      * cell最大长度为32767
-     * 数据量大时，可能会oom，建议上传到oss
+     * 数据量大时，可能会oom，建议分页查询，写入到本地，再上传到oss
      *
      * @param response
      * @param fileName
