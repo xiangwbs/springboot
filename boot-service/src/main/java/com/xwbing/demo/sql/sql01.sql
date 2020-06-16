@@ -16,10 +16,12 @@ RENAME employ_xwbing TO xwbing;
 ALTER TABLE XWBING ADD(
   HIREDATE DATE DEFAULT SYSDATE
 )
+
 ALTER TABLE `table`
-ADD COLUMN `col` bigint(20) DEFAULT NULL COMMENT 'xxx' after `col`,
-ADD COLUMN `col` bit(1) DEFAULT NULL COMMENT 'xxx' after `col`,
-ADD COLUMN `col` varchar(32) DEFAULT NULL COMMENT 'xxx' after `col`;
+ADD COLUMN `col1` bigint(20) DEFAULT NULL COMMENT 'xxx' AFTER `col`,
+ADD COLUMN `col2` int(11) DEFAULT NULL COMMENT 'xxx' AFTER `col1`,
+ADD COLUMN `col3` tinyint(4)  NOT NULL DEFAULT '1' COMMENT 'xxx' AFTER `col2`,
+ADD COLUMN `col4` varchar(32) DEFAULT NULL COMMENT 'xxx' AFTER `col3`;
 
 ALTER TABLE `table` MODIFY COLUMN `col`varchar(10) not null COMMENT 'xxx'
 
