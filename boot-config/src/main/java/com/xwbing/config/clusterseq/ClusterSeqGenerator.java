@@ -9,10 +9,10 @@ import com.xwbing.config.redis.RedisService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * id按长度16设计。环境（1位） + 年月日时分（10位）+ {@link #SEQ_SIZE}位自增序列，每次自增在{@link #RANDOM_NEXT_OFFSET}内随机。
- * <br/>
- * 一分钟内最少可生成的序列数=(10<sup>{@link #SEQ_SIZE}</sup> -1) / {@link #RANDOM_NEXT_OFFSET}
- * <br/>
+ * 集群系列号生成器，用于订单号
+ *
+ * id按长度16设计。环境（1位）+ 年月日时分（10位）+ 自增序列（{@link #SEQ_SIZE}位）。每次自增在{@link #RANDOM_NEXT_OFFSET}内随机。
+ * 一分钟内最少可生成的序列数 = ({@link #MAX_SEQ})/{@link #RANDOM_NEXT_OFFSET}
  * 如果一分钟内{@link #SEQ_SIZE}位的自增序列用完，则等待下一秒再生成
  *
  * @author daofeng
@@ -36,9 +36,9 @@ public class ClusterSeqGenerator {
     public Long getSeqId(String bizType) {
         String date = getDateInfo();
         String key = KEY_PREFIX + bizType + date;
-        redisService.expire(key, 120);
+        redisService.expire(key, 90);
         Long seq = redisService.incrBy(key, ThreadLocalRandom.current().nextInt(1, RANDOM_NEXT_OFFSET));
-        if (seq < MAX_SEQ) {
+        if (seq <= MAX_SEQ) {
             return Long.valueOf(envType + date + String.format("%0" + SEQ_SIZE + "d", seq));
         } else {
             nextDate(date);
@@ -47,7 +47,7 @@ public class ClusterSeqGenerator {
     }
 
     /**
-     * 阻塞到下一秒，直到获得新的时间信息
+     * 阻塞到下一分，直到获得新的时间信息
      *
      * @param lastDate
      */
