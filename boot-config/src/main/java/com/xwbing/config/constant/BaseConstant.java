@@ -13,10 +13,6 @@ public class BaseConstant {
     //开发环境
     public static final int BUSINESS_LEASE_DEV = 4;
     /**
-     * 订单最大序列号
-     */
-    public static final int ORDER_MAX_SEQ = 99999;
-    /**
      * 应用环境
      */
     //开发环境

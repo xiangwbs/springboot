@@ -6,7 +6,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-import com.xwbing.config.annotation.EnableRedis;
+import com.xwbing.config.redis.EnableRedis;
 import com.xwbing.config.clusterseq.EnableClusterSeq;
 
 /**
