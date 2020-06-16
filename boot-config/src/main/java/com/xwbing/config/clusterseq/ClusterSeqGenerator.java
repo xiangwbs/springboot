@@ -33,6 +33,13 @@ public class ClusterSeqGenerator {
         this.envType = envType;
     }
 
+    /**
+     * 获取序列号
+     *
+     * @param bizType 业务类型 自定义
+     *
+     * @return
+     */
     public Long getSeqId(String bizType) {
         String date = getDateInfo();
         String key = KEY_PREFIX + bizType + date;
