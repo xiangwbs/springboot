@@ -1,13 +1,15 @@
 package com.xwbing.util;
 
-import com.xwbing.constant.Base;
-import com.xwbing.config.redis.RedisService;
+import java.text.DecimalFormat;
+import java.util.Date;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.text.DecimalFormat;
-import java.util.Date;
+import com.xwbing.config.redis.RedisService;
+import com.xwbing.constant.Base;
 
 /**
  * @author xiangwb
@@ -26,8 +28,8 @@ public class OrderNoUtil {
             businessType = Base.BUSINESS_LEASE_DEV;
         } else if (StringUtils.equals(env, Base.ENV_TEST)) {
             businessType = Base.BUSINESS_LEASE_TEST;
-        } else if (StringUtils.equals(env, Base.ENV_SANDBOX)) {
-            businessType = Base.BUSINESS_LEASE_TEST;
+        } else if (StringUtils.equals(env, Base.ENV_PRE)) {
+            businessType = Base.BUSINESS_LEASE_PRE;
         } else {
             businessType = Base.BUSINESS_LEASE_PROD;
         }

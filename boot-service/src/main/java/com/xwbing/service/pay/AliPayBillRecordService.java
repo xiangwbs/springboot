@@ -20,11 +20,13 @@ import java.util.zip.ZipInputStream;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.csvreader.CsvReader;
+import com.xwbing.constant.Base;
 import com.xwbing.domain.entity.rest.AliPayBillRecord;
 import com.xwbing.domain.mapper.rest.AliPayBillRecordMapper;
 import com.xwbing.service.BaseService;
@@ -41,6 +43,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @PropertySource("classpath:pay.properties")
 public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper, AliPayBillRecord> {
+    @Value("${spring.profiles.active:test}")
+    private String env;
+    private static final int BACH_SAVE_SIZE = 500;
     @Resource
     private AliPayBillRecordMapper aliPayBillRecordMapper;
     @Resource
@@ -130,16 +135,19 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
                     continue;
                 }
                 String merchantOrderNo = reader.get(2);
-                AliPayBillRecord bill = AliPayBillRecord.builder().accountLogId(accountLogId)
-                        .alipayOrderNo(reader.get(1)).merchantOrderNo(merchantOrderNo)
-                        .paidDate(DateUtil2.strToDate(reader.get(4), DateUtil2.YYYY_MM_DD_HH_MM_SS))
-                        .otherAccount(reader.get(5)).inAmount(new BigDecimal(reader.get(6)))
-                        .outAmount(new BigDecimal(reader.get(7)).negate()).balance(new BigDecimal(reader.get(8)))
-                        .type(reader.get(10)).remark(reader.get(11)).build();
-                list.add(bill);
-                if (list.size() >= 500) {
-                    super.saveBatch(list);
-                    list.clear();
+                String type = reader.get(10);
+                if (checkLoad(merchantOrderNo, type)) {
+                    AliPayBillRecord bill = AliPayBillRecord.builder().accountLogId(accountLogId)
+                            .alipayOrderNo(reader.get(1)).merchantOrderNo(merchantOrderNo)
+                            .paidDate(DateUtil2.strToDate(reader.get(4), DateUtil2.YYYY_MM_DD_HH_MM_SS))
+                            .otherAccount(reader.get(5)).inAmount(new BigDecimal(reader.get(6)))
+                            .outAmount(new BigDecimal(reader.get(7)).negate()).balance(new BigDecimal(reader.get(8)))
+                            .type(type).remark(reader.get(11)).build();
+                    list.add(bill);
+                    if (list.size() >= BACH_SAVE_SIZE) {
+                        super.saveBatch(list);
+                        list.clear();
+                    }
                 }
             }
             if (list.size() != 0) {
@@ -153,5 +161,20 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
             }
         }
         log.info("saveByInputStream end");
+    }
+
+    private boolean checkLoad(String merchantOrderNo, String type) {
+        if (!"转账".equals(type)) {
+            return false;
+        }
+        if (Base.ENV_DEV.equals(env) || Base.ENV_TEST.equals(env)) {
+            return merchantOrderNo.startsWith(String.valueOf(Base.BUSINESS_LEASE_DEV)) || merchantOrderNo
+                    .startsWith(String.valueOf(Base.BUSINESS_LEASE_TEST));
+        } else if (Base.ENV_PRE.equals(env) || Base.ENV_PROD.equals(env)) {
+            return merchantOrderNo.startsWith(String.valueOf(Base.BUSINESS_LEASE_PRE)) || merchantOrderNo
+                    .startsWith(String.valueOf(Base.BUSINESS_LEASE_PROD));
+        } else {
+            return false;
+        }
     }
 }

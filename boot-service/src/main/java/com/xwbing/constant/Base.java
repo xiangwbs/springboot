@@ -7,7 +7,7 @@ public class Base {
     //正式环境
     public static final int BUSINESS_LEASE_PROD = 1;
     //预发环境
-    public static final int BUSINESS_LEASE_SANDBOX = 2;
+    public static final int BUSINESS_LEASE_PRE = 2;
     //测试环境
     public static final int BUSINESS_LEASE_TEST = 3;
     //开发环境
@@ -24,11 +24,9 @@ public class Base {
     //测试环境
     public static final String ENV_TEST = "test";
     //预发环境
-    public static final String ENV_SANDBOX = "sandbox";
+    public static final String ENV_PRE = "pre";
     //正式环境
     public static final String ENV_PROD = "prod";
 
     public static final String HOST = System.getenv("hostName");
-
-
 }
