@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.config.aliyun.AliYunLog;
+import com.xwbing.config.clusterseq.ClusterSeqGenerator;
 import com.xwbing.config.redis.RedisService;
 import com.xwbing.config.spring.ApplicationContextHelper;
 import com.xwbing.config.util.dingTalk.MarkdownMessage;
@@ -68,6 +69,8 @@ public class MockControl {
     private AliYunLog aliYunLog;
     @Resource
     private EasyExcelDealService easyExcelDealService;
+    @Resource
+    private ClusterSeqGenerator clusterSeqGenerator;
     private List<byte[]> memoryBytes = new ArrayList<>();
 
     @ApiOperation("导出zip")
@@ -302,6 +305,13 @@ public class MockControl {
     public JSONObject readByLocal() {
         String importId = easyExcelDealService.readByLocal("/Users/xwbing/Documents/导入模板.xlsx", 0, 1);
         return JsonResult.toJSONObj(importId, "");
+    }
+
+    @ApiOperation("获取全局序列号")
+    @GetMapping("getSeqId")
+    public JSONObject getSeqId() {
+        Long id = clusterSeqGenerator.getSeqId("test");
+        return JsonResult.toJSONObj(id, "");
     }
 }
 

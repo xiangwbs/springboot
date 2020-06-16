@@ -7,6 +7,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import com.xwbing.config.annotation.EnableRedis;
+import com.xwbing.config.clusterseq.EnableClusterSeq;
 
 /**
  * 项目名称: boot-module-pro
@@ -15,6 +16,7 @@ import com.xwbing.config.annotation.EnableRedis;
  * 说明: 启动类
  */
 @EnableRedis
+@EnableClusterSeq
 @ServletComponentScan
 @SpringBootApplication
 @EnableAspectJAutoProxy

@@ -1,6 +1,6 @@
-package com.xwbing.constant;
+package com.xwbing.config.constant;
 
-public class Base {
+public class BaseConstant {
     /**
      * 业务
      */

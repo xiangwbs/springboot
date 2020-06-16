@@ -1,7 +1,8 @@
-package com.xwbing.util;
+package com.xwbing.config.util;
 
-import com.xwbing.constant.Base;
 import org.apache.commons.lang3.StringUtils;
+
+import com.xwbing.config.constant.BaseConstant;
 
 /**
  * @author xiangwb
@@ -17,7 +18,7 @@ public class EnvUtil {
         if (StringUtils.isNotEmpty(env)) {
             return env;
         }
-        return Base.ENV_TEST;
+        return BaseConstant.ENV_TEST;
     }
 
     public static String getZone() {
@@ -44,8 +45,8 @@ public class EnvUtil {
     public static boolean isTestEnv() {
         String env = getEnv();
         if (StringUtils.isEmpty(env)
-                || StringUtils.equals(env, Base.ENV_DEV)
-                || StringUtils.equals(env, Base.ENV_TEST)) {
+                || StringUtils.equals(env, BaseConstant.ENV_DEV)
+                || StringUtils.equals(env, BaseConstant.ENV_TEST)) {
             return true;
         }
         return false;

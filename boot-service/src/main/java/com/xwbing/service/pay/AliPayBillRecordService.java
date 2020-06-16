@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.csvreader.CsvReader;
-import com.xwbing.constant.Base;
+import com.xwbing.config.constant.BaseConstant;
 import com.xwbing.domain.entity.rest.AliPayBillRecord;
 import com.xwbing.domain.mapper.rest.AliPayBillRecordMapper;
 import com.xwbing.service.BaseService;
@@ -167,12 +167,12 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
         if (!"转账".equals(type)) {
             return false;
         }
-        if (Base.ENV_DEV.equals(env) || Base.ENV_TEST.equals(env)) {
-            return merchantOrderNo.startsWith(String.valueOf(Base.BUSINESS_LEASE_DEV)) || merchantOrderNo
-                    .startsWith(String.valueOf(Base.BUSINESS_LEASE_TEST));
-        } else if (Base.ENV_PRE.equals(env) || Base.ENV_PROD.equals(env)) {
-            return merchantOrderNo.startsWith(String.valueOf(Base.BUSINESS_LEASE_PRE)) || merchantOrderNo
-                    .startsWith(String.valueOf(Base.BUSINESS_LEASE_PROD));
+        if (BaseConstant.ENV_DEV.equals(env) || BaseConstant.ENV_TEST.equals(env)) {
+            return merchantOrderNo.startsWith(String.valueOf(BaseConstant.BUSINESS_LEASE_DEV)) || merchantOrderNo
+                    .startsWith(String.valueOf(BaseConstant.BUSINESS_LEASE_TEST));
+        } else if (BaseConstant.ENV_PRE.equals(env) || BaseConstant.ENV_PROD.equals(env)) {
+            return merchantOrderNo.startsWith(String.valueOf(BaseConstant.BUSINESS_LEASE_PRE)) || merchantOrderNo
+                    .startsWith(String.valueOf(BaseConstant.BUSINESS_LEASE_PROD));
         } else {
             return false;
         }

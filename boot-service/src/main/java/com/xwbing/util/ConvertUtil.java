@@ -33,7 +33,8 @@ public class ConvertUtil {
     public static Object beanToJson(Object obj) {
         if (obj == null) {
             return null;
-        } else if (obj instanceof String || obj instanceof JSONObject || obj instanceof Map || obj instanceof Integer) {
+        } else if (obj instanceof String || obj instanceof JSONObject || obj instanceof Map || obj instanceof Integer
+                || obj instanceof Long) {
             return obj;
         } else if (obj instanceof List) {
             ArrayList<JSONObject> result = new ArrayList<>();
