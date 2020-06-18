@@ -1,10 +1,11 @@
 package com.xwbing.config.util.dingTalk;
 
-import com.alibaba.fastjson.JSON;
-import lombok.Data;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.alibaba.fastjson.JSON;
+
+import lombok.Data;
 
 /**
  * @author xiangwb
@@ -18,6 +19,7 @@ public class SendResult {
     public SendResult() {
     }
 
+    @Override
     public String toString() {
         Map<String, Object> items = new HashMap<>();
         items.put("errorCode", this.errorCode);

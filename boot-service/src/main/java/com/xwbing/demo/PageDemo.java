@@ -24,29 +24,31 @@ public class PageDemo {
         if (count == 0) {
             return;
         }
+        List<Object> list;
         long times = (count % pageSize == 0) ? count / pageSize : (count / pageSize + 1);
         for (int i = 1; i <= times; i++) {
             PageHelper.startPage(i, pageSize);
-            List<Object> list = query();
+            list = query();
             // TODO: 处理业务逻辑
         }
     }
 
-    public void pageQuery(int pageSize) {
-        int pageNum = 0;
-        List<Object> responseList;
-        do {
-            pageNum++;
-            responseList = pageQuery(pageNum, pageSize);
-            if (CollectionUtils.isNotEmpty(responseList)) {
-                responseList.forEach(ordersResponse -> {
-                    // TODO: 处理业务逻辑
-                });
-            }
-        } while (CollectionUtils.isNotEmpty(responseList));
+    public void pageHelperDealSelfSync(int pageSize) {
+        Page<Object> page = PageHelper.startPage(1, 1);
+        long count = page.getTotal();
+        if (count == 0) {
+            return;
+        }
+        List<Object> list;
+        long times = (count % pageSize == 0) ? count / pageSize : (count / pageSize + 1);
+        for (int i = 1; i <= times; i++) {
+            PageHelper.startPage(1, pageSize);
+            list = query();
+            // TODO: 处理业务逻辑
+        }
     }
 
-    public void page(int pageSize) {
+    public void pageHelperDealSelfAsync(int pageSize) {
         Page<Object> checkPage = PageHelper.startPage(1, 1);
         long count = checkPage.getTotal();
         if (count == 0) {
@@ -75,6 +77,20 @@ public class PageDemo {
                 // TODO: 处理业务逻辑
             }));
         }
+    }
+
+    public void pageQuery(int pageSize) {
+        int pageNum = 0;
+        List<Object> responseList;
+        do {
+            pageNum++;
+            responseList = pageQuery(pageNum, pageSize);
+            if (CollectionUtils.isNotEmpty(responseList)) {
+                responseList.forEach(ordersResponse -> {
+                    // TODO: 处理业务逻辑
+                });
+            }
+        } while (CollectionUtils.isNotEmpty(responseList));
     }
 
     public List<Object> page(List<Object> list, int pageNum, int pageSize) {

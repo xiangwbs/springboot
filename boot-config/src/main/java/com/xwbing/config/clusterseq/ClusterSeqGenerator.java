@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ClusterSeqGenerator {
     private static final String KEY_PREFIX = "boot:";
     private final int SEQ_SIZE = 5;
-    private final int RANDOM_NEXT_OFFSET = 60;
+    private final int RANDOM_NEXT_OFFSET = 30;
     private final Long MAX_SEQ = Double.valueOf(Math.pow(10, SEQ_SIZE)).longValue() - 1;
     private final RedisService redisService;
     private final int envType;

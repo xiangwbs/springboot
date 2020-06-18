@@ -1,6 +1,12 @@
 package com.xwbing.config.aliyun;
 
-import com.alibaba.fastjson.JSONObject;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import com.aliyun.openservices.log.Client;
 import com.aliyun.openservices.log.common.LogItem;
 import com.aliyun.openservices.log.request.PutLogsRequest;
@@ -8,17 +14,12 @@ import com.xwbing.config.util.dingTalk.DingTalkClient;
 import com.xwbing.config.util.dingTalk.MarkdownMessage;
 import com.xwbing.config.util.dingTalk.SendResult;
 import com.xwbing.config.util.dingTalk.TextMessage;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xiangwb
- * aliyunlog dingtalk
+ *         aliyunlog dingtalk
  */
 @Slf4j
 public class AliYunLog {
@@ -72,7 +73,8 @@ public class AliYunLog {
      * @param params
      */
     public void sendTextMessage(String source, boolean atAll, List<String> atMobiles, Object... params) {
-        StringBuilder content = new StringBuilder("host: ").append(HOST).append("\n").append("source: ").append(source).append("\n");
+        StringBuilder content = new StringBuilder("host: ").append(HOST).append("\n").append("source: ").append(source)
+                .append("\n");
         int i = 1;
         for (Object obj : params) {
             content.append("params").append(i).append(": ").append(obj).append("\n");
@@ -84,7 +86,7 @@ public class AliYunLog {
             textMessage.setAtAll(atAll);
             SendResult send = dingTalkClient.send(webHook, secret, textMessage);
             if (!send.isSuccess()) {
-                log.error("{} - {}", source, JSONObject.toJSON(send));
+                log.error("{} - {}", source, send.toString());
             }
         } catch (Exception e) {
             log.error("{} - {}", source, ExceptionUtils.getStackTrace(e));
@@ -102,7 +104,7 @@ public class AliYunLog {
             markdownMessage.addItem(0, MarkdownMessage.getHeaderText(1, markdownMessage.getTitle()));
             SendResult send = dingTalkClient.send(webHook, secret, markdownMessage);
             if (!send.isSuccess()) {
-                log.error("{} - {}", markdownMessage.getTitle(), JSONObject.toJSON(send));
+                log.error("{} - {}", markdownMessage.getTitle(), send.toString());
             }
         } catch (Exception e) {
             log.error("{} - {}", markdownMessage.getTitle(), ExceptionUtils.getStackTrace(e));
@@ -121,7 +123,7 @@ public class AliYunLog {
             key = "default";
         }
         Vector<LogItem> logGroup = new Vector<>();
-        LogItem logItem = new LogItem((int) ((new Date()).getTime() / 1000L));
+        LogItem logItem = new LogItem((int)((new Date()).getTime() / 1000L));
         logItem.PushBack(key, HOST + "_: " + value);
         logGroup.add(logItem);
         PutLogsRequest putLogsRequest = new PutLogsRequest(project, logStore, topic, source, logGroup);
