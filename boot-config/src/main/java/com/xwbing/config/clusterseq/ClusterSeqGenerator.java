@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @author daofeng
  * @version $
- * @since 2020年01月03日 10:38
+ * @since 2020年01月03日 10:39
  */
 @Slf4j
 public class ClusterSeqGenerator {
