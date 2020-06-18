@@ -39,8 +39,8 @@ boot:
     log:
       log-store: test_boot
     ding-talk:
-      web-hook: https://oapi.dingtalk.com/robot/send?access_token=f41b013832ca349f45cabce7dd7e64b19f3e1aabc4414d71a1e9ee050d65e141
-      secret: SEC9f4390e8c897e118ab487b0ed5874100a7693920eb87e9a968ee8129b0874e3f
+      web-hook: https://oapi.dingtalk.com/robot/send?access_token=da82d4099a3f2515480f35210cc17dd02f315e99537d29cd3de1a751e551b670
+      secret: SECa17df9ae897fb39d525a173c47dcc93a6b01133fbb4bf3e659060cd4ed4539ea
 swagger:
   enable: true
 
