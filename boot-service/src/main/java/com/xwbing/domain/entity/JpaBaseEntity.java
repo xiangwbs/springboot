@@ -1,21 +1,24 @@
 package com.xwbing.domain.entity;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import org.hibernate.annotations.GenericGenerator;
+import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import java.io.Serializable;
-import java.util.Date;
+
+import org.hibernate.annotations.GenericGenerator;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 /**
  * 说明: 基础类
  * 创建时间: 2017/5/10 16:36
- * 作者:  xiangwb
+ *
+ * @author xiangwb
  */
 @Data
 @ApiModel

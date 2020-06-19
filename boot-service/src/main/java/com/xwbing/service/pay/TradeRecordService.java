@@ -7,7 +7,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import com.xwbing.domain.entity.rest.TradeRecord;
-import com.xwbing.domain.mapper.rest.TradeRecordMapper;
+import com.xwbing.domain.mapper.pay.TradeRecordMapper;
 import com.xwbing.service.BaseService;
 import com.xwbing.service.pay.enums.PayStatusEnum;
 

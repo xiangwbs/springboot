@@ -1,4 +1,4 @@
-package com.xwbing.domain.mapper.rest;
+package com.xwbing.domain.mapper.pay;
 
 import com.xwbing.domain.entity.rest.TradeRecord;
 import com.xwbing.domain.mapper.BaseMapper;

@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.csvreader.CsvReader;
 import com.xwbing.config.constant.BaseConstant;
 import com.xwbing.domain.entity.rest.AliPayBillRecord;
-import com.xwbing.domain.mapper.rest.AliPayBillRecordMapper;
+import com.xwbing.domain.mapper.pay.AliPayBillRecordMapper;
 import com.xwbing.service.BaseService;
 import com.xwbing.util.DateUtil2;
 

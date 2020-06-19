@@ -13,7 +13,8 @@ import lombok.experimental.SuperBuilder;
 /**
  * 说明: 基础类
  * 创建时间: 2017/5/10 16:36
- * 作者:  xiangwb
+ *
+ * @author xiangwb
  */
 @SuperBuilder(toBuilder = true)
 @AllArgsConstructor

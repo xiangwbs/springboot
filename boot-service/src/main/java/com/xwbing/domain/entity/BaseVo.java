@@ -1,14 +1,12 @@
 package com.xwbing.domain.entity;
 
+import java.util.Date;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.util.Date;
-
 /**
  * @author xiangwb
- * @date 2018/8/11 22:09
- * @description
  */
 @ApiModel
 public class BaseVo {
@@ -65,12 +63,7 @@ public class BaseVo {
 
     @Override
     public String toString() {
-        return "BaseVo{" +
-                "id='" + id + '\'' +
-                ", creator='" + creator + '\'' +
-                ", modifier='" + modifier + '\'' +
-                ", createTime=" + createTime +
-                ", modifiedTime=" + modifiedTime +
-                '}';
+        return "BaseVo{" + "id='" + id + '\'' + ", creator='" + creator + '\'' + ", modifier='" + modifier + '\''
+                + ", createTime=" + createTime + ", modifiedTime=" + modifiedTime + '}';
     }
 }

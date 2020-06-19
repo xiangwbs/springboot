@@ -23,7 +23,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xwbing.constant.CommonConstant;
-import com.xwbing.domain.entity.dto.UserDto;
+import com.xwbing.domain.entity.vo.UserDto;
 import com.xwbing.domain.entity.model.EmailModel;
 import com.xwbing.domain.entity.sys.SysAuthority;
 import com.xwbing.domain.entity.sys.SysConfig;

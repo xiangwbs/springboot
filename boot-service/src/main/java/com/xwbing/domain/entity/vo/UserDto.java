@@ -1,4 +1,4 @@
-package com.xwbing.domain.entity.dto;
+package com.xwbing.domain.entity.vo;
 
 import lombok.Data;
 
