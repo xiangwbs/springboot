@@ -6,7 +6,7 @@ package com.xwbing.enums;
  * @since 2020年06月19日 下午2:54
  */
 public enum HttpCodeEnum {
-    /** */
+    //@formatter:off
     OK("成功", 200),
     UNAUTHORIZED("请求要求身份验证", 401),
     FORBIDDEN("服务器拒绝请求", 403),
