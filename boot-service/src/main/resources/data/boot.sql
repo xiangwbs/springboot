@@ -254,9 +254,9 @@ CREATE TABLE `system_config` (
   `modified_time` datetime DEFAULT NULL COMMENT '修改时间',
   `modifier` varchar(50)  DEFAULT NULL COMMENT '修改人',
   `code` varchar(50)  NOT NULL COMMENT '编码',
-  `enable` char(1)  NOT NULL COMMENT '是否启用',
-  `name` varchar(10)  NOT NULL COMMENT '名称',
   `value` text  NOT NULL COMMENT '值',
+  `describe` varchar(64)  NOT NULL COMMENT '描述',
+  `enable` char(1)  NOT NULL COMMENT '是否启用',
   PRIMARY KEY (`id`) ,
   UNIQUE KEY `uk_code` (`code`) ,
   KEY `idx_enable` (`enable`) 

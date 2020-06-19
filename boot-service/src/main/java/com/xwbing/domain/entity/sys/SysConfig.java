@@ -1,14 +1,16 @@
 package com.xwbing.domain.entity.sys;
 
-import com.xwbing.domain.entity.JpaBaseEntity;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import javax.persistence.Entity;
+import javax.validation.constraints.Pattern;
+
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
-import javax.persistence.Entity;
-import javax.validation.constraints.Pattern;
+import com.xwbing.domain.entity.JpaBaseEntity;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 说明: 系统配置
@@ -27,10 +29,10 @@ public class SysConfig extends JpaBaseEntity {
     @ApiModelProperty(value = "配置项的值", example = "{}", required = true)
     @NotBlank(message = "配置项的value不能为空")
     private String value;
-    @ApiModelProperty(value = "配置项的描述(名称)", example = "邮箱配置", required = true)
-    @NotBlank(message = "配置项的name不能为空")
+    @ApiModelProperty(value = "配置项的描述", example = "邮箱配置", required = true)
+    @NotBlank(message = "配置项的描述不能为空")
     @Length(min = 1, max = 20, message = "value长度为1-20")
-    private String name;
+    private String describe;
     @ApiModelProperty(value = "是否启用", example = "Y", required = true)
     @NotBlank(message = "是否启用不能为空")
     @Pattern(regexp = "[Y|N]", message = "是否启用格式为Y|N")

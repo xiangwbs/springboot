@@ -1,14 +1,16 @@
 package com.xwbing.service.sys;
 
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
 import com.xwbing.domain.entity.sys.SysConfig;
 import com.xwbing.domain.repository.SysConfigRepository;
 import com.xwbing.exception.BusinessException;
 import com.xwbing.util.RestMessage;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 说明: 系统配置服务层
@@ -88,7 +90,7 @@ public class SysConfigService {
             throw new BusinessException("该配置项不存在");
         }
         old.setValue(sysConfig.getValue());
-        old.setName(sysConfig.getName());
+        old.setDescribe(sysConfig.getDescribe());
         old.setEnable(sysConfig.getEnable());
         old.setModifiedTime(new Date());
         SysConfig save = sysConfigRepository.save(old);

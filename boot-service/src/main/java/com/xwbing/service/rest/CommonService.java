@@ -1,5 +1,17 @@
 package com.xwbing.service.rest;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Base64;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.constant.CommonConstant;
@@ -11,16 +23,6 @@ import com.xwbing.service.sys.SysConfigService;
 import com.xwbing.util.CommonDataUtil;
 import com.xwbing.util.DigestsUtil;
 import com.xwbing.util.RestMessage;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Base64;
 
 /**
  * 创建时间: 2018/5/7 8:59
@@ -100,7 +102,7 @@ public class CommonService {
         SysConfig sysConfig = sysConfigService.getByCode(CommonConstant.EMAIL_KEY);
         if (sysConfig == null) {
             sysConfig = new SysConfig();
-            sysConfig.setName("邮箱配置");
+            sysConfig.setDescribe("邮箱配置");
             sysConfig.setCode(CommonConstant.EMAIL_KEY);
             sysConfig.setEnable(CommonConstant.IS_ENABLE);
             sysConfig.setValue(JSON.toJSONString(emailModel));
