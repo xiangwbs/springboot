@@ -165,7 +165,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
     }
 
     private boolean checkLoad(String merchantOrderNo, TradeTypeEnum tradeType, String type) {
-        if (tradeType.getName().equals(type)) {
+        if (!tradeType.getName().equals(type)) {
             return false;
         }
         if (BaseConstant.ENV_DEV.equals(env) || BaseConstant.ENV_TEST.equals(env)) {
