@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.xwbing.constant.CommonEnum;
+import com.xwbing.enums.HttpCodeEnum;
 
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -142,32 +142,32 @@ public class SwaggerConfig {
 
             {
                 add(new ResponseMessageBuilder()
-                        .code(CommonEnum.CodeEnum.OK.getValue())
-                        .message(CommonEnum.CodeEnum.OK.getName())
+                        .code(HttpCodeEnum.OK.getValue())
+                        .message(HttpCodeEnum.OK.getName())
                         .build());
                 add(new ResponseMessageBuilder()
-                        .code(CommonEnum.CodeEnum.UNAUTHORIZED.getValue())
-                        .message(CommonEnum.CodeEnum.UNAUTHORIZED.getName())
+                        .code(HttpCodeEnum.UNAUTHORIZED.getValue())
+                        .message(HttpCodeEnum.UNAUTHORIZED.getName())
                         .build());
                 add(new ResponseMessageBuilder()
-                        .code(CommonEnum.CodeEnum.FORBIDDEN.getValue())
-                        .message(CommonEnum.CodeEnum.FORBIDDEN.getName())
+                        .code(HttpCodeEnum.FORBIDDEN.getValue())
+                        .message(HttpCodeEnum.FORBIDDEN.getName())
                         .build());
                 add(new ResponseMessageBuilder()
-                        .code(CommonEnum.CodeEnum.NOT_FOUND.getValue())
-                        .message(CommonEnum.CodeEnum.NOT_FOUND.getName())
+                        .code(HttpCodeEnum.NOT_FOUND.getValue())
+                        .message(HttpCodeEnum.NOT_FOUND.getName())
                         .build());
                 add(new ResponseMessageBuilder()
-                        .code(CommonEnum.CodeEnum.ERROR.getValue())
-                        .message(CommonEnum.CodeEnum.ERROR.getName())
+                        .code(HttpCodeEnum.ERROR.getValue())
+                        .message(HttpCodeEnum.ERROR.getName())
                         .build());
                 add(new ResponseMessageBuilder()
-                        .code(CommonEnum.CodeEnum.SERVICE_UNAVAILABLE.getValue())
-                        .message(CommonEnum.CodeEnum.SERVICE_UNAVAILABLE.getName())
+                        .code(HttpCodeEnum.SERVICE_UNAVAILABLE.getValue())
+                        .message(HttpCodeEnum.SERVICE_UNAVAILABLE.getName())
                         .build());
                 add(new ResponseMessageBuilder()
-                        .code(CommonEnum.CodeEnum.GATEWAY_TIME_OUT.getValue())
-                        .message(CommonEnum.CodeEnum.GATEWAY_TIME_OUT.getName())
+                        .code(HttpCodeEnum.GATEWAY_TIME_OUT.getValue())
+                        .message(HttpCodeEnum.GATEWAY_TIME_OUT.getName())
                         .build());
             }
         };

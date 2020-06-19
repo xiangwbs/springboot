@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.config.annotation.Idempotent;
 import com.xwbing.config.annotation.Lock;
-import com.xwbing.constant.CommonEnum;
 import com.xwbing.domain.entity.sys.SysAuthority;
 import com.xwbing.domain.entity.sys.SysRole;
 import com.xwbing.domain.entity.sys.SysUser;
@@ -33,6 +32,8 @@ import com.xwbing.domain.entity.vo.ListSysRoleVo;
 import com.xwbing.domain.entity.vo.PageSysUserVo;
 import com.xwbing.domain.entity.vo.RestMessageVo;
 import com.xwbing.domain.entity.vo.SysUserVo;
+import com.xwbing.enums.MenuOrButtonEnum;
+import com.xwbing.enums.YesOrNoEnum;
 import com.xwbing.service.sys.SysAuthorityService;
 import com.xwbing.service.sys.SysRoleService;
 import com.xwbing.service.sys.SysUserRoleService;
@@ -177,14 +178,14 @@ public class SysUserControl {
         List<SysAuthority> button = new ArrayList<>();
         List<SysAuthority> menu = new ArrayList<>();
         List<SysAuthority> list;
-        if (CommonEnum.YesOrNoEnum.YES.getCode().equalsIgnoreCase(sysUser.getIsAdmin())) {
-            list = sysAuthorityService.listByEnable(CommonEnum.YesOrNoEnum.YES.getCode());
+        if (YesOrNoEnum.YES.getCode().equalsIgnoreCase(sysUser.getIsAdmin())) {
+            list = sysAuthorityService.listByEnable(YesOrNoEnum.YES.getCode());
         } else {
-            list = sysUserService.listAuthorityByIdAndEnable(sysUser.getId(), CommonEnum.YesOrNoEnum.YES.getCode());
+            list = sysUserService.listAuthorityByIdAndEnable(sysUser.getId(), YesOrNoEnum.YES.getCode());
         }
         if (CollectionUtils.isNotEmpty(list)) {
             list.forEach(sysAuthority -> {
-                if (sysAuthority.getType() == CommonEnum.MenuOrButtonEnum.MENU.getCode()) {
+                if (sysAuthority.getType() == MenuOrButtonEnum.MENU.getCode()) {
                     menu.add(sysAuthority);
                 } else {
                     button.add(sysAuthority);
@@ -209,7 +210,7 @@ public class SysUserControl {
         if (old == null) {
             return JsonResult.toJSONObj("该用户不存在");
         }
-        if (CommonEnum.YesOrNoEnum.YES.getCode().equalsIgnoreCase(old.getIsAdmin())) {
+        if (YesOrNoEnum.YES.getCode().equalsIgnoreCase(old.getIsAdmin())) {
             return JsonResult.toJSONObj("不能对管理员进行操作");
         }
         String[] ids = roleIds.split(",");

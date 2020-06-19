@@ -61,7 +61,7 @@ public class CommonConstant {
     /**
      * 导出报表列名称
      */
-    public static final String[] USER_REPORT_COLUMNS = new String[]{" 名字", "用户名", "性别", "邮箱", "是否为管理员"};
+    public static final String[] USER_REPORT_COLUMNS = new String[] { " 名字", "用户名", "性别", "邮箱", "是否为管理员" };
     /**
      * 中国各省市
      */

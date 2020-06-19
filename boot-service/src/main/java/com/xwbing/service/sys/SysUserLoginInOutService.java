@@ -1,25 +1,26 @@
 package com.xwbing.service.sys;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.xwbing.constant.CommonEnum;
-import com.xwbing.domain.entity.sys.SysUserLoginInOut;
-import com.xwbing.domain.mapper.sys.SysUserLoginInOutMapper;
-import com.xwbing.service.BaseService;
-import com.xwbing.util.DateUtil2;
-import com.xwbing.util.Pagination;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.xwbing.domain.entity.sys.SysUserLoginInOut;
+import com.xwbing.domain.mapper.sys.SysUserLoginInOutMapper;
+import com.xwbing.enums.LoginInOutEnum;
+import com.xwbing.service.BaseService;
+import com.xwbing.util.DateUtil2;
+import com.xwbing.util.Pagination;
 
 /**
  * 创建时间: 2017/11/7 9:56
@@ -57,11 +58,7 @@ public class SysUserLoginInOutService extends BaseService<SysUserLoginInOutMappe
         PageInfo<SysUserLoginInOut> pageInfo = PageHelper.startPage(page.getCurrentPage(), page.getPageSize()).doSelectPageInfo(() -> loginInOutMapper.findByInoutType(map));
         List<SysUserLoginInOut> list = pageInfo.getList();
         if (CollectionUtils.isNotEmpty(list)) {
-            list.forEach(loginInOut -> {
-                //登录登出
-                CommonEnum.LoginInOutEnum inOutEnum = Arrays.stream(CommonEnum.LoginInOutEnum.values()).filter(obj -> obj.getValue() == loginInOut.getInoutType()).findFirst().get();
-                loginInOut.setInoutTypeName(inOutEnum.getName());
-            });
+            list.forEach(loginInOut -> loginInOut.setInoutTypeName(LoginInOutEnum.parse(loginInOut.getInoutType())));
         }
         return page.result(page, pageInfo);
     }
@@ -89,7 +86,7 @@ public class SysUserLoginInOutService extends BaseService<SysUserLoginInOutMappe
         JSONObject obj;
         for (int item : ITEM) {
             obj = new JSONObject();
-            String name = Arrays.stream(CommonEnum.LoginInOutEnum.values()).filter(login -> login.getValue() == item).findFirst().get().getName();
+            String name=LoginInOutEnum.parse(item);
             obj.put("name", name);
             List<SysUserLoginInOut> sample = collect.get(item);
             if (sample != null) {
@@ -131,7 +128,7 @@ public class SysUserLoginInOutService extends BaseService<SysUserLoginInOutMappe
         JSONArray series = new JSONArray();
         for (int item : ITEM) {
             obj = new JSONObject();
-            String name = Arrays.stream(CommonEnum.LoginInOutEnum.values()).filter(login -> login.getValue() == item).findFirst().get().getName();
+            String name = LoginInOutEnum.parse(item);
             obj.put("name", name);
             array = new JSONArray();
             for (String day : days) {

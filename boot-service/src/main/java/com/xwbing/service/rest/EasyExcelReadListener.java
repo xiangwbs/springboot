@@ -18,7 +18,7 @@ import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.xwbing.constant.ImportStatusEnum;
+import com.xwbing.enums.ImportStatusEnum;
 import com.xwbing.domain.entity.rest.ImportFailLog;
 import com.xwbing.domain.entity.rest.ImportTask;
 import com.xwbing.domain.entity.vo.ExcelVo;

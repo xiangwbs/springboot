@@ -1,4 +1,4 @@
-package com.xwbing.constant;
+package com.xwbing.enums;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -11,8 +11,11 @@ import java.util.stream.Collectors;
  * @since 2020年04月28日 上午10:25
  */
 public enum ImportStatusEnum {
-    /**/
-    EXPORT("正在导入中", "export"), FAIL("失败", "fail"), SUCCESS("成功", "success"),;
+    //@formatter:off
+    EXPORT("正在导入中", "export"),
+    FAIL("失败", "fail"),
+    SUCCESS("成功", "success"),
+    ;
     private String name;
     private String code;
 
@@ -29,10 +32,10 @@ public enum ImportStatusEnum {
         return name;
     }
 
-    private static final Map<String, ImportStatusEnum> map = Arrays.stream(ImportStatusEnum.values())
+    private static final Map<String, ImportStatusEnum> ENUM_MAP = Arrays.stream(ImportStatusEnum.values())
             .collect(Collectors.toMap(ImportStatusEnum::getCode, Function.identity()));
 
     public static ImportStatusEnum parse(String code) {
-        return map.get(code);
+        return ENUM_MAP.get(code);
     }
 }

@@ -31,7 +31,7 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.config.redis.RedisService;
-import com.xwbing.constant.ImportStatusEnum;
+import com.xwbing.enums.ImportStatusEnum;
 import com.xwbing.domain.entity.rest.ImportFailLog;
 import com.xwbing.domain.entity.rest.ImportTask;
 import com.xwbing.domain.entity.vo.EasyExcelHeadVo;

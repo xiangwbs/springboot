@@ -1,29 +1,32 @@
 package com.xwbing.handler;
 
-import com.alibaba.fastjson.JSON;
-import com.xwbing.constant.CommonConstant;
-import com.xwbing.constant.CommonEnum;
-import com.xwbing.domain.entity.sys.SysAuthority;
-import com.xwbing.domain.entity.sys.SysUser;
-import com.xwbing.service.sys.SysAuthorityService;
-import com.xwbing.service.sys.SysUserService;
-import com.xwbing.util.CommonDataUtil;
-import com.xwbing.util.RestMessage;
-import com.xwbing.util.ThreadLocalUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import com.alibaba.fastjson.JSON;
+import com.xwbing.constant.CommonConstant;
+import com.xwbing.domain.entity.sys.SysAuthority;
+import com.xwbing.domain.entity.sys.SysUser;
+import com.xwbing.enums.YesOrNoEnum;
+import com.xwbing.service.sys.SysAuthorityService;
+import com.xwbing.service.sys.SysUserService;
+import com.xwbing.util.CommonDataUtil;
+import com.xwbing.util.RestMessage;
+import com.xwbing.util.ThreadLocalUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class UrlPermissionsInterceptor extends HandlerInterceptorAdapter {
@@ -84,7 +87,7 @@ public class UrlPermissionsInterceptor extends HandlerInterceptorAdapter {
         SysUser user = sysUserService.getByUserName(userName);
         List<SysAuthority> sysAuthorities;
         if (CommonConstant.IS_ENABLE.equalsIgnoreCase(user.getIsAdmin())) {
-            sysAuthorities = sysAuthorityService.listByEnable(CommonEnum.YesOrNoEnum.YES.getCode());
+            sysAuthorities = sysAuthorityService.listByEnable(YesOrNoEnum.YES.getCode());
         } else {
             sysAuthorities = sysUserService.listAuthorityByIdAndEnable(user.getId(), "Y");
         }

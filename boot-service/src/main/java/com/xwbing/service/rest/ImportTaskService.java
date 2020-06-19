@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.xwbing.constant.ImportStatusEnum;
+import com.xwbing.enums.ImportStatusEnum;
 import com.xwbing.domain.entity.rest.ImportTask;
 import com.xwbing.domain.mapper.rest.ImportTaskMapper;
 import com.xwbing.service.BaseService;

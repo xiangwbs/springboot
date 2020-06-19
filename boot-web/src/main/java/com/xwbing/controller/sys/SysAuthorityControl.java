@@ -22,12 +22,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.xwbing.config.annotation.FlowLimiter;
 import com.xwbing.config.annotation.Idempotent;
 import com.xwbing.constant.CommonConstant;
-import com.xwbing.constant.CommonEnum;
 import com.xwbing.domain.entity.sys.SysAuthority;
 import com.xwbing.domain.entity.vo.ListSysAuthorityVo;
 import com.xwbing.domain.entity.vo.PageSysAuthorityVo;
 import com.xwbing.domain.entity.vo.RestMessageVo;
 import com.xwbing.domain.entity.vo.SysAuthVo;
+import com.xwbing.enums.YesOrNoEnum;
 import com.xwbing.service.sys.SysAuthorityService;
 import com.xwbing.util.CommonDataUtil;
 import com.xwbing.util.JsonResult;
@@ -101,7 +101,7 @@ public class SysAuthorityControl {
             // 如果是启用,看父节点是否被禁用,一级的不需要判断
             if (!CommonConstant.ROOT.equals(sysAuthority.getParentId())) {
                 SysAuthority parent = sysAuthorityService.getById(sysAuthority.getParentId());
-                if (parent != null && CommonEnum.YesOrNoEnum.NO.getCode().equals(parent.getEnable())) {
+                if (parent != null && YesOrNoEnum.NO.getCode().equals(parent.getEnable())) {
                     return JsonResult.toJSONObj("父节点已被禁用，请先启用父节点");
                 }
             }

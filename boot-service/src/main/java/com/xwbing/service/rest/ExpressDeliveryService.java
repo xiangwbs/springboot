@@ -1,18 +1,22 @@
 package com.xwbing.service.rest;
 
-import com.alibaba.fastjson.JSONObject;
-import com.xwbing.constant.CommonEnum;
-import com.xwbing.domain.entity.model.ExpressInfo;
-import com.xwbing.domain.entity.vo.ExpressInfoVo;
-import com.xwbing.exception.BusinessException;
-import com.xwbing.util.KdniaoUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import com.alibaba.fastjson.JSONObject;
+import com.xwbing.domain.entity.model.ExpressInfo;
+import com.xwbing.domain.entity.vo.ExpressInfoVo;
+import com.xwbing.enums.KdniaoExpressStatusEnum;
+import com.xwbing.exception.BusinessException;
+import com.xwbing.util.KdniaoUtil;
+
+import lombok.extern.slf4j.Slf4j;
+
 
 import static com.xwbing.util.KdniaoUtil.urlEncoder;
 
@@ -40,23 +44,6 @@ public class ExpressDeliveryService {
      */
     @Value("${reqURL}")
     private String reqURL;
-
-    /**
-     * 快递公司列表
-     *
-     * @return
-     */
-    public List<JSONObject> listShipperCode() {
-        List<JSONObject> resultVos = new ArrayList<>();
-        JSONObject jsonObject;
-        for (CommonEnum.ShipperCodeEnum shipperCode : CommonEnum.ShipperCodeEnum.values()) {
-            jsonObject = new JSONObject();
-            jsonObject.put("code", shipperCode.getCode());
-            jsonObject.put("name", shipperCode.getName());
-            resultVos.add(jsonObject);
-        }
-        return resultVos;
-    }
 
     /**
      * 快递信息查询
@@ -88,8 +75,7 @@ public class ExpressDeliveryService {
             if (success) {
                 String status = StringUtils.isNotEmpty(infoVo.getState()) ? infoVo.getState() : "0";
                 int statusValue = Integer.valueOf(status);
-                Optional<CommonEnum.ExpressStatusEnum> statusEnum = Arrays.stream(CommonEnum.ExpressStatusEnum.values()).filter(obj -> obj.getValue() == statusValue).findFirst();
-                statusEnum.ifPresent(expressStatusEnum -> infoVo.setDescribe(expressStatusEnum.getName()));
+                infoVo.setDescribe(KdniaoExpressStatusEnum.parse(statusValue));
                 // TODO: 2017/11/16 根据公司业务处理返回的信息......
             }
         }

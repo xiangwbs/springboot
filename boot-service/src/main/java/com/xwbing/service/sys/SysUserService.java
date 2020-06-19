@@ -1,32 +1,54 @@
 package com.xwbing.service.sys;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.xwbing.constant.CommonConstant;
-import com.xwbing.constant.CommonEnum;
-import com.xwbing.domain.entity.dto.UserDto;
-import com.xwbing.domain.entity.model.EmailModel;
-import com.xwbing.domain.entity.sys.*;
-import com.xwbing.domain.mapper.sys.SysUserMapper;
-import com.xwbing.exception.BusinessException;
-import com.xwbing.rabbit.Sender;
-import com.xwbing.service.BaseService;
-import com.xwbing.util.*;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import java.io.BufferedOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.BufferedOutputStream;
-import java.util.*;
-import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.xwbing.constant.CommonConstant;
+import com.xwbing.domain.entity.dto.UserDto;
+import com.xwbing.domain.entity.model.EmailModel;
+import com.xwbing.domain.entity.sys.SysAuthority;
+import com.xwbing.domain.entity.sys.SysConfig;
+import com.xwbing.domain.entity.sys.SysRole;
+import com.xwbing.domain.entity.sys.SysUser;
+import com.xwbing.domain.entity.sys.SysUserLoginInOut;
+import com.xwbing.domain.entity.sys.SysUserRole;
+import com.xwbing.domain.mapper.sys.SysUserMapper;
+import com.xwbing.enums.LoginInOutEnum;
+import com.xwbing.enums.SexEnum;
+import com.xwbing.enums.YesOrNoEnum;
+import com.xwbing.exception.BusinessException;
+import com.xwbing.rabbit.Sender;
+import com.xwbing.service.BaseService;
+import com.xwbing.util.CommonDataUtil;
+import com.xwbing.util.DigestsUtil;
+import com.xwbing.util.EmailUtil;
+import com.xwbing.util.EncodeUtil;
+import com.xwbing.util.ExcelUtil;
+import com.xwbing.util.IpUtil;
+import com.xwbing.util.Pagination;
+import com.xwbing.util.PassWordUtil;
+import com.xwbing.util.RSAUtil;
+import com.xwbing.util.RestMessage;
+import com.xwbing.util.ThreadLocalUtil;
 
 /**
  * 说明: 用户服务层
@@ -59,6 +81,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      * 增
      *
      * @param sysUser
+     *
      * @return
      */
     public RestMessage save(SysUser sysUser) {
@@ -73,12 +96,12 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         sysUser.setSalt(res[1]);
         sysUser.setPassword(res[2]);
         // 设置为非管理员
-        sysUser.setIsAdmin(CommonEnum.YesOrNoEnum.NO.getCode());
+        sysUser.setIsAdmin(YesOrNoEnum.NO.getCode());
         RestMessage result = super.save(sysUser);
         if (!result.isSuccess()) {
             throw new BusinessException("新增用户失败");
         }
-        String[] msg = {sysUser.getMail(), userName, res[0]};
+        String[] msg = { sysUser.getMail(), userName, res[0] };
         //使用mq发送邮件
         sender.sendEmail(msg);
         return result;
@@ -88,6 +111,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      * 删
      *
      * @param id
+     *
      * @return
      */
     @Transactional
@@ -98,11 +122,11 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
             throw new BusinessException("该用户不存在");
         }
         String token = ThreadLocalUtil.getToken();
-        String userName = (String) CommonDataUtil.getData(token);
+        String userName = (String)CommonDataUtil.getData(token);
         if (old.getUserName().equals(userName)) {
             throw new BusinessException("不能删除当前登录用户");
         }
-        if (CommonEnum.YesOrNoEnum.YES.getCode().equals(old.getIsAdmin())) {
+        if (YesOrNoEnum.YES.getCode().equals(old.getIsAdmin())) {
             throw new BusinessException("不能对管理员进行删除操作");
         }
         //删除用户
@@ -120,6 +144,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      * 更新
      *
      * @param sysUser
+     *
      * @return
      */
     public RestMessage update(SysUser sysUser) {
@@ -129,18 +154,18 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
             throw new BusinessException("该用户不存在");
         }
         String token = ThreadLocalUtil.getToken();
-        String userName = (String) CommonDataUtil.getData(token);
+        String userName = (String)CommonDataUtil.getData(token);
         if (old.getUserName().equals(userName)) {
             throw new BusinessException("不能修改当前登录用户");
         }
-        if (CommonEnum.YesOrNoEnum.YES.getCode().equals(old.getIsAdmin())) {
+        if (YesOrNoEnum.YES.getCode().equals(old.getIsAdmin())) {
             throw new BusinessException("不能对管理员进行修改操作");
         }
         // 根据实际情况补充
         old.setName(sysUser.getName());
         old.setMail(sysUser.getMail());
         old.setSex(sysUser.getSex());
-//        old.setUserName(sysUser.getUserName());//用户名不能修改
+        //        old.setUserName(sysUser.getUserName());//用户名不能修改
         return super.update(old);
     }
 
@@ -148,6 +173,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      * 根据用户名查找用户
      *
      * @param userName
+     *
      * @return
      */
     public SysUser getByUserName(String userName) {
@@ -171,14 +197,11 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         if (StringUtils.isNotEmpty(sex)) {
             map.put("sex", sex);
         }
-        PageInfo<SysUser> pageInfo = PageHelper.startPage(page.getCurrentPage(), page.getPageSize()).doSelectPageInfo(() -> userMapper.find(map));
+        PageInfo<SysUser> pageInfo = PageHelper.startPage(page.getCurrentPage(), page.getPageSize())
+                .doSelectPageInfo(() -> userMapper.find(map));
         List<SysUser> all = pageInfo.getList();
         if (CollectionUtils.isNotEmpty(all)) {
-            all.forEach(sysUser -> {
-                //性别
-                CommonEnum.SexEnum sexEnum = Arrays.stream(CommonEnum.SexEnum.values()).filter(obj -> obj.getCode().equals(sysUser.getSex())).findFirst().get();
-                sysUser.setSexName(sexEnum.getName());
-            });
+            all.forEach(sysUser -> sysUser.setSexName(SexEnum.parse(sysUser.getSex())));
         }
         return page.result(page, pageInfo);
     }
@@ -187,6 +210,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      * 重置密码
      *
      * @param id
+     *
      * @return
      */
     public RestMessage resetPassWord(String id) {
@@ -195,11 +219,11 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
             throw new BusinessException("未查询到用户信息");
         }
         String token = ThreadLocalUtil.getToken();
-        String userName = (String) CommonDataUtil.getData(token);
+        String userName = (String)CommonDataUtil.getData(token);
         if (old.getUserName().equals(userName)) {
             throw new BusinessException("不能重置当前登录用户");
         }
-        if (CommonEnum.YesOrNoEnum.YES.getCode().equals(old.getIsAdmin())) {
+        if (YesOrNoEnum.YES.getCode().equals(old.getIsAdmin())) {
             throw new BusinessException("管理员密码不能重置");
         }
         //生成密码
@@ -211,7 +235,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
             throw new BusinessException("重置密码失败");
         }
         //使用mq发送邮件
-        String[] msg = {old.getMail(), userName, str[0]};
+        String[] msg = { old.getMail(), userName, str[0] };
         sender.sendEmail(msg);
         return result;
     }
@@ -221,6 +245,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      *
      * @param newPassWord
      * @param oldPassWord
+     *
      * @return
      */
     public RestMessage updatePassWord(String newPassWord, String oldPassWord, String id) {
@@ -245,12 +270,13 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      * @param userName
      * @param passWord
      * @param checkCode
+     *
      * @return
      */
     public RestMessage login(HttpServletRequest request, String userName, String passWord, String checkCode) {
         RestMessage restMessage = new RestMessage();
         HttpSession session = request.getSession();
-        String imgCode = (String) session.getAttribute(CommonConstant.KEY_CAPTCHA);
+        String imgCode = (String)session.getAttribute(CommonConstant.KEY_CAPTCHA);
         //验证验证码
         if (!checkCode.equalsIgnoreCase(imgCode)) {
             throw new BusinessException("验证码错误");
@@ -267,7 +293,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         //保存登录信息
         SysUserLoginInOut loginInOut = new SysUserLoginInOut();
         loginInOut.setUserId(user.getId());
-        loginInOut.setInoutType(CommonEnum.LoginInOutEnum.IN.getValue());
+        loginInOut.setInoutType(LoginInOutEnum.IN.getValue());
         String ip = IpUtil.getIp(request);
         loginInOut.setIp(ip);
         RestMessage save = loginInOutService.save(loginInOut);
@@ -287,12 +313,13 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      * 登出
      *
      * @param request
+     *
      * @return
      */
     public RestMessage logout(HttpServletRequest request) {
         RestMessage restMessage = new RestMessage();
         String token = ThreadLocalUtil.getToken();
-        String userName = (String) CommonDataUtil.getData(token);
+        String userName = (String)CommonDataUtil.getData(token);
         SysUser user = getByUserName(userName);
         if (user != null) {
             //清空缓存数据
@@ -300,7 +327,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
             //保存登出信息
             SysUserLoginInOut loginInOut = new SysUserLoginInOut();
             loginInOut.setUserId(user.getId());
-            loginInOut.setInoutType(CommonEnum.LoginInOutEnum.OUT.getValue());
+            loginInOut.setInoutType(LoginInOutEnum.OUT.getValue());
             loginInOut.setIp(IpUtil.getIp(request));
             restMessage = loginInOutService.save(loginInOut);
             if (restMessage.isSuccess()) {
@@ -319,6 +346,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      *
      * @param userId
      * @param enable
+     *
      * @return
      */
     public List<SysAuthority> listAuthorityByIdAndEnable(String userId, String enable) {
@@ -387,7 +415,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
             UserDto temp;
             for (SysUser info : list) {
                 temp = new UserDto();
-                temp.setIsAdmin(CommonEnum.YesOrNoEnum.YES.getCode().equals(info.getIsAdmin()) ? "是" : "否");
+                temp.setIsAdmin(YesOrNoEnum.YES.getCode().equals(info.getIsAdmin()) ? "是" : "否");
                 temp.setMail(info.getMail());
                 temp.setName(info.getName());
                 temp.setSex(Integer.valueOf(info.getSex()) == 1 ? "男" : "女");
@@ -404,6 +432,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      * @param realPassWord
      * @param passWord
      * @param salt
+     *
      * @return
      */
     private boolean checkPassWord(String passWord, String realPassWord, String salt) {
@@ -422,6 +451,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      * @param email
      * @param userName
      * @param passWord
+     *
      * @return
      */
     private boolean sendEmail(String email, String userName, String passWord) {

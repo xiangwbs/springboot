@@ -32,6 +32,7 @@ import com.xwbing.domain.entity.sys.SysRole;
 import com.xwbing.domain.entity.sys.SysUserLoginInOut;
 import com.xwbing.domain.entity.vo.ExpressInfoVo;
 import com.xwbing.domain.mapper.sys.SysUserLoginInOutMapper;
+import com.xwbing.enums.KdniaoShipperCodeEnum;
 import com.xwbing.rabbit.Sender;
 import com.xwbing.service.rest.ExpressDeliveryService;
 import com.xwbing.service.rest.QRCodeZipService;
@@ -108,7 +109,7 @@ public class ServiceTest extends BaseTest {
     @Test
     public void listShipperCodeTest() {
         log.debug("获取快递列表");
-        List<JSONObject> list = expressDeliveryService.listShipperCode();
+        List<JSONObject> list = KdniaoShipperCodeEnum.list();
         Assert.assertSame(12, list.size());
     }
 
