@@ -21,9 +21,10 @@ ALTER TABLE `table`
 ADD COLUMN `col1` bigint(20) DEFAULT NULL COMMENT 'xxx' AFTER `col`,
 ADD COLUMN `col2` int(11) DEFAULT NULL COMMENT 'xxx' AFTER `col1`,
 ADD COLUMN `col3` tinyint(4)  NOT NULL DEFAULT '1' COMMENT 'xxx' AFTER `col2`,
-ADD COLUMN `col4` varchar(32) DEFAULT NULL COMMENT 'xxx' AFTER `col3`;
+ADD COLUMN `col4` varchar(32) DEFAULT NULL COMMENT 'xxx' AFTER `col3`,
+ADD COLUMN `col5` decimal(11,2) DEFAULT NULL COMMENT 'xxx' AFTER `col4`;
 
-ALTER TABLE `table` MODIFY COLUMN `col`varchar(10) not null COMMENT 'xxx'
+ALTER TABLE `table` MODIFY COLUMN `col`varchar(10) not null COMMENT 'xxx';
 
 
 DML

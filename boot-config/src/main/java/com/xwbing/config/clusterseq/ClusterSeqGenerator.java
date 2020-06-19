@@ -9,7 +9,7 @@ import com.xwbing.config.redis.RedisService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 集群系列号生成器，用于订单号
+ * 集群序列号生成器，用于订单号
  *
  * id按长度16设计。环境（1位）+ 年月日时分（10位）+ 自增序列（{@link #SEQ_SIZE}位）。每次自增在{@link #RANDOM_NEXT_OFFSET}内随机。
  * 一分钟内最少可生成的序列数 = ({@link #MAX_SEQ})/{@link #RANDOM_NEXT_OFFSET}
