@@ -30,6 +30,7 @@ import com.xwbing.config.constant.BaseConstant;
 import com.xwbing.domain.entity.rest.AliPayBillRecord;
 import com.xwbing.domain.mapper.pay.AliPayBillRecordMapper;
 import com.xwbing.service.BaseService;
+import com.xwbing.service.pay.enums.TradeTypeEnum;
 import com.xwbing.util.DateUtil2;
 
 import lombok.extern.slf4j.Slf4j;
@@ -68,10 +69,10 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
      *
      * @param csv
      */
-    public void loadBillByCsv(MultipartFile csv) {
+    public void loadBillByCsv(MultipartFile csv, TradeTypeEnum tradeType) {
         log.info("loadBillByCsv start");
         try {
-            saveByInputStream(csv.getInputStream());
+            saveByInputStream(csv.getInputStream(), tradeType);
         } catch (IOException e) {
             log.error("loadBillByCsv error", e);
         }
@@ -81,7 +82,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
     /**
      * 导入账单
      */
-    public void loadBill(String date) {
+    public void loadBill(String date, TradeTypeEnum tradeType) {
         log.info("loadBill date:{} start", date);
         try {
             LocalDateTime localDateTime = DateUtil2.dateStrToLocalDateTime(date);
@@ -111,7 +112,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
                     bs.read(bytes, 0, (int)ze.getSize());
                     //将文件转成流
                     InputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-                    saveByInputStream(byteArrayInputStream);
+                    saveByInputStream(byteArrayInputStream, tradeType);
                 }
             }
             zin.closeEntry();
@@ -122,7 +123,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
         log.info("loadBill date:{} end", date);
     }
 
-    private void saveByInputStream(InputStream inputStream) {
+    private void saveByInputStream(InputStream inputStream, TradeTypeEnum tradeType) {
         log.info("saveByInputStream start");
         CsvReader reader = null;
         try {
@@ -136,7 +137,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
                 }
                 String merchantOrderNo = reader.get(2);
                 String type = reader.get(10);
-                if (checkLoad(merchantOrderNo, type)) {
+                if (checkLoad(merchantOrderNo, tradeType, type)) {
                     AliPayBillRecord bill = AliPayBillRecord.builder().accountLogId(accountLogId)
                             .alipayOrderNo(reader.get(1)).merchantOrderNo(merchantOrderNo)
                             .paidDate(DateUtil2.strToDate(reader.get(4), DateUtil2.YYYY_MM_DD_HH_MM_SS))
@@ -163,8 +164,8 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
         log.info("saveByInputStream end");
     }
 
-    private boolean checkLoad(String merchantOrderNo, String type) {
-        if (!"转账".equals(type)) {
+    private boolean checkLoad(String merchantOrderNo, TradeTypeEnum tradeType, String type) {
+        if (tradeType.getName().equals(type)) {
             return false;
         }
         if (BaseConstant.ENV_DEV.equals(env) || BaseConstant.ENV_TEST.equals(env)) {

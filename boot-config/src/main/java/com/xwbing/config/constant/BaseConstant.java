@@ -6,12 +6,12 @@ public class BaseConstant {
      */
     //正式环境
     public static final int BUSINESS_LEASE_PROD = 1;
-    //预发环境
-    public static final int BUSINESS_LEASE_PRE = 2;
+    //开发环境
+    public static final int BUSINESS_LEASE_DEV = 2;
     //测试环境
     public static final int BUSINESS_LEASE_TEST = 3;
-    //开发环境
-    public static final int BUSINESS_LEASE_DEV = 4;
+    //预发环境
+    public static final int BUSINESS_LEASE_PRE = 4;
     /**
      * 应用环境
      */
