@@ -83,8 +83,11 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
      * 导入账单
      */
     public void loadBill(String date, TradeTypeEnum tradeType) {
-        log.info("loadBill date:{} start", date);
+        InputStream inputStream = null;
+        BufferedInputStream bis = null;
+        HttpURLConnection conn = null;
         try {
+            log.info("loadBill date:{} start", date);
             LocalDateTime localDateTime = DateUtil2.dateStrToLocalDateTime(date);
             Date startDate = DateUtil2.localDateTimeToDate(DateUtil2.startTimeOfDay(localDateTime));
             Date endDate = DateUtil2.localDateTimeToDate(DateUtil2.endTimeOfDay(localDateTime));
@@ -95,13 +98,16 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
             }
             String urlStr = aliPayTransferService.queryBillDownloadUrl(date);
             URL url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-            //设置超时间为3秒
-            conn.setConnectTimeout(3 * 1000);
-            //得到输入流
-            InputStream inputStream = conn.getInputStream();
+            conn = (HttpURLConnection)url.openConnection();
+            conn.setConnectTimeout(5 * 1000);
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setUseCaches(false);
+            conn.setRequestMethod("GET");
+            conn.connect();
+            inputStream = conn.getInputStream();
             ZipInputStream zin = new ZipInputStream(inputStream, Charset.forName("gbk"));
-            BufferedInputStream bs = new BufferedInputStream(zin);
+            bis = new BufferedInputStream(zin);
             byte[] bytes;
             ZipEntry ze;
             //循环读取压缩包里面的文件
@@ -109,7 +115,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
                 if (ze.toString().endsWith("账务明细.csv")) {
                     //读取每个文件的字节，并放进数组
                     bytes = new byte[(int)ze.getSize()];
-                    bs.read(bytes, 0, (int)ze.getSize());
+                    bis.read(bytes, 0, (int)ze.getSize());
                     //将文件转成流
                     InputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
                     saveByInputStream(byteArrayInputStream, tradeType);
@@ -119,6 +125,20 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
             inputStream.close();
         } catch (Exception e) {
             log.error("loadBill date:{} error", date, e);
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                if (bis != null) {
+                    bis.close();
+                }
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            } catch (IOException e) {
+                log.error("loadBill close io error", date, e);
+            }
         }
         log.info("loadBill date:{} end", date);
     }

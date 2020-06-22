@@ -7,13 +7,14 @@ import java.util.Vector;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.aliyun.openservices.log.Client;
 import com.aliyun.openservices.log.common.LogItem;
 import com.aliyun.openservices.log.request.PutLogsRequest;
-import com.xwbing.config.util.dingTalk.DingTalkClient;
-import com.xwbing.config.util.dingTalk.MarkdownMessage;
-import com.xwbing.config.util.dingTalk.SendResult;
-import com.xwbing.config.util.dingTalk.TextMessage;
+import com.xwbing.config.util.dingtalk.DingTalkClient;
+import com.xwbing.config.util.dingtalk.MarkdownMessage;
+import com.xwbing.config.util.dingtalk.SendResult;
+import com.xwbing.config.util.dingtalk.TextMessage;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,7 +66,7 @@ public class AliYunLog {
     }
 
     /**
-     * 钉钉群发送text
+     * 钉钉机器人发送text
      *
      * @param source
      * @param atAll
@@ -84,7 +85,7 @@ public class AliYunLog {
             TextMessage textMessage = new TextMessage(content.toString());
             textMessage.addAtMobiles(atMobiles);
             textMessage.setAtAll(atAll);
-            SendResult send = dingTalkClient.send(webHook, secret, textMessage);
+            SendResult send = dingTalkClient.sendWebHook(webHook, secret, textMessage);
             if (!send.isSuccess()) {
                 log.error("{} - {}", source, send.toString());
             }
@@ -94,7 +95,7 @@ public class AliYunLog {
     }
 
     /**
-     * 钉钉群发送markdown
+     * 钉钉机器人发送markdown
      *
      * @param markdownMessage
      */
@@ -102,12 +103,35 @@ public class AliYunLog {
         try {
             //title当做一级标题
             markdownMessage.addItem(0, MarkdownMessage.getHeaderText(1, markdownMessage.getTitle()));
-            SendResult send = dingTalkClient.send(webHook, secret, markdownMessage);
+            SendResult send = dingTalkClient.sendWebHook(webHook, secret, markdownMessage);
             if (!send.isSuccess()) {
                 log.error("{} - {}", markdownMessage.getTitle(), send.toString());
             }
         } catch (Exception e) {
             log.error("{} - {}", markdownMessage.getTitle(), ExceptionUtils.getStackTrace(e));
+        }
+    }
+
+    /**
+     * 发送钉钉群消息
+     *
+     * @param markdownMessage
+     * @param accessToken
+     *
+     * @return
+     */
+    public SendResult sendChatMessage(MarkdownMessage markdownMessage, String accessToken) {
+        try {
+            markdownMessage.addItem(0, markdownMessage.getCover());
+            markdownMessage.addItem(1, MarkdownMessage.getHeaderText(2, markdownMessage.getTitle()));
+            SendResult send = dingTalkClient.sendChat(accessToken, markdownMessage);
+            if (!send.isSuccess()) {
+                log.error("{} - {}", markdownMessage.getTitle(), JSONObject.toJSON(send));
+            }
+            return send;
+        } catch (Exception e) {
+            log.error("{} - {}", markdownMessage.getTitle(), ExceptionUtils.getStackTrace(e));
+            return SendResult.builder().success(false).build();
         }
     }
 

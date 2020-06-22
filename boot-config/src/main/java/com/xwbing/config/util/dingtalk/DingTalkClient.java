@@ -1,6 +1,16 @@
-package com.xwbing.config.util.dingTalk;
+package com.xwbing.config.util.dingtalk;
 
-import com.alibaba.fastjson.JSONObject;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -10,47 +20,58 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * @author xiangwb
  */
 public class DingTalkClient {
     private HttpClient httpclient = HttpClients.createDefault();
+    public static final String CHAT_URL = "https://oapi.dingtalk.com/chat/send?access_token=%s";
 
     public DingTalkClient() {
     }
 
     /**
-     * 发送钉钉消息
+     * 发送钉钉机器人消息
      *
      * @param webHook
      * @param secret
      * @param message
+     *
      * @return
+     *
      * @throws IOException
      */
-    public SendResult send(String webHook, String secret, Message message) throws IOException {
-        SendResult sendResult = new SendResult();
+    public SendResult sendWebHook(String webHook, String secret, Message message) throws IOException {
         if (StringUtils.isNotEmpty(secret)) {
             webHook = dingTalkUrl(webHook, secret);
             if (webHook == null) {
-                sendResult.setSuccess(false);
-                sendResult.setErrorMsg("加签失败");
-                return sendResult;
+                return SendResult.builder().success(false).errorMsg("加签失败").build();
             }
         }
-        HttpPost httppost = new HttpPost(webHook);
+        return execute(webHook, message);
+    }
+
+    /**
+     * 发送群消息
+     *
+     * @param accessToken
+     * @param message
+     *
+     * @return
+     *
+     * @throws IOException
+     */
+    public SendResult sendChat(String accessToken, Message message) throws IOException {
+        return execute(String.format(DingTalkClient.CHAT_URL, accessToken), message);
+    }
+
+    private SendResult execute(String url, Message message) throws IOException {
+        SendResult sendResult = new SendResult();
+        HttpPost httppost = new HttpPost(url);
         httppost.addHeader("Content-Type", "application/json; charset=utf-8");
-        httppost.setEntity(new StringEntity(message.toJsonString(), "utf-8"));
+        httppost.setEntity(new StringEntity(message.toChatString(), "utf-8"));
         HttpResponse response = this.httpclient.execute(httppost);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String entity = EntityUtils.toString(response.getEntity());

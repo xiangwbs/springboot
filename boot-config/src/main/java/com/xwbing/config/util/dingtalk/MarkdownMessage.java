@@ -1,4 +1,4 @@
-package com.xwbing.config.util.dingTalk;
+package com.xwbing.config.util.dingtalk;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +18,15 @@ public class MarkdownMessage implements Message {
      * 首屏会话透出的展示内容
      */
     private String title;
+    /**
+     * 封面
+     */
+    private String cover;
+    /**
+     * 群会话的id 发送群消息时使用
+     */
+    private String chatId;
+
     /**
      * -@所有人时：true，否则为：false
      */
@@ -40,6 +49,18 @@ public class MarkdownMessage implements Message {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
+    }
+
+    public void setChatId(String chatId) {
+        this.chatId = chatId;
     }
 
     public boolean isAtAll() {
@@ -191,18 +212,18 @@ public class MarkdownMessage implements Message {
 
     @Override
     public String toJsonString() {
-        Map<String, Object> items = new HashMap<>();
+        Map<String, Object> items = new HashMap<>(3);
         //msgtype
         items.put("msgtype", "markdown");
         //markdown
-        Map<String, Object> markdown = new HashMap<>();
+        Map<String, Object> markdown = new HashMap<>(2);
         markdown.put("title", this.title);
         StringBuilder markdownText = new StringBuilder();
         for (Object item : this.items) {
             markdownText.append(item).append("\n\n");
         }
         //at(text添加@信息，否则@不起作用)
-        Map<String, Object> atItems = new HashMap<>();
+        Map<String, Object> atItems = new HashMap<>(1);
         if (this.isAtAll) {
             atItems.put("isAtAll", true);
             markdownText.append("@所有人");
@@ -214,5 +235,23 @@ public class MarkdownMessage implements Message {
         markdown.put("text", markdownText.toString());
         items.put("markdown", markdown);
         return JSON.toJSONString(items);
+    }
+
+    @Override
+    public String toChatString() {
+        Map<String, Object> markdown = new HashMap<>(2);
+        markdown.put("title", this.title);
+        StringBuilder markdownText = new StringBuilder();
+        for (Object item : this.items) {
+            markdownText.append(item).append("\n\n");
+        }
+        markdown.put("text", markdownText.toString());
+        Map<String, Object> items = new HashMap<>(2);
+        items.put("msgtype", "markdown");
+        items.put("markdown", markdown);
+        Map<String, Object> content = new HashMap<>(2);
+        content.put("chatid", chatId);
+        content.put("msg", JSON.toJSONString(items));
+        return JSON.toJSONString(content);
     }
 }

@@ -29,7 +29,7 @@ import com.xwbing.config.aliyun.AliYunLog;
 import com.xwbing.config.clusterseq.ClusterSeqGenerator;
 import com.xwbing.config.redis.RedisService;
 import com.xwbing.config.spring.ApplicationContextHelper;
-import com.xwbing.config.util.dingTalk.MarkdownMessage;
+import com.xwbing.config.util.dingtalk.MarkdownMessage;
 import com.xwbing.domain.entity.rest.FilesUpload;
 import com.xwbing.domain.entity.vo.ExcelVo;
 import com.xwbing.service.rest.CookieSessionService;

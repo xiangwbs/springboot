@@ -1,4 +1,4 @@
-package com.xwbing.config.util.dingTalk;
+package com.xwbing.config.util.dingtalk;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,15 +61,15 @@ public class TextMessage implements Message {
 
     @Override
     public String toJsonString() {
-        Map<String, Object> items = new HashMap<>();
+        Map<String, Object> items = new HashMap<>(3);
         //msgtype
         items.put("msgtype", "text");
         //text
-        Map<String, String> textContent = new HashMap<>();
+        Map<String, String> textContent = new HashMap<>(1);
         textContent.put("content", this.text);
         items.put("text", textContent);
         //at
-        Map<String, Object> atItems = new HashMap<>();
+        Map<String, Object> atItems = new HashMap<>(1);
         if (this.isAtAll) {
             atItems.put("isAtAll", true);
         } else if (!this.atMobiles.isEmpty()) {
@@ -77,5 +77,10 @@ public class TextMessage implements Message {
         }
         items.put("at", atItems);
         return JSON.toJSONString(items);
+    }
+
+    @Override
+    public String toChatString() {
+        return null;
     }
 }
