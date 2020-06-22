@@ -85,7 +85,7 @@ public class AliYunLog {
             TextMessage textMessage = new TextMessage(content.toString());
             textMessage.addAtMobiles(atMobiles);
             textMessage.setAtAll(atAll);
-            SendResult send = dingTalkClient.sendWebHook(webHook, secret, textMessage);
+            SendResult send = dingTalkClient.sendRobot(webHook, secret, textMessage);
             if (!send.isSuccess()) {
                 log.error("{} - {}", source, send.toString());
             }
@@ -103,7 +103,7 @@ public class AliYunLog {
         try {
             //title当做一级标题
             markdownMessage.addItem(0, MarkdownMessage.getHeaderText(1, markdownMessage.getTitle()));
-            SendResult send = dingTalkClient.sendWebHook(webHook, secret, markdownMessage);
+            SendResult send = dingTalkClient.sendRobot(webHook, secret, markdownMessage);
             if (!send.isSuccess()) {
                 log.error("{} - {}", markdownMessage.getTitle(), send.toString());
             }

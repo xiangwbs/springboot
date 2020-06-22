@@ -27,7 +27,7 @@ import com.alibaba.fastjson.JSONObject;
  */
 public class DingTalkClient {
     private HttpClient httpclient = HttpClients.createDefault();
-    public static final String CHAT_URL = "https://oapi.dingtalk.com/chat/send?access_token=%s";
+    private static final String CHAT_URL = "https://oapi.dingtalk.com/chat/send?access_token=%s";
 
     public DingTalkClient() {
     }
@@ -43,9 +43,9 @@ public class DingTalkClient {
      *
      * @throws IOException
      */
-    public SendResult sendWebHook(String webHook, String secret, Message message) throws IOException {
+    public SendResult sendRobot(String webHook, String secret, Message message) throws IOException {
         if (StringUtils.isNotEmpty(secret)) {
-            webHook = dingTalkUrl(webHook, secret);
+            webHook = secret(webHook, secret);
             if (webHook == null) {
                 return SendResult.builder().success(false).errorMsg("加签失败").build();
             }
@@ -89,7 +89,7 @@ public class DingTalkClient {
      *
      * @return url
      */
-    private String dingTalkUrl(String webHook, String secret) {
+    private String secret(String webHook, String secret) {
         try {
             Long timestamp = System.currentTimeMillis();
             String stringToSign = timestamp + "\n" + secret;

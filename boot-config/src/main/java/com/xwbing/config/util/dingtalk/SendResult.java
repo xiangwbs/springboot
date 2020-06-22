@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SendResult {
     private boolean success;
+    private String messageId;
     private Integer errorCode;
     private String errorMsg;
 

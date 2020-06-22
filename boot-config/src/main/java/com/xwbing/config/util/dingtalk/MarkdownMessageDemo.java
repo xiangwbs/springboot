@@ -32,7 +32,7 @@ public class MarkdownMessageDemo {
         message.addItem(MarkdownMessage.getLinkText("天气", "https://www.seniverse.com"));
         message.setAtAll(false);
         message.addAtMobile("134xxxx4170");
-        SendResult result = this.client.sendWebHook(
+        SendResult result = this.client.sendRobot(
                 "https://oapi.dingtalk.com/robot/send?access_token=f41b013832ca349f45cabce7dd7e64b19f3e1aabc4414d71a1e9ee050d65e141",
                 "SEC9f4390e8c897e118ab487b0ed5874100a7693920eb87e9a968ee8129b0874e3f", message);
         System.out.println(result);
