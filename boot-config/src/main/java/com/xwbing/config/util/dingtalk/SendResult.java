@@ -25,10 +25,11 @@ public class SendResult {
 
     @Override
     public String toString() {
-        Map<String, Object> items = new HashMap<>(3);
+        Map<String, Object> items = new HashMap<>(4);
         items.put("errorCode", this.errorCode);
         items.put("errorMsg", this.errorMsg);
         items.put("success", this.success);
+        items.put("messageId", this.messageId);
         return JSON.toJSONString(items);
     }
 }

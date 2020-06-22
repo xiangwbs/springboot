@@ -73,7 +73,7 @@ public class AliYunLog {
      * @param atMobiles
      * @param params
      */
-    public void sendTextMessage(String source, boolean atAll, List<String> atMobiles, Object... params) {
+    public SendResult sendTextMessage(String source, boolean atAll, List<String> atMobiles, Object... params) {
         StringBuilder content = new StringBuilder("host: ").append(HOST).append("\n").append("source: ").append(source)
                 .append("\n");
         int i = 1;
@@ -89,8 +89,10 @@ public class AliYunLog {
             if (!send.isSuccess()) {
                 log.error("{} - {}", source, send.toString());
             }
+            return send;
         } catch (Exception e) {
             log.error("{} - {}", source, ExceptionUtils.getStackTrace(e));
+            return SendResult.builder().success(false).build();
         }
     }
 
@@ -99,7 +101,7 @@ public class AliYunLog {
      *
      * @param markdownMessage
      */
-    public void sendMarkdownMessage(MarkdownMessage markdownMessage) {
+    public SendResult sendMarkdownMessage(MarkdownMessage markdownMessage) {
         try {
             //title当做一级标题
             markdownMessage.addItem(0, MarkdownMessage.getHeaderText(1, markdownMessage.getTitle()));
@@ -107,8 +109,10 @@ public class AliYunLog {
             if (!send.isSuccess()) {
                 log.error("{} - {}", markdownMessage.getTitle(), send.toString());
             }
+            return send;
         } catch (Exception e) {
             log.error("{} - {}", markdownMessage.getTitle(), ExceptionUtils.getStackTrace(e));
+            return SendResult.builder().success(false).build();
         }
     }
 
