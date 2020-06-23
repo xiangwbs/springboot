@@ -26,6 +26,7 @@ public class TextMessage implements Message {
      * -@所有人时：true，否则为：false
      */
     private boolean isAtAll = false;
+    private String chatId;
 
     public TextMessage(String text) {
         this.text = text;
@@ -59,6 +60,10 @@ public class TextMessage implements Message {
         this.isAtAll = atAll;
     }
 
+    public void setChatId(String chatId) {
+        this.chatId = chatId;
+    }
+
     @Override
     public String toRobotString() {
         Map<String, Object> items = new HashMap<>(3);
@@ -81,6 +86,14 @@ public class TextMessage implements Message {
 
     @Override
     public String toChatString() {
-        return null;
+        Map<String, Object> content = new HashMap<>(2);
+        content.put("chatid", chatId);
+        Map<String, Object> msg = new HashMap<>(2);
+        msg.put("msgtype", "text");
+        Map<String, String> textContent = new HashMap<>(1);
+        textContent.put("content", this.text);
+        msg.put("text", textContent);
+        content.put("msg", msg);
+        return JSON.toJSONString(content);
     }
 }
