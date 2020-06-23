@@ -50,7 +50,7 @@ public class DingTalkClient {
                 return SendResult.builder().success(false).errorMsg("加签失败").build();
             }
         }
-        return execute(webHook, message, false);
+        return execute(webHook, message.toRobotString());
     }
 
     /**
@@ -64,14 +64,14 @@ public class DingTalkClient {
      * @throws IOException
      */
     public SendResult sendChat(String accessToken, Message message) throws IOException {
-        return execute(String.format(DingTalkClient.CHAT_URL, accessToken), message, true);
+        return execute(String.format(DingTalkClient.CHAT_URL, accessToken), message.toChatString());
     }
 
-    private SendResult execute(String url, Message message, boolean chat) throws IOException {
+    private SendResult execute(String url, String body) throws IOException {
         SendResult sendResult = new SendResult();
         HttpPost httppost = new HttpPost(url);
         httppost.addHeader("Content-Type", "application/json; charset=utf-8");
-        httppost.setEntity(new StringEntity(chat ? message.toChatString() : message.toJsonString(), "utf-8"));
+        httppost.setEntity(new StringEntity(body, "utf-8"));
         HttpResponse response = this.httpclient.execute(httppost);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String entity = EntityUtils.toString(response.getEntity());
@@ -80,6 +80,7 @@ public class DingTalkClient {
             sendResult.setErrorCode(errCode);
             sendResult.setSuccess(errCode.equals(0));
             sendResult.setErrorMsg(result.getString("errmsg"));
+            sendResult.setMessageId(result.getString("messageId"));
         }
         return sendResult;
     }

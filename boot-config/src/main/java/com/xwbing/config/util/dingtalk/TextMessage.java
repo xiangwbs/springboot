@@ -60,7 +60,7 @@ public class TextMessage implements Message {
     }
 
     @Override
-    public String toJsonString() {
+    public String toRobotString() {
         Map<String, Object> items = new HashMap<>(3);
         //msgtype
         items.put("msgtype", "text");
