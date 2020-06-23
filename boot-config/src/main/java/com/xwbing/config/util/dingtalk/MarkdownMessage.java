@@ -239,6 +239,8 @@ public class MarkdownMessage implements Message {
 
     @Override
     public String toChatString() {
+        Map<String, Object> content = new HashMap<>(2);
+        content.put("chatid", chatId);
         Map<String, Object> markdown = new HashMap<>(2);
         markdown.put("title", this.title);
         StringBuilder markdownText = new StringBuilder();
@@ -249,8 +251,6 @@ public class MarkdownMessage implements Message {
         Map<String, Object> items = new HashMap<>(2);
         items.put("msgtype", "markdown");
         items.put("markdown", markdown);
-        Map<String, Object> content = new HashMap<>(2);
-        content.put("chatid", chatId);
         content.put("msg", JSON.toJSONString(items));
         return JSON.toJSONString(content);
     }

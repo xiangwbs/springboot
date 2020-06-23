@@ -29,6 +29,7 @@ import com.xwbing.config.aliyun.AliYunLog;
 import com.xwbing.config.clusterseq.ClusterSeqGenerator;
 import com.xwbing.config.redis.RedisService;
 import com.xwbing.config.spring.ApplicationContextHelper;
+import com.xwbing.config.util.dingtalk.LinkMessage;
 import com.xwbing.config.util.dingtalk.MarkdownMessage;
 import com.xwbing.domain.entity.rest.FilesUpload;
 import com.xwbing.domain.entity.vo.ExcelVo;
@@ -138,13 +139,22 @@ public class MockControl {
         return JsonResult.toJSONObj(redisService.get(kv), "redis success");
     }
 
-    @ApiOperation("钉钉群发送文本信息")
+    @ApiOperation("发送钉钉机器人消息")
     @GetMapping("sendTextMessage")
     public void sendTextMessage(@RequestParam boolean atAll, @RequestParam List<String> atMobiles) {
-        aliYunLog.sendTextMessage("我是一个文本", atAll, atMobiles, "test");
+        aliYunLog.sendRobotMessage("我是一个文本", atAll, atMobiles, "test");
     }
 
-    @ApiOperation("钉钉群发送markdown信息")
+    @ApiOperation("发送钉钉机器人消息")
+    @GetMapping("sendLinkMessage")
+    public void sendLinkMessage() {
+        LinkMessage linkMessage = LinkMessage.builder().title("link消息测试").text("消息内容消息内容测试")
+                .picUrl("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png")
+                .messageUrl("https://www.seniverse.com").build();
+        aliYunLog.sendRobotMessage(linkMessage);
+    }
+
+    @ApiOperation("发送钉钉机器人消息")
     @GetMapping("sendMarkdownMessage")
     public void sendMarkdownMessage(@RequestParam boolean atAll, @RequestParam List<String> atMobiles) {
         MarkdownMessage message = new MarkdownMessage();
@@ -167,7 +177,28 @@ public class MockControl {
         message.addItem(MarkdownMessage.getLinkText("天气", "https://www.seniverse.com"));
         message.setAtAll(atAll);
         message.addAtMobiles(atMobiles);
-        aliYunLog.sendMarkdownMessage(message);
+        aliYunLog.sendRobotMessage(message);
+    }
+
+    @ApiOperation("发送群消息")
+    @GetMapping("sendChatLinkMessage")
+    public void sendLinkMessage(@RequestParam String token) {
+        LinkMessage linkMessage = LinkMessage.builder().chatId("chat0f212fb4dc07478f0813eb98e9470ff6").title("link消息测试")
+                .text("消息内容消息内容测试").picUrl("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png")
+                .messageUrl("https://www.seniverse.com").build();
+        aliYunLog.sendChatMessage(linkMessage, token);
+    }
+
+    @ApiOperation("发送群消息")
+    @GetMapping("sendChatMDMessage")
+    public void sendMarkdownMessage(@RequestParam String token) {
+        MarkdownMessage message = new MarkdownMessage();
+        message.setChatId("chat0f212fb4dc07478f0813eb98e9470ff6");
+        message.setTitle("通知公告测试");
+        message.setCover(
+                MarkdownMessage.getImageText("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png"));
+        message.addItem(MarkdownMessage.getLinkText("查看详情", "https://www.seniverse.com"));
+        aliYunLog.sendChatMessage(message, token);
     }
 
     @ApiOperation("spring上下文")

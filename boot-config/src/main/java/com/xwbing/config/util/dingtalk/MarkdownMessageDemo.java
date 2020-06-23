@@ -46,7 +46,6 @@ public class MarkdownMessageDemo {
         //title当做一级标题
         message.addItem(1, MarkdownMessage.getHeaderText(2, message.getTitle()));
         message.addItem(MarkdownMessage.getLinkText("查看详情", "url"));
-        message.setAtAll(false);
         SendResult sendResult = this.client.sendChat("4f3e08c91aa83de28d50b5a141f83694", message);
         System.out.println(sendResult);
     }
