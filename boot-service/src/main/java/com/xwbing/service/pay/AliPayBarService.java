@@ -54,19 +54,19 @@ public class AliPayBarService {
     @Value("${aliPay.appId}")
     private String appId;
     /**
-     * 私钥
+     * 应用私钥
      */
-    @Value("${aliPay.rsaPrivateKey}")
-    private String privateKey;
+    @Value("${aliPay.appPrivateKey}")
+    private String appPrivateKey;
     /**
-     * 公钥
+     * 支付宝公钥
      */
-    @Value("${aliPay.rsaPublicKey}")
-    private String publicKey;
+    @Value("${aliPay.aliPayPublicKey}")
+    private String aliPayPublicKey;
     private AlipayClient alipayClient;
 
     public AliPayBarService() {
-        alipayClient = new DefaultAlipayClient(serverUrl, appId, privateKey, "json", "UTF-8", publicKey, "RSA2");
+        alipayClient = new DefaultAlipayClient(serverUrl, appId, appPrivateKey, "json", "UTF-8", aliPayPublicKey,"RSA2");
     }
 
     /**
@@ -74,6 +74,7 @@ public class AliPayBarService {
      * 条码支付|声波支付
      *
      * @param param
+     *
      * @return
      */
     public AliPayTradePayResult tradePay(AliPayTradePayParam param) {
@@ -122,6 +123,7 @@ public class AliPayBarService {
      * 统一收单交易退款
      *
      * @param param
+     *
      * @return
      */
     public AliPayTradeRefundResult tradeRefund(AliPayTradeRefundParam param) {
@@ -167,7 +169,8 @@ public class AliPayBarService {
      * 如果isSuccess，根据tradeStatus，遍历AliPayTradeStatusEnum获取对应支付状态
      *
      * @param outTradeNo 商户订单号
-     * @param tradeNo    支付宝交易号(推荐)
+     * @param tradeNo 支付宝交易号(推荐)
+     *
      * @return
      */
     public AliPayQueryResult tradeQuery(String outTradeNo, String tradeNo) {
@@ -205,9 +208,10 @@ public class AliPayBarService {
      * 商户订单号和支付宝交易号2选1
      * 退款查询,没有tradeStatus。isSuccess即为成功
      *
-     * @param outTradeNo   商户订单号
-     * @param tradeNo      支付宝交易号(推荐)
+     * @param outTradeNo 商户订单号
+     * @param tradeNo 支付宝交易号(推荐)
      * @param outRequestNo 退款请求号
+     *
      * @return
      */
     public AliPayRefundQueryResult refundQuery(String outTradeNo, String tradeNo, String outRequestNo) {
@@ -279,7 +283,8 @@ public class AliPayBarService {
         }
     }
 
-    private void checkRefundQuerySubCode(AliPayRefundQueryResult result, AlipayTradeFastpayRefundQueryResponse response) {
+    private void checkRefundQuerySubCode(AliPayRefundQueryResult result,
+            AlipayTradeFastpayRefundQueryResponse response) {
         if (StringUtils.isNotEmpty(response.getSubCode())) {
             result.setCode(response.getSubCode());
             result.setMessage(response.getSubMsg());
@@ -313,7 +318,8 @@ public class AliPayBarService {
             System.out.println(queryResult.getMessage());
         } else {
             String tradeStatus = queryResult.getTradeStatus();
-            Optional<AliPayTradeStatusEnum> first = Arrays.stream(AliPayTradeStatusEnum.values()).filter(aliPayTradeStatusEnum -> aliPayTradeStatusEnum.getCode().equals(tradeStatus)).findFirst();
+            Optional<AliPayTradeStatusEnum> first = Arrays.stream(AliPayTradeStatusEnum.values())
+                    .filter(aliPayTradeStatusEnum -> aliPayTradeStatusEnum.getCode().equals(tradeStatus)).findFirst();
             first.ifPresent(aliPayTradeStatusEnum -> System.out.println(aliPayTradeStatusEnum.getName()));
         }
 
