@@ -28,6 +28,7 @@ import com.alibaba.fastjson.JSONObject;
 public class DingTalkClient {
     private HttpClient httpclient = HttpClients.createDefault();
     private static final String CHAT_URL = "https://oapi.dingtalk.com/chat/send?access_token=%s";
+    private static final String PC_SLIDE_URL = "dingtalk://dingtalkclient/page/link?pc_slide=true&url=";
 
     public DingTalkClient() {
     }
@@ -76,11 +77,11 @@ public class DingTalkClient {
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String entity = EntityUtils.toString(response.getEntity());
             JSONObject result = JSONObject.parseObject(entity);
+            sendResult.setMessageId(result.getString("messageId"));
             Integer errCode = result.getInteger("errcode");
             sendResult.setErrorCode(errCode);
             sendResult.setSuccess(errCode.equals(0));
             sendResult.setErrorMsg(result.getString("errmsg"));
-            sendResult.setMessageId(result.getString("messageId"));
         }
         return sendResult;
     }
@@ -101,6 +102,21 @@ public class DingTalkClient {
             return String.format("%s&timestamp=%s&sign=%s", webHook, timestamp, sign);
         } catch (NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException ex) {
             return null;
+        }
+    }
+
+    /**
+     * pc端右边开启小窗
+     *
+     * @param linkUrl
+     *
+     * @return
+     */
+    public static String toPcSlide(String linkUrl) {
+        try {
+            return PC_SLIDE_URL + URLEncoder.encode(linkUrl, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return linkUrl;
         }
     }
 }

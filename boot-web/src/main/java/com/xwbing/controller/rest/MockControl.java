@@ -29,6 +29,7 @@ import com.xwbing.config.aliyun.AliYunLog;
 import com.xwbing.config.clusterseq.ClusterSeqGenerator;
 import com.xwbing.config.redis.RedisService;
 import com.xwbing.config.spring.ApplicationContextHelper;
+import com.xwbing.config.util.dingtalk.DingTalkClient;
 import com.xwbing.config.util.dingtalk.LinkMessage;
 import com.xwbing.config.util.dingtalk.MarkdownMessage;
 import com.xwbing.domain.entity.rest.FilesUpload;
@@ -148,9 +149,9 @@ public class MockControl {
     @ApiOperation("发送钉钉机器人消息")
     @GetMapping("sendLinkMessage")
     public void sendLinkMessage() {
-        LinkMessage linkMessage = LinkMessage.builder().title("link消息测试").text("消息内容消息内容测试")
+        LinkMessage linkMessage = LinkMessage.builder().title("通知公告测试").text("查看详情")
                 .picUrl("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png")
-                .messageUrl("https://www.seniverse.com").build();
+                .messageUrl(DingTalkClient.toPcSlide("https://www.seniverse.com")).build();
         aliYunLog.sendRobotMessage(linkMessage);
     }
 
@@ -174,7 +175,7 @@ public class MockControl {
         message.addItem(MarkdownMessage.getUnOrderListText(unOrderList));
         message.addItem(
                 MarkdownMessage.getImageText("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png"));
-        message.addItem(MarkdownMessage.getLinkText("天气", "https://www.seniverse.com"));
+        message.addItem(MarkdownMessage.getLinkText("天气", DingTalkClient.toPcSlide("https://www.seniverse.com")));
         message.setAtAll(atAll);
         message.addAtMobiles(atMobiles);
         aliYunLog.sendRobotMessage(message);
