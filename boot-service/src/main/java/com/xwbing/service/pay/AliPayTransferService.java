@@ -5,13 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alipay.api.AlipayClient;
-import com.alipay.api.CertAlipayRequest;
-import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipayDataDataserviceBillDownloadurlQueryRequest;
 import com.alipay.api.request.AlipayFundAccountQueryRequest;
 import com.alipay.api.request.AlipayFundTransCommonQueryRequest;
@@ -44,18 +40,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class AliPayTransferService {
-    @Value("${aliPay.serverUrl}")
-    private String serverUrl;
-    @Value("${aliPay.certificatePath}")
-    private String certificatePath;
-    @Value("${aliPay.appId}")
-    private String appId;
-    @Value("${aliPay.userId}")
-    private String aliPayUserId;
-    @Value("${aliPay.rsaPrivateKey}")
-    private String privateKey;
-    private volatile AlipayClient alipayClient;
+public class AliPayTransferService extends AliPayBaseService {
     private final TradeRecordService tradeRecordService;
 
     public AliPayTransferService(TradeRecordService tradeRecordService) {
@@ -225,37 +210,5 @@ public class AliPayTransferService {
             log.error("queryBillDownloadUrl error", e);
             throw new BusinessException("查询对账单下载地址异常");
         }
-    }
-
-    /**
-     * 获取支付宝证书客户端
-     * 避免无证书报错，采用懒加载
-     *
-     * @return
-     */
-    private AlipayClient getAliPayCertClient() {
-        if (alipayClient == null) {
-            synchronized (AliPayTransferService.class) {
-                if (alipayClient == null) {
-                    try {
-                        CertAlipayRequest certAlipayRequest = new CertAlipayRequest();
-                        certAlipayRequest.setServerUrl(serverUrl);
-                        certAlipayRequest.setAppId(appId);
-                        certAlipayRequest.setPrivateKey(privateKey);
-                        certAlipayRequest.setFormat("json");
-                        certAlipayRequest.setCharset("UTF-8");
-                        certAlipayRequest.setSignType("RSA2");
-                        certAlipayRequest.setCertPath(certificatePath + "/appCertPublicKey.crt");
-                        certAlipayRequest.setAlipayPublicCertPath(certificatePath + "/alipayCertPublicKey_RSA2.crt");
-                        certAlipayRequest.setRootCertPath(certificatePath + "/alipayRootCert.crt");
-                        alipayClient = new DefaultAlipayClient(certAlipayRequest);
-                        log.info("initAliPayCertClient success");
-                    } catch (Exception e) {
-                        log.error("initAliPayCertClient error", e);
-                    }
-                }
-            }
-        }
-        return alipayClient;
     }
 }

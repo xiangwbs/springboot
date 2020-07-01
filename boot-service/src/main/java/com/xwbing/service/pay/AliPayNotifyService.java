@@ -1,5 +1,13 @@
 package com.xwbing.service.pay;
 
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -7,14 +15,8 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.xwbing.domain.entity.pay.alipay.AliPayTradePayNotifyRequest;
 import com.xwbing.domain.entity.pay.alipay.AliPayTradeStatusEnum;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.util.Iterator;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xiangwb
@@ -24,7 +26,7 @@ import java.util.Map;
 @Slf4j
 @Service
 public class AliPayNotifyService {
-    @Value("${aliPay.rsaPublicKey}")
+    @Value("${aliPay.aliPayPublicKey}")
     private String publicKey;
 
     /**

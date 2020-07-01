@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
-import com.alipay.api.AlipayClient;
-import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
 import com.alipay.api.request.AlipayTradePayRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
@@ -35,39 +33,15 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 说明: 支付宝扫码支付接口
  * 创建时间: 2017/5/10 17:50
- * 作者:  xiangwb
+ *
+ * @author xwbing
  */
 @Slf4j
 @Service
 @PropertySource("classpath:pay.properties")
-public class AliPayBarService {
-    @Value("${aliPay.serverUrl}")
-    private String serverUrl;
-    /**
-     * 异步回调通知地址
-     */
-    @Value("${aliPay.notifyUrl:}")
+public class AliPayBarService extends AliPayBaseService {
+    @Value("${aliPay.tradePay.notifyUrl:}")
     private String notifyUrl;
-    /**
-     * 支付宝分配给开发者的应用ID
-     */
-    @Value("${aliPay.appId}")
-    private String appId;
-    /**
-     * 应用私钥
-     */
-    @Value("${aliPay.appPrivateKey}")
-    private String appPrivateKey;
-    /**
-     * 支付宝公钥
-     */
-    @Value("${aliPay.aliPayPublicKey}")
-    private String aliPayPublicKey;
-    private AlipayClient alipayClient;
-
-    public AliPayBarService() {
-        alipayClient = new DefaultAlipayClient(serverUrl, appId, appPrivateKey, "json", "UTF-8", aliPayPublicKey,"RSA2");
-    }
 
     /**
      * 统一收单交易支付
@@ -92,7 +66,7 @@ public class AliPayBarService {
         request.setBizContent(JSONObject.toJSONString(param));
         AlipayTradePayResponse response;
         try {
-            response = alipayClient.execute(request);
+            response = getAliPayClient().execute(request);
         } catch (AlipayApiException e) {
             log.error("aliPayTradePay exception:{}", ExceptionUtils.getStackTrace(e));
             throw new PayException("统一收单交易支付异常");
@@ -132,7 +106,7 @@ public class AliPayBarService {
         request.setBizContent(JSONObject.toJSONString(param));
         AlipayTradeRefundResponse response;
         try {
-            response = alipayClient.execute(request);
+            response = getAliPayClient().execute(request);
         } catch (AlipayApiException e) {
             log.error("aliPayTradeRefund exception:{}", ExceptionUtils.getStackTrace(e));
             throw new PayException("统一收单交易退款异常");
@@ -189,7 +163,7 @@ public class AliPayBarService {
         request.setBizContent(jsonObject.toString());
         AlipayTradeQueryResponse response;
         try {
-            response = alipayClient.execute(request);
+            response = getAliPayClient().execute(request);
         } catch (AlipayApiException e) {
             log.error("tradeQuery exception:{}", ExceptionUtils.getStackTrace(e));
             throw new PayException("统一收单线下交易查询异常");
@@ -231,7 +205,7 @@ public class AliPayBarService {
         request.setBizContent(jsonObject.toString());
         AlipayTradeFastpayRefundQueryResponse response;
         try {
-            response = alipayClient.execute(request);
+            response = getAliPayClient().execute(request);
         } catch (AlipayApiException e) {
             log.error("refundQuery exception:{}", ExceptionUtils.getStackTrace(e));
             throw new PayException("统一收单交易退款查询异常");
