@@ -50,7 +50,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
     @Resource
     private AliPayBillRecordMapper aliPayBillRecordMapper;
     @Resource
-    private AliPayTransferService aliPayTransferService;
+    private AliPayBaseService aliPayBaseService;
 
     @Override
     protected AliPayBillRecordMapper getMapper() {
@@ -96,7 +96,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
                 log.info("loadBill date:{} hasLoad", date);
                 return;
             }
-            String urlStr = aliPayTransferService.queryBillDownloadUrl(date);
+            String urlStr = aliPayBaseService.queryBillDownloadUrl(date);
             URL url = new URL(urlStr);
             conn = (HttpURLConnection)url.openConnection();
             conn.setConnectTimeout(5 * 1000);
