@@ -1,5 +1,6 @@
 package com.xwbing.service.pay;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -185,8 +186,12 @@ public class AliPayBaseService {
             if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(request.getTradeNo())) {
                 throw new PayException("商户订单号和支付宝交易号不能同时为空");
             }
-            if (request.getRefundAmount() == 0) {
+            BigDecimal refundAmount = request.getRefundAmount();
+            if (refundAmount == null) {
                 throw new PayException("退款金额不能为空");
+            }
+            if (refundAmount.compareTo(BigDecimal.ZERO) < 1) {
+                throw new PayException("退款金额不能为小于0");
             }
             AlipayTradeRefundRequest refundRequest = new AlipayTradeRefundRequest();
             refundRequest.setBizContent(JSONObject.toJSONString(request));

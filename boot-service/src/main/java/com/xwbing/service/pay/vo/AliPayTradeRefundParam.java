@@ -1,5 +1,7 @@
 package com.xwbing.service.pay.vo;
 
+import java.math.BigDecimal;
+
 import com.alibaba.fastjson.annotation.JSONField;
 
 import lombok.Data;
@@ -31,21 +33,21 @@ public class AliPayTradeRefundParam {
      * 退款金额
      */
     @JSONField(name = "refund_amount")
-    private float refundAmount;
+    private BigDecimal refundAmount;
     /**
      * 退款的原因说明
      */
     @JSONField(name = "refund_reason")
     private String refundReason;
 
-    public AliPayTradeRefundParam(String outRequestNo, String outTradeNo, float refundAmount, String refundReason) {
+    public AliPayTradeRefundParam(String outRequestNo, String outTradeNo, BigDecimal refundAmount, String refundReason) {
         this.outRequestNo = outRequestNo;
         this.outTradeNo = outTradeNo;
         this.refundAmount = refundAmount;
         this.refundReason = refundReason;
     }
 
-    public AliPayTradeRefundParam(String outRequestNo, String tradeNo, String refundReason, float refundAmount) {
+    public AliPayTradeRefundParam(String outRequestNo, String tradeNo, String refundReason, BigDecimal refundAmount) {
         this.outRequestNo = outRequestNo;
         this.tradeNo = tradeNo;
         this.refundAmount = refundAmount;

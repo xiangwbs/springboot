@@ -1,5 +1,7 @@
 package com.xwbing.service.pay;
 
+import java.math.BigDecimal;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -113,7 +115,8 @@ public class AliPayBarService extends AliPayBaseService {
             log.info("refundQuery outRequestNo:{} response:{}", outRequestNo, JSONObject.toJSONString(response));
             if (response.isSuccess()) {
                 return AliPayRefundQueryResult.builder().success(true).refundStatus(response.getRefundStatus())
-                        .totalAmount(response.getTotalAmount()).refundAmount(response.getRefundAmount())
+                        .totalAmount(new BigDecimal(response.getTotalAmount()))
+                        .refundAmount(new BigDecimal(response.getRefundAmount()))
                         .refundReason(response.getRefundReason()).refundTime(response.getGmtRefundPay())
                         .code(response.getCode()).message(response.getMsg()).build();
             } else {
