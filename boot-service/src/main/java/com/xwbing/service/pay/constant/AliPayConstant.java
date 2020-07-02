@@ -1,4 +1,4 @@
-package com.xwbing.domain.entity.pay.alipay;
+package com.xwbing.service.pay.constant;
 
 /**
  * 说明: 支付宝返回状态码

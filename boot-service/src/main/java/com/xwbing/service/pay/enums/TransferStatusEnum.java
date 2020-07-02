@@ -6,7 +6,7 @@ package com.xwbing.service.pay.enums;
  * @since 2020年01月09日 19:33
  */
 public enum TransferStatusEnum  {
-    /** */
+    //@formatter:off
     SUCCESS("SUCCESS", "成功"),
     WAIT_PAY("WAIT_PAY", "等待支付"),
     CLOSED("CLOSED", "订单超时关闭"),

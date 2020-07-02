@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * @since 2020年05月11日 10:33
  */
 public enum TransferUserSubCodeEnum {
-    /** */
+    //@formatter:off
     PAYEE_NOT_EXIST("PAYEE_NOT_EXIST", "收款用户不存在"),
     PAYEE_ACCOUNT_NOT_EXSIT("PAYEE_ACCOUNT_NOT_EXSIT", "收款账号不存在"),
     ;

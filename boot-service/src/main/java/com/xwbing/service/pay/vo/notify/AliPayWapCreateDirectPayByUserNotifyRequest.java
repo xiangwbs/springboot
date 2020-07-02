@@ -1,4 +1,4 @@
-package com.xwbing.domain.entity.pay.alipay;
+package com.xwbing.service.pay.vo.notify;
 
 import lombok.Data;
 

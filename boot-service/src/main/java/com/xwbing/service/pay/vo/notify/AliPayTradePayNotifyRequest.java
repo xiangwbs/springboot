@@ -1,14 +1,14 @@
-package com.xwbing.domain.entity.pay.alipay;
+package com.xwbing.service.pay.vo.notify;
 
 import lombok.Data;
 
 /**
  * @author xiangwb
  * @date 20/2/9 16:20
- * 手机app支付接口2.0异步通知参数
+ * 支付宝统一收单交易支付异步通知参数
  */
 @Data
-public class AliPayTradeAppPayNotifyRequest {
+public class AliPayTradePayNotifyRequest {
     /**
      * 通知时间
      */
@@ -22,18 +22,6 @@ public class AliPayTradeAppPayNotifyRequest {
      */
     private String notify_id;
     /**
-     * 开发者的app_id
-     */
-    private String app_id;
-    /**
-     * 编码格式
-     */
-    private String charset;
-    /**
-     * 接口版本
-     */
-    private String version;
-    /**
      * 签名类型
      */
     private String sign_type;
@@ -45,6 +33,10 @@ public class AliPayTradeAppPayNotifyRequest {
      * 支付宝交易号
      */
     private String trade_no;
+    /**
+     * 开发者的app_id
+     */
+    private String app_id;
     /**
      * 商户订单号
      */
@@ -71,6 +63,7 @@ public class AliPayTradeAppPayNotifyRequest {
     private String seller_email;
     /**
      * 交易状态
+     * AliPayTradeStatusEnum
      */
     private String trade_status;
     /**
@@ -97,6 +90,10 @@ public class AliPayTradeAppPayNotifyRequest {
      * 总退款金额
      */
     private String refund_fee;
+    /**
+     * 实际退款金额
+     */
+    private String send_back_fee;
     /**
      * 订单标题
      */
@@ -125,12 +122,4 @@ public class AliPayTradeAppPayNotifyRequest {
      * 支付金额信息
      */
     private String fund_bill_list;
-    /**
-     * 回传参数
-     */
-    private String passback_params;
-    /**
-     * 优惠券信息
-     */
-    private String voucher_detail_list;
 }

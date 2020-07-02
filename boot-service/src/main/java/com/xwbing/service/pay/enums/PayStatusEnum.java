@@ -6,7 +6,7 @@ package com.xwbing.service.pay.enums;
  * @since 2020年05月19日 19:33
  */
 public enum PayStatusEnum {
-    /** */
+    //@formatter:off
     PAYING("PAYING", "支付中"),
     SUCCESS("SUCCESS", "支付成功"),
     FAIL("FAIL", "支付失败"),

@@ -1,4 +1,4 @@
-package com.xwbing.domain.entity.pay.alipay;
+package com.xwbing.service.pay.vo;
 
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;

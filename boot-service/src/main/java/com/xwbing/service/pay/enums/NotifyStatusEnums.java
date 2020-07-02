@@ -4,12 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum NotifyStatusEnums {
-    /**
-     * 未通知
-     */
-    NOT_NOTIFIED("not_notified", "未通知"), /**
-     * 已通知
-     */
+    //@formatter:off
+    NOT_NOTIFIED("not_notified", "未通知"),
     NOTIFIED("notified", "已通知");
 
     private String value;

@@ -1,11 +1,12 @@
-package com.xwbing.domain.entity.pay.alipay;
-
-import com.alipay.api.domain.TradeFundBill;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+package com.xwbing.service.pay.vo;
 
 import java.util.Date;
 import java.util.List;
+
+import com.alipay.api.domain.TradeFundBill;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * 说明: 统一收单交易支付结果

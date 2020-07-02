@@ -13,8 +13,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
-import com.xwbing.domain.entity.pay.alipay.AliPayTradePayNotifyRequest;
-import com.xwbing.domain.entity.pay.alipay.AliPayTradeStatusEnum;
+import com.xwbing.service.pay.vo.notify.AliPayTradePayNotifyRequest;
+import com.xwbing.service.pay.enums.AliPayTradeStatusEnum;
 
 import lombok.extern.slf4j.Slf4j;
 

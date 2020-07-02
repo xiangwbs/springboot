@@ -1,8 +1,5 @@
 package com.xwbing.service.pay;
 
-import java.util.Arrays;
-import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,20 +10,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
 import com.alipay.api.request.AlipayTradePayRequest;
-import com.alipay.api.request.AlipayTradeQueryRequest;
-import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
 import com.alipay.api.response.AlipayTradePayResponse;
-import com.alipay.api.response.AlipayTradeQueryResponse;
-import com.alipay.api.response.AlipayTradeRefundResponse;
-import com.xwbing.domain.entity.pay.alipay.AliPayQueryResult;
-import com.xwbing.domain.entity.pay.alipay.AliPayRefundQueryResult;
-import com.xwbing.domain.entity.pay.alipay.AliPayTradePayParam;
-import com.xwbing.domain.entity.pay.alipay.AliPayTradePayResult;
-import com.xwbing.domain.entity.pay.alipay.AliPayTradeRefundParam;
-import com.xwbing.domain.entity.pay.alipay.AliPayTradeRefundResult;
-import com.xwbing.domain.entity.pay.alipay.AliPayTradeStatusEnum;
 import com.xwbing.exception.PayException;
+import com.xwbing.service.pay.vo.AliPayRefundQueryResult;
+import com.xwbing.service.pay.vo.AliPayTradePayParam;
+import com.xwbing.service.pay.vo.AliPayTradePayResult;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -94,90 +83,6 @@ public class AliPayBarService extends AliPayBaseService {
     }
 
     /**
-     * 统一收单交易退款
-     *
-     * @param param
-     *
-     * @return
-     */
-    public AliPayTradeRefundResult tradeRefund(AliPayTradeRefundParam param) {
-        AliPayTradeRefundResult result = new AliPayTradeRefundResult(false);
-        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
-        request.setBizContent(JSONObject.toJSONString(param));
-        AlipayTradeRefundResponse response;
-        try {
-            response = getAliPayClient().execute(request);
-        } catch (AlipayApiException e) {
-            log.error("aliPayTradeRefund exception:{}", ExceptionUtils.getStackTrace(e));
-            throw new PayException("统一收单交易退款异常");
-        }
-        log.info("aliPayTradeRefund:{}", JSONObject.toJSONString(response));
-        if (response.isSuccess()) {
-            if ("Y".equals(response.getFundChange())) {
-                result.setCode(response.getCode());
-                result.setMessage(response.getMsg());
-                result.setSuccess(true);
-            } else {
-                result.setCode(response.getCode());
-                result.setMessage("交易已退款");
-                return result;
-            }
-        } else {
-            result.setCode(response.getSubCode());
-            result.setMessage(response.getSubMsg());
-            return result;
-        }
-        result.setTradeNo(response.getTradeNo());
-        result.setOutTradeNo(response.getOutTradeNo());
-        result.setBuyerLogonId(response.getBuyerLogonId());
-        result.setFundChange(response.getFundChange());
-        result.setRefundFee(response.getRefundFee());
-        result.setGmtRefundPay(response.getGmtRefundPay());
-        result.setBuyerUserId(response.getBuyerUserId());
-        return result;
-    }
-
-    /**
-     * 统一收单线下交易查询
-     * 根据商户订单号 支付宝交易号查询 只需要一个即可
-     * 如果isSuccess，根据tradeStatus，遍历AliPayTradeStatusEnum获取对应支付状态
-     *
-     * @param outTradeNo 商户订单号
-     * @param tradeNo 支付宝交易号(推荐)
-     *
-     * @return
-     */
-    public AliPayQueryResult tradeQuery(String outTradeNo, String tradeNo) {
-        if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(tradeNo)) {
-            throw new PayException("商户订单号和支付宝交易号不能同时为空!");
-        }
-        AliPayQueryResult result = new AliPayQueryResult(false);
-        AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
-        JSONObject jsonObject = new JSONObject();
-        if (StringUtils.isNotEmpty(outTradeNo)) {
-            jsonObject.put("out_trade_no", outTradeNo);
-        }
-        if (StringUtils.isNotEmpty(tradeNo)) {
-            jsonObject.put("trade_no", tradeNo);
-        }
-        request.setBizContent(jsonObject.toString());
-        AlipayTradeQueryResponse response;
-        try {
-            response = getAliPayClient().execute(request);
-        } catch (AlipayApiException e) {
-            log.error("tradeQuery exception:{}", ExceptionUtils.getStackTrace(e));
-            throw new PayException("统一收单线下交易查询异常");
-        }
-        log.info("tradeQuery:{}", JSONObject.toJSONString(response));
-        result.setSuccess(response.isSuccess());
-        //如果subCode存在,代表调用接口失败
-        checkTradeQuerySubCode(result, response);
-        //返回支付状态,业务调用时,遍历AliPayTradeStatusEnum与tradeStatus做比较
-        result.setTradeStatus(response.getTradeStatus());
-        return result;
-    }
-
-    /**
      * 统一收单交易退款查询
      * 商户订单号和支付宝交易号2选1
      * 退款查询,没有tradeStatus。isSuccess即为成功
@@ -188,34 +93,37 @@ public class AliPayBarService extends AliPayBaseService {
      *
      * @return
      */
-    public AliPayRefundQueryResult refundQuery(String outTradeNo, String tradeNo, String outRequestNo) {
-        if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(tradeNo)) {
-            throw new PayException("商户订单号和支付宝交易号不能同时为空!");
-        }
-        AliPayRefundQueryResult result = new AliPayRefundQueryResult(false);
-        AlipayTradeFastpayRefundQueryRequest request = new AlipayTradeFastpayRefundQueryRequest();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("out_request_no", outRequestNo);
-        if (StringUtils.isNotEmpty(outTradeNo)) {
-            jsonObject.put("out_trade_no", outTradeNo);
-        }
-        if (StringUtils.isNotEmpty(tradeNo)) {
-            jsonObject.put("trade_no", tradeNo);
-        }
-        request.setBizContent(jsonObject.toString());
-        AlipayTradeFastpayRefundQueryResponse response;
+    public AliPayRefundQueryResult refundQuery(String outRequestNo, String outTradeNo, String tradeNo) {
         try {
-            response = getAliPayClient().execute(request);
-        } catch (AlipayApiException e) {
-            log.error("refundQuery exception:{}", ExceptionUtils.getStackTrace(e));
+            if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(tradeNo)) {
+                throw new PayException("商户订单号和支付宝交易号不能同时为空!");
+            }
+            AlipayTradeFastpayRefundQueryRequest request = new AlipayTradeFastpayRefundQueryRequest();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("out_request_no", outRequestNo);
+            if (StringUtils.isNotEmpty(outTradeNo)) {
+                jsonObject.put("out_trade_no", outTradeNo);
+            }
+            if (StringUtils.isNotEmpty(tradeNo)) {
+                jsonObject.put("trade_no", tradeNo);
+            }
+            request.setBizContent(jsonObject.toString());
+            log.info("refundQuery outRequestNo:{} request:{}", outRequestNo, JSONObject.toJSONString(request));
+            AlipayTradeFastpayRefundQueryResponse response = getAliPayClient().execute(request);
+            log.info("refundQuery outRequestNo:{} response:{}", outRequestNo, JSONObject.toJSONString(response));
+            if (response.isSuccess()) {
+                return AliPayRefundQueryResult.builder().success(true).refundStatus(response.getRefundStatus())
+                        .totalAmount(response.getTotalAmount()).refundAmount(response.getRefundAmount())
+                        .refundReason(response.getRefundReason()).refundTime(response.getGmtRefundPay())
+                        .code(response.getCode()).message(response.getMsg()).build();
+            } else {
+                return AliPayRefundQueryResult.builder().success(false).code(response.getSubCode())
+                        .message(response.getSubMsg()).build();
+            }
+        } catch (Exception e) {
+            log.error("refundQuery outRequestNo:{} error", outRequestNo, e);
             throw new PayException("统一收单交易退款查询异常");
         }
-        log.info("refundQuery:{}", JSONObject.toJSONString(response));
-        result.setSuccess(response.isSuccess());
-        result.setRefundReason(response.getRefundReason());
-        result.setRefundTime(response.getGmtRefundPay());
-        checkRefundQuerySubCode(result, response);
-        return result;
     }
 
     /**
@@ -241,33 +149,6 @@ public class AliPayBarService extends AliPayBaseService {
         return message;
     }
 
-    /**
-     * 查询接口校验subCode是否存在。如果subCode存在，代表调用接口失败。
-     * 业务调用时只需判断result是否为success即可
-     *
-     * @return
-     */
-    private void checkTradeQuerySubCode(AliPayQueryResult result, AlipayTradeQueryResponse response) {
-        if (StringUtils.isNotEmpty(response.getSubCode())) {
-            result.setCode(response.getSubCode());
-            result.setMessage(response.getSubMsg());
-        } else {
-            result.setCode(response.getCode());
-            result.setMessage(response.getMsg());
-        }
-    }
-
-    private void checkRefundQuerySubCode(AliPayRefundQueryResult result,
-            AlipayTradeFastpayRefundQueryResponse response) {
-        if (StringUtils.isNotEmpty(response.getSubCode())) {
-            result.setCode(response.getSubCode());
-            result.setMessage(response.getSubMsg());
-        } else {
-            result.setCode(response.getCode());
-            result.setMessage(response.getMsg());
-        }
-    }
-
     public static void main(String[] args) {
         // ---------------------- 刷卡支付 ----------------------
         AliPayBarService alipayBuilder = new AliPayBarService();
@@ -284,28 +165,5 @@ public class AliPayBarService extends AliPayBaseService {
         if (!success) {
             System.out.println(codePayResult.getMessage());
         }
-
-        // ---------------------- 查询订单 ----------------------
-        String tradeNo = codePayResult.getTradeNo();//支付宝交易号
-        AliPayQueryResult queryResult = alipayBuilder.tradeQuery("", tradeNo);
-        if (!queryResult.isSuccess()) {
-            System.out.println(queryResult.getMessage());
-        } else {
-            String tradeStatus = queryResult.getTradeStatus();
-            Optional<AliPayTradeStatusEnum> first = Arrays.stream(AliPayTradeStatusEnum.values())
-                    .filter(aliPayTradeStatusEnum -> aliPayTradeStatusEnum.getCode().equals(tradeStatus)).findFirst();
-            first.ifPresent(aliPayTradeStatusEnum -> System.out.println(aliPayTradeStatusEnum.getName()));
-        }
-
-        // ---------------------- 退款操作 ----------------------
-        String outRequestNo = "201805180202";//退款请求号
-        AliPayTradeRefundParam refundParam = new AliPayTradeRefundParam(outRequestNo, tradeNo, "test", 0.05f);
-        AliPayTradeRefundResult refundResult = alipayBuilder.tradeRefund(refundParam);
-        System.out.println(refundResult.getMessage());
-
-        // ---------------------- 查询退款 ----------------------
-        //只要success,即为成功
-        AliPayRefundQueryResult refund = alipayBuilder.refundQuery("", tradeNo, outRequestNo);
-        System.out.println(refund.isSuccess());
     }
 }

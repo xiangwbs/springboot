@@ -1,6 +1,7 @@
-package com.xwbing.domain.entity.pay.alipay;
+package com.xwbing.service.pay.vo;
 
 import com.alibaba.fastjson.annotation.JSONField;
+
 import lombok.Data;
 
 /**
@@ -22,15 +23,15 @@ public class AliPayTradeRefundParam {
     @JSONField(name = "trade_no")
     private String tradeNo;
     /**
-     * 退款金额
-     */
-    @JSONField(name = "refund_amount")
-    private float refundAmount;
-    /**
      * 退款请求号(部分退款，此参数必传)
      */
     @JSONField(name = "out_request_no")
     private String outRequestNo;
+    /**
+     * 退款金额
+     */
+    @JSONField(name = "refund_amount")
+    private float refundAmount;
     /**
      * 退款的原因说明
      */

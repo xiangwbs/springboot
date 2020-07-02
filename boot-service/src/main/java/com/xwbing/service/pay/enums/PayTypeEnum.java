@@ -6,7 +6,7 @@ package com.xwbing.service.pay.enums;
  * @since 2020年05月19日 19:33
  */
 public enum PayTypeEnum {
-    /** */
+    //@formatter:off
     WX("wx", "微信支付"),
     ALIPAY("alipay", "支付宝支付"),;
 

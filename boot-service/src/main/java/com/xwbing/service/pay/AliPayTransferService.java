@@ -8,11 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alipay.api.request.AlipayDataDataserviceBillDownloadurlQueryRequest;
 import com.alipay.api.request.AlipayFundAccountQueryRequest;
 import com.alipay.api.request.AlipayFundTransCommonQueryRequest;
 import com.alipay.api.request.AlipayFundTransUniTransferRequest;
-import com.alipay.api.response.AlipayDataDataserviceBillDownloadurlQueryResponse;
 import com.alipay.api.response.AlipayFundAccountQueryResponse;
 import com.alipay.api.response.AlipayFundTransCommonQueryResponse;
 import com.alipay.api.response.AlipayFundTransUniTransferResponse;
@@ -72,19 +70,19 @@ public class AliPayTransferService extends AliPayBaseService {
     }
 
     /**
-     * 向指定支付宝账户转账
+     * 转账
      *
      * @param payAccount
      * @param name
      * @param orderId
-     * @param amount [0.1,100000000]
-     * @param subject
+     * @param amount
+     * @param title
      *
      * @return
      */
-    public boolean doTransfer(String payAccount, String name, String orderId, BigDecimal amount, String subject) {
+    public boolean doTransfer(String payAccount, String name, String orderId, BigDecimal amount, String title) {
         //转账
-        Boolean transfer = transfer(payAccount, name, orderId, amount, subject);
+        Boolean transfer = transfer(payAccount, name, orderId, amount, title);
         if (transfer != null) {
             return transfer;
         }
@@ -103,7 +101,7 @@ public class AliPayTransferService extends AliPayBaseService {
             return true;
         } else {
             //再次转账
-            transfer = transfer(payAccount, name, orderId, amount, subject);
+            transfer = transfer(payAccount, name, orderId, amount, title);
             if (transfer != null) {
                 return transfer;
             } else {
@@ -114,34 +112,39 @@ public class AliPayTransferService extends AliPayBaseService {
         }
     }
 
-    private Boolean transfer(String payAccount, String name, String orderId, BigDecimal amount, String subject) {
+    /**
+     * 向指定支付宝账户转账
+     *
+     * @param payAccount 支持邮箱和手机号格式
+     * @param name 参与方真实姓名
+     * @param orderId 商户订单号
+     * @param amount 订单总金额，单位为元，精确到小数点后两位 [0.1,100000000]
+     * @param title 转账业务的标题
+     *
+     * @return
+     */
+    private Boolean transfer(String payAccount, String name, String orderId, BigDecimal amount, String title) {
         try {
             AlipayFundTransUniTransferRequest request = new AlipayFundTransUniTransferRequest();
             Map<String, Object> bizContent = new HashMap<>(6);
-            //商户订单号
             bizContent.put("out_biz_no", orderId);
-            //订单总金额 单位为元 精确到小数点后两位
             bizContent.put("trans_amount", amount);
             //业务产品码 单笔无密转账到支付宝账户
             bizContent.put("product_code", "TRANS_ACCOUNT_NO_PWD");
             //业务场景 单笔无密转账到支付宝
             bizContent.put("biz_scene", "DIRECT_TRANSFER");
-            //转账标题
-            bizContent.put("order_title", subject);
-            bizContent.put("remark", subject);
+            bizContent.put("order_title", title);
             //收款方信息
             Map<String, Object> payeeInfo = new HashMap<>(3);
-            //参与方的标识类型 支付宝登录号 支持邮箱和手机号格式
+            //参与方的标识类型 支付宝登录号
             payeeInfo.put("identity_type", "ALIPAY_LOGON_ID");
-            //参与方的唯一标识
             payeeInfo.put("identity", payAccount);
-            //参与方真实姓名
             payeeInfo.put("name", name);
             bizContent.put("payee_info", payeeInfo);
             request.setBizContent(JSONObject.toJSONString(bizContent));
-            log.info("transfer orderId={} request:{}", orderId, JSONObject.toJSONString(request));
+            log.info("transfer orderId:{} request:{}", orderId, JSONObject.toJSONString(request));
             AlipayFundTransUniTransferResponse response = getAliPayCertClient().certificateExecute(request);
-            log.info("transfer orderId={} response:{}", orderId, JSONObject.toJSONString(response));
+            log.info("transfer orderId:{} response:{}", orderId, JSONObject.toJSONString(response));
             //转账失败接口会直接同步返回错误，只要判断status=SUCCESS即可，如果出现其他都是不成功的
             if (response.isSuccess() && TransferStatusEnum.SUCCESS.getCode().equals(response.getStatus())) {
                 tradeRecordService.updateSuccess(orderId, response.getOrderId(),
@@ -153,11 +156,18 @@ public class AliPayTransferService extends AliPayBaseService {
                 return false;
             }
         } catch (Exception e) {
-            log.error("transfer orderId={} amount={} error", orderId, amount, e);
+            log.error("transfer orderId:{} amount:{} error", orderId, amount, e);
             return null;
         }
     }
 
+    /**
+     * 查询转账结果
+     *
+     * @param orderId 商户转账唯一订单号
+     *
+     * @return
+     */
     private AlipayFundTransCommonQueryResponse transferQuery(String orderId) {
         try {
             AlipayFundTransCommonQueryRequest request = new AlipayFundTransCommonQueryRequest();
@@ -166,49 +176,15 @@ public class AliPayTransferService extends AliPayBaseService {
             bizContent.put("product_code", "TRANS_ACCOUNT_NO_PWD");
             //业务场景 B2C现金红包、单笔无密转账
             bizContent.put("biz_scene", "DIRECT_TRANSFER");
-            //商户转账唯一订单号
             bizContent.put("out_biz_no", orderId);
             request.setBizContent(JSONObject.toJSONString(bizContent));
-            log.info("transferQuery orderId={}", orderId);
+            log.info("transferQuery orderId:{}", orderId);
             AlipayFundTransCommonQueryResponse response = getAliPayCertClient().certificateExecute(request);
             log.info("transferQuery orderId={} response:{}", orderId, JSONObject.toJSONString(response));
             return response;
         } catch (Exception e) {
-            log.error("transferQuery orderId={} error", orderId, e);
+            log.error("transferQuery orderId:{} error", orderId, e);
             return null;
-        }
-    }
-
-    /**
-     * 查询对账单下载地址
-     * 日账单格式为yyyy-MM-dd 当天无法查询
-     * 月账单格式为yyyy-MM 当月无法查询
-     * 10点后才会生成昨天账单
-     *
-     * @param billDate
-     *
-     * @return
-     */
-    public String queryBillDownloadUrl(String billDate) {
-        try {
-            log.info("queryBillDownloadUrl billDate:{}", billDate);
-            AlipayDataDataserviceBillDownloadurlQueryRequest request = new AlipayDataDataserviceBillDownloadurlQueryRequest();
-            Map<String, Object> bizContent = new HashMap<>(2);
-            bizContent.put("bill_type", "signcustomer");
-            bizContent.put("bill_date", billDate);
-            request.setBizContent(JSONObject.toJSONString(bizContent));
-            AlipayDataDataserviceBillDownloadurlQueryResponse response = getAliPayCertClient()
-                    .certificateExecute(request);
-            log.info("queryBillDownloadUrl response:{}", JSONObject.toJSONString(response));
-            if (response.isSuccess()) {
-                return response.getBillDownloadUrl();
-            } else {
-                log.error("queryBillDownloadUrl error:{}", response.getSubMsg());
-                throw new BusinessException("查询对账单下载地址异常");
-            }
-        } catch (Exception e) {
-            log.error("queryBillDownloadUrl error", e);
-            throw new BusinessException("查询对账单下载地址异常");
         }
     }
 }

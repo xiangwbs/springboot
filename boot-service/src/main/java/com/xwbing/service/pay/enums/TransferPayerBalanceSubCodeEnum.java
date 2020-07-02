@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * @since 2020年05月11日 10:33
  */
 public enum TransferPayerBalanceSubCodeEnum {
-    /** */
+    //@formatter:off
     PAYER_BALANCE_NOT_ENOUGH("PAYER_BALANCE_NOT_ENOUGH", "付款方余额不足"),
     BALANCE_IS_NOT_ENOUGH("BALANCE_IS_NOT_ENOUGH", "付款方余额不足"),
     ;
