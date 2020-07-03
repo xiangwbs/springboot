@@ -20,6 +20,7 @@ import java.util.zip.ZipInputStream;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import com.csvreader.CsvReader;
 import com.xwbing.config.constant.BaseConstant;
 import com.xwbing.domain.entity.rest.AliPayBillRecord;
 import com.xwbing.domain.mapper.pay.AliPayBillRecordMapper;
+import com.xwbing.exception.BusinessException;
 import com.xwbing.service.BaseService;
 import com.xwbing.service.pay.enums.TradeTypeEnum;
 import com.xwbing.util.DateUtil2;
@@ -97,6 +99,9 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
                 return;
             }
             String urlStr = aliPayBaseService.queryBillDownloadUrl(date);
+            if (StringUtils.isEmpty(urlStr)) {
+                throw new BusinessException("查询对账单下载地址异常");
+            }
             URL url = new URL(urlStr);
             conn = (HttpURLConnection)url.openConnection();
             conn.setConnectTimeout(5 * 1000);

@@ -14,7 +14,6 @@ import com.alipay.api.request.AlipayFundTransUniTransferRequest;
 import com.alipay.api.response.AlipayFundAccountQueryResponse;
 import com.alipay.api.response.AlipayFundTransCommonQueryResponse;
 import com.alipay.api.response.AlipayFundTransUniTransferResponse;
-import com.xwbing.exception.BusinessException;
 import com.xwbing.service.pay.enums.TransferStatusEnum;
 import com.xwbing.util.DateUtil2;
 
@@ -50,6 +49,7 @@ public class AliPayTransferService extends AliPayBaseService {
      */
     public BigDecimal accountQuery() {
         try {
+            log.info("accountQuery start");
             AlipayFundAccountQueryRequest request = new AlipayFundAccountQueryRequest();
             Map<String, Object> bizContent = new HashMap<>(2);
             bizContent.put("alipay_user_id", aliPayUserId);
@@ -57,16 +57,14 @@ public class AliPayTransferService extends AliPayBaseService {
             bizContent.put("account_type", "ACCTRANS_ACCOUNT");
             request.setBizContent(JSONObject.toJSONString(bizContent));
             AlipayFundAccountQueryResponse response = getAliPayCertClient().certificateExecute(request);
-            log.error("accountQuery response:{}", JSONObject.toJSONString(response));
+            log.info("accountQuery response:{}", JSONObject.toJSONString(response));
             if (response.isSuccess()) {
                 return new BigDecimal(response.getAvailableAmount());
-            } else {
-                throw new BusinessException("查询支付宝账户余额异常");
             }
         } catch (Exception e) {
             log.error("accountQuery error", e);
-            throw new BusinessException("查询支付宝账户余额异常");
         }
+        return null;
     }
 
     /**
@@ -180,7 +178,7 @@ public class AliPayTransferService extends AliPayBaseService {
             request.setBizContent(JSONObject.toJSONString(bizContent));
             log.info("transferQuery orderId:{}", orderId);
             AlipayFundTransCommonQueryResponse response = getAliPayCertClient().certificateExecute(request);
-            log.info("transferQuery orderId={} response:{}", orderId, JSONObject.toJSONString(response));
+            log.info("transferQuery orderId:{} response:{}", orderId, JSONObject.toJSONString(response));
             return response;
         } catch (Exception e) {
             log.error("transferQuery orderId:{} error", orderId, e);

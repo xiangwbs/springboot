@@ -2,6 +2,8 @@ package com.xwbing.service.pay.vo;
 
 import java.util.Date;
 
+import com.alipay.api.response.AlipayTradeRefundResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,9 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 说明: 支付宝退款结果
- * 项目名称: boot-module-pro
- * 创建时间: 2017/5/10 17:39
+ * 支付宝退款结果
  *
  * @author xwbing
  */
@@ -25,4 +25,18 @@ public class AliPayTradeRefundResult extends AliPayBaseResult {
      * 退款支付时间
      */
     private Date refundTime;
+
+    public static AliPayTradeRefundResult ofSuccess(AlipayTradeRefundResponse response) {
+        return AliPayTradeRefundResult.builder().success(true).refundTime(response.getGmtRefundPay())
+                .message(response.getMsg()).code(response.getCode()).build();
+    }
+
+    public static AliPayTradeRefundResult ofFail(AlipayTradeRefundResponse response) {
+        return AliPayTradeRefundResult.builder().success(false).code(response.getSubCode())
+                .message(response.getSubMsg()).build();
+    }
+
+    public static AliPayTradeRefundResult ofError() {
+        return AliPayTradeRefundResult.builder().success(false).code("unknow-error").message("服务暂不可用").build();
+    }
 }

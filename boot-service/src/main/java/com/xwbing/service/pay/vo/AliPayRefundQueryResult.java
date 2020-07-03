@@ -3,15 +3,17 @@ package com.xwbing.service.pay.vo;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 说明: 支付宝退款查询结果
- * 创建时间: 2017/5/10 17:38
- * 作者:  xiangwb
+ * 支付宝退款查询结果
+ *
+ * @author xwbing
  */
 @Data
 @SuperBuilder(toBuilder = true)
@@ -38,4 +40,20 @@ public class AliPayRefundQueryResult extends AliPayBaseResult {
      * 如果有查询数据，且refund_status为空或为REFUND_SUCCESS，则代表退款成功
      */
     private String refundStatus;
+
+    public static AliPayRefundQueryResult ofSuccess(AlipayTradeFastpayRefundQueryResponse response) {
+        return AliPayRefundQueryResult.builder().success(true).refundStatus(response.getRefundStatus())
+                .totalAmount(new BigDecimal(response.getTotalAmount()))
+                .refundAmount(new BigDecimal(response.getRefundAmount())).refundReason(response.getRefundReason())
+                .refundTime(response.getGmtRefundPay()).code(response.getCode()).message(response.getMsg()).build();
+    }
+
+    public static AliPayRefundQueryResult ofFail(AlipayTradeFastpayRefundQueryResponse response) {
+        return AliPayRefundQueryResult.builder().success(false).code(response.getSubCode())
+                .message(response.getSubMsg()).build();
+    }
+
+    public static AliPayRefundQueryResult ofError() {
+        return AliPayRefundQueryResult.builder().success(false).code("unknow-error").message("服务暂不可用").build();
+    }
 }

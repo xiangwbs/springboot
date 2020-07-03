@@ -4,15 +4,20 @@ import java.math.BigDecimal;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
- * 说明: 支付宝退款参数
- * 项目名称: boot-module-pro
- * 创建时间: 2017/5/10 17:38
- * 作者:  xiangwb
+ * 支付宝退款参数
+ *
+ * @author xwbing
  */
 @Data
+@SuperBuilder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class AliPayTradeRefundParam {
     /**
      * 商户订单号  订单号和支付宝交易号2选1
@@ -40,17 +45,16 @@ public class AliPayTradeRefundParam {
     @JSONField(name = "refund_reason")
     private String refundReason;
 
-    public AliPayTradeRefundParam(String outRequestNo, String outTradeNo, BigDecimal refundAmount, String refundReason) {
-        this.outRequestNo = outRequestNo;
-        this.outTradeNo = outTradeNo;
-        this.refundAmount = refundAmount;
-        this.refundReason = refundReason;
+    public static AliPayTradeRefundParam build(String outRequestNo, String outTradeNo, BigDecimal refundAmount,
+            String refundReason) {
+        return AliPayTradeRefundParam.builder().outRequestNo(outRequestNo).outTradeNo(outTradeNo)
+                .refundAmount(refundAmount).refundReason(refundReason).build();
+
     }
 
-    public AliPayTradeRefundParam(String outRequestNo, String tradeNo, String refundReason, BigDecimal refundAmount) {
-        this.outRequestNo = outRequestNo;
-        this.tradeNo = tradeNo;
-        this.refundAmount = refundAmount;
-        this.refundReason = refundReason;
+    public static AliPayTradeRefundParam build(String outRequestNo, String tradeNo, String refundReason,
+            BigDecimal refundAmount) {
+        return AliPayTradeRefundParam.builder().outRequestNo(outRequestNo).tradeNo(tradeNo).refundAmount(refundAmount)
+                .refundReason(refundReason).build();
     }
 }
