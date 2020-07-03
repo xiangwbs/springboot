@@ -209,24 +209,4 @@ public class AliPayTradeService extends AliPayBaseService {
             return AliPayRefundQueryResult.ofError();
         }
     }
-
-    public static void main(String[] args) {
-        // ---------------------- 刷卡支付 ----------------------
-        AliPayTradeService alipayBuilder = new AliPayTradeService();
-        String orderNo = "201805180207";
-        //二维码
-        String authCode = "285620814798006808";
-        JSONObject extendParams = new JSONObject();
-        //花呗分期数
-        extendParams.put("hb_fq_num", "3");
-        extendParams.put("hb_fq_seller_percent", "0");
-        AliPayTradePayParam codePayParam = AliPayTradePayParam
-                .barCode(orderNo, authCode, "test", BigDecimal.ONE, extendParams);
-        codePayParam.setExtendParams(extendParams);
-        AliPayTradePayResult codePayResult = alipayBuilder.tradePay(codePayParam);
-        boolean success = codePayResult.isSuccess();
-        if (!success) {
-            System.out.println(codePayResult.getMessage());
-        }
-    }
 }

@@ -46,10 +46,16 @@ public class AliPayTradeCreateParam {
      */
     @JSONField(name = "timeout_express")
     private String timeoutExpress = "10m";
+    /**
+     * hb_fq_num 花呗分期数 仅支持传入 3、6、12
+     * hb_fq_seller_percent 卖家承担收费比例 商家承担手续费传入 100，用户承担手续费传入 0，仅支持传入 100、0 两种
+     */
+    @JSONField(name = "extend_params")
+    private AliPayExtendParam extendParams;
 
     public static AliPayTradeCreateParam build(String outTradeNo, String buyerId, String subject,
-            BigDecimal totalAmount) {
+            BigDecimal totalAmount, AliPayExtendParam extendParams) {
         return AliPayTradeCreateParam.builder().outTradeNo(outTradeNo).subject(subject).totalAmount(totalAmount)
-                .buyerId(buyerId).timeoutExpress("10m").build();
+                .buyerId(buyerId).extendParams(extendParams).timeoutExpress("10m").build();
     }
 }

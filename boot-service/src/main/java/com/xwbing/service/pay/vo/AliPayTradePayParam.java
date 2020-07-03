@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 
 import lombok.AllArgsConstructor;
@@ -60,16 +59,16 @@ public class AliPayTradePayParam {
      * hb_fq_seller_percent 卖家承担收费比例 商家承担手续费传入 100，用户承担手续费传入 0，仅支持传入 100、0 两种
      */
     @JSONField(name = "extend_params")
-    private JSONObject extendParams;
+    private AliPayExtendParam extendParams;
 
     public static AliPayTradePayParam barCode(String outTradeNo, String authCode, String subject,
-            BigDecimal totalAmount, JSONObject extendParams) {
+            BigDecimal totalAmount, AliPayExtendParam extendParams) {
         return AliPayTradePayParam.builder().outTradeNo(outTradeNo).authCode(authCode).subject(subject)
                 .totalAmount(totalAmount).extendParams(extendParams).scene("bar_code").timeoutExpress("10m").build();
     }
 
     public static AliPayTradePayParam waveCode(String outTradeNo, String authCode, String subject,
-            BigDecimal totalAmount, JSONObject extendParams) {
+            BigDecimal totalAmount, AliPayExtendParam extendParams) {
         return AliPayTradePayParam.builder().outTradeNo(outTradeNo).authCode(authCode).subject(subject)
                 .totalAmount(totalAmount).extendParams(extendParams).scene("waveCode").timeoutExpress("10m").build();
     }
