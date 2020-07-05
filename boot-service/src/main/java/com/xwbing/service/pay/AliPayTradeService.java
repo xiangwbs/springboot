@@ -2,6 +2,8 @@ package com.xwbing.service.pay;
 
 import java.math.BigDecimal;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -13,11 +15,13 @@ import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
 import com.alipay.api.request.AlipayTradePayRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.request.AlipayTradeRefundRequest;
+import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.alipay.api.response.AlipayTradeCreateResponse;
 import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
 import com.alipay.api.response.AlipayTradePayResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
+import com.alipay.api.response.AlipayTradeWapPayResponse;
 import com.xwbing.exception.PayException;
 import com.xwbing.service.pay.vo.AliPayRefundQueryResult;
 import com.xwbing.service.pay.vo.AliPayTradeCreateParam;
@@ -27,6 +31,7 @@ import com.xwbing.service.pay.vo.AliPayTradePayResult;
 import com.xwbing.service.pay.vo.AliPayTradeQueryResult;
 import com.xwbing.service.pay.vo.AliPayTradeRefundParam;
 import com.xwbing.service.pay.vo.AliPayTradeRefundResult;
+import com.xwbing.service.pay.vo.AliPayWapPayParam;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -101,6 +106,67 @@ public class AliPayTradeService extends AliPayBaseService {
             return AliPayTradePayResult.ofError();
         }
     }
+
+    /**
+     * 手机网站支付
+     *
+     * @param httpResponse
+     * @param param
+     */
+    public void wapPay(HttpServletResponse httpResponse, AliPayWapPayParam param) {
+        String outTradeNo = param.getOutTradeNo();
+        try {
+            log.info("wapPay outTradeNo:{} param:{}", outTradeNo, JSONObject.toJSONString(param));
+            AlipayTradeWapPayRequest request = new AlipayTradeWapPayRequest();
+            if (StringUtils.isNotEmpty(notifyUrl)) {
+                request.setNotifyUrl(notifyUrl + "/payNotice/aliPay/tradePay");
+            }
+            if (StringUtils.isNotEmpty(param.getReturnUrl())) {
+                request.setReturnUrl(param.getReturnUrl());
+            }
+            request.setBizContent(JSONObject.toJSONString(param));
+            AlipayTradeWapPayResponse response = getAliPayClient().pageExecute(request);
+            log.info("wapPay outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
+            String form = response.getBody();
+            httpResponse.setContentType("text/html;charset=utf-8");
+            //直接将完整的表单html输出到页面
+            httpResponse.getWriter().write(form);
+            httpResponse.getWriter().flush();
+            httpResponse.getWriter().close();
+        } catch (Exception e) {
+            log.error("wapPay outTradeNo:{} error", outTradeNo, e);
+            throw new PayException("手机网站支付支付异常");
+        }
+    }
+
+    // public void pagePay(HttpServletResponse httpResponse) {
+    //     try {
+    //         AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
+    //         alipayRequest.setReturnUrl("http://domain.com/CallBack/return_url.jsp");
+    //         alipayRequest.setNotifyUrl("http://domain.com/CallBack/notify_url.jsp");
+    //         alipayRequest.putOtherTextParam("app_auth_token",
+    //                 "201611BB8xxxxxxxxxxxxxxxxxxxedcecde6");//如果 ISV 代商家接入电脑网站支付能力，则需要传入 app_auth_token，使用第三方应用授权；自研开发模式请忽略
+    //         alipayRequest.setBizContent("{" + "    \"out_trade_no\":\"20150320010101001\","
+    //                 + "    \"product_code\":\"FAST_INSTANT_TRADE_PAY\"," + "    \"total_amount\":88.88,"
+    //                 + "    \"subject\":\"Iphone6 16G\"," + "    \"body\":\"Iphone6 16G\","
+    //                 + "    \"passback_params\":\"merchantBizType%3d3C%26merchantBizNo%3d2016010101111\","
+    //                 + "    \"extend_params\":{" + "    \"sys_service_provider_id\":\"2088511833207846\"" + "    }"
+    //                 + "  }"); //填充业务参数
+    //         String form = "";
+    //         try {
+    //             form = getAliPayClient().pageExecute(alipayRequest).getBody();  //调用SDK生成表单
+    //         } catch (AlipayApiException e) {
+    //             e.printStackTrace();
+    //         }
+    //         httpResponse.setContentType("text/html;charset=utf-8");
+    //         //直接将完整的表单html输出到页面
+    //         httpResponse.getWriter().write(form);
+    //         httpResponse.getWriter().flush();
+    //         httpResponse.getWriter().close();
+    //     } catch (Exception e) {
+    //
+    //     }
+    // }
 
     /**
      * 统一收单线下交易查询

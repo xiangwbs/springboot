@@ -38,6 +38,8 @@ import com.xwbing.util.DateUtil2;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * 支付宝侧账单
+ *
  * @author daofeng
  * @version $Id$
  * @since 2020年05月19日 下午3:15

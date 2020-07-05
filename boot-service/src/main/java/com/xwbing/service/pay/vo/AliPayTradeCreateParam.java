@@ -45,7 +45,7 @@ public class AliPayTradeCreateParam {
      * 1m～15d。m-分钟，h-小时，d-天
      */
     @JSONField(name = "timeout_express")
-    private String timeoutExpress = "10m";
+    private String timeoutExpress;
     /**
      * hb_fq_num 花呗分期数 仅支持传入 3、6、12
      * hb_fq_seller_percent 卖家承担收费比例 商家承担手续费传入 100，用户承担手续费传入 0，仅支持传入 100、0 两种
