@@ -51,12 +51,13 @@ public class AliPayPagePayParam {
      * 1m～15d。m-分钟，h-小时，d-天
      */
     @JSONField(name = "timeout_express")
-    private String timeoutExpress = "10m";
+    private String timeoutExpress;
     private transient String returnUrl;
 
     public static AliPayPagePayParam build(String outTradeNo, String subject, BigDecimal totalAmount, String returnUrl,
             String quitUrl) {
         return AliPayPagePayParam.builder().outTradeNo(outTradeNo).subject(subject).totalAmount(totalAmount)
-                .returnUrl(returnUrl).quitUrl(quitUrl).productCode("FAST_INSTANT_TRADE_PAY ").timeoutExpress("10m").build();
+                .returnUrl(returnUrl).quitUrl(quitUrl).productCode("FAST_INSTANT_TRADE_PAY ").timeoutExpress("10m")
+                .build();
     }
 }

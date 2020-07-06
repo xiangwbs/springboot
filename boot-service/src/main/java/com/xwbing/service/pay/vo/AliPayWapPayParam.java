@@ -52,6 +52,9 @@ public class AliPayWapPayParam {
      */
     @JSONField(name = "timeout_express")
     private String timeoutExpress;
+    /**
+     * 页面跳转同步通知页面地址
+     */
     private transient String returnUrl;
 
     public static AliPayWapPayParam build(String outTradeNo, String subject, BigDecimal totalAmount, String returnUrl,

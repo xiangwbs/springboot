@@ -138,7 +138,6 @@ public class AliPayTradeService extends AliPayBaseService {
             throw new PayException("手机网站支付支付异常");
         }
     }
-
     // public void pagePay(HttpServletResponse httpResponse) {
     //     try {
     //         AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
