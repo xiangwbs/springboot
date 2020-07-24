@@ -54,7 +54,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
     @Resource
     private AliPayBillRecordMapper aliPayBillRecordMapper;
     @Resource
-    private AliPayBaseService aliPayBaseService;
+    private AliPayTradeService aliPayTradeService;
 
     @Override
     protected AliPayBillRecordMapper getMapper() {
@@ -100,7 +100,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
                 log.info("loadBill date:{} hasLoad", date);
                 return;
             }
-            String urlStr = aliPayBaseService.queryBillDownloadUrl(date);
+            String urlStr = aliPayTradeService.queryBillDownloadUrl(date);
             if (StringUtils.isEmpty(urlStr)) {
                 throw new BusinessException("查询对账单下载地址异常");
             }

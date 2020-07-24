@@ -5,17 +5,17 @@ import javax.annotation.Resource;
 import org.junit.Test;
 
 import com.xwbing.BaseTest;
-import com.xwbing.service.pay.AliPayTransferService;
+import com.xwbing.service.pay.AliPayTradeService;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class PayServiceTest extends BaseTest {
     @Resource
-    private AliPayTransferService aliPayTransferService;
+    private AliPayTradeService aliPayTradeService;
 
     @Test
     public void queryBillDownloadUrl() {
-        aliPayTransferService.queryBillDownloadUrl("2020-06-30");
+        aliPayTradeService.queryBillDownloadUrl("2020-06-30");
     }
 }

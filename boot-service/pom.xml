@@ -125,11 +125,6 @@
 <!--            <scope>system</scope>&lt;!&ndash; 会导致传递依赖中断，本项目打包成的jar包，其他依赖本项目的项目无法传递依赖了 &ndash;&gt;-->
 <!--            <systemPath>${basedir}/src/main/resources/data/alipay-1.0.jar</systemPath>-->
 <!--        </dependency>-->
-        <dependency>
-            <groupId>com.alipay.sdk</groupId>
-            <artifactId>alipay-sdk-java</artifactId>
-            <version>4.9.5.ALL</version>
-        </dependency>
         <!-- 消息队列 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -2,10 +2,14 @@ package com.xwbing.service.pay;
 
 import java.math.BigDecimal;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alipay.api.AlipayClient;
 import com.alipay.api.domain.AlipayFundAccountQueryModel;
 import com.alipay.api.domain.AlipayFundTransCommonQueryModel;
 import com.alipay.api.domain.AlipayFundTransUniTransferModel;
@@ -39,12 +43,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class AliPayTransferService extends AliPayBaseService {
-    private final TradeRecordService tradeRecordService;
-
-    public AliPayTransferService(TradeRecordService tradeRecordService) {
-        this.tradeRecordService = tradeRecordService;
-    }
+public class AliPayTransferService {
+    @Value("${aliPay.userId:}")
+    private String aliPayUserId;
+    @Resource
+    private TradeRecordService tradeRecordService;
+    @Resource(name = "aliPayCertClient")
+    private AlipayClient aliPayCertClient;
 
     /**
      * 查询支付宝账户余额
@@ -57,7 +62,7 @@ public class AliPayTransferService extends AliPayBaseService {
             model.setAlipayUserId(aliPayUserId);
             model.setAccountType("ACCTRANS_ACCOUNT");
             request.setBizModel(model);
-            AlipayFundAccountQueryResponse response = getAliPayCertClient().certificateExecute(request);
+            AlipayFundAccountQueryResponse response = aliPayCertClient.certificateExecute(request);
             log.info("accountQuery response:{}", JSONObject.toJSONString(response));
             if (response.isSuccess()) {
                 return new BigDecimal(response.getAvailableAmount());
@@ -139,7 +144,7 @@ public class AliPayTransferService extends AliPayBaseService {
             model.setPayeeInfo(participant);
             request.setBizModel(model);
             log.info("transfer orderId:{} request:{}", orderId, JSONObject.toJSONString(request));
-            AlipayFundTransUniTransferResponse response = getAliPayCertClient().certificateExecute(request);
+            AlipayFundTransUniTransferResponse response = aliPayCertClient.certificateExecute(request);
             log.info("transfer orderId:{} response:{}", orderId, JSONObject.toJSONString(response));
             //转账失败接口会直接同步返回错误，只要判断status=SUCCESS即可，如果出现其他都是不成功的
             if (response.isSuccess() && TransferStatusEnum.SUCCESS.getCode().equals(response.getStatus())) {
@@ -175,7 +180,7 @@ public class AliPayTransferService extends AliPayBaseService {
             model.setOutBizNo(orderId);
             request.setBizModel(model);
             log.info("transferQuery orderId:{}", orderId);
-            AlipayFundTransCommonQueryResponse response = getAliPayCertClient().certificateExecute(request);
+            AlipayFundTransCommonQueryResponse response = aliPayCertClient.certificateExecute(request);
             log.info("transferQuery orderId:{} response:{}", orderId, JSONObject.toJSONString(response));
             return response;
         } catch (Exception e) {

@@ -73,7 +73,7 @@ public class AliPayController {
     }
 
     @ApiOperation(value = "退款", response = RestMessageVo.class)
-    @GetMapping("tradeRefund")
+    @PostMapping("tradeRefund")
     public AliPayTradeRefundResult tradeRefund(@RequestBody AliPayTradeRefundParam param) {
         return aliPayTradeService.tradeRefund(param);
     }

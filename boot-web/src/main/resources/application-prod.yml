@@ -45,4 +45,7 @@ boot:
 swagger:
   enable: false
 
+aliPay:
+  payGateWay: XX
+
 

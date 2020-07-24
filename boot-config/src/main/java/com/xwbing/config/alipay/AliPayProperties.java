@@ -1,0 +1,36 @@
+package com.xwbing.config.alipay;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import lombok.Data;
+
+/**
+ * @author daofeng
+ * @version $Id$
+ * @since 2020年07月24日 下午9:33
+ */
+@Data
+@ConfigurationProperties(prefix = AliPayProperties.PREFIX)
+public class AliPayProperties {
+    public static final String PREFIX = "aliPay";
+    /**
+     * 支付宝网关
+     */
+    private String serverUrl;
+    /**
+     * 支付宝分配给开发者的应用ID
+     */
+    private String appId;
+    /**
+     * 支付宝证书路径
+     */
+    private String certificatePath;
+    /**
+     * 支付宝公钥
+     */
+    private String aliPayPublicKey;
+    /**
+     * 应用私钥
+     */
+    private String appPrivateKey;
+}
