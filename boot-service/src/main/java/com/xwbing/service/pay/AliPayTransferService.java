@@ -1,13 +1,15 @@
 package com.xwbing.service.pay;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alipay.api.domain.AlipayFundAccountQueryModel;
+import com.alipay.api.domain.AlipayFundTransCommonQueryModel;
+import com.alipay.api.domain.AlipayFundTransUniTransferModel;
+import com.alipay.api.domain.Participant;
 import com.alipay.api.request.AlipayFundAccountQueryRequest;
 import com.alipay.api.request.AlipayFundTransCommonQueryRequest;
 import com.alipay.api.request.AlipayFundTransUniTransferRequest;
@@ -51,11 +53,10 @@ public class AliPayTransferService extends AliPayBaseService {
         try {
             log.info("accountQuery start");
             AlipayFundAccountQueryRequest request = new AlipayFundAccountQueryRequest();
-            Map<String, Object> bizContent = new HashMap<>(2);
-            bizContent.put("alipay_user_id", aliPayUserId);
-            //查询的账号类型 查询余额账户
-            bizContent.put("account_type", "ACCTRANS_ACCOUNT");
-            request.setBizContent(JSONObject.toJSONString(bizContent));
+            AlipayFundAccountQueryModel model = new AlipayFundAccountQueryModel();
+            model.setAlipayUserId(aliPayUserId);
+            model.setAccountType("ACCTRANS_ACCOUNT");
+            request.setBizModel(model);
             AlipayFundAccountQueryResponse response = getAliPayCertClient().certificateExecute(request);
             log.info("accountQuery response:{}", JSONObject.toJSONString(response));
             if (response.isSuccess()) {
@@ -124,22 +125,19 @@ public class AliPayTransferService extends AliPayBaseService {
     private Boolean transfer(String payAccount, String name, String orderId, BigDecimal amount, String title) {
         try {
             AlipayFundTransUniTransferRequest request = new AlipayFundTransUniTransferRequest();
-            Map<String, Object> bizContent = new HashMap<>(6);
-            bizContent.put("out_biz_no", orderId);
-            bizContent.put("trans_amount", amount);
-            //业务产品码 单笔无密转账到支付宝账户
-            bizContent.put("product_code", "TRANS_ACCOUNT_NO_PWD");
-            //业务场景 单笔无密转账到支付宝
-            bizContent.put("biz_scene", "DIRECT_TRANSFER");
-            bizContent.put("order_title", title);
+            AlipayFundTransUniTransferModel model = new AlipayFundTransUniTransferModel();
+            model.setOutBizNo(orderId);
+            model.setTransAmount(amount.toString());
+            model.setProductCode("TRANS_ACCOUNT_NO_PWD");
+            model.setBizScene("DIRECT_TRANSFER");
+            model.setOrderTitle(title);
             //收款方信息
-            Map<String, Object> payeeInfo = new HashMap<>(3);
-            //参与方的标识类型 支付宝登录号
-            payeeInfo.put("identity_type", "ALIPAY_LOGON_ID");
-            payeeInfo.put("identity", payAccount);
-            payeeInfo.put("name", name);
-            bizContent.put("payee_info", payeeInfo);
-            request.setBizContent(JSONObject.toJSONString(bizContent));
+            Participant participant = new Participant();
+            participant.setIdentityType("ALIPAY_LOGON_ID");
+            participant.setIdentity(payAccount);
+            participant.setName(name);
+            model.setPayeeInfo(participant);
+            request.setBizModel(model);
             log.info("transfer orderId:{} request:{}", orderId, JSONObject.toJSONString(request));
             AlipayFundTransUniTransferResponse response = getAliPayCertClient().certificateExecute(request);
             log.info("transfer orderId:{} response:{}", orderId, JSONObject.toJSONString(response));
@@ -169,13 +167,13 @@ public class AliPayTransferService extends AliPayBaseService {
     private AlipayFundTransCommonQueryResponse transferQuery(String orderId) {
         try {
             AlipayFundTransCommonQueryRequest request = new AlipayFundTransCommonQueryRequest();
-            Map<String, Object> bizContent = new HashMap<>(3);
+            AlipayFundTransCommonQueryModel model = new AlipayFundTransCommonQueryModel();
             //销售产品码 单笔无密转账到支付宝账户
-            bizContent.put("product_code", "TRANS_ACCOUNT_NO_PWD");
+            model.setProductCode("TRANS_ACCOUNT_NO_PWD");
             //业务场景 B2C现金红包、单笔无密转账
-            bizContent.put("biz_scene", "DIRECT_TRANSFER");
-            bizContent.put("out_biz_no", orderId);
-            request.setBizContent(JSONObject.toJSONString(bizContent));
+            model.setBizScene("DIRECT_TRANSFER");
+            model.setOutBizNo(orderId);
+            request.setBizModel(model);
             log.info("transferQuery orderId:{}", orderId);
             AlipayFundTransCommonQueryResponse response = getAliPayCertClient().certificateExecute(request);
             log.info("transferQuery orderId:{} response:{}", orderId, JSONObject.toJSONString(response));

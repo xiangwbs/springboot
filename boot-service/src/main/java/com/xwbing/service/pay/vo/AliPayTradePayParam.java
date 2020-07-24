@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.alibaba.fastjson.annotation.JSONField;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +22,6 @@ public class AliPayTradePayParam {
     /**
      * 商户订单号
      */
-    @JSONField(name = "out_trade_no")
     private String outTradeNo;
     /**
      * 支付场景
@@ -35,7 +32,6 @@ public class AliPayTradePayParam {
     /**
      * 支付授权码
      */
-    @JSONField(name = "auth_code")
     private String authCode;
     /**
      * 订单标题
@@ -46,31 +42,18 @@ public class AliPayTradePayParam {
      * 单位为元，精确到小数点后两位
      * 取值范围[0.01,100000000]
      */
-    @JSONField(name = "total_amount")
     private BigDecimal totalAmount;
-    /**
-     * 支付超时时间
-     * 1m～15d。m-分钟，h-小时，d-天
-     */
-    @JSONField(name = "timeout_express")
-    private String timeoutExpress;
-    /**
-     * hb_fq_num 花呗分期数 仅支持传入 3、6、12
-     * hb_fq_seller_percent 卖家承担收费比例 商家承担手续费传入 100，用户承担手续费传入 0，仅支持传入 100、0 两种
-     */
-    @JSONField(name = "extend_params")
-    private AliPayExtendParam extendParams;
 
     public static AliPayTradePayParam barCode(String outTradeNo, String authCode, String subject,
-            BigDecimal totalAmount, AliPayExtendParam extendParams) {
+            BigDecimal totalAmount) {
         return AliPayTradePayParam.builder().outTradeNo(outTradeNo).authCode(authCode).subject(subject)
-                .totalAmount(totalAmount).extendParams(extendParams).scene("bar_code").timeoutExpress("10m").build();
+                .totalAmount(totalAmount).scene("bar_code").build();
     }
 
     public static AliPayTradePayParam waveCode(String outTradeNo, String authCode, String subject,
-            BigDecimal totalAmount, AliPayExtendParam extendParams) {
+            BigDecimal totalAmount) {
         return AliPayTradePayParam.builder().outTradeNo(outTradeNo).authCode(authCode).subject(subject)
-                .totalAmount(totalAmount).extendParams(extendParams).scene("waveCode").timeoutExpress("10m").build();
+                .totalAmount(totalAmount).scene("waveCode").build();
     }
 
     public static String checkParam(AliPayTradePayParam param) {

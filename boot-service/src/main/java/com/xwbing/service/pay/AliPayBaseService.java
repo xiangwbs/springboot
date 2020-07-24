@@ -1,8 +1,5 @@
 package com.xwbing.service.pay;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
@@ -11,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.CertAlipayRequest;
 import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.AlipayDataDataserviceBillDownloadurlQueryModel;
 import com.alipay.api.request.AlipayDataDataserviceBillDownloadurlQueryRequest;
 import com.alipay.api.response.AlipayDataDataserviceBillDownloadurlQueryResponse;
 
@@ -65,7 +63,7 @@ public class AliPayBaseService {
                 }
             }
         }
-        return aliPayCertClient;
+        return alipayClient;
     }
 
     public AlipayClient getAliPayCertClient() {
@@ -108,10 +106,10 @@ public class AliPayBaseService {
         try {
             log.info("queryBillDownloadUrl billDate:{}", billDate);
             AlipayDataDataserviceBillDownloadurlQueryRequest request = new AlipayDataDataserviceBillDownloadurlQueryRequest();
-            Map<String, Object> bizContent = new HashMap<>(2);
-            bizContent.put("bill_type", "signcustomer");
-            bizContent.put("bill_date", billDate);
-            request.setBizContent(JSONObject.toJSONString(bizContent));
+            AlipayDataDataserviceBillDownloadurlQueryModel model = new AlipayDataDataserviceBillDownloadurlQueryModel();
+            model.setBillType("signcustomer");
+            model.setBillDate(billDate);
+            request.setBizModel(model);
             AlipayDataDataserviceBillDownloadurlQueryResponse response = getAliPayClient().execute(request);
             log.info("queryBillDownloadUrl response:{}", JSONObject.toJSONString(response));
             if (response.isSuccess()) {

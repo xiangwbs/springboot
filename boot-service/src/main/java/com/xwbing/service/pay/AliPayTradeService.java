@@ -10,6 +10,12 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alipay.api.domain.AlipayTradeCreateModel;
+import com.alipay.api.domain.AlipayTradeFastpayRefundQueryModel;
+import com.alipay.api.domain.AlipayTradePayModel;
+import com.alipay.api.domain.AlipayTradeQueryModel;
+import com.alipay.api.domain.AlipayTradeRefundModel;
+import com.alipay.api.domain.AlipayTradeWapPayModel;
 import com.alipay.api.request.AlipayTradeCreateRequest;
 import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
 import com.alipay.api.request.AlipayTradePayRequest;
@@ -58,14 +64,20 @@ public class AliPayTradeService extends AliPayBaseService {
     public AliPayTradeCreateResult tradeCreate(AliPayTradeCreateParam param) {
         String outTradeNo = param.getOutTradeNo();
         try {
+            AlipayTradeCreateModel model = new AlipayTradeCreateModel();
+            model.setOutTradeNo(param.getOutTradeNo());
+            model.setSubject(param.getSubject());
+            model.setBuyerId(param.getBuyerId());
+            model.setTotalAmount(param.getTotalAmount().toString());
+            model.setTimeoutExpress("10m");
             AlipayTradeCreateRequest request = new AlipayTradeCreateRequest();
             //异步回调通知地址
             if (StringUtils.isNotEmpty(notifyUrl)) {
                 request.setNotifyUrl(notifyUrl + "/payNotice/aliPay/tradeCreate");
             }
-            request.setBizContent(JSONObject.toJSONString(param));
+            request.setBizModel(model);
             log.info("tradeCreate outTradeNo:{} request:{}", outTradeNo, JSONObject.toJSONString(request));
-            AlipayTradeCreateResponse response = getAliPayClient().execute(request);
+            AlipayTradeCreateResponse response = getAliPayCertClient().certificateExecute(request);
             log.info("tradeCreate outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
             return response.isSuccess() ?
                     AliPayTradeCreateResult.ofSuccess(response) :
@@ -87,6 +99,13 @@ public class AliPayTradeService extends AliPayBaseService {
     public AliPayTradePayResult tradePay(AliPayTradePayParam param) {
         String outTradeNo = param.getOutTradeNo();
         try {
+            AlipayTradePayModel model = new AlipayTradePayModel();
+            model.setOutTradeNo(param.getOutTradeNo());
+            model.setSubject(param.getSubject());
+            model.setScene(param.getScene());
+            model.setAuthCode(param.getAuthCode());
+            model.setTotalAmount(param.getTotalAmount().toString());
+            model.setTimeoutExpress("10m");
             String checkResult = AliPayTradePayParam.checkParam(param);
             if (StringUtils.isNotEmpty(checkResult)) {
                 throw new PayException(checkResult);
@@ -95,8 +114,8 @@ public class AliPayTradeService extends AliPayBaseService {
             if (StringUtils.isNotEmpty(notifyUrl)) {
                 request.setNotifyUrl(notifyUrl + "/payNotice/aliPay/tradePay");
             }
-            request.setBizContent(JSONObject.toJSONString(param));
-            AlipayTradePayResponse response = getAliPayClient().execute(request);
+            request.setBizModel(model);
+            AlipayTradePayResponse response = getAliPayCertClient().certificateExecute(request);
             log.info("tradePay outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
             return response.isSuccess() ?
                     AliPayTradePayResult.ofSuccess(response) :
@@ -117,6 +136,13 @@ public class AliPayTradeService extends AliPayBaseService {
         String outTradeNo = param.getOutTradeNo();
         try {
             log.info("wapPay outTradeNo:{} param:{}", outTradeNo, JSONObject.toJSONString(param));
+            AlipayTradeWapPayModel model = new AlipayTradeWapPayModel();
+            model.setOutTradeNo(param.getOutTradeNo());
+            model.setTotalAmount(param.getTotalAmount().toString());
+            model.setSubject(param.getSubject());
+            model.setQuitUrl(param.getQuitUrl());
+            model.setProductCode("QUICK_WAP_WAY");
+            model.setTimeoutExpress("10m");
             AlipayTradeWapPayRequest request = new AlipayTradeWapPayRequest();
             if (StringUtils.isNotEmpty(notifyUrl)) {
                 request.setNotifyUrl(notifyUrl + "/payNotice/aliPay/tradePay");
@@ -124,8 +150,8 @@ public class AliPayTradeService extends AliPayBaseService {
             if (StringUtils.isNotEmpty(param.getReturnUrl())) {
                 request.setReturnUrl(param.getReturnUrl());
             }
-            request.setBizContent(JSONObject.toJSONString(param));
-            AlipayTradeWapPayResponse response = getAliPayClient().pageExecute(request);
+            request.setBizModel(model);
+            AlipayTradeWapPayResponse response = getAliPayCertClient().pageExecute(request);
             log.info("wapPay outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
             String form = response.getBody();
             httpResponse.setContentType("text/html;charset=utf-8");
@@ -181,16 +207,16 @@ public class AliPayTradeService extends AliPayBaseService {
             if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(tradeNo)) {
                 throw new PayException("商户订单号和支付宝交易号不能同时为空");
             }
-            AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
-            JSONObject jsonObject = new JSONObject();
+            AlipayTradeQueryModel model = new AlipayTradeQueryModel();
             if (StringUtils.isNotEmpty(outTradeNo)) {
-                jsonObject.put("out_trade_no", outTradeNo);
+                model.setOutTradeNo(outTradeNo);
             }
             if (StringUtils.isNotEmpty(tradeNo)) {
-                jsonObject.put("trade_no", tradeNo);
+                model.setTradeNo(tradeNo);
             }
-            request.setBizContent(jsonObject.toString());
-            AlipayTradeQueryResponse response = getAliPayClient().execute(request);
+            AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+            request.setBizModel(model);
+            AlipayTradeQueryResponse response = getAliPayCertClient().certificateExecute(request);
             log.info("tradeQuery outTradeNo:{} tradeNo:{} response:{}", outTradeNo, tradeNo,
                     JSONObject.toJSONString(response));
             return response.isSuccess() ?
@@ -205,34 +231,40 @@ public class AliPayTradeService extends AliPayBaseService {
     /**
      * 统一收单交易退款
      *
-     * @param request
+     * @param param
      *
      * @return
      */
-    public AliPayTradeRefundResult tradeRefund(AliPayTradeRefundParam request) {
-        String outTradeNo = request.getOutTradeNo();
+    public AliPayTradeRefundResult tradeRefund(AliPayTradeRefundParam param) {
+        String outTradeNo = param.getOutTradeNo();
         try {
-            log.info("tradeRefund outTradeNo:{} request:{}", outTradeNo, JSONObject.toJSONString(request));
-            if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(request.getTradeNo())) {
+            log.info("tradeRefund outTradeNo:{} param:{}", outTradeNo, JSONObject.toJSONString(param));
+            if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(param.getTradeNo())) {
                 throw new PayException("商户订单号和支付宝交易号不能同时为空");
             }
-            BigDecimal refundAmount = request.getRefundAmount();
+            BigDecimal refundAmount = param.getRefundAmount();
             if (refundAmount == null) {
                 throw new PayException("退款金额不能为空");
             }
             if (refundAmount.compareTo(BigDecimal.ZERO) < 1) {
                 throw new PayException("退款金额不能为小于0");
             }
-            AlipayTradeRefundRequest refundRequest = new AlipayTradeRefundRequest();
-            refundRequest.setBizContent(JSONObject.toJSONString(request));
-            AlipayTradeRefundResponse response = getAliPayClient().execute(refundRequest);
-            log.info("tradeRefund outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(request),
+            AlipayTradeRefundModel model = new AlipayTradeRefundModel();
+            model.setOutTradeNo(param.getOutTradeNo());
+            model.setTradeNo(param.getTradeNo());
+            model.setOutRequestNo(param.getOutRequestNo());
+            model.setRefundAmount(param.getRefundAmount().toString());
+            model.setRefundReason(param.getRefundReason());
+            AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
+            request.setBizModel(model);
+            AlipayTradeRefundResponse response = getAliPayCertClient().certificateExecute(request);
+            log.info("tradeRefund outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(param),
                     JSONObject.toJSONString(response));
             return response.isSuccess() && "Y".equals(response.getFundChange()) ?
                     AliPayTradeRefundResult.ofSuccess(response) :
                     AliPayTradeRefundResult.ofFail(response);
         } catch (Exception e) {
-            log.error("tradeRefund outTradeNo:{} error", outTradeNo, JSONObject.toJSONString(request), e);
+            log.error("tradeRefund outTradeNo:{} error", outTradeNo, JSONObject.toJSONString(param), e);
             return AliPayTradeRefundResult.ofError();
         }
     }
@@ -253,18 +285,18 @@ public class AliPayTradeService extends AliPayBaseService {
             if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(tradeNo)) {
                 throw new PayException("商户订单号和支付宝交易号不能同时为空!");
             }
-            AlipayTradeFastpayRefundQueryRequest request = new AlipayTradeFastpayRefundQueryRequest();
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("out_request_no", outRequestNo);
+            AlipayTradeFastpayRefundQueryModel model = new AlipayTradeFastpayRefundQueryModel();
+            model.setOutRequestNo(outRequestNo);
             if (StringUtils.isNotEmpty(outTradeNo)) {
-                jsonObject.put("out_trade_no", outTradeNo);
+                model.setOutTradeNo(outTradeNo);
             }
             if (StringUtils.isNotEmpty(tradeNo)) {
-                jsonObject.put("trade_no", tradeNo);
+                model.setTradeNo(tradeNo);
             }
-            request.setBizContent(jsonObject.toString());
+            AlipayTradeFastpayRefundQueryRequest request = new AlipayTradeFastpayRefundQueryRequest();
+            request.setBizModel(model);
             log.info("refundQuery outRequestNo:{} request:{}", outRequestNo, JSONObject.toJSONString(request));
-            AlipayTradeFastpayRefundQueryResponse response = getAliPayClient().execute(request);
+            AlipayTradeFastpayRefundQueryResponse response = getAliPayCertClient().certificateExecute(request);
             log.info("refundQuery outRequestNo:{} response:{}", outRequestNo, JSONObject.toJSONString(response));
             return response.isSuccess() ?
                     AliPayRefundQueryResult.ofSuccess(response) :
