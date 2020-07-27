@@ -13,21 +13,19 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
-import com.xwbing.service.pay.vo.notify.AliPayTradePayNotifyRequest;
 import com.xwbing.service.pay.enums.AliPayTradeStatusEnum;
+import com.xwbing.service.pay.vo.notify.AliPayTradePayNotifyRequest;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xiangwb
- * @date 20/2/9 16:11
- * 支付宝异步通知处理
  */
 @Slf4j
 @Service
 public class AliPayNotifyService {
-    @Value("${aliPay.aliPayPublicKey}")
-    private String publicKey;
+    @Value("${aliPay.aliPayPublicCertPath}")
+    private String aliPayPublicCertPath;
 
     /**
      * 验签
@@ -37,8 +35,9 @@ public class AliPayNotifyService {
     public void verifyTradePayParam(AliPayTradePayNotifyRequest aliPayTradePayNotifyRequest) {
         String outTradeNo = aliPayTradePayNotifyRequest.getOut_trade_no();
         try {
-            Map<String, String> params = JSONObject.parseObject(JSONObject.toJSONString(aliPayTradePayNotifyRequest), new TypeReference<Map<String, String>>() {
-            });
+            Map<String, String> params = JSONObject.parseObject(JSONObject.toJSONString(aliPayTradePayNotifyRequest),
+                    new TypeReference<Map<String, String>>() {
+                    });
             //去除无效参数
             Iterator<Map.Entry<String, String>> iterator = params.entrySet().iterator();
             while (iterator.hasNext()) {
@@ -49,7 +48,8 @@ public class AliPayNotifyService {
                 }
             }
             //验签
-            boolean flag = AlipaySignature.rsaCheckV1(params, publicKey, "utf-8", aliPayTradePayNotifyRequest.getSign_type());
+            boolean flag = AlipaySignature
+                    .rsaCertCheckV1(params, aliPayPublicCertPath, "utf-8", aliPayTradePayNotifyRequest.getSign_type());
             if (!flag) {
                 log.error("verifyTradeCreateParams {} 验签失败", outTradeNo);
             }

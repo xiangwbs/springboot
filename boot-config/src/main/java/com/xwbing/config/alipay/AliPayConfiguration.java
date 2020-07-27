@@ -25,15 +25,8 @@ public class AliPayConfiguration {
     @Resource
     private AliPayProperties aliPayProperties;
 
-    @Bean(name = "aliPayClient")
-    public AlipayClient getAliPayClient() {
-        return new DefaultAlipayClient(aliPayProperties.getServerUrl(), aliPayProperties.getAppId(),
-                aliPayProperties.getAppPrivateKey(), "json", "UTF-8", aliPayProperties.getAliPayPublicKey(), "RSA2");
-
-    }
-
-    @Bean(name = "aliPayCertClient")
-    @ConditionalOnExpression("!'${aliPay.certificatePath:}'.empty")
+    @Bean
+    @ConditionalOnExpression("!'${aliPay.aliPayRootCertPath:}'.empty")
     public AlipayClient getAliPayCertClient() {
         try {
             CertAlipayRequest certAlipayRequest = new CertAlipayRequest();
@@ -43,10 +36,9 @@ public class AliPayConfiguration {
             certAlipayRequest.setFormat("json");
             certAlipayRequest.setCharset("UTF-8");
             certAlipayRequest.setSignType("RSA2");
-            certAlipayRequest.setCertPath(aliPayProperties.getCertificatePath() + "/appCertPublicKey.crt");
-            certAlipayRequest
-                    .setAlipayPublicCertPath(aliPayProperties.getCertificatePath() + "/alipayCertPublicKey_RSA2.crt");
-            certAlipayRequest.setRootCertPath(aliPayProperties.getCertificatePath() + "/alipayRootCert.crt");
+            certAlipayRequest.setCertPath(aliPayProperties.getAppCertPublicKeyPath());
+            certAlipayRequest.setAlipayPublicCertPath(aliPayProperties.getAliPayPublicCertPath());
+            certAlipayRequest.setRootCertPath(aliPayProperties.getAliPayRootCertPath());
             return new DefaultAlipayClient(certAlipayRequest);
         } catch (Exception e) {
             log.error("initAliPayCertClient error", e);

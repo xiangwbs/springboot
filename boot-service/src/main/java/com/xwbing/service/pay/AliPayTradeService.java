@@ -65,7 +65,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AliPayTradeService {
     @Value("${aliPay.payGateWay:}")
     private String payGateWay;
-    @Resource(name = "aliPayCertClient")
+    @Resource
     private AlipayClient aliPayCertClient;
 
     /**

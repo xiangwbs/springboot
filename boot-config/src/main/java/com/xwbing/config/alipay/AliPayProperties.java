@@ -22,13 +22,17 @@ public class AliPayProperties {
      */
     private String appId;
     /**
-     * 支付宝证书路径
+     * 应用公钥证书
      */
-    private String certificatePath;
+    private String appCertPublicKeyPath;
     /**
-     * 支付宝公钥
+     * 支付宝公钥证书
      */
-    private String aliPayPublicKey;
+    private String aliPayPublicCertPath;
+    /**
+     * 支付宝根证书
+     */
+    private String aliPayRootCertPath;
     /**
      * 应用私钥
      */

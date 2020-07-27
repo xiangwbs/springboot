@@ -48,7 +48,7 @@ public class AliPayTransferService {
     private String aliPayUserId;
     @Resource
     private TradeRecordService tradeRecordService;
-    @Resource(name = "aliPayCertClient")
+    @Resource
     private AlipayClient aliPayCertClient;
 
     /**
