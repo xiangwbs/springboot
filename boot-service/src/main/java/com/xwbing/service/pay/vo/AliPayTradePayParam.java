@@ -64,8 +64,8 @@ public class AliPayTradePayParam {
             message = "授权码为空";
         } else if (StringUtils.isEmpty(param.getSubject())) {
             message = "订单标题为空";
-        } else if (param.getTotalAmount().compareTo(BigDecimal.ZERO) < 1) {
-            message = "金额必须大于0";
+        } else if (param.getTotalAmount().compareTo(BigDecimal.valueOf(0.01)) == -1) {
+            message = "金额必须大于等于0.01元";
         } else if (StringUtils.isEmpty(param.getScene())) {
             message = "支付场景为空";
         } else {

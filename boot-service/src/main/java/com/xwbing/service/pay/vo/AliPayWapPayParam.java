@@ -18,6 +18,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AliPayWapPayParam {
     /**
+     * 订单标题
+     */
+    private String subject;
+    /**
      * 商户订单号
      */
     private String outTradeNo;
@@ -27,10 +31,6 @@ public class AliPayWapPayParam {
      * 取值范围[0.01,100000000]
      */
     private BigDecimal totalAmount;
-    /**
-     * 订单标题
-     */
-    private String subject;
     /**
      * 用户付款中途退出返回商户网站的地址
      */

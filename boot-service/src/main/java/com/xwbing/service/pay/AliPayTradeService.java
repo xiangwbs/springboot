@@ -1,6 +1,7 @@
 package com.xwbing.service.pay;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -14,28 +15,36 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.domain.AlipayDataDataserviceBillDownloadurlQueryModel;
+import com.alipay.api.domain.AlipayTradeCloseModel;
 import com.alipay.api.domain.AlipayTradeCreateModel;
 import com.alipay.api.domain.AlipayTradeFastpayRefundQueryModel;
+import com.alipay.api.domain.AlipayTradePagePayModel;
 import com.alipay.api.domain.AlipayTradePayModel;
 import com.alipay.api.domain.AlipayTradeQueryModel;
 import com.alipay.api.domain.AlipayTradeRefundModel;
 import com.alipay.api.domain.AlipayTradeWapPayModel;
 import com.alipay.api.request.AlipayDataDataserviceBillDownloadurlQueryRequest;
+import com.alipay.api.request.AlipayTradeCloseRequest;
 import com.alipay.api.request.AlipayTradeCreateRequest;
 import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
+import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.alipay.api.request.AlipayTradePayRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.alipay.api.response.AlipayDataDataserviceBillDownloadurlQueryResponse;
+import com.alipay.api.response.AlipayTradeCloseResponse;
 import com.alipay.api.response.AlipayTradeCreateResponse;
 import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
+import com.alipay.api.response.AlipayTradePagePayResponse;
 import com.alipay.api.response.AlipayTradePayResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.alipay.api.response.AlipayTradeWapPayResponse;
 import com.xwbing.exception.PayException;
+import com.xwbing.service.pay.vo.AliPayPagePayParam;
 import com.xwbing.service.pay.vo.AliPayRefundQueryResult;
+import com.xwbing.service.pay.vo.AliPayTradeCloseResult;
 import com.xwbing.service.pay.vo.AliPayTradeCreateParam;
 import com.xwbing.service.pay.vo.AliPayTradeCreateResult;
 import com.xwbing.service.pay.vo.AliPayTradePayParam;
@@ -48,8 +57,6 @@ import com.xwbing.service.pay.vo.AliPayWapPayParam;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 当面付
- *
  * @author xwbing
  */
 @Slf4j
@@ -72,11 +79,15 @@ public class AliPayTradeService {
     public AliPayTradeCreateResult tradeCreate(AliPayTradeCreateParam param) {
         String outTradeNo = param.getOutTradeNo();
         try {
+            String checkResult = AliPayTradeCreateParam.checkParam(param);
+            if (StringUtils.isNotEmpty(checkResult)) {
+                throw new PayException(checkResult);
+            }
             AlipayTradeCreateModel model = new AlipayTradeCreateModel();
             model.setOutTradeNo(param.getOutTradeNo());
+            model.setTotalAmount(param.getTotalAmount().toString());
             model.setSubject(param.getSubject());
             model.setBuyerId(param.getBuyerId());
-            model.setTotalAmount(param.getTotalAmount().toString());
             model.setTimeoutExpress("10m");
             AlipayTradeCreateRequest request = new AlipayTradeCreateRequest();
             //异步回调通知地址
@@ -92,7 +103,49 @@ public class AliPayTradeService {
                     AliPayTradeCreateResult.ofFail(response);
         } catch (Exception e) {
             log.error("tradeCreate outTradeNo:{} error", outTradeNo, e);
+            if (e instanceof PayException) {
+                ExceptionUtils.rethrow(e);
+            }
             return AliPayTradeCreateResult.ofError();
+        }
+    }
+
+    /**
+     * 统一收单交易关闭
+     * 用于交易创建后，用户在一定时间内未进行支付，可调用该接口直接将未付款的交易进行关闭
+     *
+     * @param outTradeNo
+     * @param tradeNo
+     *
+     * @return
+     */
+    public AliPayTradeCloseResult tradeClose(String outTradeNo, String tradeNo) {
+        try {
+            log.info("tradeClose outTradeNo:{} tradeNo:{}", outTradeNo, tradeNo);
+            if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(tradeNo)) {
+                throw new PayException("商户订单号和支付宝交易号不能同时为空");
+            }
+            AlipayTradeCloseModel model = new AlipayTradeCloseModel();
+            if (StringUtils.isNotEmpty(outTradeNo)) {
+                model.setOutTradeNo(outTradeNo);
+            }
+            if (StringUtils.isNotEmpty(tradeNo)) {
+                model.setTradeNo(tradeNo);
+            }
+            AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
+            request.setBizModel(model);
+            AlipayTradeCloseResponse response = aliPayCertClient.certificateExecute(request);
+            log.info("tradeClose outTradeNo:{} tradeNo:{} response:{}", outTradeNo, tradeNo,
+                    JSONObject.toJSONString(response));
+            return response.isSuccess() ?
+                    AliPayTradeCloseResult.ofSuccess(response) :
+                    AliPayTradeCloseResult.ofFail(response);
+        } catch (Exception e) {
+            log.error("tradeClose outTradeNo:{} tradeNo:{} error", outTradeNo, tradeNo, e);
+            if (e instanceof PayException) {
+                ExceptionUtils.rethrow(e);
+            }
+            return AliPayTradeCloseResult.ofError();
         }
     }
 
@@ -107,17 +160,17 @@ public class AliPayTradeService {
     public AliPayTradePayResult tradePay(AliPayTradePayParam param) {
         String outTradeNo = param.getOutTradeNo();
         try {
-            AlipayTradePayModel model = new AlipayTradePayModel();
-            model.setOutTradeNo(param.getOutTradeNo());
-            model.setSubject(param.getSubject());
-            model.setScene(param.getScene());
-            model.setAuthCode(param.getAuthCode());
-            model.setTotalAmount(param.getTotalAmount().toString());
-            model.setTimeoutExpress("10m");
             String checkResult = AliPayTradePayParam.checkParam(param);
             if (StringUtils.isNotEmpty(checkResult)) {
                 throw new PayException(checkResult);
             }
+            AlipayTradePayModel model = new AlipayTradePayModel();
+            model.setOutTradeNo(param.getOutTradeNo());
+            model.setScene(param.getScene());
+            model.setAuthCode(param.getAuthCode());
+            model.setSubject(param.getSubject());
+            model.setTotalAmount(param.getTotalAmount().toString());
+            model.setTimeoutExpress("10m");
             AlipayTradePayRequest request = new AlipayTradePayRequest();
             if (StringUtils.isNotEmpty(payGateWay)) {
                 request.setNotifyUrl(payGateWay + "/payNotice/aliPay/tradePay");
@@ -147,11 +200,10 @@ public class AliPayTradeService {
     public void wapPay(HttpServletResponse httpResponse, AliPayWapPayParam param) {
         String outTradeNo = param.getOutTradeNo();
         try {
-            log.info("wapPay outTradeNo:{} param:{}", outTradeNo, JSONObject.toJSONString(param));
             AlipayTradeWapPayModel model = new AlipayTradeWapPayModel();
+            model.setSubject(param.getSubject());
             model.setOutTradeNo(param.getOutTradeNo());
             model.setTotalAmount(param.getTotalAmount().toString());
-            model.setSubject(param.getSubject());
             model.setQuitUrl(param.getQuitUrl());
             model.setProductCode("QUICK_WAP_WAY");
             model.setTimeoutExpress("10m");
@@ -163,6 +215,7 @@ public class AliPayTradeService {
                 request.setReturnUrl(param.getReturnUrl());
             }
             request.setBizModel(model);
+            log.info("wapPay outTradeNo:{} request:{}", outTradeNo, JSONObject.toJSONString(request));
             AlipayTradeWapPayResponse response = aliPayCertClient.pageExecute(request);
             log.info("wapPay outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
             String form = response.getBody();
@@ -173,7 +226,45 @@ public class AliPayTradeService {
             httpResponse.getWriter().close();
         } catch (Exception e) {
             log.error("wapPay outTradeNo:{} error", outTradeNo, e);
-            throw new PayException("手机网站支付支付异常");
+            throw new PayException("手机网站支付异常");
+        }
+    }
+
+    /**
+     * 电脑网站支付
+     *
+     * @param httpResponse
+     * @param param
+     */
+    public void pagePay(HttpServletResponse httpResponse, AliPayPagePayParam param) {
+        String outTradeNo = param.getOutTradeNo();
+        try {
+            AlipayTradePagePayModel model = new AlipayTradePagePayModel();
+            model.setOutTradeNo(param.getOutTradeNo());
+            model.setTotalAmount(param.getTotalAmount().toString());
+            model.setSubject(param.getSubject());
+            model.setProductCode("FAST_INSTANT_TRADE_PAY");
+            model.setTimeoutExpress("10m");
+            AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
+            if (StringUtils.isNotEmpty(payGateWay)) {
+                request.setNotifyUrl(payGateWay + "/payNotice/aliPay/tradePay");
+            }
+            if (StringUtils.isNotEmpty(param.getReturnUrl())) {
+                request.setReturnUrl(param.getReturnUrl());
+            }
+            request.setBizModel(model);
+            log.info("pagePay outTradeNo:{} request:{}", outTradeNo, JSONObject.toJSONString(request));
+            AlipayTradePagePayResponse response = aliPayCertClient.pageExecute(request);
+            log.info("pagePay outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
+            String form = response.getBody();
+            httpResponse.setContentType("text/html;charset=utf-8");
+            //直接将完整的表单html输出到页面
+            httpResponse.getWriter().write(form);
+            httpResponse.getWriter().flush();
+            httpResponse.getWriter().close();
+        } catch (Exception e) {
+            log.error("pagePay outTradeNo:{} error", outTradeNo, e);
+            throw new PayException("电脑网站支付异常");
         }
     }
 
@@ -208,6 +299,9 @@ public class AliPayTradeService {
                     AliPayTradeQueryResult.ofFail(response);
         } catch (Exception e) {
             log.error("tradeQuery outTradeNo:{} tradeNo:{} error", outTradeNo, tradeNo, e);
+            if (e instanceof PayException) {
+                ExceptionUtils.rethrow(e);
+            }
             return AliPayTradeQueryResult.ofError();
         }
     }
@@ -226,12 +320,9 @@ public class AliPayTradeService {
             if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(param.getTradeNo())) {
                 throw new PayException("商户订单号和支付宝交易号不能同时为空");
             }
-            BigDecimal refundAmount = param.getRefundAmount();
-            if (refundAmount == null) {
-                throw new PayException("退款金额不能为空");
-            }
+            BigDecimal refundAmount = Optional.ofNullable(param.getRefundAmount()).orElse(BigDecimal.ZERO);
             if (refundAmount.compareTo(BigDecimal.ZERO) < 1) {
-                throw new PayException("退款金额不能为小于0");
+                throw new PayException("退款金额不能为小于0元");
             }
             AlipayTradeRefundModel model = new AlipayTradeRefundModel();
             model.setOutTradeNo(param.getOutTradeNo());
@@ -242,13 +333,12 @@ public class AliPayTradeService {
             AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
             request.setBizModel(model);
             AlipayTradeRefundResponse response = aliPayCertClient.certificateExecute(request);
-            log.info("tradeRefund outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(param),
-                    JSONObject.toJSONString(response));
+            log.info("tradeRefund outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
             return response.isSuccess() && "Y".equals(response.getFundChange()) ?
                     AliPayTradeRefundResult.ofSuccess(response) :
                     AliPayTradeRefundResult.ofFail(response);
         } catch (Exception e) {
-            log.error("tradeRefund outTradeNo:{} error", outTradeNo, JSONObject.toJSONString(param), e);
+            log.error("tradeRefund outTradeNo:{} error", outTradeNo, e);
             if (e instanceof PayException) {
                 ExceptionUtils.rethrow(e);
             }
@@ -290,6 +380,9 @@ public class AliPayTradeService {
                     AliPayRefundQueryResult.ofFail(response);
         } catch (Exception e) {
             log.error("refundQuery outRequestNo:{} error", outRequestNo, e);
+            if (e instanceof PayException) {
+                ExceptionUtils.rethrow(e);
+            }
             return AliPayRefundQueryResult.ofError();
         }
     }
@@ -322,32 +415,4 @@ public class AliPayTradeService {
         }
         return null;
     }
-    // public void pagePay(HttpServletResponse httpResponse) {
-    //     try {
-    //         AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
-    //         alipayRequest.setReturnUrl("http://domain.com/CallBack/return_url.jsp");
-    //         alipayRequest.setNotifyUrl("http://domain.com/CallBack/notify_url.jsp");
-    //         alipayRequest.putOtherTextParam("app_auth_token",
-    //                 "201611BB8xxxxxxxxxxxxxxxxxxxedcecde6");//如果 ISV 代商家接入电脑网站支付能力，则需要传入 app_auth_token，使用第三方应用授权；自研开发模式请忽略
-    //         alipayRequest.setBizContent("{" + "    \"out_trade_no\":\"20150320010101001\","
-    //                 + "    \"product_code\":\"FAST_INSTANT_TRADE_PAY\"," + "    \"total_amount\":88.88,"
-    //                 + "    \"subject\":\"Iphone6 16G\"," + "    \"body\":\"Iphone6 16G\","
-    //                 + "    \"passback_params\":\"merchantBizType%3d3C%26merchantBizNo%3d2016010101111\","
-    //                 + "    \"extend_params\":{" + "    \"sys_service_provider_id\":\"2088511833207846\"" + "    }"
-    //                 + "  }"); //填充业务参数
-    //         String form = "";
-    //         try {
-    //             form = getAliPayClient().pageExecute(alipayRequest).getBody();  //调用SDK生成表单
-    //         } catch (AlipayApiException e) {
-    //             e.printStackTrace();
-    //         }
-    //         httpResponse.setContentType("text/html;charset=utf-8");
-    //         //直接将完整的表单html输出到页面
-    //         httpResponse.getWriter().write(form);
-    //         httpResponse.getWriter().flush();
-    //         httpResponse.getWriter().close();
-    //     } catch (Exception e) {
-    //
-    //     }
-    // }
 }

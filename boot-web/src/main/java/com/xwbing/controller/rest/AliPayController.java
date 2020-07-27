@@ -9,11 +9,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.xwbing.domain.entity.vo.RestMessageVo;
 import com.xwbing.service.pay.AliPayTradeService;
 import com.xwbing.service.pay.AliPayTransferService;
+import com.xwbing.service.pay.vo.AliPayPagePayParam;
+import com.xwbing.service.pay.vo.AliPayTradeCloseResult;
 import com.xwbing.service.pay.vo.AliPayTradeCreateParam;
 import com.xwbing.service.pay.vo.AliPayTradeCreateResult;
 import com.xwbing.service.pay.vo.AliPayTradePayParam;
@@ -54,6 +57,12 @@ public class AliPayController {
         return aliPayTradeService.tradeCreate(param);
     }
 
+    @ApiOperation(value = "交易关闭", response = RestMessageVo.class)
+    @PostMapping("tradeClose")
+    public AliPayTradeCloseResult tradeClose(String outTradeNo, String tradeNo) {
+        return aliPayTradeService.tradeClose(outTradeNo, tradeNo);
+    }
+
     @ApiOperation(value = "当面付", response = RestMessageVo.class)
     @PostMapping("tradePay")
     public AliPayTradePayResult tradePayNotify(@RequestBody AliPayTradePayParam param) {
@@ -62,8 +71,14 @@ public class AliPayController {
 
     @ApiOperation(value = "手机网站支付", response = RestMessageVo.class)
     @PostMapping("wapPay")
-    public void tradePayNotify(HttpServletResponse httpResponse, @RequestBody AliPayWapPayParam param) {
+    public void wapPay(HttpServletResponse httpResponse, @RequestBody AliPayWapPayParam param) {
         aliPayTradeService.wapPay(httpResponse, param);
+    }
+
+    @ApiOperation(value = "电脑网站支付", response = RestMessageVo.class)
+    @PostMapping("pagePay")
+    public void pagePay(HttpServletResponse httpResponse, @RequestBody AliPayPagePayParam param) {
+        aliPayTradeService.pagePay(httpResponse, param);
     }
 
     @ApiOperation(value = "交易查询", response = RestMessageVo.class)
@@ -76,5 +91,11 @@ public class AliPayController {
     @PostMapping("tradeRefund")
     public AliPayTradeRefundResult tradeRefund(@RequestBody AliPayTradeRefundParam param) {
         return aliPayTradeService.tradeRefund(param);
+    }
+
+    @ApiOperation(value = "查询对账单下载地址", response = RestMessageVo.class)
+    @PostMapping("queryBillDownloadUrl")
+    public String queryBillDownloadUrl(@RequestParam String billDate) {
+        return aliPayTradeService.queryBillDownloadUrl(billDate);
     }
 }

@@ -36,6 +36,10 @@ public class AliPayTradePayResult extends AliPayBaseResult {
      */
     private String buyerLogonId;
     /**
+     * 买家在支付宝的用户id
+     */
+    private String buyerUserId;
+    /**
      * 交易金额
      */
     private String totalAmount;
@@ -51,10 +55,6 @@ public class AliPayTradePayResult extends AliPayBaseResult {
      * 交易支付使用的资金渠道
      */
     private List<TradeFundBill> fundBillList;
-    /**
-     * 买家在支付宝的用户id
-     */
-    private String buyerUserId;
 
     public static AliPayTradePayResult ofSuccess(AlipayTradePayResponse response) {
         return AliPayTradePayResult.builder().success(true).outTradeNo(response.getOutTradeNo())
