@@ -13,6 +13,14 @@ import com.xwbing.exception.UtilException;
 public class DecimalUtil {
     private static final int DEF_DIV_SCALE = 5;
 
+    public static BigDecimal toYuan(Long l) {
+        return BigDecimal.valueOf(l).divide(BigDecimal.valueOf(100), DEF_DIV_SCALE, BigDecimal.ROUND_HALF_UP);
+    }
+
+    public static Long toFen(BigDecimal b) {
+        return b.multiply(BigDecimal.valueOf(100)).longValue();
+    }
+
     /**
      * 两个Double数相加
      *

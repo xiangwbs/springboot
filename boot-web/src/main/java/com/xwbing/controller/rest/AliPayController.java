@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.xwbing.config.clusterseq.ClusterSeqGenerator;
 import com.xwbing.domain.entity.vo.RestMessageVo;
 import com.xwbing.service.pay.AliPayTradeService;
-import com.xwbing.service.pay.AliPayTransferService;
+import com.xwbing.service.pay.TransferService;
 import com.xwbing.service.pay.vo.AliPayPagePayParam;
 import com.xwbing.service.pay.vo.AliPayTradeCloseResult;
 import com.xwbing.service.pay.vo.AliPayTradeCreateParam;
@@ -24,6 +25,7 @@ import com.xwbing.service.pay.vo.AliPayTradePayResult;
 import com.xwbing.service.pay.vo.AliPayTradeQueryResult;
 import com.xwbing.service.pay.vo.AliPayTradeRefundParam;
 import com.xwbing.service.pay.vo.AliPayTradeRefundResult;
+import com.xwbing.service.pay.vo.AliPayTransferParam;
 import com.xwbing.service.pay.vo.AliPayWapPayParam;
 
 import io.swagger.annotations.Api;
@@ -43,12 +45,22 @@ public class AliPayController {
     @Resource
     private AliPayTradeService aliPayTradeService;
     @Resource
-    private AliPayTransferService aliPayTransferService;
+    private TransferService transferService;
+    @Resource
+    private ClusterSeqGenerator clusterSeqGenerator;
 
     @ApiOperation(value = "查询支付宝账户余额", response = RestMessageVo.class)
     @PostMapping("accountQuery")
     public BigDecimal accountQuery() {
-        return aliPayTransferService.accountQuery();
+        return aliPayTradeService.accountQuery();
+    }
+
+    @ApiOperation(value = "转账", response = RestMessageVo.class)
+    @PostMapping("doTransfer")
+    public void doTransfer(@RequestBody AliPayTransferParam param) {
+        String orderNo = clusterSeqGenerator.getSeqId("orderNo") + "";
+        param = param.toBuilder().outBizNo(orderNo).build();
+        transferService.doTransfer(param);
     }
 
     @ApiOperation(value = "交易创建", response = RestMessageVo.class)

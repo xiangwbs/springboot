@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.domain.AlipayDataDataserviceBillDownloadurlQueryModel;
+import com.alipay.api.domain.AlipayFundAccountQueryModel;
+import com.alipay.api.domain.AlipayFundTransCommonQueryModel;
+import com.alipay.api.domain.AlipayFundTransUniTransferModel;
 import com.alipay.api.domain.AlipayTradeCloseModel;
 import com.alipay.api.domain.AlipayTradeCreateModel;
 import com.alipay.api.domain.AlipayTradeFastpayRefundQueryModel;
@@ -23,7 +26,11 @@ import com.alipay.api.domain.AlipayTradePayModel;
 import com.alipay.api.domain.AlipayTradeQueryModel;
 import com.alipay.api.domain.AlipayTradeRefundModel;
 import com.alipay.api.domain.AlipayTradeWapPayModel;
+import com.alipay.api.domain.Participant;
 import com.alipay.api.request.AlipayDataDataserviceBillDownloadurlQueryRequest;
+import com.alipay.api.request.AlipayFundAccountQueryRequest;
+import com.alipay.api.request.AlipayFundTransCommonQueryRequest;
+import com.alipay.api.request.AlipayFundTransUniTransferRequest;
 import com.alipay.api.request.AlipayTradeCloseRequest;
 import com.alipay.api.request.AlipayTradeCreateRequest;
 import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
@@ -33,6 +40,9 @@ import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.alipay.api.response.AlipayDataDataserviceBillDownloadurlQueryResponse;
+import com.alipay.api.response.AlipayFundAccountQueryResponse;
+import com.alipay.api.response.AlipayFundTransCommonQueryResponse;
+import com.alipay.api.response.AlipayFundTransUniTransferResponse;
 import com.alipay.api.response.AlipayTradeCloseResponse;
 import com.alipay.api.response.AlipayTradeCreateResponse;
 import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
@@ -42,6 +52,7 @@ import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.alipay.api.response.AlipayTradeWapPayResponse;
 import com.xwbing.exception.PayException;
+import com.xwbing.service.pay.enums.TransferStatusEnum;
 import com.xwbing.service.pay.vo.AliPayPagePayParam;
 import com.xwbing.service.pay.vo.AliPayRefundQueryResult;
 import com.xwbing.service.pay.vo.AliPayTradeCloseResult;
@@ -52,6 +63,9 @@ import com.xwbing.service.pay.vo.AliPayTradePayResult;
 import com.xwbing.service.pay.vo.AliPayTradeQueryResult;
 import com.xwbing.service.pay.vo.AliPayTradeRefundParam;
 import com.xwbing.service.pay.vo.AliPayTradeRefundResult;
+import com.xwbing.service.pay.vo.AliPayTransferParam;
+import com.xwbing.service.pay.vo.AliPayTransferQueryResult;
+import com.xwbing.service.pay.vo.AliPayTransferResult;
 import com.xwbing.service.pay.vo.AliPayWapPayParam;
 
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +79,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AliPayTradeService {
     @Value("${aliPay.payGateWay:}")
     private String payGateWay;
+    @Value("${aliPay.userId:}")
+    private String aliPayUserId;
     @Resource
     private AlipayClient aliPayCertClient;
 
@@ -385,6 +401,102 @@ public class AliPayTradeService {
             }
             return AliPayRefundQueryResult.ofError();
         }
+    }
+
+    /**
+     * 向指定支付宝账户转账
+     * 转账额度
+     * 单笔限额：转账给个人支付宝账户，单笔最高 5 万元；转账给企业支付宝账户，单笔最高 10 万元。
+     * 日限额：初始额度为 200 万元，即每日最高可转200万元。
+     * 月限额：初始额度为 3100 万元，即每月最高可转3100万元。
+     *
+     * 相关文档
+     * https://opendocs.alipay.com/open/309/106235
+     * https://opensupport.alipay.com/support/helpcenter/107/201602484934#?ant_source=manual&recommend=84921dbf0458195602513447ca3ca661
+     *
+     * @return
+     */
+    public AliPayTransferResult transfer(AliPayTransferParam param) {
+        String outBizNo = param.getOutBizNo();
+        try {
+            AlipayFundTransUniTransferRequest request = new AlipayFundTransUniTransferRequest();
+            AlipayFundTransUniTransferModel model = new AlipayFundTransUniTransferModel();
+            model.setOutBizNo(outBizNo);
+            model.setTransAmount(param.getAmount().toString());
+            model.setProductCode("TRANS_ACCOUNT_NO_PWD");
+            model.setBizScene("DIRECT_TRANSFER");
+            model.setOrderTitle(param.getTitle());
+            //收款方信息
+            Participant participant = new Participant();
+            participant.setIdentityType("ALIPAY_LOGON_ID");
+            participant.setIdentity(param.getPayAccount());
+            participant.setName(param.getName());
+            model.setPayeeInfo(participant);
+            request.setBizModel(model);
+            log.info("transfer outBizNo:{} request:{}", outBizNo, JSONObject.toJSONString(request));
+            AlipayFundTransUniTransferResponse response = aliPayCertClient.certificateExecute(request);
+            log.info("transfer outBizNo:{} response:{}", outBizNo, JSONObject.toJSONString(response));
+            //转账失败接口会直接同步返回错误，只要判断status=SUCCESS即可，如果出现其他都是不成功的
+            return response.isSuccess() && TransferStatusEnum.SUCCESS.getCode().equals(response.getStatus()) ?
+                    AliPayTransferResult.ofSuccess(response) :
+                    AliPayTransferResult.ofFail(response);
+        } catch (Exception e) {
+            log.error("transfer outBizNo:{} amount:{} error", outBizNo, param.getAmount(), e);
+            return AliPayTransferResult.ofError();
+        }
+    }
+
+    /**
+     * 查询转账结果
+     *
+     * @param outBizNo 商户转账唯一订单号
+     *
+     * @return
+     */
+    public AliPayTransferQueryResult transferQuery(String outBizNo) {
+        try {
+            AlipayFundTransCommonQueryRequest request = new AlipayFundTransCommonQueryRequest();
+            AlipayFundTransCommonQueryModel model = new AlipayFundTransCommonQueryModel();
+            //销售产品码 单笔无密转账到支付宝账户
+            model.setProductCode("TRANS_ACCOUNT_NO_PWD");
+            //业务场景 B2C现金红包、单笔无密转账
+            model.setBizScene("DIRECT_TRANSFER");
+            model.setOutBizNo(outBizNo);
+            request.setBizModel(model);
+            log.info("transferQuery outBizNo:{}", outBizNo);
+            AlipayFundTransCommonQueryResponse response = aliPayCertClient.certificateExecute(request);
+            log.info("transferQuery outBizNo:{} response:{}", outBizNo, JSONObject.toJSONString(response));
+            //据响应参数status（转账单据状态）、pay_date（支付时间）参数判断
+            return response.isSuccess() && TransferStatusEnum.SUCCESS.getCode().equals(response.getStatus())
+                    && StringUtils.isNotEmpty(response.getPayDate()) ?
+                    AliPayTransferQueryResult.ofSuccess(response) :
+                    AliPayTransferQueryResult.ofFail(response);
+        } catch (Exception e) {
+            log.error("transferQuery outBizNo:{} error", outBizNo, e);
+            return AliPayTransferQueryResult.ofError();
+        }
+    }
+
+    /**
+     * 查询支付宝账户余额
+     */
+    public BigDecimal accountQuery() {
+        try {
+            log.info("accountQuery start");
+            AlipayFundAccountQueryRequest request = new AlipayFundAccountQueryRequest();
+            AlipayFundAccountQueryModel model = new AlipayFundAccountQueryModel();
+            model.setAlipayUserId(aliPayUserId);
+            model.setAccountType("ACCTRANS_ACCOUNT");
+            request.setBizModel(model);
+            AlipayFundAccountQueryResponse response = aliPayCertClient.certificateExecute(request);
+            log.info("accountQuery response:{}", JSONObject.toJSONString(response));
+            if (response.isSuccess()) {
+                return new BigDecimal(response.getAvailableAmount());
+            }
+        } catch (Exception e) {
+            log.error("accountQuery error", e);
+        }
+        return null;
     }
 
     /**

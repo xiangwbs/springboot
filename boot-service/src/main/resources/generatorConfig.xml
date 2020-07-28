@@ -53,7 +53,7 @@
             <property name="rootInterface" value="com.xwbing.domain.mapper.BaseMapper"/>
         </javaClientGenerator>
         <!-- table -->
-        <table tableName="trade_record" domainObjectName="rest.TradeRecord" mapperName="rest.TradeRecordMapper">
+        <table tableName="trade_record" domainObjectName="rest.TradeRecord" mapperName="pay.TradeRecordMapper">
             <generatedKey column="id" sqlStatement="select replace(UUID(), '-', '')" identity="false"/>
         </table>
     </context>

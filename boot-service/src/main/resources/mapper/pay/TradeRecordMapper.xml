@@ -5,8 +5,6 @@
         <id column="id" property="id"/>
         <result column="create_time" property="createTime"/>
         <result column="modified_time" property="modifiedTime"/>
-        <result column="sub_code" property="subCode"/>
-        <result column="sub_msg" property="subMsg"/>
         <result column="out_trade_no" property="outTradeNo"/>
         <result column="trade_no" property="tradeNo"/>
         <result column="paid_date" property="paidDate"/>
@@ -20,13 +18,18 @@
     </sql>
 
     <sql id="Base_Column_List">
-        id, create_time, creator, modified_time, modifier, code, msg, sub_code, sub_msg, 
-        out_trade_no, trade_no, amount, `status`, subject, paid_date, notify_msg, notify_status, 
-        pay_type
+        id, create_time, creator, modified_time, modifier, code, msg, out_trade_no, trade_no, 
+        amount, `status`, subject, paid_date, notify_msg, notify_status, pay_type
     </sql>
 
     <sql id="Condition">
         <where>
+            <if test="tradeNo!=null">
+                trade_no=#{tradeNo}
+            </if>
+            <if test="status!=null">
+                and status=#{status}
+            </if>
         </where>
     </sql>
 
@@ -42,8 +45,6 @@
         modified_time, 
         code, 
         msg, 
-        sub_code, 
-        sub_msg, 
         out_trade_no, 
         trade_no, 
         amount, 
@@ -61,8 +62,6 @@
         now(), 
         #{code}, 
         #{msg}, 
-        #{subCode}, 
-        #{subMsg}, 
         #{outTradeNo}, 
         #{tradeNo}, 
         #{amount}, 
@@ -84,8 +83,6 @@
         modified_time, 
         code, 
         msg, 
-        sub_code, 
-        sub_msg, 
         out_trade_no, 
         trade_no, 
         amount, 
@@ -104,8 +101,6 @@
             now(), 
             #{obj.code}, 
             #{obj.msg}, 
-            #{obj.subCode}, 
-            #{obj.subMsg}, 
             #{obj.outTradeNo}, 
             #{obj.tradeNo}, 
             #{obj.amount}, 
@@ -148,10 +143,7 @@
             <if test="modifier!=null">modifier=#{modifier},</if>
             <if test="code!=null">code=#{code},</if>
             <if test="msg!=null">msg=#{msg},</if>
-            <if test="subCode!=null">sub_code=#{subCode},</if>
-            <if test="subMsg!=null">sub_msg=#{subMsg},</if>
             <if test="outTradeNo!=null">out_trade_no=#{outTradeNo},</if>
-            <if test="tradeNo!=null">trade_no=#{tradeNo},</if>
             <if test="amount!=null">amount=#{amount},</if>
             <if test="status!=null">`status`=#{status},</if>
             <if test="subject!=null">subject=#{subject},</if>
@@ -160,7 +152,7 @@
             <if test="notifyStatus!=null">notify_status=#{notifyStatus},</if>
             <if test="payType!=null">pay_type=#{payType},</if>
         </set>
-        where id = #{id}
+        where trade_no = #{tradeNo}
     </update>
 
     <update id="updateBatch">
@@ -190,20 +182,6 @@
                 <foreach collection="list" item="obj">
                     <if test="obj.msg!=null">
                         when id=#{obj.id} then #{obj.msg}
-                    </if>
-                </foreach>
-            </trim>
-            <trim prefix="sub_code=case" suffix="end,">
-                <foreach collection="list" item="obj">
-                    <if test="obj.subCode!=null">
-                        when id=#{obj.id} then #{obj.subCode}
-                    </if>
-                </foreach>
-            </trim>
-            <trim prefix="sub_msg=case" suffix="end,">
-                <foreach collection="list" item="obj">
-                    <if test="obj.subMsg!=null">
-                        when id=#{obj.id} then #{obj.subMsg}
                     </if>
                 </foreach>
             </trim>

@@ -10,30 +10,24 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
+ * @description 交易流水表
  * @author xiangwb
+ * @date 2020/07/28 14:56
  */
 @SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class TradeRecord extends BaseEntity {
-    private static final long serialVersionUID = 3203895800240700542L;
+    private static final long serialVersionUID = 4817388674992041518L;
     /**
-     * 网关返回码
+     * 返回码
      */
     private String code;
     /**
-     * 网关返回码描述
+     * 返回码描述
      */
     private String msg;
-    /**
-     * 业务返回码
-     */
-    private String subCode;
-    /**
-     * 业务返回码描述
-     */
-    private String subMsg;
     /**
      * 外部交易号
      */
@@ -63,7 +57,7 @@ public class TradeRecord extends BaseEntity {
      */
     private String notifyMsg;
     /**
-     * NotifyStatusEnums
+     * notNotified、notified
      */
     private String notifyStatus;
     /**
