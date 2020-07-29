@@ -37,9 +37,9 @@ public class AliPayTransferQueryResult extends AliPayBaseResult {
     private String status;
 
     public static AliPayTransferQueryResult ofSuccess(AlipayFundTransCommonQueryResponse response) {
-        return AliPayTransferQueryResult.builder().success(true).orderId(response.getOrderId())
-                .outBizNo(response.getOutBizNo()).status(response.getStatus()).payDate(response.getPayDate())
-                .message(response.getMsg()).code(response.getCode()).build();
+        return AliPayTransferQueryResult.builder().success(true).message(response.getMsg()).code(response.getCode())
+                .orderId(response.getOrderId()).outBizNo(response.getOutBizNo()).status(response.getStatus())
+                .payDate(response.getPayDate()).build();
     }
 
     public static AliPayTransferQueryResult ofFail(AlipayFundTransCommonQueryResponse response) {

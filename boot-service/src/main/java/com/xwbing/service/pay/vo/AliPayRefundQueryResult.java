@@ -42,10 +42,10 @@ public class AliPayRefundQueryResult extends AliPayBaseResult {
     private String refundStatus;
 
     public static AliPayRefundQueryResult ofSuccess(AlipayTradeFastpayRefundQueryResponse response) {
-        return AliPayRefundQueryResult.builder().success(true).refundStatus(response.getRefundStatus())
-                .totalAmount(new BigDecimal(response.getTotalAmount()))
+        return AliPayRefundQueryResult.builder().success(true).code(response.getCode()).message(response.getMsg())
+                .refundStatus(response.getRefundStatus()).totalAmount(new BigDecimal(response.getTotalAmount()))
                 .refundAmount(new BigDecimal(response.getRefundAmount())).refundReason(response.getRefundReason())
-                .refundTime(response.getGmtRefundPay()).code(response.getCode()).message(response.getMsg()).build();
+                .refundTime(response.getGmtRefundPay()).build();
     }
 
     public static AliPayRefundQueryResult ofFail(AlipayTradeFastpayRefundQueryResponse response) {

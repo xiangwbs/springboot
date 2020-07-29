@@ -29,8 +29,8 @@ public class AliPayTradeCreateResult extends AliPayBaseResult {
     private String tradeNo;
 
     public static AliPayTradeCreateResult ofSuccess(AlipayTradeCreateResponse response) {
-        return AliPayTradeCreateResult.builder().success(true).outTradeNo(response.getOutTradeNo())
-                .tradeNo(response.getTradeNo()).message(response.getMsg()).code(response.getCode()).build();
+        return AliPayTradeCreateResult.builder().success(true).message(response.getMsg()).code(response.getCode())
+                .outTradeNo(response.getOutTradeNo()).tradeNo(response.getTradeNo()).build();
     }
 
     public static AliPayTradeCreateResult ofFail(AlipayTradeCreateResponse response) {

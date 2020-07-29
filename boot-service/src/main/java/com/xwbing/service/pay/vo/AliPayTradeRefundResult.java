@@ -27,8 +27,8 @@ public class AliPayTradeRefundResult extends AliPayBaseResult {
     private Date refundTime;
 
     public static AliPayTradeRefundResult ofSuccess(AlipayTradeRefundResponse response) {
-        return AliPayTradeRefundResult.builder().success(true).refundTime(response.getGmtRefundPay())
-                .message(response.getMsg()).code(response.getCode()).build();
+        return AliPayTradeRefundResult.builder().success(true).message(response.getMsg()).code(response.getCode())
+                .refundTime(response.getGmtRefundPay()).build();
     }
 
     public static AliPayTradeRefundResult ofFail(AlipayTradeRefundResponse response) {

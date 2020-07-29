@@ -54,7 +54,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
     @Resource
     private AliPayBillRecordMapper aliPayBillRecordMapper;
     @Resource
-    private AliPayTradeService aliPayTradeService;
+    private AliPayService aliPayTradeService;
 
     @Override
     protected AliPayBillRecordMapper getMapper() {

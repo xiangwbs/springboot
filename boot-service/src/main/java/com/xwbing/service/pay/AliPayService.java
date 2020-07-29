@@ -23,6 +23,7 @@ import com.alipay.api.domain.AlipayTradeCreateModel;
 import com.alipay.api.domain.AlipayTradeFastpayRefundQueryModel;
 import com.alipay.api.domain.AlipayTradePagePayModel;
 import com.alipay.api.domain.AlipayTradePayModel;
+import com.alipay.api.domain.AlipayTradePrecreateModel;
 import com.alipay.api.domain.AlipayTradeQueryModel;
 import com.alipay.api.domain.AlipayTradeRefundModel;
 import com.alipay.api.domain.AlipayTradeWapPayModel;
@@ -36,6 +37,7 @@ import com.alipay.api.request.AlipayTradeCreateRequest;
 import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.alipay.api.request.AlipayTradePayRequest;
+import com.alipay.api.request.AlipayTradePrecreateRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.request.AlipayTradeWapPayRequest;
@@ -48,6 +50,7 @@ import com.alipay.api.response.AlipayTradeCreateResponse;
 import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
 import com.alipay.api.response.AlipayTradePagePayResponse;
 import com.alipay.api.response.AlipayTradePayResponse;
+import com.alipay.api.response.AlipayTradePrecreateResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.alipay.api.response.AlipayTradeWapPayResponse;
@@ -60,6 +63,8 @@ import com.xwbing.service.pay.vo.AliPayTradeCreateParam;
 import com.xwbing.service.pay.vo.AliPayTradeCreateResult;
 import com.xwbing.service.pay.vo.AliPayTradePayParam;
 import com.xwbing.service.pay.vo.AliPayTradePayResult;
+import com.xwbing.service.pay.vo.AliPayTradePreCreateParam;
+import com.xwbing.service.pay.vo.AliPayTradePreCreateResult;
 import com.xwbing.service.pay.vo.AliPayTradeQueryResult;
 import com.xwbing.service.pay.vo.AliPayTradeRefundParam;
 import com.xwbing.service.pay.vo.AliPayTradeRefundResult;
@@ -76,7 +81,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @PropertySource("classpath:pay.properties")
-public class AliPayTradeService {
+public class AliPayService {
     @Value("${aliPay.payGateWay:}")
     private String payGateWay;
     @Value("${aliPay.userId:}")
@@ -199,11 +204,47 @@ public class AliPayTradeService {
                     AliPayTradePayResult.ofSuccess(response) :
                     AliPayTradePayResult.ofFail(response);
         } catch (Exception e) {
-            log.error("aliPayTradePay outTradeNo:{} error", outTradeNo, e);
+            log.error("tradePay outTradeNo:{} error", outTradeNo, e);
             if (e instanceof PayException) {
                 ExceptionUtils.rethrow(e);
             }
             return AliPayTradePayResult.ofError();
+        }
+    }
+
+    /**
+     * 统一收单线下交易预创建
+     * 扫码支付
+     *
+     * @param param
+     *
+     * @return
+     */
+    public AliPayTradePreCreateResult tradePreCreate(AliPayTradePreCreateParam param) {
+        String outTradeNo = param.getOutTradeNo();
+        try {
+            AlipayTradePrecreateModel model = new AlipayTradePrecreateModel();
+            model.setOutTradeNo(param.getOutTradeNo());
+            model.setSubject(param.getSubject());
+            model.setTotalAmount(param.getTotalAmount().toString());
+            model.setTimeoutExpress("10m");
+            AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest();
+            if (StringUtils.isNotEmpty(payGateWay)) {
+                request.setNotifyUrl(payGateWay + "/payNotice/aliPay/tradePreCreate");
+            }
+            request.setBizModel(model);
+            log.info("tradePreCreate outTradeNo:{} request:{}", outTradeNo, JSONObject.toJSONString(request));
+            AlipayTradePrecreateResponse response = aliPayCertClient.certificateExecute(request);
+            log.info("tradePreCreate outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
+            return response.isSuccess() ?
+                    AliPayTradePreCreateResult.ofSuccess(response) :
+                    AliPayTradePreCreateResult.ofFail(response);
+        } catch (Exception e) {
+            log.error("tradePreCreate outTradeNo:{} error", outTradeNo, e);
+            if (e instanceof PayException) {
+                ExceptionUtils.rethrow(e);
+            }
+            return AliPayTradePreCreateResult.ofError();
         }
     }
 
@@ -225,7 +266,7 @@ public class AliPayTradeService {
             model.setTimeoutExpress("10m");
             AlipayTradeWapPayRequest request = new AlipayTradeWapPayRequest();
             if (StringUtils.isNotEmpty(payGateWay)) {
-                request.setNotifyUrl(payGateWay + "/payNotice/aliPay/tradePay");
+                request.setNotifyUrl(payGateWay + "/payNotice/aliPay/wapPay");
             }
             if (StringUtils.isNotEmpty(param.getReturnUrl())) {
                 request.setReturnUrl(param.getReturnUrl());
@@ -263,7 +304,7 @@ public class AliPayTradeService {
             model.setTimeoutExpress("10m");
             AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
             if (StringUtils.isNotEmpty(payGateWay)) {
-                request.setNotifyUrl(payGateWay + "/payNotice/aliPay/tradePay");
+                request.setNotifyUrl(payGateWay + "/payNotice/aliPay/pagePay");
             }
             if (StringUtils.isNotEmpty(param.getReturnUrl())) {
                 request.setReturnUrl(param.getReturnUrl());
@@ -405,14 +446,6 @@ public class AliPayTradeService {
 
     /**
      * 向指定支付宝账户转账
-     * 转账额度
-     * 单笔限额：转账给个人支付宝账户，单笔最高 5 万元；转账给企业支付宝账户，单笔最高 10 万元。
-     * 日限额：初始额度为 200 万元，即每日最高可转200万元。
-     * 月限额：初始额度为 3100 万元，即每月最高可转3100万元。
-     *
-     * 相关文档
-     * https://opendocs.alipay.com/open/309/106235
-     * https://opensupport.alipay.com/support/helpcenter/107/201602484934#?ant_source=manual&recommend=84921dbf0458195602513447ca3ca661
      *
      * @return
      */

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.xwbing.config.clusterseq.ClusterSeqGenerator;
 import com.xwbing.domain.entity.vo.RestMessageVo;
-import com.xwbing.service.pay.AliPayTradeService;
+import com.xwbing.service.pay.AliPayService;
 import com.xwbing.service.pay.TransferService;
 import com.xwbing.service.pay.vo.AliPayPagePayParam;
 import com.xwbing.service.pay.vo.AliPayTradeCloseResult;
@@ -22,6 +22,8 @@ import com.xwbing.service.pay.vo.AliPayTradeCreateParam;
 import com.xwbing.service.pay.vo.AliPayTradeCreateResult;
 import com.xwbing.service.pay.vo.AliPayTradePayParam;
 import com.xwbing.service.pay.vo.AliPayTradePayResult;
+import com.xwbing.service.pay.vo.AliPayTradePreCreateParam;
+import com.xwbing.service.pay.vo.AliPayTradePreCreateResult;
 import com.xwbing.service.pay.vo.AliPayTradeQueryResult;
 import com.xwbing.service.pay.vo.AliPayTradeRefundParam;
 import com.xwbing.service.pay.vo.AliPayTradeRefundResult;
@@ -43,7 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("aliPay")
 public class AliPayController {
     @Resource
-    private AliPayTradeService aliPayTradeService;
+    private AliPayService aliPayTradeService;
     @Resource
     private TransferService transferService;
     @Resource
@@ -75,10 +77,16 @@ public class AliPayController {
         return aliPayTradeService.tradeClose(outTradeNo, tradeNo);
     }
 
-    @ApiOperation(value = "当面付", response = RestMessageVo.class)
+    @ApiOperation(value = "条码支付", response = RestMessageVo.class)
     @PostMapping("tradePay")
     public AliPayTradePayResult tradePayNotify(@RequestBody AliPayTradePayParam param) {
         return aliPayTradeService.tradePay(param);
+    }
+
+    @ApiOperation(value = "扫码支付", response = RestMessageVo.class)
+    @PostMapping("tradePreCreate")
+    public AliPayTradePreCreateResult tradePreCreate(@RequestBody AliPayTradePreCreateParam param) {
+        return aliPayTradeService.tradePreCreate(param);
     }
 
     @ApiOperation(value = "手机网站支付", response = RestMessageVo.class)

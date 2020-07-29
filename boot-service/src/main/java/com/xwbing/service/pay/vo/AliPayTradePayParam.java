@@ -44,14 +44,12 @@ public class AliPayTradePayParam {
      */
     private BigDecimal totalAmount;
 
-    public static AliPayTradePayParam barCode(String outTradeNo, String authCode, String subject,
-            BigDecimal totalAmount) {
+    public static AliPayTradePayParam bar(String outTradeNo, String authCode, String subject, BigDecimal totalAmount) {
         return AliPayTradePayParam.builder().outTradeNo(outTradeNo).authCode(authCode).subject(subject)
                 .totalAmount(totalAmount).scene("bar_code").build();
     }
 
-    public static AliPayTradePayParam waveCode(String outTradeNo, String authCode, String subject,
-            BigDecimal totalAmount) {
+    public static AliPayTradePayParam wave(String outTradeNo, String authCode, String subject, BigDecimal totalAmount) {
         return AliPayTradePayParam.builder().outTradeNo(outTradeNo).authCode(authCode).subject(subject)
                 .totalAmount(totalAmount).scene("waveCode").build();
     }

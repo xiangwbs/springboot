@@ -2,7 +2,6 @@ package com.xwbing.service.pay;
 
 import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.xwbing.domain.entity.rest.TradeRecord;
@@ -35,12 +34,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class TransferService {
-    @Value("${aliPay.userId:}")
-    private String aliPayUserId;
     @Resource
     private TradeRecordService tradeRecordService;
     @Resource
-    private AliPayTradeService aliPayTradeService;
+    private AliPayService aliPayTradeService;
 
     /**
      * 转账
@@ -50,6 +47,7 @@ public class TransferService {
      * @return
      */
     public void doTransfer(AliPayTransferParam param) {
+        //@formatter:off
         String tradeNo = param.getOutBizNo();
         //查询支付中流水
         TradeRecord tradeRecord = tradeRecordService.selectByTradeNo(tradeNo, PayStatusEnum.PAYING.getCode());
@@ -57,41 +55,33 @@ public class TransferService {
             return;
         }
         //添加支付中流水
-        tradeRecordService.insertPaying(tradeNo, PayTypeEnum.ALIPAY.getCode(), DecimalUtil.toFen(param.getAmount()),
-                param.getTitle(), null);
+        tradeRecordService.insertPaying(tradeNo, PayTypeEnum.ALIPAY.getCode(), DecimalUtil.toFen(param.getAmount()), param.getTitle(), null);
         //转账
         AliPayTransferResult transfer = aliPayTradeService.transfer(param);
         if (!"unknow-error".equals(transfer.getCode())) {
             if (transfer.isSuccess()) {
-                tradeRecordService.updateSuccess(tradeNo, transfer.getOrderId(),
-                        DateUtil2.strToDate(transfer.getTransDate(), DateUtil2.YYYY_MM_DD_HH_MM_SS), null, null);
+                tradeRecordService.updateSuccess(tradeNo, transfer.getOrderId(), DateUtil2.strToDate(transfer.getTransDate(), DateUtil2.YYYY_MM_DD_HH_MM_SS), null, null);
             } else {
-                tradeRecordService
-                        .updateFail(tradeNo, transfer.getOrderId(), transfer.getCode(), transfer.getMessage(), null,
-                                null);
+                tradeRecordService.updateFail(tradeNo, transfer.getOrderId(), transfer.getCode(), transfer.getMessage(), null, null);
             }
             return;
         }
         //查询转账信息
-        AliPayTransferQueryResult response = aliPayTradeService.transferQuery(tradeNo);
+        AliPayTransferQueryResult query = aliPayTradeService.transferQuery(tradeNo);
         //支付宝接口异常
-        if ("unknow-error".equals(response.getCode())) {
-            tradeRecordService.updateFail(tradeNo, "", response.getCode(), response.getMessage(), null, null);
+        if ("unknow-error".equals(query.getCode())) {
+            tradeRecordService.updateFail(tradeNo, query.getOrderId(), query.getCode(), query.getMessage(), null, null);
             return;
         }
-        if (response.isSuccess()) {
-            tradeRecordService.updateSuccess(tradeNo, response.getOrderId(),
-                    DateUtil2.strToDate(response.getPayDate(), DateUtil2.YYYY_MM_DD_HH_MM_SS), null, null);
+        if (query.isSuccess()) {
+            tradeRecordService.updateSuccess(tradeNo, query.getOrderId(), DateUtil2.strToDate(query.getPayDate(), DateUtil2.YYYY_MM_DD_HH_MM_SS), null, null);
         } else {
             //再次转账
             transfer = aliPayTradeService.transfer(param);
             if (transfer.isSuccess()) {
-                tradeRecordService.updateSuccess(tradeNo, transfer.getOrderId(),
-                        DateUtil2.strToDate(transfer.getTransDate(), DateUtil2.YYYY_MM_DD_HH_MM_SS), null, null);
+                tradeRecordService.updateSuccess(tradeNo, transfer.getOrderId(), DateUtil2.strToDate(transfer.getTransDate(), DateUtil2.YYYY_MM_DD_HH_MM_SS), null, null);
             } else {
-                tradeRecordService
-                        .updateFail(tradeNo, transfer.getOrderId(), response.getCode(), response.getMessage(), null,
-                                null);
+                tradeRecordService.updateFail(tradeNo, transfer.getOrderId(), transfer.getCode(), transfer.getMessage(), null, null);
             }
         }
     }

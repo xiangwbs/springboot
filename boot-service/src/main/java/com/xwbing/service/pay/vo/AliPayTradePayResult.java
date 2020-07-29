@@ -40,6 +40,10 @@ public class AliPayTradePayResult extends AliPayBaseResult {
      */
     private String buyerUserId;
     /**
+     * 买家用户类型。CORPORATE:企业用户；PRIVATE:个人用户。
+     */
+    private String buyerUserType;
+    /**
      * 交易金额
      */
     private String totalAmount;
@@ -47,6 +51,14 @@ public class AliPayTradePayResult extends AliPayBaseResult {
      * 实收金额
      */
     private String receiptAmount;
+    /**
+     * 商家优惠金额
+     */
+    private String mdiscountAmount;
+    /**
+     * 平台优惠金额
+     */
+    private String discountAmount;
     /**
      * 交易支付时间
      */
@@ -57,10 +69,12 @@ public class AliPayTradePayResult extends AliPayBaseResult {
     private List<TradeFundBill> fundBillList;
 
     public static AliPayTradePayResult ofSuccess(AlipayTradePayResponse response) {
-        return AliPayTradePayResult.builder().success(true).outTradeNo(response.getOutTradeNo())
-                .tradeNo(response.getTradeNo()).buyerLogonId(response.getBuyerLogonId())
-                .buyerUserId(response.getBuyerUserId()).totalAmount(response.getTotalAmount())
-                .receiptAmount(response.getReceiptAmount()).gmtPayment(response.getGmtPayment())
+        return AliPayTradePayResult.builder().success(true).code(response.getCode()).message(response.getMsg())
+                .outTradeNo(response.getOutTradeNo()).tradeNo(response.getTradeNo())
+                .buyerLogonId(response.getBuyerLogonId()).buyerUserId(response.getBuyerUserId())
+                .buyerUserType(response.getBuyerUserType()).totalAmount(response.getTotalAmount())
+                .receiptAmount(response.getReceiptAmount()).mdiscountAmount(response.getMdiscountAmount())
+                .discountAmount(response.getDiscountAmount()).gmtPayment(response.getGmtPayment())
                 .fundBillList(response.getFundBillList()).build();
     }
 
