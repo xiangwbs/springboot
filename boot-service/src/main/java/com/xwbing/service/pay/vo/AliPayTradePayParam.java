@@ -43,6 +43,7 @@ public class AliPayTradePayParam {
      * 取值范围[0.01,100000000]
      */
     private BigDecimal totalAmount;
+    private AliPayExtendParam extendParam;
 
     public static AliPayTradePayParam bar(String outTradeNo, String authCode, String subject, BigDecimal totalAmount) {
         return AliPayTradePayParam.builder().outTradeNo(outTradeNo).authCode(authCode).subject(subject)

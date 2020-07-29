@@ -18,6 +18,7 @@ import com.alipay.api.domain.AlipayDataDataserviceBillDownloadurlQueryModel;
 import com.alipay.api.domain.AlipayFundAccountQueryModel;
 import com.alipay.api.domain.AlipayFundTransCommonQueryModel;
 import com.alipay.api.domain.AlipayFundTransUniTransferModel;
+import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.alipay.api.domain.AlipayTradeCloseModel;
 import com.alipay.api.domain.AlipayTradeCreateModel;
 import com.alipay.api.domain.AlipayTradeFastpayRefundQueryModel;
@@ -32,6 +33,7 @@ import com.alipay.api.request.AlipayDataDataserviceBillDownloadurlQueryRequest;
 import com.alipay.api.request.AlipayFundAccountQueryRequest;
 import com.alipay.api.request.AlipayFundTransCommonQueryRequest;
 import com.alipay.api.request.AlipayFundTransUniTransferRequest;
+import com.alipay.api.request.AlipayTradeAppPayRequest;
 import com.alipay.api.request.AlipayTradeCloseRequest;
 import com.alipay.api.request.AlipayTradeCreateRequest;
 import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
@@ -45,6 +47,7 @@ import com.alipay.api.response.AlipayDataDataserviceBillDownloadurlQueryResponse
 import com.alipay.api.response.AlipayFundAccountQueryResponse;
 import com.alipay.api.response.AlipayFundTransCommonQueryResponse;
 import com.alipay.api.response.AlipayFundTransUniTransferResponse;
+import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.alipay.api.response.AlipayTradeCloseResponse;
 import com.alipay.api.response.AlipayTradeCreateResponse;
 import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
@@ -56,6 +59,9 @@ import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.alipay.api.response.AlipayTradeWapPayResponse;
 import com.xwbing.exception.PayException;
 import com.xwbing.service.pay.enums.TransferStatusEnum;
+import com.xwbing.service.pay.vo.AliPayAppPayParam;
+import com.xwbing.service.pay.vo.AliPayAppPayResult;
+import com.xwbing.service.pay.vo.AliPayExtendParam;
 import com.xwbing.service.pay.vo.AliPayPagePayParam;
 import com.xwbing.service.pay.vo.AliPayRefundQueryResult;
 import com.xwbing.service.pay.vo.AliPayTradeCloseResult;
@@ -90,8 +96,10 @@ public class AliPayService {
     private AlipayClient aliPayCertClient;
 
     /**
+     * 当面付
      * 统一收单交易创建
-     * 商户通过该接口进行交易的创建下单
+     * 支持花呗
+     * TRADE_SUCCESS 触发异步通知
      *
      * @param param
      *
@@ -110,6 +118,10 @@ public class AliPayService {
             model.setSubject(param.getSubject());
             model.setBuyerId(param.getBuyerId());
             model.setTimeoutExpress("10m");
+            AliPayExtendParam extendParam = param.getExtendParam();
+            if (extendParam != null) {
+                model.setExtendParams(extendParam.convert());
+            }
             AlipayTradeCreateRequest request = new AlipayTradeCreateRequest();
             //异步回调通知地址
             if (StringUtils.isNotEmpty(payGateWay)) {
@@ -132,89 +144,11 @@ public class AliPayService {
     }
 
     /**
-     * 统一收单交易关闭
-     * 用于交易创建后，用户在一定时间内未进行支付，可调用该接口直接将未付款的交易进行关闭
-     *
-     * @param outTradeNo
-     * @param tradeNo
-     *
-     * @return
-     */
-    public AliPayTradeCloseResult tradeClose(String outTradeNo, String tradeNo) {
-        try {
-            log.info("tradeClose outTradeNo:{} tradeNo:{}", outTradeNo, tradeNo);
-            if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(tradeNo)) {
-                throw new PayException("商户订单号和支付宝交易号不能同时为空");
-            }
-            AlipayTradeCloseModel model = new AlipayTradeCloseModel();
-            if (StringUtils.isNotEmpty(outTradeNo)) {
-                model.setOutTradeNo(outTradeNo);
-            }
-            if (StringUtils.isNotEmpty(tradeNo)) {
-                model.setTradeNo(tradeNo);
-            }
-            AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
-            request.setBizModel(model);
-            AlipayTradeCloseResponse response = aliPayCertClient.certificateExecute(request);
-            log.info("tradeClose outTradeNo:{} tradeNo:{} response:{}", outTradeNo, tradeNo,
-                    JSONObject.toJSONString(response));
-            return response.isSuccess() ?
-                    AliPayTradeCloseResult.ofSuccess(response) :
-                    AliPayTradeCloseResult.ofFail(response);
-        } catch (Exception e) {
-            log.error("tradeClose outTradeNo:{} tradeNo:{} error", outTradeNo, tradeNo, e);
-            if (e instanceof PayException) {
-                ExceptionUtils.rethrow(e);
-            }
-            return AliPayTradeCloseResult.ofError();
-        }
-    }
-
-    /**
-     * 统一收单交易支付
-     * 条码支付|声波支付
-     *
-     * @param param
-     *
-     * @return
-     */
-    public AliPayTradePayResult tradePay(AliPayTradePayParam param) {
-        String outTradeNo = param.getOutTradeNo();
-        try {
-            String checkResult = AliPayTradePayParam.checkParam(param);
-            if (StringUtils.isNotEmpty(checkResult)) {
-                throw new PayException(checkResult);
-            }
-            AlipayTradePayModel model = new AlipayTradePayModel();
-            model.setOutTradeNo(param.getOutTradeNo());
-            model.setScene(param.getScene());
-            model.setAuthCode(param.getAuthCode());
-            model.setSubject(param.getSubject());
-            model.setTotalAmount(param.getTotalAmount().toString());
-            model.setTimeoutExpress("10m");
-            AlipayTradePayRequest request = new AlipayTradePayRequest();
-            if (StringUtils.isNotEmpty(payGateWay)) {
-                request.setNotifyUrl(payGateWay + "/payNotice/aliPay/tradePay");
-            }
-            request.setBizModel(model);
-            log.info("tradePay outTradeNo:{} request:{}", outTradeNo, JSONObject.toJSONString(request));
-            AlipayTradePayResponse response = aliPayCertClient.certificateExecute(request);
-            log.info("tradePay outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
-            return response.isSuccess() ?
-                    AliPayTradePayResult.ofSuccess(response) :
-                    AliPayTradePayResult.ofFail(response);
-        } catch (Exception e) {
-            log.error("tradePay outTradeNo:{} error", outTradeNo, e);
-            if (e instanceof PayException) {
-                ExceptionUtils.rethrow(e);
-            }
-            return AliPayTradePayResult.ofError();
-        }
-    }
-
-    /**
+     * 当面付
      * 统一收单线下交易预创建
      * 扫码支付
+     * 支持花呗
+     * TRADE_SUCCESS 触发异步通知
      *
      * @param param
      *
@@ -228,6 +162,10 @@ public class AliPayService {
             model.setSubject(param.getSubject());
             model.setTotalAmount(param.getTotalAmount().toString());
             model.setTimeoutExpress("10m");
+            AliPayExtendParam extendParam = param.getExtendParam();
+            if (extendParam != null) {
+                model.setExtendParams(extendParam.convert());
+            }
             AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest();
             if (StringUtils.isNotEmpty(payGateWay)) {
                 request.setNotifyUrl(payGateWay + "/payNotice/aliPay/tradePreCreate");
@@ -249,7 +187,102 @@ public class AliPayService {
     }
 
     /**
+     * 当面付
+     * 统一收单交易支付
+     * 条码支付|声波支付
+     * 支持花呗
+     * TRADE_SUCCESS 触发异步通知
+     *
+     * @param param
+     *
+     * @return
+     */
+    public AliPayTradePayResult tradePay(AliPayTradePayParam param) {
+        String outTradeNo = param.getOutTradeNo();
+        try {
+            String checkResult = AliPayTradePayParam.checkParam(param);
+            if (StringUtils.isNotEmpty(checkResult)) {
+                throw new PayException(checkResult);
+            }
+            AlipayTradePayModel model = new AlipayTradePayModel();
+            model.setOutTradeNo(param.getOutTradeNo());
+            model.setScene(param.getScene());
+            model.setAuthCode(param.getAuthCode());
+            model.setSubject(param.getSubject());
+            model.setTotalAmount(param.getTotalAmount().toString());
+            model.setTimeoutExpress("10m");
+            AliPayExtendParam extendParam = param.getExtendParam();
+            if (extendParam != null) {
+                model.setExtendParams(extendParam.convert());
+            }
+            AlipayTradePayRequest request = new AlipayTradePayRequest();
+            if (StringUtils.isNotEmpty(payGateWay)) {
+                request.setNotifyUrl(payGateWay + "/payNotice/aliPay/tradePay");
+            }
+            request.setBizModel(model);
+            log.info("tradePay outTradeNo:{} request:{}", outTradeNo, JSONObject.toJSONString(request));
+            AlipayTradePayResponse response = aliPayCertClient.certificateExecute(request);
+            log.info("tradePay outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
+            return response.isSuccess() ?
+                    AliPayTradePayResult.ofSuccess(response) :
+                    AliPayTradePayResult.ofFail(response);
+        } catch (Exception e) {
+            log.error("tradePay outTradeNo:{} error", outTradeNo, e);
+            if (e instanceof PayException) {
+                ExceptionUtils.rethrow(e);
+            }
+            return AliPayTradePayResult.ofError();
+        }
+    }
+
+    /**
+     * 电脑网站支付
+     * 支持花呗
+     * TRADE_SUCCESS 触发异步通知
+     *
+     * @param httpResponse
+     * @param param
+     */
+    public void pagePay(HttpServletResponse httpResponse, AliPayPagePayParam param) {
+        String outTradeNo = param.getOutTradeNo();
+        try {
+            AlipayTradePagePayModel model = new AlipayTradePagePayModel();
+            model.setOutTradeNo(param.getOutTradeNo());
+            model.setTotalAmount(param.getTotalAmount().toString());
+            model.setSubject(param.getSubject());
+            model.setProductCode("FAST_INSTANT_TRADE_PAY");
+            model.setTimeoutExpress("10m");
+            AliPayExtendParam extendParam = param.getExtendParam();
+            if (extendParam != null) {
+                model.setExtendParams(extendParam.convert());
+            }
+            AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
+            if (StringUtils.isNotEmpty(payGateWay)) {
+                request.setNotifyUrl(payGateWay + "/payNotice/aliPay/pagePay");
+            }
+            if (StringUtils.isNotEmpty(param.getReturnUrl())) {
+                request.setReturnUrl(param.getReturnUrl());
+            }
+            request.setBizModel(model);
+            log.info("pagePay outTradeNo:{} request:{}", outTradeNo, JSONObject.toJSONString(request));
+            AlipayTradePagePayResponse response = aliPayCertClient.pageExecute(request);
+            log.info("pagePay outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
+            String form = response.getBody();
+            httpResponse.setContentType("text/html;charset=utf-8");
+            //直接将完整的表单html输出到页面
+            httpResponse.getWriter().write(form);
+            httpResponse.getWriter().flush();
+            httpResponse.getWriter().close();
+        } catch (Exception e) {
+            log.error("pagePay outTradeNo:{} error", outTradeNo, e);
+            throw new PayException("电脑网站支付异常");
+        }
+    }
+
+    /**
      * 手机网站支付
+     * 支持花呗
+     * TRADE_SUCCESS TRADE_CLOSED TRADE_FINISHED 触发异步通知
      *
      * @param httpResponse
      * @param param
@@ -264,6 +297,10 @@ public class AliPayService {
             model.setQuitUrl(param.getQuitUrl());
             model.setProductCode("QUICK_WAP_WAY");
             model.setTimeoutExpress("10m");
+            AliPayExtendParam extendParam = param.getExtendParam();
+            if (extendParam != null) {
+                model.setExtendParams(extendParam.convert());
+            }
             AlipayTradeWapPayRequest request = new AlipayTradeWapPayRequest();
             if (StringUtils.isNotEmpty(payGateWay)) {
                 request.setNotifyUrl(payGateWay + "/payNotice/aliPay/wapPay");
@@ -288,40 +325,39 @@ public class AliPayService {
     }
 
     /**
-     * 电脑网站支付
+     * app支付
+     * 支持花呗
+     * TRADE_SUCCESS TRADE_CLOSED TRADE_FINISHED 触发异步通知
      *
-     * @param httpResponse
      * @param param
+     *
+     * @return
      */
-    public void pagePay(HttpServletResponse httpResponse, AliPayPagePayParam param) {
+    public AliPayAppPayResult appPay(AliPayAppPayParam param) {
         String outTradeNo = param.getOutTradeNo();
         try {
-            AlipayTradePagePayModel model = new AlipayTradePagePayModel();
+            AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
             model.setOutTradeNo(param.getOutTradeNo());
-            model.setTotalAmount(param.getTotalAmount().toString());
             model.setSubject(param.getSubject());
-            model.setProductCode("FAST_INSTANT_TRADE_PAY");
+            model.setTotalAmount(param.getTotalAmount().toString());
+            model.setProductCode("QUICK_MSECURITY_PAY");
             model.setTimeoutExpress("10m");
-            AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
-            if (StringUtils.isNotEmpty(payGateWay)) {
-                request.setNotifyUrl(payGateWay + "/payNotice/aliPay/pagePay");
+            AliPayExtendParam extendParam = param.getExtendParam();
+            if (extendParam != null) {
+                model.setExtendParams(extendParam.convert());
             }
-            if (StringUtils.isNotEmpty(param.getReturnUrl())) {
-                request.setReturnUrl(param.getReturnUrl());
+            AlipayTradeAppPayRequest request = new AlipayTradeAppPayRequest();
+            if (StringUtils.isNotEmpty(payGateWay)) {
+                request.setNotifyUrl(payGateWay + "/payNotice/aliPay/appPay");
             }
             request.setBizModel(model);
-            log.info("pagePay outTradeNo:{} request:{}", outTradeNo, JSONObject.toJSONString(request));
-            AlipayTradePagePayResponse response = aliPayCertClient.pageExecute(request);
-            log.info("pagePay outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
-            String form = response.getBody();
-            httpResponse.setContentType("text/html;charset=utf-8");
-            //直接将完整的表单html输出到页面
-            httpResponse.getWriter().write(form);
-            httpResponse.getWriter().flush();
-            httpResponse.getWriter().close();
+            log.info("appPay outTradeNo:{} request:{}", outTradeNo, JSONObject.toJSONString(request));
+            AlipayTradeAppPayResponse response = aliPayCertClient.sdkExecute(request);
+            log.info("appPay outTradeNo:{} response:{}", outTradeNo, JSONObject.toJSONString(response));
+            return response.isSuccess() ? AliPayAppPayResult.ofSuccess(response) : AliPayAppPayResult.ofFail(response);
         } catch (Exception e) {
-            log.error("pagePay outTradeNo:{} error", outTradeNo, e);
-            throw new PayException("电脑网站支付异常");
+            log.error("appPay outTradeNo:{} error", outTradeNo, e);
+            return AliPayAppPayResult.ofError();
         }
     }
 
@@ -365,6 +401,10 @@ public class AliPayService {
 
     /**
      * 统一收单交易退款
+     * 异步通知是依据支付接口的触发条件来触发的，异步通知也是发送到支付接口传入的异步地址上
+     *
+     * 部分退款交易状态是处于TRADE_SUCCESS（交易成功）
+     * 交易成功后全额退款，交易状态会转为TRADE_CLOSED（交易关闭）
      *
      * @param param
      *
@@ -441,6 +481,45 @@ public class AliPayService {
                 ExceptionUtils.rethrow(e);
             }
             return AliPayRefundQueryResult.ofError();
+        }
+    }
+
+    /**
+     * 统一收单交易关闭
+     * 用于交易创建后，用户在一定时间内未进行支付，可调用该接口直接将未付款的交易进行关闭
+     *
+     * @param outTradeNo
+     * @param tradeNo
+     *
+     * @return
+     */
+    public AliPayTradeCloseResult tradeClose(String outTradeNo, String tradeNo) {
+        try {
+            log.info("tradeClose outTradeNo:{} tradeNo:{}", outTradeNo, tradeNo);
+            if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(tradeNo)) {
+                throw new PayException("商户订单号和支付宝交易号不能同时为空");
+            }
+            AlipayTradeCloseModel model = new AlipayTradeCloseModel();
+            if (StringUtils.isNotEmpty(outTradeNo)) {
+                model.setOutTradeNo(outTradeNo);
+            }
+            if (StringUtils.isNotEmpty(tradeNo)) {
+                model.setTradeNo(tradeNo);
+            }
+            AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
+            request.setBizModel(model);
+            AlipayTradeCloseResponse response = aliPayCertClient.certificateExecute(request);
+            log.info("tradeClose outTradeNo:{} tradeNo:{} response:{}", outTradeNo, tradeNo,
+                    JSONObject.toJSONString(response));
+            return response.isSuccess() ?
+                    AliPayTradeCloseResult.ofSuccess(response) :
+                    AliPayTradeCloseResult.ofFail(response);
+        } catch (Exception e) {
+            log.error("tradeClose outTradeNo:{} tradeNo:{} error", outTradeNo, tradeNo, e);
+            if (e instanceof PayException) {
+                ExceptionUtils.rethrow(e);
+            }
+            return AliPayTradeCloseResult.ofError();
         }
     }
 

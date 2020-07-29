@@ -16,7 +16,10 @@ import com.xwbing.config.clusterseq.ClusterSeqGenerator;
 import com.xwbing.domain.entity.vo.RestMessageVo;
 import com.xwbing.service.pay.AliPayService;
 import com.xwbing.service.pay.TransferService;
+import com.xwbing.service.pay.vo.AliPayAppPayParam;
+import com.xwbing.service.pay.vo.AliPayAppPayResult;
 import com.xwbing.service.pay.vo.AliPayPagePayParam;
+import com.xwbing.service.pay.vo.AliPayRefundQueryResult;
 import com.xwbing.service.pay.vo.AliPayTradeCloseResult;
 import com.xwbing.service.pay.vo.AliPayTradeCreateParam;
 import com.xwbing.service.pay.vo.AliPayTradeCreateResult;
@@ -89,6 +92,12 @@ public class AliPayController {
         return aliPayTradeService.tradePreCreate(param);
     }
 
+    @ApiOperation(value = "app支付", response = RestMessageVo.class)
+    @PostMapping("appPay")
+    public AliPayAppPayResult appPay(@RequestBody AliPayAppPayParam param) {
+        return aliPayTradeService.appPay(param);
+    }
+
     @ApiOperation(value = "手机网站支付", response = RestMessageVo.class)
     @PostMapping("wapPay")
     public void wapPay(HttpServletResponse httpResponse, @RequestBody AliPayWapPayParam param) {
@@ -107,15 +116,21 @@ public class AliPayController {
         return aliPayTradeService.tradeQuery(outTradeNo, tradeNo);
     }
 
+    @ApiOperation(value = "查询对账单下载地址", response = RestMessageVo.class)
+    @PostMapping("queryBillDownloadUrl")
+    public String queryBillDownloadUrl(@RequestParam String billDate) {
+        return aliPayTradeService.queryBillDownloadUrl(billDate);
+    }
+
     @ApiOperation(value = "退款", response = RestMessageVo.class)
     @PostMapping("tradeRefund")
     public AliPayTradeRefundResult tradeRefund(@RequestBody AliPayTradeRefundParam param) {
         return aliPayTradeService.tradeRefund(param);
     }
 
-    @ApiOperation(value = "查询对账单下载地址", response = RestMessageVo.class)
-    @PostMapping("queryBillDownloadUrl")
-    public String queryBillDownloadUrl(@RequestParam String billDate) {
-        return aliPayTradeService.queryBillDownloadUrl(billDate);
+    @ApiOperation(value = "退款查询", response = RestMessageVo.class)
+    @PostMapping("refundQuery")
+    public AliPayRefundQueryResult refundQuery(@RequestParam String outRequestNo, String outTradeNo, String tradeNo) {
+        return aliPayTradeService.refundQuery(outRequestNo, outTradeNo, tradeNo);
     }
 }

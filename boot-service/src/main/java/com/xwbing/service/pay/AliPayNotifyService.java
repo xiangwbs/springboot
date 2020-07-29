@@ -61,14 +61,20 @@ public class AliPayNotifyService {
     /**
      * 支付成功业务处理
      *
-     * @param aliPayTradePayNotifyRequest
+     * @param notifyRequest
      */
-    public void generalTradePay(AliPayTradePayNotifyRequest aliPayTradePayNotifyRequest) {
-        String tradeStatus = aliPayTradePayNotifyRequest.getTrade_status();
+    public void generalTradePay(AliPayTradePayNotifyRequest notifyRequest) {
+        String tradeStatus = notifyRequest.getTrade_status();
         if (AliPayTradeStatusEnum.TRADE_SUCCESS.getCode().equals(tradeStatus)) {
+            //退款处理成功的回调，不作处理
+            if (StringUtils.isNotEmpty(notifyRequest.getRefund_fee()) || StringUtils
+                    .isNotEmpty(notifyRequest.getGmt_refund())) {
+                return;
+            }
             //判断流水是否为最终状态(入账成功或退款),避免重复回调 return
+
             //获取商户优惠券信息
-            String fundBillList = aliPayTradePayNotifyRequest.getFund_bill_list();
+            String fundBillList = notifyRequest.getFund_bill_list();
             if (StringUtils.isNotEmpty(fundBillList)) {
                 JSONArray.parseArray(fundBillList).stream().map(o -> JSONObject.parseObject(JSONObject.toJSONString(o)))
                         .filter(object -> "MDISCOUNT".equals(object.getString("fundChannel"))).findFirst()

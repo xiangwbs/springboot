@@ -45,6 +45,10 @@ public class AliPayTradeQueryResult extends AliPayBaseResult {
      */
     private String discountAmount;
     /**
+     * 商家优惠金额
+     */
+    private String mdiscountAmount;
+    /**
      * 买家实付金额，单位为元，两位小数。该金额代表该笔交易买家实际支付的金额，不包含商户折扣等金额
      */
     private String buyerPayAmount;
@@ -66,9 +70,9 @@ public class AliPayTradeQueryResult extends AliPayBaseResult {
                 message(response.getMsg()).code(response.getCode()).outTradeNo(response.getOutTradeNo())
                 .tradeNo(response.getTradeNo()).tradeStatus(AliPayTradeStatusEnum.parse(response.getTradeStatus()))
                 .totalAmount(response.getTotalAmount()).receiptAmount(response.getReceiptAmount())
-                .discountAmount(response.getDiscountAmount()).buyerPayAmount(response.getBuyerPayAmount())
-                .buyerLogonId(response.getBuyerLogonId()).buyerUserId(response.getBuyerUserId())
-                .buyerUserType(response.getBuyerUserType()).build();
+                .discountAmount(response.getDiscountAmount()).mdiscountAmount(response.getMdiscountAmount())
+                .buyerPayAmount(response.getBuyerPayAmount()).buyerLogonId(response.getBuyerLogonId())
+                .buyerUserId(response.getBuyerUserId()).buyerUserType(response.getBuyerUserType()).build();
     }
 
     public static AliPayTradeQueryResult ofFail(AlipayTradeQueryResponse response) {

@@ -35,6 +35,7 @@ public class AliPayPagePayParam {
      * 页面跳转同步通知页面地址
      */
     private String returnUrl;
+    private AliPayExtendParam extendParam;
 
     public static AliPayPagePayParam build(String outTradeNo, String subject, BigDecimal totalAmount,
             String returnUrl) {

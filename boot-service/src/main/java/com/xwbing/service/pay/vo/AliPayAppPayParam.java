@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 交易预下单参数
+ * app支付接口2.0参数
  *
  * @author xwbing
  */
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AliPayTradePreCreateParam {
+public class AliPayAppPayParam {
     /**
      * 商户订单号
      */
@@ -33,8 +33,7 @@ public class AliPayTradePreCreateParam {
     private BigDecimal totalAmount;
     private AliPayExtendParam extendParam;
 
-    public static AliPayTradePreCreateParam of(String outTradeNo, String subject, BigDecimal totalAmount) {
-        return AliPayTradePreCreateParam.builder().outTradeNo(outTradeNo).subject(subject).totalAmount(totalAmount)
-                .build();
+    public static AliPayAppPayParam build(String outTradeNo, String subject, BigDecimal totalAmount) {
+        return AliPayAppPayParam.builder().outTradeNo(outTradeNo).subject(subject).totalAmount(totalAmount).build();
     }
 }

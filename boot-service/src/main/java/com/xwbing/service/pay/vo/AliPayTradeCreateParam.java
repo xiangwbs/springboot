@@ -37,6 +37,7 @@ public class AliPayTradeCreateParam {
      * 买家的支付宝唯一用户号
      */
     private String buyerId;
+    private AliPayExtendParam extendParam;
 
     public static AliPayTradeCreateParam build(String outTradeNo, String buyerId, String subject,
             BigDecimal totalAmount) {
