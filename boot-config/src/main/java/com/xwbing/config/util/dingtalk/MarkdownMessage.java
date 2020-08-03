@@ -19,14 +19,9 @@ public class MarkdownMessage implements Message {
      */
     private String title;
     /**
-     * 封面
-     */
-    private String cover;
-    /**
      * 群会话的id 发送群消息时使用
      */
     private String chatId;
-
     /**
      * -@所有人时：true，否则为：false
      */
@@ -49,14 +44,6 @@ public class MarkdownMessage implements Message {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getCover() {
-        return cover;
-    }
-
-    public void setCover(String cover) {
-        this.cover = cover;
     }
 
     public void setChatId(String chatId) {

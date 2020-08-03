@@ -1,5 +1,6 @@
 package com.xwbing.config.aliyun;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
@@ -97,6 +98,13 @@ public class AliYunLog {
         }
     }
 
+    /**
+     * 钉钉机器人发送link
+     *
+     * @param linkMessage
+     *
+     * @return
+     */
     public SendResult sendRobotMessage(LinkMessage linkMessage) {
         try {
             SendResult send = dingTalkClient.sendRobot(webHook, secret, linkMessage);
@@ -130,6 +138,22 @@ public class AliYunLog {
         }
     }
 
+    public SendResult sendErrorMessage(String title, String env, String param, Exception e, boolean atAll,
+            String... atMobiles) {
+        MarkdownMessage message = new MarkdownMessage();
+        message.setTitle(title);
+        if (StringUtils.isNotEmpty(env)) {
+            message.addItem(MarkdownMessage.getBoldText("环境: " + env));
+        }
+        message.addItem(MarkdownMessage.getBoldText("参数:"));
+        message.addItem(param);
+        message.addItem(MarkdownMessage.getBoldText("异常信息:"));
+        message.addItem(ExceptionUtils.getStackTrace(e));
+        message.setAtAll(atAll);
+        message.addAtMobiles(Arrays.asList(atMobiles));
+        return sendRobotMessage(message);
+    }
+
     /**
      * 发送钉钉群消息
      *
@@ -140,8 +164,7 @@ public class AliYunLog {
      */
     public SendResult sendChatMessage(MarkdownMessage markdownMessage, String accessToken) {
         try {
-            markdownMessage.addItem(0, markdownMessage.getCover());
-            markdownMessage.addItem(1, MarkdownMessage.getHeaderText(2, markdownMessage.getTitle()));
+            markdownMessage.addItem(0, MarkdownMessage.getHeaderText(1, markdownMessage.getTitle()));
             SendResult send = dingTalkClient.sendChat(accessToken, markdownMessage);
             if (!send.isSuccess()) {
                 log.error("{} - {}", markdownMessage.getTitle(), JSONObject.toJSON(send));

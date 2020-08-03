@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xwbing.util.ThreadUtil;
 
 /**
  * Date: 2017/6/15 17:09
@@ -70,7 +71,8 @@ public class LambdaDemo {
         ArrayList<SysUser> collect = listAll().stream().collect(Collectors
                 .collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(SysUser::getName))),
                         ArrayList::new));
-        List<SysUser> collect1 = listAll().stream().filter(distinctByKey(SysUser::getName)).collect(Collectors.toList());
+        List<SysUser> collect1 = listAll().stream().filter(distinctByKey(SysUser::getName))
+                .collect(Collectors.toList());
 
         //匹配
         boolean b1 = lists.stream().anyMatch(o -> o == 1);
@@ -136,16 +138,16 @@ public class LambdaDemo {
      * 遍历集合，集合里数据还要进行复杂操作，导致速度很慢,用以下操作
      */
     public List<Integer> supplyAsync() {
-        List<Integer> abc = new ArrayList<>();
+        List<Integer> list = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
-            abc.add(i);
+            list.add(i);
         }
-        int size = abc.size();
+        int size = list.size();
         CompletableFuture[] futures = new CompletableFuture[size];
         List<Integer> finalList = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             finalList.add(null);//在异步之前size+1，必须有这步，否则会下标越界
-            Integer integer = abc.get(i);
+            Integer integer = list.get(i);
             final int pos = i;
             futures[i] = CompletableFuture.supplyAsync(() -> finalList.set(pos, integer), taskExecutor);//按原来顺序存
         }
@@ -158,6 +160,17 @@ public class LambdaDemo {
         //            throw new BusinessException("获取数据出错");
         //        }
         return finalList;
+    }
+
+    public void supplyAsync1() {
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            list.add(i);
+        }
+        List<CompletableFuture<Void>> futureList = list.stream()
+                .map(i -> CompletableFuture.runAsync(System.out::println, ThreadUtil.build().singleThreadPool()))
+                .collect(Collectors.toList());
+        futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
     }
 
     /**
