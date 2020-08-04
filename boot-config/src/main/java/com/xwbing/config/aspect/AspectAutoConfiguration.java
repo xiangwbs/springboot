@@ -1,5 +1,7 @@
 package com.xwbing.config.aspect;
 
+import javax.annotation.Resource;
+
 import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -7,11 +9,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
-
 /**
  * @author xiangwb
- * 切面自动配置类
+ *         切面自动配置类
  */
 @Configuration
 @EnableConfigurationProperties(AspectProperties.class)
@@ -77,5 +77,16 @@ public class AspectAutoConfiguration {
     @ConditionalOnMissingBean(IdempotentAspect.class)
     public IdempotentAspect idempotentAspect() {
         return new IdempotentAspect();
+    }
+
+    /**
+     * 频率校验
+     *
+     * @return
+     */
+    @Bean
+    @ConditionalOnMissingBean(LimitAspect.class)
+    public LimitAspect limitAspect() {
+        return new LimitAspect();
     }
 }

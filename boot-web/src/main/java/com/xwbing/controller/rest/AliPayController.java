@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.xwbing.config.annotation.Limit;
 import com.xwbing.config.clusterseq.ClusterSeqGenerator;
 import com.xwbing.domain.entity.vo.RestMessageVo;
 import com.xwbing.service.pay.AliPayService;
@@ -68,6 +69,7 @@ public class AliPayController {
         transferService.doTransfer(param);
     }
 
+    @Limit
     @ApiOperation(value = "交易创建", response = RestMessageVo.class)
     @PostMapping("tradeCreate")
     public AliPayTradeCreateResult tradePayNotify(@RequestBody AliPayTradeCreateParam param) {

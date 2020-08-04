@@ -1,12 +1,13 @@
 package com.xwbing.handler;
 
-import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.aliyun.AliYunLog;
-import com.xwbing.exception.BusinessException;
-import com.xwbing.exception.PayException;
-import com.xwbing.exception.UtilException;
-import com.xwbing.util.JsonResult;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -18,12 +19,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.concurrent.CompletionException;
-import java.util.stream.Collectors;
+import com.alibaba.fastjson.JSONObject;
+import com.xwbing.config.aliyun.AliYunLog;
+import com.xwbing.exception.BusinessException;
+import com.xwbing.exception.PayException;
+import com.xwbing.exception.UtilException;
+import com.xwbing.util.JsonResult;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 说明:  全局异常处理

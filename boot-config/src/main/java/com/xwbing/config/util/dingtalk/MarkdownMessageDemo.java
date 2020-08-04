@@ -41,7 +41,6 @@ public class MarkdownMessageDemo {
     public void testSendChatMessage() throws Exception {
         MarkdownMessage message = new MarkdownMessage();
         message.setChatId("chat0f212fb4dc07478f0813eb98e9470ff6");
-        message.setCover(MarkdownMessage.getImageText("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png"));
         message.setTitle("通知公告测试");
         //title当做一级标题
         message.addItem(1, MarkdownMessage.getHeaderText(2, message.getTitle()));
