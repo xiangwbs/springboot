@@ -67,6 +67,7 @@ public class UrlPermissionsInterceptor extends HandlerInterceptorAdapter {
                         log.error("没有权限");
                         OutputStream outputStream = response.getOutputStream();
                         response.setHeader("content-type", "text/html;charset=UTF-8");
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         RestMessage restMessage = new RestMessage();
                         restMessage.setMessage("没有权限");
                         outputStream.write(JSON.toJSONString(restMessage).getBytes("utf-8"));

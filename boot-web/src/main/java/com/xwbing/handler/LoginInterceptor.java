@@ -61,7 +61,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
                 } else {
                     getOutputStream(response, "请重新登录");
                     //未登录，重定向到登录页面
-                    //                response.sendRedirect("/login.html");
+                    //response.sendRedirect(request.getContextPath()+"/login");
                     return false;
                 }
             }
@@ -74,6 +74,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             log.error(msg);
             OutputStream outputStream = response.getOutputStream();
             response.setHeader("content-type", "text/html;charset=UTF-8");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             RestMessage restMessage = new RestMessage();
             restMessage.setMessage(msg);
             outputStream.write(JSONObject.toJSONString(restMessage).getBytes("utf-8"));
