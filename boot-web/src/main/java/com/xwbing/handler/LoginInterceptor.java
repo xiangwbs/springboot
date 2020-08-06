@@ -1,21 +1,27 @@
 package com.xwbing.handler;
 
-import com.alibaba.fastjson.JSON;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import com.alibaba.fastjson.JSONObject;
 import com.xwbing.util.CommonDataUtil;
 import com.xwbing.util.HeaderUtil;
 import com.xwbing.util.RestMessage;
 import com.xwbing.util.ThreadLocalUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 说明:  登录拦截器
@@ -25,46 +31,38 @@ import java.util.Set;
  */
 @Slf4j
 public class LoginInterceptor extends HandlerInterceptorAdapter {
-    private static final Set<String> WHITE_LIST = new HashSet<>();//拦截器白名单
-
-    static {
-        //映射swagger文档
-        WHITE_LIST.add("/doc");
-        //验证码
-        WHITE_LIST.add("/captcha");
-        //swagger
-        WHITE_LIST.add("/v2/api-docs");
-        WHITE_LIST.add("/swagger-resources");
-        WHITE_LIST.add("/configuration/ui");
-        WHITE_LIST.add("/configuration/security");
-        //德鲁伊监控
-        WHITE_LIST.add("/druid");
-    }
-
+    private static final AntPathMatcher MATCHER = new AntPathMatcher();
+    //@formatter:off
+    private static final Set<String> ALLOWED_PATH = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+            //映射swagger文档
+            "/doc",
+            //验证码
+            "/captcha",
+            //swagger
+            "/v2/api-docs",
+            "/swagger-resources/**",
+            //德鲁伊监控
+            "/druid/**"
+    )));
+    //@formatter:on
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String servletPath = request.getServletPath();
-        if (!WHITE_LIST.contains(servletPath) && !servletPath.contains("test")) {
-            HttpSession session = request.getSession(false);
+        String path = request.getRequestURI().substring(request.getContextPath().length()).replaceAll("[/]+$", "");
+        Optional<String> optionalAllowedPath = ALLOWED_PATH.stream().filter(s -> MATCHER.match(s, path)).findAny();
+        if (!optionalAllowedPath.isPresent()) {
             String token = HeaderUtil.getToken(request);
-            if (session == null) {
-                getOutputStream(response, "登录超时,请重新登录");
-                CommonDataUtil.clearData(token);
+            if (StringUtils.isEmpty(token)) {
+                getOutputStream(response, "请先登录");
                 return false;
             } else {
-                if (StringUtils.isEmpty(token)) {
-                    getOutputStream(response, "token不能为空");
-                    return false;
+                if (CommonDataUtil.getData(token) != null) {
+                    ThreadLocalUtil.setToken(token);
+                    return true;
                 } else {
-                    if (CommonDataUtil.getData(token) != null) {
-                        ThreadLocalUtil.setToken(token);
-                        return true;
-                    } else {
-                        getOutputStream(response, "请先登录");
-                        //未登录，重定向到登录页面
-//                response.sendRedirect("/login.html");
-                        return false;
-                    }
+                    getOutputStream(response, "请重新登录");
+                    //未登录，重定向到登录页面
+                    //                response.sendRedirect("/login.html");
+                    return false;
                 }
             }
         }
@@ -75,9 +73,10 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         try {
             log.error(msg);
             OutputStream outputStream = response.getOutputStream();
+            response.setHeader("content-type", "text/html;charset=UTF-8");
             RestMessage restMessage = new RestMessage();
             restMessage.setMessage(msg);
-            outputStream.write(JSON.toJSONString(restMessage).getBytes("utf-8"));
+            outputStream.write(JSONObject.toJSONString(restMessage).getBytes("utf-8"));
             outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();

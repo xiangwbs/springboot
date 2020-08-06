@@ -30,6 +30,8 @@ public class RegexDemo {
         String a7 = "^$";//匹配边界
         String a8 = "\\b";//单词边界
 
+        String a9 = "[\\u4e00-\\u9fa5]";//汉字
+
         System.out.println("13488888888".matches("1[3578]\\d{9}"));
         System.out.println(Arrays.toString(("aa.bb").split("\\.")));
         System.out.println("xiangggweiiii".replaceAll("(.)\\1+","$1"));
