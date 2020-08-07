@@ -1,4 +1,4 @@
-package com.xwbing.config.aliyun;
+package com.xwbing.config.aliyun.log;
 
 import com.aliyun.openservices.log.Client;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

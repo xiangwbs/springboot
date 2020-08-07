@@ -7,6 +7,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import com.xwbing.config.alipay.EnableAliPayClient;
+import com.xwbing.config.aliyun.rocketmq.EnableRocketMQ;
 import com.xwbing.config.redis.EnableRedis;
 import com.xwbing.config.clusterseq.EnableClusterSeq;
 
@@ -23,6 +24,7 @@ import com.xwbing.config.clusterseq.EnableClusterSeq;
 @EnableAspectJAutoProxy
 @EnableAsync
 @EnableAliPayClient
+@EnableRocketMQ
 public class BootApplication {
     public static void main(String[] args) {
         SpringApplication.run(BootApplication.class, args);

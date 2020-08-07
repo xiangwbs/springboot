@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.aliyun.AliYunLog;
+import com.xwbing.config.aliyun.log.AliYunLog;
 import com.xwbing.config.clusterseq.ClusterSeqGenerator;
 import com.xwbing.config.redis.RedisService;
 import com.xwbing.config.spring.ApplicationContextHelper;

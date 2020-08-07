@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.aliyun.AliYunLog;
+import com.xwbing.config.aliyun.log.AliYunLog;
 import com.xwbing.exception.BusinessException;
 import com.xwbing.exception.PayException;
 import com.xwbing.exception.UtilException;

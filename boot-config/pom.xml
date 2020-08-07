@@ -23,6 +23,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
         <!-- apo -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -59,6 +63,12 @@
             <groupId>com.aliyun.openservices</groupId>
             <artifactId>aliyun-log</artifactId>
             <version>${aliyun-log.version}</version>
+        </dependency>
+        <!-- rocketmq -->
+        <dependency>
+            <groupId>com.aliyun.openservices</groupId>
+            <artifactId>ons-client</artifactId>
+            <version>1.8.4.Final</version>
         </dependency>
         <!-- xxl-job -->
         <dependency>

@@ -1,21 +1,23 @@
 package com.xwbing.demo;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 /**
  * @author xiangwb
- * 对象初始化先后顺序
- * 父静态>子静态>父构造代码块>父构造方法>子构造代码块>子构造方法
- * <p>
- * InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation>静态代码块>构造代码块>无参构造函数>InstantiationAwareBeanPostProcessor.postProcessAfterInstantiation>
- * setXXX|autowire>BeanPostProcessor.postProcessBeforeInitialization>@PostConstruct>afterPropertiesSet>init-method
- * >BeanPostProcessor.postProcessAfterInitialization>DisposableBean.destroy>destroy-method
+ *         对象初始化先后顺序
+ *         父静态>子静态>父构造代码块>父构造方法>子构造代码块>子构造方法
+ *         <p>
+ *         InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation>静态代码块>构造代码块>无参构造函数>InstantiationAwareBeanPostProcessor.postProcessAfterInstantiation>
+ *         setXXX|autowire>BeanPostProcessor.postProcessBeforeInitialization>@PostConstruct>afterPropertiesSet>init-method
+ *         >BeanPostProcessor.postProcessAfterInitialization>DisposableBean.destroy>destroy-method
  */
 @Component
-public class BeanInitDemo implements InitializingBean {
+public class BeanInitDemo implements InitializingBean, DisposableBean {
     public static void main(String[] args) {
         B ab = new B();
         ab = new B();
@@ -37,11 +39,23 @@ public class BeanInitDemo implements InitializingBean {
     @PostConstruct
     public void postConstruct() {
         System.out.println("4");
+        System.out.println("初始化用户bean之前执行");
+    }
+
+    @PreDestroy
+    public void destroyUser() {
+        System.out.println("bean销毁之前执行");
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
         System.out.println("5");
+        System.out.println("初始化用户bean之前执行");
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("bean销毁之后执行");
     }
 
     public static class A {
@@ -60,7 +74,6 @@ public class BeanInitDemo implements InitializingBean {
             System.out.print("4");
         }
 
-
     }
 
     public static class B extends A {
@@ -78,7 +91,7 @@ public class BeanInitDemo implements InitializingBean {
          * 如果父类没定义空构造函数，那子类构造函数必须用supper明确调用父类的哪个构造函数。
          */
         public B() {
-//            super();
+            //            super();
             System.out.print("6");
         }
     }

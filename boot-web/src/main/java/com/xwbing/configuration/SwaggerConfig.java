@@ -100,7 +100,7 @@ public class SwaggerConfig {
                 .globalResponseMessage(RequestMethod.POST, customerResponseMessage())
                 // .globalOperationParameters(pars)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.xwbing.controller.rest"))
+                .apis(RequestHandlerSelectors.basePackage("com.xwbing.controller.mq"))
                 .paths(PathSelectors.any())
                 .build().securitySchemes(securitySchemes()).securityContexts(securityContexts());
     }

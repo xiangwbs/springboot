@@ -1,7 +1,8 @@
-package com.xwbing.config.aliyun;
+package com.xwbing.config.aliyun.log;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author xiangwb

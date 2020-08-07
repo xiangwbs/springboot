@@ -59,7 +59,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
                     ThreadLocalUtil.setToken(token);
                     return true;
                 } else {
-                    getOutputStream(response, "请重新登录");
+                    getOutputStream(response, "登录超时，请重新登录");
                     //未登录，重定向到登录页面
                     //response.sendRedirect(request.getContextPath()+"/login");
                     return false;
