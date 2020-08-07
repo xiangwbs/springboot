@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import com.aliyun.openservices.ons.api.MessageListener;
@@ -21,16 +22,12 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2020年08月06日 20:11
  */
 @Slf4j
-public class OnsConsumer implements BeanPostProcessor {
+public class OnsConsumer implements BeanPostProcessor, DisposableBean {
     private Properties properties;
     private List<ConsumerBean> consumers = new ArrayList<>();
 
     public OnsConsumer(Properties properties) {
         this.properties = properties;
-    }
-
-    public void shutdown() {
-        consumers.forEach(ConsumerBean::shutdown);
     }
 
     @Override
@@ -57,5 +54,10 @@ public class OnsConsumer implements BeanPostProcessor {
             consumers.add(consumer);
         }
         return bean;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        consumers.forEach(ConsumerBean::shutdown);
     }
 }

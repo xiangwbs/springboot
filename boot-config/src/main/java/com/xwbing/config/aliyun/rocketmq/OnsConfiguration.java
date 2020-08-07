@@ -55,7 +55,7 @@ public class OnsConfiguration {
         return new OnsTemplate();
     }
 
-    @Bean(destroyMethod = "shutdown")
+    @Bean
     @ConditionalOnMissingBean(OnsConsumer.class)
     public OnsConsumer mqConsumer(OnsProperties onsProperties) {
         Properties properties = buildProperties(onsProperties);
