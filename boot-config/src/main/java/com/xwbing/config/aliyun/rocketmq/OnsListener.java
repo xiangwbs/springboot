@@ -15,11 +15,11 @@ import com.aliyun.openservices.shade.com.alibaba.rocketmq.common.filter.Expressi
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OnsListener {
-    String type() default ExpressionType.TAG;
+    String groupId();
 
     String topic();
 
-    String groupId();
+    String type() default ExpressionType.TAG;
 
     String expression() default "*";
 }

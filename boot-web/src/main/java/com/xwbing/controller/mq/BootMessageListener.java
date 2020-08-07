@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2020年08月06日 下午7:11
  */
 @Slf4j
-@OnsListener(topic = "rap_content", groupId = "GID_dop_content", expression = "OPEN_DETAIL||CLOSE_DETAIL")
+@OnsListener(groupId = "GID_dop_content", topic = "rap_content", expression = "OPEN_DETAIL||CLOSE_DETAIL")
 @Component
 public class BootMessageListener implements MessageListener {
 
