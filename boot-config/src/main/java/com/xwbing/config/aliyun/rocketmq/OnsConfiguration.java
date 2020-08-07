@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 阿里云RocketMQ生产者与消费者启动集成
+ *
  * RocketMQ的使用参考文档：
  * https://help.aliyun.com/document_detail/29553.html?spm=a2c4g.11186623.6.571.7566115dmdFvBz
  * https://github.com/AliwareMQ/mq-demo

@@ -8,6 +8,10 @@ import java.lang.annotation.Target;
 import com.aliyun.openservices.shade.com.alibaba.rocketmq.common.filter.ExpressionType;
 
 /**
+ * 一个Group ID只能创建一个Consumer实例
+ * Consumer实例监听注解
+ * 注解的类需实现MessageListener
+ *
  * @author daofeg
  * @version $
  * @since 2020年08月06日 20:54

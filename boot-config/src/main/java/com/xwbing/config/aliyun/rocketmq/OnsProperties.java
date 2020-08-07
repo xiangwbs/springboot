@@ -22,11 +22,11 @@ public class OnsProperties {
      */
     private String password;
     /**
-     * 实例地址
+     * 您的消息队列RocketMQ版 实例的TCP 接入点
      */
     private String nameServerAddress;
     /**
-     * 您在消息队列 RocketMQ 版控制台上创建的 Group ID
+     * 您在消息队列RocketMQ版 控制台上创建的 Group ID
      */
     private String producerGroupId;
 }
