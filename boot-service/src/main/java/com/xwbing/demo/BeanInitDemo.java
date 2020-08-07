@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  *         对象初始化先后顺序
  *         父静态>子静态>父构造代码块>父构造方法>子构造代码块>子构造方法
  *         <p>
- *         InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation>静态代码块>构造代码块>无参构造函数>InstantiationAwareBeanPostProcessor.postProcessAfterInstantiation>
+ *         InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation>静态代码块>构造代码块>构造函数>InstantiationAwareBeanPostProcessor.postProcessAfterInstantiation>
  *         setXXX|autowire>BeanPostProcessor.postProcessBeforeInitialization>@PostConstruct>afterPropertiesSet>init-method
  *         >BeanPostProcessor.postProcessAfterInitialization>DisposableBean.destroy>destroy-method
  */
@@ -24,38 +24,36 @@ public class BeanInitDemo implements InitializingBean, DisposableBean {
     }
 
     static {
-        System.out.print("1");
+        System.out.print("1.静态代码块");
     }
 
     {
-        System.out.println("2");
+        System.out.println("2.构造代码块");
     }
 
     public BeanInitDemo() {
-        System.out.println("3");
+        System.out.println("3.构造器");
 
     }
 
     @PostConstruct
     public void postConstruct() {
-        System.out.println("4");
-        System.out.println("初始化用户bean之前执行");
-    }
-
-    @PreDestroy
-    public void destroyUser() {
-        System.out.println("bean销毁之前执行");
+        System.out.println("4.postConstruct 初始化bean之前执行");
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        System.out.println("5");
-        System.out.println("初始化用户bean之前执行");
+        System.out.println("5.afterPropertiesSet 初始化bean之前执行");
+    }
+
+    @PreDestroy
+    public void preDestroy() {
+        System.out.println("6.preDestroy bean销毁之前执行");
     }
 
     @Override
     public void destroy() throws Exception {
-        System.out.println("bean销毁之后执行");
+        System.out.println("7.destroy bean销毁之后执行");
     }
 
     public static class A {

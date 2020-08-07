@@ -8,6 +8,7 @@ import com.xwbing.config.aliyun.rocketmq.MessageEvent;
 import com.xwbing.config.aliyun.rocketmq.MessageOrderTypeEnum;
 import com.xwbing.config.aliyun.rocketmq.OnsTemplate;
 
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @AllArgsConstructor
+@Api(tags = "producerClient", description = "mq发送")
 @RestController
 public class ProducerClient {
     private final OnsTemplate onsTemplate;
