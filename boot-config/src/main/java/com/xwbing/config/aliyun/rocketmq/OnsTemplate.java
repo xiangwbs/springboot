@@ -225,7 +225,7 @@ public class OnsTemplate {
         }
         final byte[] body = JSONObject.toJSONString(event.getDomain()).getBytes(StandardCharsets.UTF_8);
         Message message = new Message(event.getTopic(), event.getTag(), body);
-        message.setKey(event.generateTxId());
+        message.setKey(event.getKey());
         return message;
     }
 
