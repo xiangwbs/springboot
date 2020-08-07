@@ -30,21 +30,24 @@ public class ProducerClient {
     @PostMapping("/mq/open")
     public void open(@RequestParam String title) {
         Msg message = Msg.builder().author("daofeng").title(title).content("同步打开").build();
-        MessageEvent event = MessageEvent.builder().topic("rap_content").tag("OPEN_DETAIL").domain(message).build();
+        MessageEvent event = MessageEvent.builder().topic("rap_content").tag("OPEN_DETAIL").domain(message)
+                .domainKey("111111").build();
         onsTemplate.send(event);
     }
 
     @PostMapping("/mq/orderOpen")
     public void orderOpen(@RequestParam String title) {
         Msg message = Msg.builder().author("daofeng").title(title).content("顺序打开").build();
-        MessageEvent event = MessageEvent.builder().topic("rap_content").tag("OPEN_DETAIL").domain(message).build();
+        MessageEvent event = MessageEvent.builder().topic("rap_content").tag("OPEN_DETAIL").domain(message)
+                .domainKey("222222").build();
         onsTemplate.orderSend(event, MessageOrderTypeEnum.TAG);
     }
 
     @PostMapping("/mq/close")
     public void close(@RequestParam String title) {
         Msg message = Msg.builder().author("daofeng").title(title).content("异步关闭").build();
-        MessageEvent event = MessageEvent.builder().topic("rap_content").tag("CLOSE_DETAIL").domain(message).build();
+        MessageEvent event = MessageEvent.builder().topic("rap_content").tag("CLOSE_DETAIL").domain(message)
+                .domainKey("333333").build();
         onsTemplate.sendAsync(event);
     }
 

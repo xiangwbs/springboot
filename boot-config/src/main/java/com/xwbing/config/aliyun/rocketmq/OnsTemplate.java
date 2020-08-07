@@ -172,6 +172,10 @@ public class OnsTemplate {
     /**
      * 同步发送顺序消息
      *
+     * shardingKey:
+     * 分区顺序消息中区分不同分区的关键字段，sharding key 于普通消息的 key 是完全不同的概念。
+     * 全局顺序消息，该字段可以设置为任意非空字符串
+     *
      * @param event
      * @param orderType
      *
@@ -200,8 +204,7 @@ public class OnsTemplate {
      * 同步发送顺序消息
      *
      * @param event
-     * @param shardingKey 分区顺序消息中区分不同分区的关键字段，sharding key 于普通消息的 key 是完全不同的概念。
-     *         全局顺序消息，该字段可以设置为任意非空字符串
+     * @param shardingKey
      *
      * @return
      */
@@ -216,9 +219,9 @@ public class OnsTemplate {
         if (event == null) {
             throw new RuntimeException("event is null.");
         }
-        log.info("start to send message. [topic:{},tag:{}]", event.getTopic(), event.getTag());
+        log.info("start to send message. [topic: {} , tag: {}]", event.getTopic(), event.getTag());
         if (StringUtils.isEmpty(event.getTopic()) || event.getDomain() == null) {
-            throw new RuntimeException("topic or body is null.");
+            throw new RuntimeException("topic or body is null. ");
         }
         final byte[] body = JSONObject.toJSONString(event.getDomain()).getBytes(StandardCharsets.UTF_8);
         Message message = new Message(event.getTopic(), event.getTag(), body);
@@ -230,7 +233,7 @@ public class OnsTemplate {
         Date now = new Date();
         long delay = date.getTime() - now.getTime();
         if (delay <= 0) {
-            throw new RuntimeException("消息发送时间不能小于当前时间");
+            throw new RuntimeException("send time cannot be less than the current time");
         }
         return delay;
     }
@@ -240,7 +243,7 @@ public class OnsTemplate {
         ZoneId zone = ZoneId.systemDefault();
         long delay = date.atZone(zone).toInstant().toEpochMilli() - now.atZone(zone).toInstant().toEpochMilli();
         if (delay <= 0) {
-            throw new RuntimeException("消息发送时间不能小于当前时间");
+            throw new RuntimeException("send time cannot be less than the current time");
         }
         return delay;
     }

@@ -22,15 +22,11 @@ import lombok.NoArgsConstructor;
 public class MessageEvent implements Serializable {
     private static final long serialVersionUID = -2624253925403159396L;
     /**
-     * 事件序列ID
-     */
-    private String txId;
-    /**
-     * 话题的名字
+     * 主题
      */
     private String topic;
     /**
-     * 话题的名字
+     * 标签
      */
     private String tag;
     /**
@@ -42,6 +38,10 @@ public class MessageEvent implements Serializable {
      */
     private String domainKey;
     /**
+     * 事件序列ID
+     */
+    private String txId;
+    /**
      * 事件创建时间
      */
     private long createdDate = System.currentTimeMillis();
@@ -52,7 +52,7 @@ public class MessageEvent implements Serializable {
      * @return
      */
     public String generateTxId() {
-        if (null == txId) {
+        if (txId == null) {
             txId = getTopic() + ":" + getTag() + ":";
             if (StringUtil.isNullOrEmpty(domainKey)) {
                 txId = txId + getCreatedDate() + ":" + UUID.randomUUID().toString();
