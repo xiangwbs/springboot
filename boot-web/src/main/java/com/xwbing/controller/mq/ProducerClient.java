@@ -40,7 +40,7 @@ public class ProducerClient {
         Msg message = Msg.builder().author("daofeng").title(title).content("顺序打开").build();
         MessageEvent event = MessageEvent.builder().topic("rap_content").tag("OPEN_DETAIL").domain(message)
                 .domainKey("222222").build();
-        onsTemplate.orderSend(event, MessageOrderTypeEnum.TAG);
+        onsTemplate.sendOrder(event, MessageOrderTypeEnum.TAG);
     }
 
     @PostMapping("/mq/close")

@@ -165,8 +165,8 @@ public class OnsTemplate {
      *
      * @return
      */
-    public SendResult orderSend(MessageEvent event) {
-        return orderSend(event, MessageOrderTypeEnum.GLOBAL);
+    public SendResult sendOrder(MessageEvent event) {
+        return sendOrder(event, MessageOrderTypeEnum.GLOBAL);
     }
 
     /**
@@ -181,7 +181,7 @@ public class OnsTemplate {
      *
      * @return
      */
-    public SendResult orderSend(MessageEvent event, MessageOrderTypeEnum orderType) {
+    public SendResult sendOrder(MessageEvent event, MessageOrderTypeEnum orderType) {
         String shardingKey;
         switch (orderType) {
             case GLOBAL:
@@ -197,7 +197,7 @@ public class OnsTemplate {
                 shardingKey = "#global#";
                 break;
         }
-        return orderSend(event, shardingKey);
+        return sendOrder(event, shardingKey);
     }
 
     /**
@@ -208,7 +208,7 @@ public class OnsTemplate {
      *
      * @return
      */
-    private SendResult orderSend(MessageEvent event, String shardingKey) {
+    private SendResult sendOrder(MessageEvent event, String shardingKey) {
         Message message = getMessage(event);
         SendResult result = this.orderProducer.send(message, shardingKey);
         log.info("send message success. {}", result.toString());
