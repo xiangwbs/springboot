@@ -17,9 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 阿里云RocketMQ生产者与消费者启动集成
  *
- * RocketMQ的使用参考文档：
- * https://help.aliyun.com/document_detail/29553.html?spm=a2c4g.11186623.6.571.7566115dmdFvBz
- * https://github.com/AliwareMQ/mq-demo
+ * RocketMQ的使用参考文档：https://help.aliyun.com/document_detail/29553.html?spm=a2c4g.11186623.6.571.7566115dmdFvBz
  *
  * @author daofeg
  * @version $
@@ -27,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Configuration
+@ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "nameServerAddress")
 @EnableConfigurationProperties(OnsProperties.class)
 public class OnsConfiguration {
 
@@ -59,11 +58,10 @@ public class OnsConfiguration {
     @Bean
     @ConditionalOnMissingBean(OnsConsumer.class)
     public OnsConsumer mqConsumer(OnsProperties onsProperties) {
-        Properties properties = buildProperties(onsProperties);
-        return new OnsConsumer(properties);
+        return new OnsConsumer(onsProperties);
     }
 
-    private Properties buildProperties(OnsProperties onsProperties) {
+    static Properties buildProperties(OnsProperties onsProperties) {
         Properties properties = new Properties();
         properties.put(PropertyKeyConst.AccessKey, onsProperties.getUsername());
         properties.put(PropertyKeyConst.SecretKey, onsProperties.getPassword());

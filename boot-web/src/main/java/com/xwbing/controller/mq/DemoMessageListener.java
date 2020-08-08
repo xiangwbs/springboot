@@ -15,6 +15,8 @@ import com.xwbing.controller.mq.ProducerClient.Msg;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * 消息监听器示例
+ *
  * @author daofeng
  * @version $Id$
  * @since 2020年08月06日 下午7:11
@@ -22,16 +24,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @OnsListener(groupId = "GID_dop_content", topic = "rap_content", expression = "OPEN_DETAIL||CLOSE_DETAIL")
 @Component
-public class BootMessageListener implements MessageListener {
+public class DemoMessageListener implements MessageListener {
 
     @Override
     public Action consume(Message message, ConsumeContext context) {
-        log.info("bootMessageListener consume message:{}", message);
+        log.info("consume message:{}", message);
         final String body = new String(message.getBody(), StandardCharsets.UTF_8);
         final String tag = message.getTag();
         try {
             Msg msg = JSONObject.parseObject(body, Msg.class);
-            log.info("bootMessageListener consume event:{}", msg);
+            log.info("consume event:{}", msg);
             switch (tag) {
                 case "OPEN_DETAIL":
                     System.out.println(msg);

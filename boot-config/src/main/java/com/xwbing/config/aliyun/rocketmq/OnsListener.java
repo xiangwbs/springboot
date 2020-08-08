@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 import com.aliyun.openservices.shade.com.alibaba.rocketmq.common.filter.ExpressionType;
 
 /**
- * 一个Group ID只能创建一个Consumer实例
- * Consumer实例监听注解
+ * Consumer监听注解
  * 注解的类需实现MessageListener
+ * 一个topic只能创建一个MessageListener 参考Subscription.hashCode()
  *
  * @author daofeg
  * @version $

@@ -16,38 +16,40 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * 消息发送示例
+ *
  * @author daofeng
  * @version $Id$
  * @since 2020年08月06日 下午8:07
  */
 @Slf4j
 @AllArgsConstructor
-@Api(tags = "producerClient", description = "mq发送")
+@Api(tags = "producerClient", description = "mq发送demo")
 @RestController
 public class ProducerClient {
     private final OnsTemplate onsTemplate;
 
-    @PostMapping("/mq/open")
-    public void open(@RequestParam String title) {
-        Msg message = Msg.builder().author("daofeng").title(title).content("同步打开").build();
+    @PostMapping("/mq/send")
+    public void send(@RequestParam String key) {
+        Msg message = Msg.builder().author("daofeng").title("send").content("同步发送").build();
         MessageEvent event = MessageEvent.builder().topic("rap_content").tag("OPEN_DETAIL").domain(message)
-                .domainKey("111111").build();
+                .domainKey(key).build();
         onsTemplate.send(event);
     }
 
-    @PostMapping("/mq/orderOpen")
-    public void orderOpen(@RequestParam String title) {
-        Msg message = Msg.builder().author("daofeng").title(title).content("顺序打开").build();
+    @PostMapping("/mq/sendOrder")
+    public void sendOrder(@RequestParam String key) {
+        Msg message = Msg.builder().author("daofeng").title("sendOrder").content("同步发送顺序消息").build();
         MessageEvent event = MessageEvent.builder().topic("rap_content").tag("OPEN_DETAIL").domain(message)
-                .domainKey("222222").build();
+                .domainKey(key).build();
         onsTemplate.sendOrder(event, MessageOrderTypeEnum.TAG);
     }
 
-    @PostMapping("/mq/close")
-    public void close(@RequestParam String title) {
-        Msg message = Msg.builder().author("daofeng").title(title).content("异步关闭").build();
+    @PostMapping("/mq/sendAsync")
+    public void sendAsync(@RequestParam String key) {
+        Msg message = Msg.builder().author("daofeng").title("sendAsync").content("异步发送").build();
         MessageEvent event = MessageEvent.builder().topic("rap_content").tag("CLOSE_DETAIL").domain(message)
-                .domainKey("333333").build();
+                .domainKey(key).build();
         onsTemplate.sendAsync(event);
     }
 
