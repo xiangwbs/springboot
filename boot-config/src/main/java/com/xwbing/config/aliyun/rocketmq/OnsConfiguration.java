@@ -51,8 +51,8 @@ public class OnsConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "producerGroupId")
-    public OnsTemplate onsTemplate() {
-        return new OnsTemplate();
+    public OnsTemplate onsTemplate(ProducerBean producerBean, OrderProducerBean orderProducerBean) {
+        return new OnsTemplate(producerBean, orderProducerBean);
     }
 
     @Bean

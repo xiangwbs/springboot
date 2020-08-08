@@ -31,8 +31,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class OnsConsumer implements ApplicationContextAware, InitializingBean, DisposableBean {
+    private final OnsProperties onsProperties;
     private ApplicationContext applicationContext;
-    private OnsProperties onsProperties;
     private Map<String, ConsumerBean> consumerMap = new HashMap<>();
     private List<SubscriptionMeta> subscriptionMetas = new ArrayList<>();
 

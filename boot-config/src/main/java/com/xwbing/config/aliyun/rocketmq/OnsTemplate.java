@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-import javax.annotation.Resource;
-
 import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
@@ -19,7 +17,7 @@ import com.aliyun.openservices.ons.api.bean.ProducerBean;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Producer发送消息模板
+ * Producer生产消息模板
  *
  * @author daofeg
  * @version $
@@ -27,10 +25,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class OnsTemplate {
-    @Resource
-    private ProducerBean producer;
-    @Resource
-    private OrderProducerBean orderProducer;
+    private final ProducerBean producer;
+    private final OrderProducerBean orderProducer;
+
+    public OnsTemplate(ProducerBean producer, OrderProducerBean orderProducer) {
+        this.producer = producer;
+        this.orderProducer = orderProducer;
+    }
 
     /**
      * 同步发送
