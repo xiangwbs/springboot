@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -24,6 +23,8 @@ import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * 所有Consumer实例管理
+ *
  * @author daofeng
  * @version $
  * @since 2020年08月06日 20:11
@@ -40,58 +41,59 @@ public class OnsConsumer implements ApplicationContextAware, InitializingBean, D
     }
 
     @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
     public void destroy() {
         consumerMap.values().forEach(ConsumerBean::shutdown);
     }
 
     @Override
     public void afterPropertiesSet() {
-        Map<String, Object> beanMap = applicationContext.getBeansWithAnnotation(OnsListener.class);
-        if (MapUtils.isNotEmpty(beanMap)) {
-            beanMap.values().forEach(bean -> {
-                Class<?> clazz = bean.getClass();
-                OnsListener listener = clazz.getAnnotation(OnsListener.class);
-                SubscriptionMeta subscriptionMeta = SubscriptionMeta.builder().onsListener(listener)
-                        .messageListener((MessageListener)bean).build();
-                subscriptionMetas.add(subscriptionMeta);
-                String groupId = listener.groupId();
-                ConsumerBean consumer = consumerMap.get(groupId);
-                Properties properties;
-                // 一个Group ID只能创建一个Consumer实例
-                if (consumer == null) {
-                    // 设置配置文件
-                    consumer = new ConsumerBean();
-                    properties = OnsConfiguration.buildProperties(onsProperties);
-                    properties.put(PropertyKeyConst.GROUP_ID, listener.groupId());
-                    consumer.setProperties(properties);
-                    consumerMap.put(groupId, consumer);
-                }
-            });
-            // 订阅 1-n topic
-            // 一个topic只能创建一个MessageListener 参考Subscription.hashCode()
-            Map<String, List<SubscriptionMeta>> metaMap = subscriptionMetas.stream()
-                    .collect(Collectors.groupingBy(subscriptionMeta -> subscriptionMeta.getOnsListener().groupId()));
-            consumerMap.forEach((groupId, consumerBean) -> {
-                Map<Subscription, MessageListener> subscriptionTable = new HashMap<>();
-                OnsListener onsListener;
-                Subscription subscription;
-                for (SubscriptionMeta subscriptionMeta : metaMap.get(groupId)) {
-                    onsListener = subscriptionMeta.getOnsListener();
-                    subscription = new Subscription();
-                    subscription.setTopic(onsListener.topic());
-                    subscription.setExpression(onsListener.expression());
-                    subscription.setType(onsListener.type());
-                    subscriptionTable.put(subscription, subscriptionMeta.getMessageListener());
-                }
-                consumerBean.setSubscriptionTable(subscriptionTable);
-                consumerBean.start();
-            });
+        Map<String, Object> listenerMap = applicationContext.getBeansWithAnnotation(OnsListener.class);
+        if (listenerMap == null || listenerMap.isEmpty()) {
+            return;
         }
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+        // 设置配置文件
+        listenerMap.values().forEach(bean -> {
+            Class<?> clazz = bean.getClass();
+            OnsListener listener = clazz.getAnnotation(OnsListener.class);
+            SubscriptionMeta subscriptionMeta = SubscriptionMeta.builder().onsListener(listener)
+                    .messageListener((MessageListener)bean).build();
+            subscriptionMetas.add(subscriptionMeta);
+            String groupId = listener.groupId();
+            ConsumerBean consumer = consumerMap.get(groupId);
+            Properties properties;
+            // 一个GroupID在jvm里只能创建一个Consumer实例
+            if (consumer == null) {
+                consumer = new ConsumerBean();
+                properties = OnsConfiguration.buildProperties(onsProperties);
+                properties.put(PropertyKeyConst.GROUP_ID, listener.groupId());
+                consumer.setProperties(properties);
+                consumerMap.put(groupId, consumer);
+            }
+        });
+        // 订阅 1-n topic
+        // 一个topic只能创建一个MessageListener 参考Subscription.hashCode()
+        Map<String, List<SubscriptionMeta>> metaMap = subscriptionMetas.stream()
+                .collect(Collectors.groupingBy(subscriptionMeta -> subscriptionMeta.getOnsListener().groupId()));
+        consumerMap.forEach((groupId, consumerBean) -> {
+            Map<Subscription, MessageListener> subscriptionTable = new HashMap<>();
+            OnsListener onsListener;
+            Subscription subscription;
+            for (SubscriptionMeta subscriptionMeta : metaMap.get(groupId)) {
+                onsListener = subscriptionMeta.getOnsListener();
+                subscription = new Subscription();
+                subscription.setTopic(onsListener.topic());
+                subscription.setExpression(onsListener.expression());
+                subscription.setType(onsListener.type());
+                subscriptionTable.put(subscription, subscriptionMeta.getMessageListener());
+            }
+            consumerBean.setSubscriptionTable(subscriptionTable);
+            consumerBean.start();
+        });
     }
 
     @Value

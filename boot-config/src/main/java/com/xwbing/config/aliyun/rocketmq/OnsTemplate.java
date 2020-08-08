@@ -19,6 +19,8 @@ import com.aliyun.openservices.ons.api.bean.ProducerBean;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * Producer发送消息模板
+ *
  * @author daofeg
  * @version $
  * @since 2020年08月06日 20:54
@@ -125,7 +127,7 @@ public class OnsTemplate {
      * 异步发送(带延迟时间)
      *
      * @param event
-     * @param delay
+     * @param delay 毫秒
      * @param callback
      */
     public void sendAsync(MessageEvent event, long delay, SendCallback callback) {

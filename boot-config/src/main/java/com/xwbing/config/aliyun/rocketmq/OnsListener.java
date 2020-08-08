@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 import com.aliyun.openservices.shade.com.alibaba.rocketmq.common.filter.ExpressionType;
 
 /**
- * Consumer监听注解
- * 注解的类需实现MessageListener
+ * Consumer订阅监听注解
+ * 监听器需实现MessageListener
  * 一个topic只能创建一个MessageListener 参考Subscription.hashCode()
  *
  * @author daofeg
