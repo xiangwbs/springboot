@@ -3,13 +3,9 @@ package com.xwbing.configuration;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import javax.servlet.Filter;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 /**
@@ -27,14 +23,14 @@ public class ApplicationContextConfig {
      *
      * @return
      */
-    @Bean//相当于XML中的<bean></bean>
-    @ConditionalOnMissingBean(CharacterEncodingFilter.class)
-    public Filter characterEncodingFilter() {
-        CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
-        characterEncodingFilter.setEncoding("UTF-8");
-        characterEncodingFilter.setForceEncoding(true);
-        return characterEncodingFilter;
-    }
+    // @Bean//相当于XML中的<bean></bean>
+    // @ConditionalOnMissingBean(CharacterEncodingFilter.class)
+    // public Filter characterEncodingFilter() {
+    //     CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
+    //     characterEncodingFilter.setEncoding("UTF-8");
+    //     characterEncodingFilter.setForceEncoding(true);
+    //     return characterEncodingFilter;
+    // }
 
     /**
      * 文件上传解析器

@@ -1,13 +1,15 @@
 package com.xwbing.demo;
 
-import com.xwbing.domain.entity.BaseEntity;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+
+import org.springframework.stereotype.Component;
+
+import com.xwbing.domain.entity.BaseEntity;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 项目名称: boot-module-pro
@@ -24,7 +26,7 @@ public class ReflectDemo {
         /**
          * class
          */
-        Class clazz;
+        Class<?> clazz;
         //1 直接通过类名.Class的方式得到
         clazz = Reflect.class;
         //2 通过对象的getClass()方法获取,这个使用的少（一般是传的是Object，不知道是什么类型的时候才用）

@@ -17,6 +17,7 @@ import com.aliyun.openservices.ons.api.MessageListener;
 import com.aliyun.openservices.ons.api.PropertyKeyConst;
 import com.aliyun.openservices.ons.api.bean.ConsumerBean;
 import com.aliyun.openservices.ons.api.bean.Subscription;
+import com.aliyun.openservices.ons.api.exception.ONSClientException;
 
 import lombok.Builder;
 import lombok.Value;
@@ -33,8 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 public class OnsConsumer implements ApplicationContextAware, InitializingBean, DisposableBean {
     private final OnsProperties onsProperties;
     private ApplicationContext applicationContext;
-    private Map<String, ConsumerBean> consumerMap = new HashMap<>();
-    private List<SubscriptionMeta> subscriptionMetas = new ArrayList<>();
+    private final Map<String, ConsumerBean> consumerMap = new HashMap<>();
+    private final List<SubscriptionMeta> subscriptionMetas = new ArrayList<>();
 
     public OnsConsumer(OnsProperties onsProperties) {
         this.onsProperties = onsProperties;
@@ -76,14 +77,19 @@ public class OnsConsumer implements ApplicationContextAware, InitializingBean, D
             }
         });
         // 订阅 1-n topic
-        // 一个topic只能创建一个MessageListener 参考Subscription.hashCode()
+        // 一个topic只能对应一个MessageListener 参考Subscription.hashCode()，Subscription.equals()
         Map<String, List<SubscriptionMeta>> metaMap = subscriptionMetas.stream()
                 .collect(Collectors.groupingBy(subscriptionMeta -> subscriptionMeta.getOnsListener().groupId()));
         consumerMap.forEach((groupId, consumerBean) -> {
+            List<SubscriptionMeta> subscriptionMetas = metaMap.get(groupId);
+            List<String> topics = subscriptionMetas.stream()
+                    .map(subscriptionMeta -> subscriptionMeta.getOnsListener().topic()).collect(Collectors.toList());
+            //校验是否存在重复topic
+            checkTopic(groupId, topics);
             Map<Subscription, MessageListener> subscriptionTable = new HashMap<>();
             OnsListener onsListener;
             Subscription subscription;
-            for (SubscriptionMeta subscriptionMeta : metaMap.get(groupId)) {
+            for (SubscriptionMeta subscriptionMeta : subscriptionMetas) {
                 onsListener = subscriptionMeta.getOnsListener();
                 subscription = new Subscription();
                 subscription.setTopic(onsListener.topic());
@@ -101,5 +107,21 @@ public class OnsConsumer implements ApplicationContextAware, InitializingBean, D
     private static class SubscriptionMeta {
         OnsListener onsListener;
         MessageListener messageListener;
+    }
+
+    private void checkTopic(String groupId, List<String> topics) {
+        Map<String, Integer> map = new HashMap<>();
+        for (String topic : topics) {
+            Integer i = 1;
+            if (map.get(topic) != null) {
+                i = map.get(topic) + 1;
+            }
+            map.put(topic, i);
+        }
+        map.keySet().forEach(topic -> {
+            if (map.get(topic) > 1) {
+                throw new ONSClientException("duplicate topic [" + topic + "] by group id [" + groupId + "]");
+            }
+        });
     }
 }
