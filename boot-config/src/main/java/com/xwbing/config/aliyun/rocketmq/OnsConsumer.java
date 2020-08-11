@@ -59,13 +59,11 @@ public class OnsConsumer implements ApplicationContextAware, InitializingBean, D
         }
         // 设置配置文件
         listenerMap.values().forEach(bean -> {
-            Class<?> clazz = bean.getClass();
-            OnsListener listener = clazz.getAnnotation(OnsListener.class);
+            OnsListener listener = bean.getClass().getAnnotation(OnsListener.class);
             SubscriptionMeta subscriptionMeta = SubscriptionMeta.builder().onsListener(listener)
                     .messageListener((MessageListener)bean).build();
             subscriptionMetas.add(subscriptionMeta);
-            String groupId = listener.groupId();
-            ConsumerBean consumer = consumerMap.get(groupId);
+            ConsumerBean consumer = consumerMap.get(listener.groupId());
             Properties properties;
             // 一个GroupID在jvm里只能创建一个Consumer实例
             if (consumer == null) {
@@ -73,7 +71,7 @@ public class OnsConsumer implements ApplicationContextAware, InitializingBean, D
                 properties = OnsConfiguration.buildProperties(onsProperties);
                 properties.put(PropertyKeyConst.GROUP_ID, listener.groupId());
                 consumer.setProperties(properties);
-                consumerMap.put(groupId, consumer);
+                consumerMap.put(listener.groupId(), consumer);
             }
         });
         // 订阅 1-n topic

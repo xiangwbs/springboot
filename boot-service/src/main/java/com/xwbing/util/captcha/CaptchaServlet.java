@@ -1,17 +1,18 @@
 package com.xwbing.util.captcha;
 
-import com.xwbing.constant.CommonConstant;
-import lombok.extern.slf4j.Slf4j;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.OutputStream;
+
+import com.xwbing.constant.CommonConstant;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 创建验证码的servlet
@@ -19,7 +20,7 @@ import java.io.OutputStream;
  * @author xiangwb
  */
 @Slf4j
-@WebServlet(name = "captchaServlet", urlPatterns = {"/captcha"})
+// @WebServlet(name = "captchaServlet", urlPatterns = {"/captcha"})
 public class CaptchaServlet extends HttpServlet {
     private static final long serialVersionUID = -8687266469702749102L;
 

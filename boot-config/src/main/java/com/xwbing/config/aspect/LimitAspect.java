@@ -12,8 +12,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 
-import com.sun.xml.internal.ws.util.UtilException;
 import com.xwbing.config.annotation.Limit;
+import com.xwbing.config.exception.ConfigException;
 import com.xwbing.config.redis.RedisService;
 
 import lombok.SneakyThrows;
@@ -46,7 +46,7 @@ public class LimitAspect {
         if (StringUtils.isEmpty(value)) {
             redisService.set(key, "limit", timeout);
         } else {
-            throw new UtilException("您的操作太快, 请稍后再试");
+            throw new ConfigException("您的操作太快, 请稍后再试");
         }
     }
 

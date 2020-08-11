@@ -1,22 +1,27 @@
 package com.xwbing.handler;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.annotation.Order;
-
-import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
 
 /**
  * @author xiangwb
  * @date 2019/1/24 19:20
  * 防盗链过滤器
  */
-@WebFilter(filterName = "fileFilter", urlPatterns = "/file/*")
+// @WebFilter(filterName = "fileFilter", urlPatterns = "/file/*")
 @Order(3)
 public class FileFilter implements Filter {
     private static final Set<String> WHITE_LIST = new HashSet<>();
