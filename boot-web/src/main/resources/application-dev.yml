@@ -16,7 +16,17 @@ spring:
         size: 1
     listener:
       simple:
-        acknowledge-mode: manual #手动确认消费ack
+        acknowledge-mode: manual
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: xwbing
+    timeout: 10000
+    pool:
+      max-active: 50
+      max-idle: 5
+      min-idle: 0
+      max-wait: -1
 
 xxl:
   job:

@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -73,6 +74,8 @@ public class MockControl {
     private EasyExcelDealService easyExcelDealService;
     @Resource
     private ClusterSeqGenerator clusterSeqGenerator;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
     private List<byte[]> memoryBytes = new ArrayList<>();
 
     @ApiOperation("导出zip")
@@ -137,6 +140,7 @@ public class MockControl {
     @GetMapping("redis")
     public JSONObject redis(@RequestParam String kv) {
         redisService.set(kv, kv);
+        redisTemplate.opsForValue().set("redisTemplate","redisTemplate");
         return JsonResult.toJSONObj(redisService.get(kv), "redis success");
     }
 

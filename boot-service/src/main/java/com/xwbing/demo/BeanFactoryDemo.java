@@ -1,15 +1,26 @@
 package com.xwbing.demo;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.util.MultiValueMap;
+
+import com.xwbing.annotation.MyBean;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,11 +31,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Configuration
-public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProcessor {
+public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProcessor, Ordered {
     private final Set<String> beanNames = new HashSet<>();
-    private ConfigurableListableBeanFactory beanFactory;
+    private final Map<String, MyBean> annotationMap = new HashMap<>();
 
-    @Bean(initMethod = "init", destroyMethod = "shutdown")
+    private DefaultListableBeanFactory beanFactory;
+
+    @Bean(name = "defaultBeanInitDemo", initMethod = "init", destroyMethod = "shutdown")
     public BeanInitDemo beanInitDemo() {
         BeanInitDemo beanInitDemo = new BeanInitDemo();
         beanInitDemo.setProperty("property");
@@ -33,6 +46,7 @@ public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProces
 
     /**
      * 获取bean的示例或定义等。同时可以修改bean的属性
+     * 与bean definitions打交道，但是千万不要进行bean实例化
      *
      * @param beanFactory
      *
@@ -40,9 +54,26 @@ public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProces
      */
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
-        System.out.println("postProcessBeanFactory...当前BeanFactory中有" + beanFactory.getBeanDefinitionCount() + "个Bean");
-        System.out.println(Arrays.asList(beanFactory.getBeanDefinitionNames()));
+        this.beanFactory = (DefaultListableBeanFactory)beanFactory;
+        System.out.println("postProcessBeanFactory...");
+        for (String beanName : beanFactory.getBeanDefinitionNames()) {
+            MyBean annotation = beanFactory.findAnnotationOnBean(beanName, MyBean.class);
+            if (annotation != null) {
+                AnnotatedBeanDefinition beanDefinition = (AnnotatedBeanDefinition)beanFactory
+                        .getBeanDefinition(beanName);
+                AnnotationMetadata annotationMetadata = beanDefinition.getMetadata();
+                MultiValueMap<String, Object> allAnnotationAttributes = annotationMetadata
+                        .getAllAnnotationAttributes(MyBean.class.getCanonicalName());
+                annotationMap.put(beanName, annotation);
+                BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
+                        .rootBeanDefinition(BeanInitDemo.class).addPropertyValue("property", "definitionProperty")
+                        .addPropertyValue("beanName", "definitionBeanInitDemo")
+                        .addPropertyValue("beanFactory", beanFactory).setInitMethodName("init")
+                        .setDestroyMethodName("shutdown");
+                this.beanFactory
+                        .registerBeanDefinition("definitionBeanInitDemo", beanDefinitionBuilder.getBeanDefinition());
+            }
+        }
     }
 
     // /**
@@ -110,7 +141,8 @@ public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProces
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         // 标记bean
-        if (BeanInitDemo.class.getSimpleName().equalsIgnoreCase(beanName)) {
+        MyBean annotation = bean.getClass().getAnnotation(MyBean.class);
+        if (annotation != null) {
             beanNames.add(beanName);
             System.out.println("postProcessBeforeInitialization 初始化bean前");
         }
@@ -121,8 +153,50 @@ public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProces
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         //处理bean
         if (beanNames.contains(beanName)) {
+
             System.out.println("postProcessAfterInitialization 初始化bean后 " + bean);
         }
         return bean;
+    }
+
+    /**
+     * Find a {@link BeanDefinition} in the {@link BeanFactory} or it's parents.
+     *
+     * @param beanFactory
+     * @param beanName
+     *
+     * @return
+     */
+    private BeanDefinition findBeanDefinition(ConfigurableListableBeanFactory beanFactory, String beanName) {
+        if (beanFactory.containsLocalBean(beanName)) {
+            return beanFactory.getBeanDefinition(beanName);
+        }
+        BeanFactory parentBeanFactory = beanFactory.getParentBeanFactory();
+        if (ConfigurableListableBeanFactory.class.isInstance(parentBeanFactory)) {
+            return findBeanDefinition((ConfigurableListableBeanFactory)parentBeanFactory, beanName);
+        }
+        throw new RuntimeException(String.format("Bean with name '%s' can no longer be found.", beanName));
+    }
+
+    /**
+     * 根据beanName获取Class
+     *
+     * @param beanName
+     *
+     * @return
+     */
+    private Class<?> getClass(String beanName) {
+        BeanDefinition beanDefinition = this.findBeanDefinition(beanFactory, beanName);
+        String className = beanDefinition.getBeanClassName();
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public int getOrder() {
+        return LOWEST_PRECEDENCE;
     }
 }

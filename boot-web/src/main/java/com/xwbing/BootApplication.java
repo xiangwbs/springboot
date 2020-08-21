@@ -8,8 +8,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import com.xwbing.config.alipay.EnableAliPayClient;
 import com.xwbing.config.aliyun.rocketmq.EnableRocketMQ;
-import com.xwbing.config.redis.EnableRedis;
 import com.xwbing.config.clusterseq.EnableClusterSeq;
+import com.xwbing.config.clustertask.EnableClusterTask;
+import com.xwbing.config.redis.EnableRedis;
 
 /**
  * 项目名称: boot-module-pro
@@ -20,11 +21,12 @@ import com.xwbing.config.clusterseq.EnableClusterSeq;
 @EnableRedis
 @EnableClusterSeq
 @ServletComponentScan
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = { "com.xwbing" })
 @EnableAspectJAutoProxy
 @EnableAsync
 @EnableAliPayClient
 @EnableRocketMQ
+@EnableClusterTask
 public class BootApplication {
     public static void main(String[] args) {
         SpringApplication.run(BootApplication.class, args);

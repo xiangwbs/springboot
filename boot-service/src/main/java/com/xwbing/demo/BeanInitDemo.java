@@ -12,6 +12,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.xwbing.annotation.MyBean;
+
 import lombok.ToString;
 
 /**
@@ -20,6 +22,7 @@ import lombok.ToString;
  *
  * @author xiangwb
  */
+@MyBean("annotationProperty")
 @ToString
 public class BeanInitDemo
         implements BeanNameAware, BeanFactoryAware, ApplicationContextAware, InitializingBean, DisposableBean {
@@ -45,7 +48,7 @@ public class BeanInitDemo
     }
 
     public void setProperty(String property) {
-        System.out.println("2.setProperty bean属性注入");
+        System.out.println("2.setProperty:" + property + " bean属性注入");
         this.property = property;
     }
 
