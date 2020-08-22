@@ -17,6 +17,7 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.annotation.LogInfo;
@@ -62,8 +63,9 @@ public class WebLogAspect {
         String methodName = joinPoint.getSignature().getName();
         //获取参数
         String params = Arrays.stream(joinPoint.getArgs())
-                .filter(param -> !(param instanceof HttpServletRequest || param instanceof HttpServletResponse))
-                .map(JSONObject::toJSONString).collect(Collectors.joining(","));
+                .filter(param -> !(param instanceof HttpServletRequest || param instanceof HttpServletResponse
+                        || param instanceof MultipartFile)).map(JSONObject::toJSONString)
+                .collect(Collectors.joining(","));
         if (StringUtils.isNotEmpty(params)) {
             log.info("{}.{}: {} started params:{}", targetName, methodName, info, params);
         } else {
@@ -94,7 +96,7 @@ public class WebLogAspect {
      * @param joinPoint
      * @param exception
      */
-//    @AfterThrowing(pointcut = "pointCutService()", throwing = "exception")
+    //    @AfterThrowing(pointcut = "pointCutService()", throwing = "exception")
     public void afterThrowing(JoinPoint joinPoint, Exception exception) {
         String stackTrace = ExceptionUtils.getStackTrace(exception);
         String className = joinPoint.getTarget().getClass().getSimpleName();
@@ -115,9 +117,10 @@ public class WebLogAspect {
      *
      * @param pjp
      * @param logInfo
+     *
      * @return
      */
-//    @Around(value = "pointCutWithMsg(logInfo)", argNames = "pjp,logInfo")
+    //    @Around(value = "pointCutWithMsg(logInfo)", argNames = "pjp,logInfo")
     public Object around(ProceedingJoinPoint pjp, LogInfo logInfo) throws Throwable {
         String info = logInfo.value();// 获取注解信息
         log.info("{} start", info);//前置通知
@@ -130,12 +133,13 @@ public class WebLogAspect {
      * 获取切入点信息
      *
      * @param joinPoint
+     *
      * @throws ClassNotFoundException
      */
     private void getMsg(JoinPoint joinPoint) throws ClassNotFoundException {
         String targetName = joinPoint.getTarget().getClass().getSimpleName();// 类名
         String methodName = joinPoint.getSignature().getName();// 方法名
-        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
         Class[] parameterTypes = methodSignature.getParameterTypes();//方法参数类型
         String[] parameterNames = methodSignature.getParameterNames();//方法参数名
         Object[] arguments = joinPoint.getArgs();// 方法参数值

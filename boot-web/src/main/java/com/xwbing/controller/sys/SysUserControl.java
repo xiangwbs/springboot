@@ -38,7 +38,7 @@ import com.xwbing.service.sys.SysAuthorityService;
 import com.xwbing.service.sys.SysRoleService;
 import com.xwbing.service.sys.SysUserRoleService;
 import com.xwbing.service.sys.SysUserService;
-import com.xwbing.util.CommonDataUtil;
+import com.xwbing.config.util.CommonDataUtil;
 import com.xwbing.util.JsonResult;
 import com.xwbing.util.Pagination;
 import com.xwbing.util.RestMessage;

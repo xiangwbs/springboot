@@ -5,6 +5,7 @@ import javax.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +17,6 @@ import com.xwbing.util.RestMessage;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 
 /**
  * 项目名称: boot-module-pro
@@ -40,7 +40,7 @@ public class CommonControl {
 
     @ApiOperation("上传文件")
     @PostMapping("upload")
-    public JSONObject upload(@ApiParam(value = "文件", required = true) MultipartFile file) {
+    public JSONObject upload(@RequestParam MultipartFile file) {
         RestMessage restMessage = commonService.upload(file);
         return JsonResult.toJSONObj(restMessage);
     }

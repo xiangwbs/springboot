@@ -29,7 +29,7 @@ import com.xwbing.domain.entity.vo.RestMessageVo;
 import com.xwbing.domain.entity.vo.SysAuthVo;
 import com.xwbing.enums.YesOrNoEnum;
 import com.xwbing.service.sys.SysAuthorityService;
-import com.xwbing.util.CommonDataUtil;
+import com.xwbing.config.util.CommonDataUtil;
 import com.xwbing.util.JsonResult;
 import com.xwbing.util.Pagination;
 import com.xwbing.util.RestMessage;

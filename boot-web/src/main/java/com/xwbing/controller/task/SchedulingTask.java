@@ -6,9 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.xwbing.util.CommonDataUtil;
+import com.xwbing.config.util.CommonDataUtil;
 
 import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
@@ -26,7 +27,7 @@ public class SchedulingTask {
     // @Lock
     @GetMapping("clearExpiryData")
     @Scheduled(cron = "0 0 6 * * ?")
-    // @SchedulerLock(name = "com.xwbing.controller.task.clearExpiryData", lockAtLeastForString = "PT40s", lockAtMostForString = "PT60s")
+    @SchedulerLock(name = "com.xwbing.controller.task.clearExpiryData", lockAtLeastFor = "1h", lockAtMostFor = "1h")
     public void clearExpiryData() {
         log.info("clearExpiryData start");
         CommonDataUtil.clearExpiryData();

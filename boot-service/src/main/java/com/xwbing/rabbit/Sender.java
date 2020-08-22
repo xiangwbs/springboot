@@ -1,13 +1,15 @@
 package com.xwbing.rabbit;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.support.CorrelationData;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.UUID;
+
+import javax.annotation.Resource;
+
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 创建时间: 2018/4/25 14:48

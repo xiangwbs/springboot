@@ -5,13 +5,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import lombok.Data;
 
 /**
- * @author xiangwb
  * aliyun属性加载配置类
+ *
+ * @author xiangwb
  */
 @Data
 @ConfigurationProperties(prefix = AliYunLogProperties.PREFIX)
 public class AliYunLogProperties {
-    public static final String PREFIX = "boot.aliYun";
+    public static final String PREFIX = "boot.aliyun";
     /**
      * 开启aliYunLog
      */
@@ -20,10 +21,6 @@ public class AliYunLogProperties {
      * 阿里云日志
      */
     private final AliYunLogProperties.Log log = new AliYunLogProperties.Log();
-    /**
-     * 钉钉机器人
-     */
-    private final AliYunLogProperties.DingTalk dingTalk = new AliYunLogProperties.DingTalk();
 
     @Data
     public static class Log {
@@ -45,17 +42,5 @@ public class AliYunLogProperties {
          * 日志库名称
          */
         private String logStore;
-    }
-
-    @Data
-    public static class DingTalk {
-        /**
-         * 钉钉机器人地址
-         */
-        private String webHook;
-        /**
-         * 钉钉消息安全设置:加签(选填)
-         */
-        private String secret;
     }
 }

@@ -14,13 +14,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.xwbing.config.util.CommonDataUtil;
 import com.xwbing.constant.CommonConstant;
 import com.xwbing.domain.entity.model.EmailModel;
 import com.xwbing.domain.entity.rest.FilesUpload;
 import com.xwbing.domain.entity.sys.SysConfig;
 import com.xwbing.exception.BusinessException;
 import com.xwbing.service.sys.SysConfigService;
-import com.xwbing.util.CommonDataUtil;
 import com.xwbing.util.DigestsUtil;
 import com.xwbing.util.RestMessage;
 

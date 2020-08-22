@@ -11,8 +11,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
@@ -90,7 +90,7 @@ public class ServiceTest extends BaseTest {
         dictionary.setName("serviceTest");
         dictionary.setParentId("root");
         RestMessage save = dictionaryService.save(dictionary);
-        Assert.assertTrue(save.isSuccess());
+        Assertions.assertTrue(save.isSuccess());
     }
 
     @Transactional
@@ -103,14 +103,14 @@ public class ServiceTest extends BaseTest {
         sysRole.setEnable("Y");
         sysRole.setRemark("serviceTest");
         RestMessage save = sysRoleService.save(sysRole);
-        Assert.assertTrue(save.isSuccess());
+        Assertions.assertTrue(save.isSuccess());
     }
 
     @Test
     public void listShipperCodeTest() {
         log.debug("获取快递列表");
         List<JSONObject> list = KdniaoShipperCodeEnum.list();
-        Assert.assertSame(12, list.size());
+        Assertions.assertSame(12, list.size());
     }
 
     @Test
@@ -123,13 +123,13 @@ public class ServiceTest extends BaseTest {
             log.error("快递公司或物流单号不能为空");
         }
         ExpressInfoVo infoVo = expressDeliveryService.queryOrderTraces(info);
-        Assert.assertTrue(infoVo.isSuccess());
+        Assertions.assertTrue(infoVo.isSuccess());
     }
 
     @Test
     public void createQRCodeTest() {
         RestMessage qrCode = qrCodeZipService.createQRCode("test", "test");
-        Assert.assertTrue(qrCode.isSuccess());
+        Assertions.assertTrue(qrCode.isSuccess());
     }
 
     @Test
@@ -138,14 +138,14 @@ public class ServiceTest extends BaseTest {
         String path = pic.getFile().getAbsolutePath();
         File file = new File(path + File.separator + "QRCode.png");
         RestMessage decode = qrCodeZipService.decode(file);
-        Assert.assertTrue(decode.isSuccess());
+        Assertions.assertTrue(decode.isSuccess());
     }
 
     @Test
     public void rsaTest() {
         String en = RSAUtil.encrypt("123456");
         String de = RSAUtil.decrypt(en);
-        Assert.assertEquals("123456", de);
+        Assertions.assertEquals("123456", de);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class ServiceTest extends BaseTest {
     public void redisTest() {
         redisService.set("redis", "xwbing");
         String s = redisService.get("redis");
-        Assert.assertEquals("xwbing", s);
+        Assertions.assertEquals("xwbing", s);
     }
 
     @Test

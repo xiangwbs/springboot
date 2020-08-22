@@ -147,7 +147,7 @@ public class MockControl {
     @ApiOperation("发送钉钉机器人消息")
     @GetMapping("sendTextMessage")
     public void sendTextMessage(@RequestParam boolean atAll, @RequestParam List<String> atMobiles) {
-        aliYunLog.sendRobotMessage("我是一个文本", atAll, atMobiles, "test");
+        DingTalkClient.sendRobotMessage("我是一个文本", atAll, atMobiles, "test");
     }
 
     @ApiOperation("发送钉钉机器人消息")
@@ -156,7 +156,7 @@ public class MockControl {
         LinkMessage linkMessage = LinkMessage.builder().title("通知公告测试").text("查看详情")
                 .picUrl("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png")
                 .messageUrl(DingTalkClient.toPcSlide("https://www.seniverse.com")).build();
-        aliYunLog.sendRobotMessage(linkMessage);
+        DingTalkClient.sendRobotMessage(linkMessage);
     }
 
     @ApiOperation("发送钉钉机器人消息")
@@ -182,7 +182,7 @@ public class MockControl {
         message.addItem(MarkdownMessage.getLinkText("天气", DingTalkClient.toPcSlide("https://www.seniverse.com")));
         message.setAtAll(atAll);
         message.addAtMobiles(atMobiles);
-        aliYunLog.sendRobotMessage(message);
+        DingTalkClient.sendRobotMessage(message);
     }
 
     @ApiOperation("发送群消息")
@@ -191,7 +191,7 @@ public class MockControl {
         LinkMessage linkMessage = LinkMessage.builder().chatId("chat0f212fb4dc07478f0813eb98e9470ff6").title("link消息测试")
                 .text("消息内容消息内容测试").picUrl("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png")
                 .messageUrl("https://www.seniverse.com").build();
-        aliYunLog.sendChatMessage(linkMessage, token);
+        DingTalkClient.sendChatMessage(linkMessage, token);
     }
 
     @ApiOperation("发送群消息")
@@ -201,7 +201,7 @@ public class MockControl {
         message.setChatId("chat0f212fb4dc07478f0813eb98e9470ff6");
         message.setTitle("通知公告测试");
         message.addItem(MarkdownMessage.getLinkText("查看详情", "https://www.seniverse.com"));
-        aliYunLog.sendChatMessage(message, token);
+        DingTalkClient.sendChatMessage(message, token);
     }
 
     @ApiOperation("spring上下文")

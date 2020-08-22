@@ -12,9 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
@@ -33,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @PropertySource("classpath:config.properties")
-public class DispatcherServletConfig extends WebMvcConfigurerAdapter {
+public class DispatcherServletConfig implements WebMvcConfigurer {
     @Value("${loginInterceptorEnable}")
     private boolean loginInterceptorEnable;
     @Value("${urlPermissionsInterceptorEnable}")
@@ -53,7 +52,6 @@ public class DispatcherServletConfig extends WebMvcConfigurerAdapter {
             log.info("注册权限拦截器UrlPermissionsInterceptor ======================= ");
             registry.addInterceptor(urlPermissionsInterceptor()).addPathPatterns("/**").excludePathPatterns("/user/login");
         }
-        super.addInterceptors(registry);
     }
 
     /**
@@ -66,30 +64,29 @@ public class DispatcherServletConfig extends WebMvcConfigurerAdapter {
         return new UrlPermissionsInterceptor();
     }
 
-    /**
-     * 配置静态访问资源
-     * 访问时不需要前缀
-     * 默认:优先级
-     * /**映射到
-     * classpath:/META-INF/resources
-     * classpath:/resources
-     * classpath:/static
-     * classpath:/public
-     *
-     * @param registry
-     */
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        //swagger
-//        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
-//        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
-        //服务器部署的tomcat下html路径
-//        registry.addResourceHandler("/js/**").addResourceLocations("html/js/");
-//        registry.addResourceHandler("/css/**").addResourceLocations("html/css/");
-//        registry.addResourceHandler("/img/**").addResourceLocations("html/img/");
-//        registry.addResourceHandler("/file/**").addResourceLocations("classpath:/file/");
-        super.addResourceHandlers(registry);
-    }
+    // /**
+    //  * 配置静态访问资源
+    //  * 访问时不需要前缀
+    //  * 默认:优先级
+    //  * /**映射到
+    //  * classpath:/META-INF/resources
+    //  * classpath:/resources
+    //  * classpath:/static
+    //  * classpath:/public
+    //  *
+    //  * @param registry
+    //  */
+    // @Override
+    // public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    //     // swagger
+    //    registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+    //    registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+    //     // 服务器部署的tomcat下html路径
+    //    registry.addResourceHandler("/js/**").addResourceLocations("html/js/");
+    //    registry.addResourceHandler("/css/**").addResourceLocations("html/css/");
+    //    registry.addResourceHandler("/img/**").addResourceLocations("html/img/");
+    //    registry.addResourceHandler("/file/**").addResourceLocations("classpath:/file/");
+    // }
 
     /**
      * 视图配置
@@ -103,7 +100,6 @@ public class DispatcherServletConfig extends WebMvcConfigurerAdapter {
         //重定向
         registry.addRedirectViewController("doc", "swagger-ui.html");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        super.addViewControllers(registry);
     }
 
     /**
@@ -119,7 +115,6 @@ public class DispatcherServletConfig extends WebMvcConfigurerAdapter {
                 .allowedHeaders("*")
                 .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS")
                 .maxAge(24L * 60 * 60);//指定本次预检请求的有效期,单位为秒
-        super.addCorsMappings(registry);
     }
 
     /**
@@ -130,7 +125,6 @@ public class DispatcherServletConfig extends WebMvcConfigurerAdapter {
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(getFastJsonHttpMessageConverter());
-        super.configureMessageConverters(converters);
     }
 
     /**
@@ -143,14 +137,17 @@ public class DispatcherServletConfig extends WebMvcConfigurerAdapter {
         FastJsonHttpMessageConverter messageConverter = new FastJsonHttpMessageConverter();
         //设置支持的Content-Type
         List<MediaType> mediaTypes = new ArrayList<>();
-        mediaTypes.add(MediaType.APPLICATION_JSON_UTF8);//json
-        mediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);//表单
-        mediaTypes.add(MediaType.MULTIPART_FORM_DATA);//多媒体，包含文件，post
-        mediaTypes.add(MediaType.APPLICATION_OCTET_STREAM);//二进制流，文件类型
-        mediaTypes.add(MediaType.TEXT_HTML);//文本
+        mediaTypes.add(MediaType.APPLICATION_JSON);
+        mediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);
+        // 多媒体，包含文件，post
+        mediaTypes.add(MediaType.MULTIPART_FORM_DATA);
+        // 二进制流，文件类型
+        mediaTypes.add(MediaType.APPLICATION_OCTET_STREAM);
+        // 文本
+        mediaTypes.add(MediaType.TEXT_HTML);
         messageConverter.setSupportedMediaTypes(mediaTypes);
-        //不忽略对象属性中的null值
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
+        //不忽略对象属性中的null值
         fastJsonConfig.setSerializerFeatures(
                 SerializerFeature.PrettyFormat,
                 SerializerFeature.WriteMapNullValue,//输出所有为null的字段

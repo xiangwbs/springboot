@@ -88,9 +88,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @PropertySource("classpath:pay.properties")
 public class AliPayService {
-    @Value("${aliPay.payGateWay:}")
+    @Value("${alipay.pay-gate-way:}")
     private String payGateWay;
-    @Value("${aliPay.userId:}")
+    @Value("${alipay.user-id:}")
     private String aliPayUserId;
     @Resource
     private AlipayClient aliPayCertClient;

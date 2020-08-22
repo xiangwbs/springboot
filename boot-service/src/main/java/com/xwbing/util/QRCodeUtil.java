@@ -1,25 +1,39 @@
 package com.xwbing.util;
 
-import com.google.zxing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.springframework.core.io.ClassPathResource;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.DecodeHintType;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.Result;
+import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.xwbing.exception.UtilException;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.springframework.core.io.ClassPathResource;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 二维码工具类
@@ -308,7 +322,7 @@ public class QRCodeUtil {
     public static void main(String[] args) throws Exception {
         ClassPathResource file = new ClassPathResource("pic");
         String path = file.getFile().getAbsolutePath();
-        File image = new File(path + File.separator + "xwbing.png");
+        File image = new File(path + File.separator + "logo.png");
 //        createCode("xiangwbs@163.com", image);
         FileInputStream logo = new FileInputStream(image);
         File out = new File(path + File.separator + "QRCode.png");

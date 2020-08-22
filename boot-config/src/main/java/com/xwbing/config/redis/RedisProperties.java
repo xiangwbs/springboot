@@ -1,11 +1,12 @@
 package com.xwbing.config.redis;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import lombok.Data;
 
 /**
  * @author xiangwb
- * redis属性加载配置类
+ *         redis属性加载配置类
  */
 @Data
 @ConfigurationProperties(prefix = RedisProperties.PREFIX)
@@ -19,18 +20,6 @@ public class RedisProperties {
      * 本项目缓存前缀
      */
     private String prefix;
-    /**
-     * 最大连接数
-     */
-    private Integer maxTotal;
-    /**
-     * 最大空闲连接数
-     */
-    private Integer maxIdle;
-    /**
-     * 最小空闲连接数
-     */
-    private Integer minIdle;
     /**
      * ip
      */
@@ -47,4 +36,22 @@ public class RedisProperties {
      * 密码
      */
     private String password;
+
+    private final RedisProperties.Pool pool = new RedisProperties.Pool();
+
+    @Data
+    public static class Pool {
+        /**
+         * 最大连接数
+         */
+        private Integer maxTotal;
+        /**
+         * 最大空闲连接数
+         */
+        private Integer maxIdle;
+        /**
+         * 最小空闲连接数
+         */
+        private Integer minIdle;
+    }
 }

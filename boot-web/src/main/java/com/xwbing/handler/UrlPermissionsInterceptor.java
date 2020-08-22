@@ -26,7 +26,7 @@ import com.xwbing.domain.entity.sys.SysUser;
 import com.xwbing.enums.YesOrNoEnum;
 import com.xwbing.service.sys.SysAuthorityService;
 import com.xwbing.service.sys.SysUserService;
-import com.xwbing.util.CommonDataUtil;
+import com.xwbing.config.util.CommonDataUtil;
 import com.xwbing.util.RestMessage;
 import com.xwbing.util.ThreadLocalUtil;
 

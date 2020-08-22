@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 @ConfigurationProperties(prefix = OnsProperties.PREFIX)
 public class OnsProperties {
-    public static final String PREFIX = "boot.aliYun.ons";
+    public static final String PREFIX = "boot.aliyun.ons";
     /**
      * 阿里云身份验证 AccessKeyId，在阿里云用户信息管理控制台获取。
      */

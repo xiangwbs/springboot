@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.config.aliyun.log.AliYunLog;
+import com.xwbing.config.util.dingtalk.DingTalkClient;
 import com.xwbing.exception.BusinessException;
 import com.xwbing.exception.PayException;
 import com.xwbing.exception.UtilException;
@@ -145,7 +146,7 @@ public class GlobalExceptionHandler {
     public JSONObject handlerException(Exception ex) {
         String stackTrace = ExceptionUtils.getStackTrace(ex);
         log.error(stackTrace);
-        aliYunLog.sendRobotMessage("业务流程异常", true, null, stackTrace);
+        DingTalkClient.sendRobotMessage("业务流程异常", true, null, stackTrace);
         return JsonResult.toJSONObj("系统异常,请联系管理员");
     }
 }

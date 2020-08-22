@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.22.RELEASE</version>
+        <version>2.2.9.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -58,26 +58,36 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <!-- 打包跳过单元测试 -->
         <skipTests>true</skipTests>
-        <fileUpLoad.version>1.3.1</fileUpLoad.version>
-        <zxing.version>3.2.1</zxing.version>
-        <fastjson.version>1.2.31</fastjson.version>
-        <rsa.version>1.45</rsa.version>
-        <commons-io.version>2.2</commons-io.version>
-        <alipay.version>1.0</alipay.version>
-        <druid.version>1.1.10</druid.version>
-        <poi.verison>3.14</poi.verison>
-        <easyexcel.verison>2.2.3</easyexcel.verison>
-        <guava.verison>20.0</guava.verison>
-        <httpclient.version>4.5.1</httpclient.version>
-        <swagger2.version>2.9.2</swagger2.version>
-        <mybatis-boot-start.version>1.3.1</mybatis-boot-start.version>
-        <pagehelper-boot-start.version>1.2.3</pagehelper-boot-start.version>
-        <mybatis-generator-maven-plugin.vsrsion>1.3.7</mybatis-generator-maven-plugin.vsrsion>
-        <mybatis-generator-core.version>1.3.7-cover</mybatis-generator-core.version>
-        <aliyun-log.version>0.6.6</aliyun-log.version>
         <xxl-job.version>1.0</xxl-job.version>
+
+        <commons-io.version>2.7</commons-io.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
+        <commons-beanutils.version>1.9.4</commons-beanutils.version>
+
+        <fastjson.version>1.2.66</fastjson.version>
+        <alipay-sdk.version>4.10.70.ALL</alipay-sdk.version>
+        <easyexcel.verison>2.2.6</easyexcel.verison>
+        <aliyun-log.version>0.6.50</aliyun-log.version>
+        <ons-client.version>1.8.4.Final</ons-client.version>
+        <druid.version>1.1.22</druid.version>
+
+        <mybatis-boot-start.version>2.1.3</mybatis-boot-start.version>
+        <mybatis-generator-core.version>1.3.7-cover</mybatis-generator-core.version>
+        <mybatis-generator-maven-plugin.vsrsion>1.3.7</mybatis-generator-maven-plugin.vsrsion>
+        <pagehelper-boot-start.version>1.3.0</pagehelper-boot-start.version>
+
+        <javacsv.version>2.0</javacsv.version>
+        <dom4j.version>1.6.1</dom4j.version>
+        <zip4j.version>2.6.1</zip4j.version>
+        <zxing.version>3.4.0</zxing.version>
+        <guava.verison>29.0-jre</guava.verison>
+        <rsa.version>1.46</rsa.version>
+        <httpclient.version>4.5.12</httpclient.version>
+        <shedlock.version>4.7.1</shedlock.version>
+
+        <swagger2.version>2.9.2</swagger2.version>
+        <swagger.version>1.6.0</swagger.version>
     </properties>
 
     <dependencies>
@@ -102,22 +112,31 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>${swagger2.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.swagger</groupId>
+                    <artifactId>swagger-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.swagger</groupId>
+                    <artifactId>swagger-models</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
             <version>${swagger2.version}</version>
         </dependency>
-        <!-- 解决访问swagger首页，控制台报错NumberFormatException -->
-        <dependency>
+        <dependency>  <!-- 解决访问swagger首页，控制台报错NumberFormatException -->
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>1.5.22</version>
+            <version>${swagger.version}</version>
         </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-models</artifactId>
-            <version>1.5.22</version>
+            <version>${swagger.version}</version>
         </dependency>
         <!-- json -->
         <dependency>
@@ -141,19 +160,20 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.9</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
         </dependency>
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${commons-collections4.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
+            <version>${commons-beanutils.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -165,11 +185,9 @@
             <artifactId>guava</artifactId>
             <version>${guava.verison}</version>
         </dependency>
-        <!-- lombok:实体类自动生成getting和setting方法,以及equals,hashCode,toString等 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.10</version>
         </dependency>
     </dependencies>
 
@@ -187,13 +205,10 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
-            <!-- 生成文档包 -->
+            <!--生成文档包-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <aggregate>true</aggregate>
-                </configuration>
             </plugin>
             <!-- 生成sources源码包 -->
             <plugin>

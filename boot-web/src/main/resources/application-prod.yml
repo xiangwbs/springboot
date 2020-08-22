@@ -33,19 +33,17 @@ boot:
     port: 6379
     password: xwbing
     timeout: 10000
-    maxTotal: 100
-    maxIdle: 10
-    minIdle: 0
-  aliYun:
+    pool:
+      max-total: 100
+      max-idle: 10
+      min-idle: 0
+  aliyun:
     log:
       log-store: prod_boot
-    ding-talk:
-      web-hook: https://oapi.dingtalk.com/robot/send?access_token=da82d4099a3f2515480f35210cc17dd02f315e99537d29cd3de1a751e551b670
-      secret: SECa17df9ae897fb39d525a173c47dcc93a6b01133fbb4bf3e659060cd4ed4539ea
 swagger:
   enable: false
 
-aliPay:
-  payGateWay: XX
+alipay:
+  pay-gate-way: XX
 
 

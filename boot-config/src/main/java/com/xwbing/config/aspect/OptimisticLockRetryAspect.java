@@ -1,20 +1,23 @@
 package com.xwbing.config.aspect;
 
-import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.annotation.OptimisticLockRetry;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.hibernate.StaleObjectStateException;
-import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureException;
 import org.springframework.transaction.HeuristicCompletionException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import com.alibaba.fastjson.JSONObject;
+import com.xwbing.config.annotation.OptimisticLockRetry;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xiangwb

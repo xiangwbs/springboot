@@ -1,6 +1,13 @@
 package com.xwbing.datasource;
 
-import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.sql.DataSource;
+
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateProperties;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateSettings;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
@@ -12,10 +19,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import javax.annotation.Resource;
-import javax.persistence.EntityManager;
-import javax.sql.DataSource;
-import java.util.Map;
+import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
 
 /**
  * 说明: JpaDataSourceConfig
@@ -31,6 +35,8 @@ import java.util.Map;
 public class JpaDataSourceConfig {
     @Resource
     private JpaProperties jpaProperties;
+    @Resource
+    private HibernateProperties hibernateProperties;
 
     @Bean(name = "jpaDataSource")
     @ConfigurationProperties("db2")
@@ -48,7 +54,7 @@ public class JpaDataSourceConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(dataSource())
-                .properties(getVendorProperties(dataSource()))
+                .properties(getVendorProperties())
                 .packages("com.xwbing.domain.entity")
                 .persistenceUnit("jpaPersistenceUnit")
                 .build();
@@ -79,10 +85,9 @@ public class JpaDataSourceConfig {
     /**
      * 获取jpa配置信息
      *
-     * @param dataSource
      * @return
      */
-    private Map<String, String> getVendorProperties(DataSource dataSource) {
-        return jpaProperties.getHibernateProperties(dataSource);
+    private Map<String, Object> getVendorProperties() {
+        return hibernateProperties.determineHibernateProperties(jpaProperties.getProperties(), new HibernateSettings());
     }
 }

@@ -25,12 +25,12 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Configuration
-@ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "nameServerAddress")
+@ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "name-server-address")
 @EnableConfigurationProperties(OnsProperties.class)
 public class OnsConfiguration {
 
     @Bean(initMethod = "start", destroyMethod = "shutdown")
-    @ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "producerGroupId")
+    @ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "producer-group-id")
     public ProducerBean producer(OnsProperties onsProperties) {
         Properties properties = buildProperties(onsProperties);
         properties.put(PropertyKeyConst.GROUP_ID, onsProperties.getProducerGroupId());
@@ -40,7 +40,7 @@ public class OnsConfiguration {
     }
 
     @Bean(initMethod = "start", destroyMethod = "shutdown")
-    @ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "producerGroupId")
+    @ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "producer-group-id")
     public OrderProducerBean orderProducer(OnsProperties onsProperties) {
         Properties properties = buildProperties(onsProperties);
         properties.put(PropertyKeyConst.GROUP_ID, onsProperties.getProducerGroupId());
@@ -50,7 +50,7 @@ public class OnsConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "producerGroupId")
+    @ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "producer-group-id")
     public OnsTemplate onsTemplate(ProducerBean producerBean, OrderProducerBean orderProducerBean) {
         return new OnsTemplate(producerBean, orderProducerBean);
     }

@@ -21,12 +21,13 @@ spring:
     host: 127.0.0.1
     port: 6379
     password: xwbing
-    timeout: 10000
-    pool:
-      max-active: 50
-      max-idle: 5
-      min-idle: 0
-      max-wait: -1
+    timeout: 30s
+    jedis:
+      pool:
+        max-active: 50 #连接池最大连接数
+        max-wait: -1 #连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-idle: 5 #连接池最大空闲连接
+        min-idle: 0 #连接池最小空闲连接
 
 xxl:
   job:
@@ -42,22 +43,20 @@ boot:
     port: 6379
     password: xwbing
     timeout: 10000
-    maxTotal: 50
-    maxIdle: 5
-    minIdle: 0
-  aliYun:
+    pool:
+      max-total: 50
+      max-idle: 5
+      min-idle: 0
+  aliyun:
     log:
       log-store: test_boot
-    ding-talk:
-      web-hook: https://oapi.dingtalk.com/robot/send?access_token=da82d4099a3f2515480f35210cc17dd02f315e99537d29cd3de1a751e551b670
-      secret: SECa17df9ae897fb39d525a173c47dcc93a6b01133fbb4bf3e659060cd4ed4539ea
     ons:
       username: xx
       password: xx
-      nameServerAddress: xx
-      producerGroupId: xx
+      name-server-address: xx
+      producer-group-id: xx
 swagger:
   enable: true
 
-aliPay:
-  payGateWay: XX
+alipay:
+  pay-gate-way: XX

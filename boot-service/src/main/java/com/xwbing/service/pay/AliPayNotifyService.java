@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class AliPayNotifyService {
-    @Value("${aliPay.aliPayPublicCertPath}")
+    @Value("${alipay.alipay-public-cert-path}")
     private String aliPayPublicCertPath;
 
     /**

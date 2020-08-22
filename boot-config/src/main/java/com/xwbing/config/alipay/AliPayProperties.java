@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 @ConfigurationProperties(prefix = AliPayProperties.PREFIX)
 public class AliPayProperties {
-    public static final String PREFIX = "aliPay";
+    public static final String PREFIX = "alipay";
     /**
      * 支付宝网关
      */

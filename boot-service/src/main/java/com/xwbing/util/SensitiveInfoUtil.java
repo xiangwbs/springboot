@@ -1,6 +1,6 @@
 package com.xwbing.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 数据脱敏工具类

@@ -6,7 +6,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 /**
  * 说明: 程序上下文配置
@@ -32,18 +31,19 @@ public class ApplicationContextConfig {
     //     return characterEncodingFilter;
     // }
 
-    /**
-     * 文件上传解析器
-     *
-     * @return
-     */
-    @Bean(name = "multipartResolver")
-    public CommonsMultipartResolver getCommonsMultipartResolver() {
-        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
-        multipartResolver.setMaxUploadSize(10 * 1024 * 1024);//10M
-        multipartResolver.setDefaultEncoding("UTF-8");
-        return multipartResolver;
-    }
+    // /**
+    //  * 文件上传解析器
+    //  * 需关闭自带multipartResolver,否则commonsMultipartResolver解析会得不到数据
+    //  *
+    //  * @return
+    //  */
+    // @Bean(name = "multipartResolver")
+    // public CommonsMultipartResolver getCommonsMultipartResolver() {
+    //     CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
+    //     multipartResolver.setMaxUploadSize(10 * 1024 * 1024);//10M
+    //     multipartResolver.setDefaultEncoding("UTF-8");
+    //     return multipartResolver;
+    // }
 
     /**
      * 任务线程池

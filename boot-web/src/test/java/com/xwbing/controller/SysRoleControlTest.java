@@ -1,15 +1,17 @@
 package com.xwbing.controller;
 
+import java.text.MessageFormat;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.BaseTest;
 import com.xwbing.domain.entity.sys.SysRole;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.text.MessageFormat;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 说明:
@@ -29,7 +31,7 @@ public class SysRoleControlTest extends BaseTest {
         sysRole.setRemark("apiTest");
         String saveStr = mvc.perform(MockMvcRequestBuilders
                 .post("/role/save")
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(JSONObject.toJSONString(sysRole)))
                 .andReturn().getResponse().getContentAsString();
         log.info(saveStr);
@@ -52,7 +54,7 @@ public class SysRoleControlTest extends BaseTest {
         sysRole.setName("updateTest");
         String updateStr = mvc.perform(MockMvcRequestBuilders
                 .put("/role/update")
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(JSONObject.toJSONString(sysRole)))
                 .andReturn().getResponse().getContentAsString();
         log.info(updateStr);

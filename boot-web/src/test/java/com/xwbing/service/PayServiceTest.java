@@ -2,7 +2,7 @@ package com.xwbing.service;
 
 import javax.annotation.Resource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.xwbing.BaseTest;
 import com.xwbing.service.pay.AliPayService;

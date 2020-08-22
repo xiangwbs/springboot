@@ -61,7 +61,7 @@ public class SysConfigService {
         if (old == null) {
             throw new BusinessException("该配置项不存在");
         }
-        sysConfigRepository.delete(old.getId());
+        sysConfigRepository.deleteById(old.getId());
         result.setSuccess(true);
         result.setMessage("删除配置成功");
         return result;

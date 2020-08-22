@@ -1,15 +1,16 @@
 package com.xwbing.config.redis;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
-
-import javax.annotation.Resource;
 
 /**
  * @author xiangwb
@@ -28,9 +29,9 @@ public class RedisAutoConfiguration {
     @Bean
     public JedisPool jedisPool() {
         JedisPoolConfig config = new JedisPoolConfig();
-        config.setMaxTotal(redisProperties.getMaxTotal());
-        config.setMaxIdle(redisProperties.getMaxIdle());
-        config.setMinIdle(redisProperties.getMinIdle());
+        config.setMaxTotal(redisProperties.getPool().getMaxTotal());
+        config.setMaxIdle(redisProperties.getPool().getMaxIdle());
+        config.setMinIdle(redisProperties.getPool().getMinIdle());
         String password = null;
         if (StringUtils.isNotEmpty(redisProperties.getPassword())) {
             password = redisProperties.getPassword();

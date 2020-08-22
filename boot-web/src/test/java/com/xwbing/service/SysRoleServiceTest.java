@@ -1,15 +1,15 @@
 package com.xwbing.service;
 
+import javax.annotation.Resource;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import com.xwbing.BaseTest;
 import com.xwbing.domain.entity.sys.SysRole;
-import com.xwbing.domain.mapper.sys.SysRoleMapper;
 import com.xwbing.service.sys.SysRoleService;
 import com.xwbing.util.Pagination;
 import com.xwbing.util.RestMessage;
-import org.junit.Assert;
-import org.junit.Test;
-
-import javax.annotation.Resource;
 
 /**
  * 项目名称: boot-module-pro
@@ -30,19 +30,19 @@ public class SysRoleServiceTest extends BaseTest {
         sysRole.setName("serviceTest");
         sysRole.setRemark("serviceTest");
         RestMessage rest = sysRoleService.save(sysRole);
-        Assert.assertTrue(rest.getMessage(), rest.isSuccess());
+        Assertions.assertTrue(rest.isSuccess(), rest.getMessage());
         //getById
         sysRole = sysRoleService.getById(rest.getId());
-        Assert.assertNotNull(sysRole);
+        Assertions.assertNotNull(sysRole);
         //update
         sysRole.setName("updateTest");
         rest = sysRoleService.update(sysRole);
-        Assert.assertTrue(rest.getMessage(), rest.isSuccess());
-        Assert.assertNotSame("修改失败", sysRole, sysRoleService.getById(rest.getId()));
+        Assertions.assertTrue(rest.isSuccess(), rest.getMessage());
+        Assertions.assertNotSame(sysRole, sysRoleService.getById(rest.getId()), "修改失败");
         //listAllByEnable
-        Assert.assertNotNull(sysRoleService.pageByEnable("Y", new Pagination<>()));
+        Assertions.assertNotNull(sysRoleService.pageByEnable("Y", new Pagination<>()));
         //removeById
-        Assert.assertTrue("删除失败", sysRoleService.removeById(rest.getId()).isSuccess());
+        Assertions.assertTrue(sysRoleService.removeById(rest.getId()).isSuccess(), "删除失败");
         //............................
     }
 }

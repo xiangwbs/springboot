@@ -1,17 +1,19 @@
 package com.xwbing.service.sys;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
 import com.xwbing.constant.CommonConstant;
 import com.xwbing.domain.entity.sys.DataDictionary;
 import com.xwbing.domain.repository.DataDictionaryRepository;
 import com.xwbing.exception.BusinessException;
 import com.xwbing.util.RestMessage;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 创建时间: 2018/2/26 10:29
@@ -73,7 +75,7 @@ public class DataDictionaryService {
     }
 
     public DataDictionary getById(String id) {
-        return dataDictionaryRepository.findOne(id);
+        return dataDictionaryRepository.getOne(id);
     }
 
     /**
