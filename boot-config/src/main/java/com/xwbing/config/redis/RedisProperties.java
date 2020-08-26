@@ -13,10 +13,6 @@ import lombok.Data;
 public class RedisProperties {
     public static final String PREFIX = "boot.redis";
     /**
-     * 开启redis
-     */
-    private Boolean enabled;
-    /**
      * 本项目缓存前缀
      */
     private String prefix;

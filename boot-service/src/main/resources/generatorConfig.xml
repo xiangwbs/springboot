@@ -37,20 +37,20 @@
             <property name="forceBigDecimals" value="true"/>
         </javaTypeResolver>
         <!-- model -->
-        <javaModelGenerator targetPackage="com.xwbing.domain.entity" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="com.xwbing.service.domain.entity" targetProject="src/main/java">
             <property name="trimStrings" value="true"/>
             <property name="enableSubPackages" value="true"/>
-            <property name="rootClass" value="com.xwbing.domain.entity.BaseEntity"/>
+            <property name="rootClass" value="com.xwbing.service.domain.entity.BaseEntity"/>
         </javaModelGenerator>
         <!-- mapper.xml -->
         <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!-- mapper.java -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.xwbing.domain.mapper" targetProject="src/main/java">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.xwbing.service.domain.mapper" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="rootGenerics" value="true"/><!-- 自定义参数 -->
-            <property name="rootInterface" value="com.xwbing.domain.mapper.BaseMapper"/>
+            <property name="rootInterface" value="com.xwbing.service.domain.mapper.BaseMapper"/>
         </javaClientGenerator>
         <!-- table -->
         <table tableName="trade_record" domainObjectName="rest.TradeRecord" mapperName="pay.TradeRecordMapper">

@@ -12,7 +12,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 
-import com.xwbing.config.annotation.Limit;
+import com.xwbing.config.aspect.annotation.Limit;
 import com.xwbing.config.exception.ConfigException;
 import com.xwbing.config.redis.RedisService;
 
@@ -51,7 +51,7 @@ public class LimitAspect {
     }
 
     @SneakyThrows
-    @AfterReturning(pointcut = "pointcut(com.xwbing.config.annotation.Limit)")
+    @AfterReturning(pointcut = "pointcut(com.xwbing.config.aspect.annotation.Limit)")
     public void afterReturning(JoinPoint joinPoint) {
         String key = getKey(joinPoint);
         redisService.del(key);

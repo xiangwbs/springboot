@@ -15,7 +15,7 @@ import org.springframework.orm.hibernate5.HibernateOptimisticLockingFailureExcep
 import org.springframework.transaction.HeuristicCompletionException;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.annotation.OptimisticLockRetry;
+import com.xwbing.config.aspect.annotation.OptimisticLockRetry;
 
 import lombok.extern.slf4j.Slf4j;
 

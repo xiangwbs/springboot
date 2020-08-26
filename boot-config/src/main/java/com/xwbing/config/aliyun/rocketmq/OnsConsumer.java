@@ -54,7 +54,7 @@ public class OnsConsumer implements ApplicationContextAware, InitializingBean, D
     @Override
     public void afterPropertiesSet() {
         Map<String, Object> listenerMap = applicationContext.getBeansWithAnnotation(OnsListener.class);
-        if (listenerMap == null || listenerMap.isEmpty()) {
+        if (listenerMap.isEmpty()) {
             return;
         }
         // 设置配置文件

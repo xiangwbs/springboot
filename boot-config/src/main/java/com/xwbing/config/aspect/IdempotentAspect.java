@@ -1,8 +1,11 @@
 package com.xwbing.config.aspect;
 
-import com.xwbing.config.annotation.Idempotent;
-import com.xwbing.config.util.CommonDataUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -10,10 +13,10 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import com.xwbing.config.aspect.annotation.Idempotent;
+import com.xwbing.config.util.CommonDataUtil;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xiangwb

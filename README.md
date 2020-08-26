@@ -47,36 +47,36 @@
 * com.xwbing.config.aliyun -aliYunLog和dingTalk自动配置
 * com.xwbing.config.xxljob -xxljob自动配置
 ##### boot-service
-* com.xwbing.service.sys -用户角色权限服务层
-* com.xwbing.datasource-(JpaDataSourceConfig,MybatisDataSourceConfig)  
-* com.xwbing.demo -常用api的使用  
-* com.xwbing.rabiit -rabbitmq使用  
-* com.xwbing.util.captcha -验证码
-* com.xwbing.util.DateUtil2 -java8日期工具类
-* com.xwbing.util.DigestsUtil -MD5/SHA-1
-* com.xwbing.util.EmailUtil -邮箱工具类
-* com.xwbing.util.EncodeUtil -编码解码工具类
-* com.xwbing.util.ExcelUtil -excel工具类
-* com.xwbing.util.HttpUtil -httpcliet工具类
-* com.xwbing.util.KdniaoUtil -快递鸟快递查询
-* com.xwbing.util.PassWordUtil -密码工具类
-* com.xwbing.util.QRCodeUtil -二维码工具类
-* com.xwbing.util.OrderNoUtil -订单号生成工具类
-* com.xwbing.util.RSAUtil -rsa非对称加密工具类
-* com.xwbing.util.TraceIdGenerateWorker -分布式全局id雪花算法
-* com.xwbing.util.ZipUtil.java -压缩工具类
+* com.xwbing.service.service.sys -用户角色权限服务层
+* com.xwbing.service.datasource-(JpaDataSourceConfig,MybatisDataSourceConfig)  
+* com.xwbing.service.demo -常用api的使用  
+* com.xwbing.service.rabiit -rabbitmq使用  
+* com.xwbing.service.util.captcha -验证码
+* com.xwbing.service.util.DateUtil2 -java8日期工具类
+* com.xwbing.service.util.DigestsUtil -MD5/SHA-1
+* com.xwbing.service.util.EmailUtil -邮箱工具类
+* com.xwbing.service.util.EncodeUtil -编码解码工具类
+* com.xwbing.service.util.ExcelUtil -excel工具类
+* com.xwbing.service.util.HttpUtil -httpcliet工具类
+* com.xwbing.service.util.KdniaoUtil -快递鸟快递查询
+* com.xwbing.service.util.PassWordUtil -密码工具类
+* com.xwbing.service.util.QRCodeUtil -二维码工具类
+* com.xwbing.service.util.OrderNoUtil -订单号生成工具类
+* com.xwbing.service.util.RSAUtil -rsa非对称加密工具类
+* com.xwbing.service.util.TraceIdGenerateWorker -分布式全局id雪花算法
+* com.xwbing.service.util.ZipUtil.java -压缩工具类
 * resources/data/boot_module_ddl.sql -数据库脚本
 * resources/data/bootModule.pdm -表结构
 * resources/generatorConfig.xml -mybatis自动生成插件配置
 ##### boot-web
-* com.xwbing.controller.sys -用户角色权限控制层
-* com.xwbing.configuration -核心配置包
-* com.xwbing.handler.FileFilter -防盗链
-* com.xwbing.handler.GlobalExceptionHandler -全局异常处理
-* com.xwbing.handler.LoginInterceptor -登录拦截器
-* com.xwbing.handler.UrlPermissionsInterceptor -权限拦截器
-* com.xwbing.handler.WebLogAspect -基于注解日志切面
-* com.xwbing.handler.XxlJobHandler -xxljob定时任务示例
+* com.xwbing.web.controller.sys -用户角色权限控制层
+* com.xwbing.web.configuration -核心配置包
+* com.xwbing.web.handler.FileFilter -防盗链
+* com.xwbing.web.handler.GlobalExceptionHandler -全局异常处理
+* com.xwbing.web.handler.LoginInterceptor -登录拦截器
+* com.xwbing.web.handler.UrlPermissionsInterceptor -权限拦截器
+* com.xwbing.web.handler.WebLogAspect -基于注解日志切面
+* com.xwbing.web.handler.XxlJobHandler -xxljob定时任务示例
 * log4j2.xml -log4j2配置
 ### 接口说明
 boot-web/config.properties 里面可以开启登录拦截器和权限拦截器.<br>
