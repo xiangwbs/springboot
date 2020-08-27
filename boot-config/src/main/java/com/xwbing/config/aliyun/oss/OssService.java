@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.UUID;
 
@@ -55,7 +58,10 @@ public class OssService {
             credentialsVo.setAccessKeyId(credentials.getAccessKeyId());
             credentialsVo.setAccessKeySecret(credentials.getAccessKeySecret());
             credentialsVo.setSecurityToken(credentials.getSecurityToken());
-            credentialsVo.setExpiration(credentials.getExpiration());
+            String expiration = ZonedDateTime.parse(credentials.getExpiration())
+                    .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            credentialsVo.setExpiration(expiration);
             credentialsVo.setEndpoint(ossProperties.getEndpoint());
             credentialsVo.setBucket(ossProperties.getBucket());
             credentialsVo.setRegion(ossProperties.getRegion());
@@ -63,7 +69,7 @@ public class OssService {
             return credentialsVo;
         } catch (ClientException e) {
             log.error("获取SecurityToken异常:", e);
-            throw new ConfigException(e.getMessage());
+            throw new ConfigException("获取SecurityToken异常");
         }
     }
 
@@ -187,7 +193,7 @@ public class OssService {
         String randomStr = RandomStringUtils.randomAlphanumeric(6).toLowerCase();
         String md5UUID = DigestUtils.md5DigestAsHex(UUID.randomUUID().toString().getBytes());
         StringBuffer sb = new StringBuffer();
-        sb.append(contentType.name().toLowerCase()).append(diagonal).append(prefixDate).append(diagonal).append(md5UUID)
+        sb.append(contentType.getCode()).append(diagonal).append(prefixDate).append(diagonal).append(md5UUID)
                 .append(randomStr);
         return sb.toString();
     }
