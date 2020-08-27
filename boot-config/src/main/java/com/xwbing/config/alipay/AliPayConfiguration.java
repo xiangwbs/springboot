@@ -1,7 +1,5 @@
 package com.xwbing.config.alipay;
 
-import javax.annotation.Resource;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -22,8 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @EnableConfigurationProperties(AliPayProperties.class)
 public class AliPayConfiguration {
-    @Resource
-    private AliPayProperties aliPayProperties;
+    private final AliPayProperties aliPayProperties;
+
+    public AliPayConfiguration(AliPayProperties aliPayProperties) {
+        this.aliPayProperties = aliPayProperties;
+    }
 
     @Bean
     @ConditionalOnExpression("!'${alipay.alipay-root-cert-path:}'.empty")

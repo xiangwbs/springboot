@@ -1,7 +1,5 @@
 package com.xwbing.config.aliyun.log;
 
-import javax.annotation.Resource;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -19,20 +17,23 @@ import com.aliyun.openservices.log.Client;
 @ConditionalOnProperty(prefix = AliYunLogProperties.PREFIX, name = { "enabled" }, havingValue = "true")
 @EnableConfigurationProperties(AliYunLogProperties.class)
 public class AliYunLogAutoConfiguration {
-    @Resource
-    private AliYunLogProperties aliYunLogProperties;
+    private final AliYunLogProperties aliYunLogProperties;
+
+    public AliYunLogAutoConfiguration(AliYunLogProperties aliYunLogProperties) {
+        this.aliYunLogProperties = aliYunLogProperties;
+    }
 
     @Bean
     @ConditionalOnMissingBean(Client.class)
     public Client aliYunLogClient() {
-        return new Client(aliYunLogProperties.getLog().getEndpoint(), aliYunLogProperties.getLog().getAccessId(),
-                aliYunLogProperties.getLog().getAccessKey());
+        return new Client(aliYunLogProperties.getEndpoint(), aliYunLogProperties.getAccessId(),
+                aliYunLogProperties.getAccessKey());
     }
 
     @Bean
     @ConditionalOnMissingBean(AliYunLog.class)
     public AliYunLog aliYunLog(Client aliYunLogClient) {
-        return new AliYunLog(aliYunLogClient, aliYunLogProperties.getLog().getLogStore(),
-                aliYunLogProperties.getLog().getTopic(), aliYunLogProperties.getLog().getProject());
+        return new AliYunLog(aliYunLogClient, aliYunLogProperties.getLogStore(), aliYunLogProperties.getTopic(),
+                aliYunLogProperties.getProject());
     }
 }

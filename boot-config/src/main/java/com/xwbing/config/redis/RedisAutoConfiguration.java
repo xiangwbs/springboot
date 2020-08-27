@@ -1,7 +1,5 @@
 package com.xwbing.config.redis;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -21,8 +19,11 @@ import redis.clients.jedis.JedisPoolConfig;
 @Configuration
 @EnableConfigurationProperties(RedisProperties.class)
 public class RedisAutoConfiguration {
-    @Resource
-    private RedisProperties redisProperties;
+    private final RedisProperties redisProperties;
+
+    public RedisAutoConfiguration(RedisProperties redisProperties) {
+        this.redisProperties = redisProperties;
+    }
 
     @Bean
     public JedisPool jedisPool() {

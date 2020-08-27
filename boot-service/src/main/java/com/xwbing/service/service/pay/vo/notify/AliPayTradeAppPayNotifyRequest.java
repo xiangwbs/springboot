@@ -133,4 +133,5 @@ public class AliPayTradeAppPayNotifyRequest {
      * 优惠券信息
      */
     private String voucher_detail_list;
+    private String auth_app_id;
 }

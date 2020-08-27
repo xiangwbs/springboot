@@ -1,13 +1,13 @@
 package com.xwbing.config.xxljob;
 
-import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
+import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xiangwb
@@ -19,8 +19,12 @@ import javax.annotation.Resource;
 @ConditionalOnProperty(prefix = XxlJobProperties.PREFIX, name = {"enabled"}, havingValue = "true")
 @EnableConfigurationProperties(XxlJobProperties.class)
 public class XxlJobConfiguration {
-    @Resource
-    private XxlJobProperties xxlJobProperties;
+
+    private final XxlJobProperties xxlJobProperties;
+
+    public XxlJobConfiguration(XxlJobProperties xxlJobProperties) {
+        this.xxlJobProperties = xxlJobProperties;
+    }
 
     @Bean(initMethod = "start", destroyMethod = "destroy")
     public XxlJobSpringExecutor xxlJobExecutor() {

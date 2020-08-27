@@ -28,6 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "name-server-address")
 @EnableConfigurationProperties(OnsProperties.class)
 public class OnsConfiguration {
+    private final OnsProperties onsProperties;
+
+    public OnsConfiguration(OnsProperties onsProperties) {
+        this.onsProperties = onsProperties;
+    }
 
     @Bean(initMethod = "start", destroyMethod = "shutdown")
     @ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "producer-group-id")
@@ -41,7 +46,7 @@ public class OnsConfiguration {
 
     @Bean(initMethod = "start", destroyMethod = "shutdown")
     @ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "producer-group-id")
-    public OrderProducerBean orderProducer(OnsProperties onsProperties) {
+    public OrderProducerBean orderProducer() {
         Properties properties = buildProperties(onsProperties);
         properties.put(PropertyKeyConst.GROUP_ID, onsProperties.getProducerGroupId());
         OrderProducerBean producerBean = new OrderProducerBean();
@@ -57,14 +62,14 @@ public class OnsConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(OnsConsumer.class)
-    public OnsConsumer mqConsumer(OnsProperties onsProperties) {
+    public OnsConsumer mqConsumer() {
         return new OnsConsumer(onsProperties);
     }
 
     static Properties buildProperties(OnsProperties onsProperties) {
         Properties properties = new Properties();
-        properties.put(PropertyKeyConst.AccessKey, onsProperties.getUsername());
-        properties.put(PropertyKeyConst.SecretKey, onsProperties.getPassword());
+        properties.put(PropertyKeyConst.AccessKey, onsProperties.getAccessId());
+        properties.put(PropertyKeyConst.SecretKey, onsProperties.getAccessKey());
         properties.put(PropertyKeyConst.NAMESRV_ADDR, onsProperties.getNameServerAddress());
         return properties;
     }

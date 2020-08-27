@@ -12,35 +12,23 @@ import lombok.Data;
 @Data
 @ConfigurationProperties(prefix = AliYunLogProperties.PREFIX)
 public class AliYunLogProperties {
-    public static final String PREFIX = "boot.aliyun";
+    public static final String PREFIX = "boot.aliyun.log";
+    private String accessId;
+    private String accessKey;
     /**
-     * 开启aliYunLog
+     * 华东1(杭州)
      */
-    private Boolean enabled;
+    private String endpoint;
     /**
-     * 阿里云日志
+     * 阿里云上创建的项目名称
      */
-    private final AliYunLogProperties.Log log = new AliYunLogProperties.Log();
-
-    @Data
-    public static class Log {
-        private String accessId;
-        private String accessKey;
-        /**
-         * 华东1(杭州)
-         */
-        private String endpoint;
-        /**
-         * 阿里云上创建的项目名称
-         */
-        private String project;
-        /**
-         * 建议填本项目名称
-         */
-        private String topic;
-        /**
-         * 日志库名称
-         */
-        private String logStore;
-    }
+    private String project;
+    /**
+     * 建议填本项目名称
+     */
+    private String topic;
+    /**
+     * 日志库名称
+     */
+    private String logStore;
 }

@@ -68,13 +68,15 @@ boot:
     prefix: boot_
   #阿里云配置
   aliyun:
-    enabled: true
     log:
+      enabled: true
       access-id: xx
       access-key: xx
       endpoint: cn-hangzhou.log.aliyuncs.com
       project: boot-api
       topic: boot_moddule
+    oss:
+      enabled: true
 
 #切面自动配置参数
 aspect:

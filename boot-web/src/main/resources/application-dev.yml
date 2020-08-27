@@ -51,10 +51,17 @@ boot:
     log:
       log-store: test_boot
     ons:
-      username: xx
-      password: xx
+      access-id: xx
+      access-key: xx
       name-server-address: xx
       producer-group-id: xx
+    oss:
+      access-id: xx
+      access-key: xx
+      endpoint: https://oss-cn-hangzhou.aliyuncs.com
+      bucket: moo-oss-test
+      region-id: cn-hangzhou
+
 swagger:
   enable: true
 

@@ -70,6 +70,7 @@
         <easyexcel.verison>2.2.6</easyexcel.verison>
         <aliyun-log.version>0.6.50</aliyun-log.version>
         <ons-client.version>1.8.4.Final</ons-client.version>
+        <aliyun-oss.version>3.10.2</aliyun-oss.version>
         <druid.version>1.1.22</druid.version>
 
         <mybatis-boot-start.version>2.1.3</mybatis-boot-start.version>
@@ -85,7 +86,6 @@
         <rsa.version>1.46</rsa.version>
         <httpclient.version>4.5.12</httpclient.version>
         <shedlock.version>4.7.1</shedlock.version>
-
         <swagger2.version>2.9.2</swagger2.version>
         <swagger.version>1.6.0</swagger.version>
     </properties>

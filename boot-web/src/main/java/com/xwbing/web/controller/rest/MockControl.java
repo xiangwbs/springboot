@@ -20,11 +20,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xwbing.config.aliyun.oss.OssService;
 import com.xwbing.config.spring.ApplicationContextHelper;
 import com.xwbing.config.util.dingtalk.DingTalkClient;
 import com.xwbing.config.util.dingtalk.LinkMessage;
@@ -66,6 +69,8 @@ public class MockControl {
     private UploadService uploadService;
     @Resource
     private EasyExcelDealService easyExcelDealService;
+    @Resource
+    private OssService ossService;
     private List<byte[]> memoryBytes = new ArrayList<>();
 
     @ApiOperation("导出zip")
@@ -326,6 +331,34 @@ public class MockControl {
     @GetMapping("nullModel")
     public NullModel nullModel() {
         return NullModel.builder().string("字符串").sexEnum(SexEnum.MAN).build();
+    }
+
+    @ApiOperation("上传富文本")
+    @GetMapping("putHtml")
+    public String putHtml(@RequestParam String content) {
+        return ossService.putHtml(content);
+    }
+
+    @ApiOperation("上传图片")
+    @PostMapping("putImage")
+    public String putImage(@RequestParam MultipartFile image) throws IOException {
+        String filename = image.getOriginalFilename();
+        String suffix = filename.substring(filename.lastIndexOf(".")).toLowerCase();
+        return ossService.putImage(image.getInputStream(), suffix);
+    }
+
+    @ApiOperation("上传文件")
+    @PostMapping("putFile")
+    public String putFile(@RequestParam MultipartFile file) throws IOException {
+        String filename = file.getOriginalFilename();
+        String suffix = filename.substring(filename.lastIndexOf(".")).toLowerCase();
+        return ossService.putFile(file.getInputStream(), file.getContentType(), suffix);
+    }
+
+    @ApiOperation("删除oss")
+    @PostMapping("deleteObject")
+    public void deleteObject(@RequestParam String objectKey) {
+        ossService.deleteObject(objectKey);
     }
 }
 

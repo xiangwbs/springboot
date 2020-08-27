@@ -1,7 +1,5 @@
 package com.xwbing.config.aspect;
 
-import javax.annotation.Resource;
-
 import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -16,8 +14,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties(AspectProperties.class)
 public class AspectAutoConfiguration {
-    @Resource
-    private AspectProperties aspectProperties;
+    private final AspectProperties aspectProperties;
+
+    public AspectAutoConfiguration(AspectProperties aspectProperties) {
+        this.aspectProperties = aspectProperties;
+    }
 
     /**
      * service异常日志切面
