@@ -16,7 +16,7 @@ public class OssProperties {
     private String accessId;
     private String accessSecret;
     /**
-     * 访问域名
+     * OSS 访问域名
      */
     private String endpoint;
     /**
@@ -24,11 +24,11 @@ public class OssProperties {
      */
     private String bucket;
     /**
-     * bucket 所在的区域
+     * bucket所在的区域
      */
     private String region;
     /**
-     * 地域或者数据中心
+     * bucket所在的区域id
      */
     private String regionId;
     /**
