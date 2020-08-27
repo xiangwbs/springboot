@@ -27,7 +27,7 @@ public class AliYunLogAutoConfiguration {
     @ConditionalOnMissingBean(Client.class)
     public Client aliYunLogClient() {
         return new Client(aliYunLogProperties.getEndpoint(), aliYunLogProperties.getAccessId(),
-                aliYunLogProperties.getAccessKey());
+                aliYunLogProperties.getAccessSecret());
     }
 
     @Bean

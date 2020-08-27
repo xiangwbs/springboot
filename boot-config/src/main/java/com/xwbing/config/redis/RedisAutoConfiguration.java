@@ -10,11 +10,12 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 /**
- * @author xiangwb
  * redis自动配置加载类
  * 提供外部可插拔式插件功能2种方式:
  * 1.在META-INF/spring.factories/EnableAutoConfiguration下配置RedisAutoConfiguration
  * 2.自定义@EnableRedis注解，使用@Import导入RedisAutoConfiguration
+ *
+ * @author xiangwb
  */
 @Configuration
 @EnableConfigurationProperties(RedisProperties.class)
@@ -35,15 +36,13 @@ public class RedisAutoConfiguration {
         if (StringUtils.isNotEmpty(redisProperties.getPassword())) {
             password = redisProperties.getPassword();
         }
-        return new JedisPool(config, redisProperties.getHost(), redisProperties.getPort(), redisProperties.getTimeout(), password);
+        return new JedisPool(config, redisProperties.getHost(), redisProperties.getPort(), redisProperties.getTimeout(),
+                password);
     }
 
     @Bean
     @ConditionalOnMissingBean(RedisService.class)
     public RedisService redisService(JedisPool pool) {
-        RedisService redisService = new RedisService();
-        redisService.setJedisPool(pool);
-        redisService.setPrefix(redisProperties.getPrefix());
-        return redisService;
+        return new RedisService(pool, redisProperties.getPrefix());
     }
 }

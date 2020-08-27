@@ -71,7 +71,7 @@ boot:
     log:
       enabled: true
       access-id: xx
-      access-key: xx
+      access-secret: xx
       endpoint: cn-hangzhou.log.aliyuncs.com
       project: boot-api
       topic: boot_moddule

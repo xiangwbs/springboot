@@ -14,7 +14,7 @@ import lombok.Data;
 public class OssProperties {
     public static final String PREFIX = "boot.aliyun.oss";
     private String accessId;
-    private String accessKey;
+    private String accessSecret;
     /**
      * 访问域名
      */

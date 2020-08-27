@@ -69,7 +69,7 @@ public class OnsConfiguration {
     static Properties buildProperties(OnsProperties onsProperties) {
         Properties properties = new Properties();
         properties.put(PropertyKeyConst.AccessKey, onsProperties.getAccessId());
-        properties.put(PropertyKeyConst.SecretKey, onsProperties.getAccessKey());
+        properties.put(PropertyKeyConst.SecretKey, onsProperties.getAccessSecret());
         properties.put(PropertyKeyConst.NAMESRV_ADDR, onsProperties.getNameServerAddress());
         return properties;
     }

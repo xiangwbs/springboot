@@ -6,8 +6,6 @@ import java.util.Set;
 
 import com.xwbing.config.exception.ConfigException;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -19,12 +17,13 @@ import redis.clients.jedis.JedisPool;
  */
 @Slf4j
 public class RedisService {
-    @Getter
-    @Setter
-    private JedisPool jedisPool;
-    @Getter
-    @Setter
-    private String prefix;
+    private final JedisPool jedisPool;
+    private final String prefix;
+
+    public RedisService(JedisPool jedisPool, String prefix) {
+        this.jedisPool = jedisPool;
+        this.prefix = prefix;
+    }
 
     /**
      * 获取一个jedis 客户端

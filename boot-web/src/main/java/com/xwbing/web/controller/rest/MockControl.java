@@ -333,13 +333,13 @@ public class MockControl {
         return NullModel.builder().string("字符串").sexEnum(SexEnum.MAN).build();
     }
 
-    @ApiOperation("上传富文本")
+    @ApiOperation("oss上传富文本")
     @GetMapping("putHtml")
     public String putHtml(@RequestParam String content) {
         return ossService.putHtml(content);
     }
 
-    @ApiOperation("上传图片")
+    @ApiOperation("oss上传图片")
     @PostMapping("putImage")
     public String putImage(@RequestParam MultipartFile image) throws IOException {
         String filename = image.getOriginalFilename();
@@ -347,18 +347,12 @@ public class MockControl {
         return ossService.putImage(image.getInputStream(), suffix);
     }
 
-    @ApiOperation("上传文件")
+    @ApiOperation("oss上传文件")
     @PostMapping("putFile")
     public String putFile(@RequestParam MultipartFile file) throws IOException {
         String filename = file.getOriginalFilename();
         String suffix = filename.substring(filename.lastIndexOf(".")).toLowerCase();
         return ossService.putFile(file.getInputStream(), file.getContentType(), suffix);
-    }
-
-    @ApiOperation("删除oss")
-    @PostMapping("deleteObject")
-    public void deleteObject(@RequestParam String objectKey) {
-        ossService.deleteObject(objectKey);
     }
 }
 

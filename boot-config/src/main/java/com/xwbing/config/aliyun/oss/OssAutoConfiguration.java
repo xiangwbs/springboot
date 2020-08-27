@@ -33,7 +33,7 @@ public class OssAutoConfiguration {
     @ConditionalOnMissingBean(OSSClient.class)
     public OSSClient ossClient() {
         CredentialsProvider credentialsProvider = new DefaultCredentialProvider(ossProperties.getAccessId(),
-                ossProperties.getAccessKey());
+                ossProperties.getAccessSecret());
         ClientConfiguration config = new ClientConfiguration();
         return new OSSClient(ossProperties.getEndpoint(), credentialsProvider, config);
     }
@@ -42,7 +42,7 @@ public class OssAutoConfiguration {
     @ConditionalOnMissingBean(DefaultAcsClient.class)
     public DefaultAcsClient defaultAcsClient() {
         return new DefaultAcsClient(DefaultProfile
-                .getProfile(ossProperties.getRegionId(), ossProperties.getAccessId(), ossProperties.getAccessKey()));
+                .getProfile(ossProperties.getRegionId(), ossProperties.getAccessId(), ossProperties.getAccessSecret()));
     }
 
     @Bean

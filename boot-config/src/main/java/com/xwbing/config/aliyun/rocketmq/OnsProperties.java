@@ -20,7 +20,7 @@ public class OnsProperties {
     /**
      * 阿里云身份验证 AccessKeySecret，在阿里云用户信息管理控制台获取。
      */
-    private String accessKey;
+    private String accessSecret;
     /**
      * 您的消息队列RocketMQ版 实例的TCP 接入点
      */

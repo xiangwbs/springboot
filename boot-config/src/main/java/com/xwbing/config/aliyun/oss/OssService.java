@@ -90,14 +90,33 @@ public class OssService {
         return objectKey;
     }
 
+    /**
+     * 删除
+     *
+     * @param objectKey
+     */
     public void deleteObject(String objectKey) {
         ossClient.deleteObject(ossProperties.getBucket(), objectKey);
     }
 
+    /**
+     * 是否存在
+     *
+     * @param objectKey
+     *
+     * @return
+     */
     public boolean doesObjectExist(String objectKey) {
         return ossClient.doesObjectExist(ossProperties.getBucket(), objectKey);
     }
 
+    /**
+     * 获取字符串
+     *
+     * @param objectKey
+     *
+     * @return
+     */
     public String getObject(String objectKey) {
         try {
             OSSObject object = ossClient.getObject(ossProperties.getBucket(), objectKey);
@@ -115,6 +134,13 @@ public class OssService {
         }
     }
 
+    /**
+     * 获取流
+     *
+     * @param objectKey
+     *
+     * @return
+     */
     public InputStream getInputStream(String objectKey) {
         OSSObject object = ossClient.getObject(ossProperties.getBucket(), objectKey);
         return object.getObjectContent();

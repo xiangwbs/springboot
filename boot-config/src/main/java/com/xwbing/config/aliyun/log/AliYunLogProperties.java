@@ -14,7 +14,7 @@ import lombok.Data;
 public class AliYunLogProperties {
     public static final String PREFIX = "boot.aliyun.log";
     private String accessId;
-    private String accessKey;
+    private String accessSecret;
     /**
      * 华东1(杭州)
      */
