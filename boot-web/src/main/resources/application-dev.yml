@@ -56,12 +56,12 @@ boot:
       name-server-address: xx
       producer-group-id: xx
     oss:
-      access-id: xx
-      access-secret: xx
       endpoint: https://oss-cn-hangzhou.aliyuncs.com
-      bucket: moo-oss-test
       region: oss-cn-hangzhou
       region-id: cn-hangzhou
+      access-id: xx
+      access-secret: xx
+      bucket: moo-oss-test
       sts-roleArn: xx
       sts-role-session-name: xx
 

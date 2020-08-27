@@ -13,16 +13,10 @@ import lombok.Data;
 @ConfigurationProperties(prefix = OssProperties.PREFIX)
 public class OssProperties {
     public static final String PREFIX = "boot.aliyun.oss";
-    private String accessId;
-    private String accessSecret;
     /**
      * OSS 访问域名
      */
     private String endpoint;
-    /**
-     * 存储空间(文件根目录)
-     */
-    private String bucket;
     /**
      * bucket所在的区域
      */
@@ -31,6 +25,13 @@ public class OssProperties {
      * bucket所在的区域id
      */
     private String regionId;
+
+    private String accessId;
+    private String accessSecret;
+    /**
+     * 存储空间(文件根目录)
+     */
+    private String bucket;
     /**
      * 角色
      */

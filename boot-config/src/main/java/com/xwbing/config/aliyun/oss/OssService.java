@@ -43,7 +43,7 @@ public class OssService {
         this.ossProperties = ossProperties;
     }
 
-    public AccessCredentialsVO getCredentials(ContentTypeEnum contentType) {
+    public AccessCredentialsVO getCredentials(ContentTypeEnum contentType, String suffix) {
         final AssumeRoleRequest request = new AssumeRoleRequest();
         request.setMethod(MethodType.POST);
         request.setRoleArn(ossProperties.getStsRoleArn());
@@ -59,7 +59,7 @@ public class OssService {
             credentialsVo.setEndpoint(ossProperties.getEndpoint());
             credentialsVo.setBucket(ossProperties.getBucket());
             credentialsVo.setRegion(ossProperties.getRegion());
-            credentialsVo.setObjectKey(generateObjectKey(contentType));
+            credentialsVo.setObjectKey(generateObjectKey(contentType) + suffix);
             return credentialsVo;
         } catch (ClientException e) {
             log.error("获取SecurityToken异常:", e);

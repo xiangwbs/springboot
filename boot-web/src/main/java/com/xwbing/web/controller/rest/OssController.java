@@ -34,8 +34,8 @@ public class OssController {
 
     @ApiOperation("获取临时访问凭证")
     @GetMapping("getCredentials")
-    public AccessCredentialsVO getCredentials(@RequestParam ContentTypeEnum contentType) {
-        return ossService.getCredentials(contentType);
+    public AccessCredentialsVO getCredentials(@RequestParam ContentTypeEnum contentType, @RequestParam String suffix) {
+        return ossService.getCredentials(contentType, suffix);
     }
 
     @ApiOperation("上传富文本")
