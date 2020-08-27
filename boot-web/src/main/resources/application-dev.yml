@@ -60,7 +60,10 @@ boot:
       access-secret: xx
       endpoint: https://oss-cn-hangzhou.aliyuncs.com
       bucket: moo-oss-test
+      region: oss-cn-hangzhou
       region-id: cn-hangzhou
+      sts-roleArn: xx
+      sts-role-session-name: xx
 
 swagger:
   enable: true

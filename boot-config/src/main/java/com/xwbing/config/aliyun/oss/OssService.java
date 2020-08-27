@@ -16,7 +16,13 @@ import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.model.OSSObject;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectRequest;
+import com.aliyuncs.DefaultAcsClient;
+import com.aliyuncs.auth.sts.AssumeRoleRequest;
+import com.aliyuncs.auth.sts.AssumeRoleResponse;
+import com.aliyuncs.exceptions.ClientException;
+import com.aliyuncs.http.MethodType;
 import com.xwbing.config.aliyun.oss.enums.ContentTypeEnum;
+import com.xwbing.config.exception.ConfigException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,11 +34,37 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OssService {
     private final OSSClient ossClient;
+    private final DefaultAcsClient acsClient;
     private final OssProperties ossProperties;
 
-    public OssService(OSSClient ossClient, OssProperties ossProperties) {
+    public OssService(OSSClient ossClient, DefaultAcsClient acsClient, OssProperties ossProperties) {
         this.ossClient = ossClient;
+        this.acsClient = acsClient;
         this.ossProperties = ossProperties;
+    }
+
+    public AccessCredentialsVO getCredentials(ContentTypeEnum contentType) {
+        final AssumeRoleRequest request = new AssumeRoleRequest();
+        request.setMethod(MethodType.POST);
+        request.setRoleArn(ossProperties.getStsRoleArn());
+        request.setRoleSessionName(ossProperties.getStsRoleSessionName());
+        try {
+            final AssumeRoleResponse response = acsClient.getAcsResponse(request);
+            AssumeRoleResponse.Credentials credentials = response.getCredentials();
+            AccessCredentialsVO credentialsVo = new AccessCredentialsVO();
+            credentialsVo.setAccessKeyId(credentials.getAccessKeyId());
+            credentialsVo.setAccessKeySecret(credentials.getAccessKeySecret());
+            credentialsVo.setSecurityToken(credentials.getSecurityToken());
+            credentialsVo.setExpiration(credentials.getExpiration());
+            credentialsVo.setEndpoint(ossProperties.getEndpoint());
+            credentialsVo.setBucket(ossProperties.getBucket());
+            credentialsVo.setRegion(ossProperties.getRegion());
+            credentialsVo.setObjectKey(generateObjectKey(contentType));
+            return credentialsVo;
+        } catch (ClientException e) {
+            log.error("获取SecurityToken异常:", e);
+            throw new ConfigException(e.getMessage());
+        }
     }
 
     /**

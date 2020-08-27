@@ -24,7 +24,19 @@ public class OssProperties {
      */
     private String bucket;
     /**
+     * bucket 所在的区域
+     */
+    private String region;
+    /**
      * 地域或者数据中心
      */
     private String regionId;
+    /**
+     * 角色
+     */
+    private String stsRoleArn;
+    /**
+     * 别名
+     */
+    private String stsRoleSessionName;
 }
