@@ -38,14 +38,14 @@
 1.修改数据库配置:boot-service/resources/druid.properties<br>2.启动BootApplication
 ### 项目说明
 ##### boot-config(自动配置)
-* com.xwbing.config.aspect.ExceptionLogAdvice service异常日志记录
-* com.xwbing.config.aspect.FlowLimiterAspect 接口限流
-* com.xwbing.config.aspect.IdempotentAspect 接口幂等
-* com.xwbing.config.aspect.LockAspect -基于redis分布式锁
-* com.xwbing.config.aspect.OptimisticLockRetryAspect -乐观锁异常重试机制
-* com.xwbing.config.redis -redis自动配置
-* com.xwbing.config.aliyun -aliYunLog和dingTalk自动配置
-* com.xwbing.config.xxljob -xxljob自动配置
+* com.xwbing.starter.aspect.ExceptionLogAdvice service异常日志记录
+* com.xwbing.starter.aspect.FlowLimiterAspect 接口限流
+* com.xwbing.starter.aspect.IdempotentAspect 接口幂等
+* com.xwbing.starter.aspect.LockAspect -基于redis分布式锁
+* com.xwbing.starter.aspect.OptimisticLockRetryAspect -乐观锁异常重试机制
+* com.xwbing.starter.redis -redis自动配置
+* com.xwbing.starter.aliyun -aliYunLog和dingTalk自动配置
+* com.xwbing.starter.xxljob -xxljob自动配置
 ##### boot-service
 * com.xwbing.service.service.sys -用户角色权限服务层
 * com.xwbing.service.datasource-(JpaDataSourceConfig,MybatisDataSourceConfig)  

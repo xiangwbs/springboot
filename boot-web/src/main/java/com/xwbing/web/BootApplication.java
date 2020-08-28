@@ -6,11 +6,11 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-import com.xwbing.config.alipay.EnableAliPayClient;
-import com.xwbing.config.aliyun.rocketmq.EnableRocketMQ;
-import com.xwbing.config.clusterseq.EnableClusterSeq;
-import com.xwbing.config.clustertask.EnableClusterTask;
-import com.xwbing.config.redis.EnableRedis;
+import com.xwbing.starter.alipay.EnableAliPayClient;
+import com.xwbing.starter.aliyun.rocketmq.EnableRocketMQ;
+import com.xwbing.starter.clusterseq.EnableClusterSeq;
+import com.xwbing.starter.clustertask.EnableClusterTask;
+import com.xwbing.starter.redis.EnableRedis;
 
 /**
  * 项目名称: boot-module-pro

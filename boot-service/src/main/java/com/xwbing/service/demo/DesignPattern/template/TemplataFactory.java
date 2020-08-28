@@ -1,6 +1,6 @@
 package com.xwbing.service.demo.DesignPattern.template;
 
-import com.xwbing.config.spring.ApplicationContextHelper;
+import com.xwbing.starter.spring.ApplicationContextHelper;
 
 /**
  * @author xiangwb

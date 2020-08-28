@@ -9,7 +9,7 @@
     <version>1.0</version>
     <name>boot</name>
     <modules>
-        <module>boot-config</module>
+        <module>boot-starter</module>
         <module>boot-service</module>
         <module>boot-web</module>
     </modules>

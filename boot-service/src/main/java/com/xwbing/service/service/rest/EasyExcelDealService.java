@@ -30,7 +30,7 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.redis.RedisService;
+import com.xwbing.starter.redis.RedisService;
 import com.xwbing.service.enums.ImportStatusEnum;
 import com.xwbing.service.domain.entity.rest.ImportFailLog;
 import com.xwbing.service.domain.entity.rest.ImportTask;

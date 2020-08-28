@@ -9,7 +9,7 @@ import com.aliyun.openservices.ons.api.Action;
 import com.aliyun.openservices.ons.api.ConsumeContext;
 import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.MessageListener;
-import com.xwbing.config.aliyun.rocketmq.OnsListener;
+import com.xwbing.starter.aliyun.rocketmq.OnsListener;
 import com.xwbing.web.controller.mq.ProducerClient.Msg;
 
 import lombok.extern.slf4j.Slf4j;

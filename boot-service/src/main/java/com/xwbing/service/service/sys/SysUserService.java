@@ -38,7 +38,7 @@ import com.xwbing.service.enums.YesOrNoEnum;
 import com.xwbing.service.exception.BusinessException;
 import com.xwbing.service.rabbit.Sender;
 import com.xwbing.service.service.BaseService;
-import com.xwbing.config.util.CommonDataUtil;
+import com.xwbing.starter.util.CommonDataUtil;
 import com.xwbing.service.util.DigestsUtil;
 import com.xwbing.service.util.EmailUtil;
 import com.xwbing.service.util.EncodeUtil;

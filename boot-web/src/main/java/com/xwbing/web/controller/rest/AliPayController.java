@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.xwbing.config.aspect.annotation.Limit;
-import com.xwbing.config.clusterseq.ClusterSeqGenerator;
+import com.xwbing.starter.aspect.annotation.Limit;
+import com.xwbing.starter.clusterseq.ClusterSeqGenerator;
 import com.xwbing.service.domain.entity.vo.RestMessageVo;
 import com.xwbing.service.service.pay.AliPayService;
 import com.xwbing.service.service.pay.TransferService;

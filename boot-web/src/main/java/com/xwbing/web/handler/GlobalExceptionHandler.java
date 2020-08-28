@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.util.dingtalk.DingTalkClient;
+import com.xwbing.starter.util.dingtalk.DingTalkClient;
 import com.xwbing.service.exception.BusinessException;
 import com.xwbing.service.exception.PayException;
 import com.xwbing.service.exception.UtilException;

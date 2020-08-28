@@ -546,19 +546,29 @@ public class DateUtil2 {
         return false;
     }
 
-    private static String formatDate(LocalDateTime date) {
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        String dateStr;
-        if (currentDateTime.getDayOfMonth() == date.getDayOfMonth()) {
-            dateStr = date.format(getDateFormat("HH:mm"));
-        } else if (currentDateTime.getDayOfMonth() - date.getDayOfMonth() == 1) {
-            dateStr = "昨天 " + date.format(getDateFormat("HH:mm"));
-        } else if (currentDateTime.getYear() != currentDateTime.getYear()) {
-            dateStr = date.format(getDateFormat("yyyy-MM-dd HH:mm"));
+    public static String formatDate(LocalDateTime creationDate) {
+        LocalDateTime now = LocalDateTime.now();
+        String date;
+        if (now.minusMinutes(1).isBefore(creationDate)) {
+            date = "刚刚";
+        } else if (now.minusMinutes(1).isAfter(creationDate) && now.minusHours(1).isBefore(creationDate)) {
+            long minutes = ChronoUnit.MINUTES.between(creationDate, now);
+            date = minutes + "分钟前";
+        } else if (now.minusHours(1).isAfter(creationDate) && now.minusDays(1).isBefore(creationDate)) {
+            long hours = ChronoUnit.HOURS.between(creationDate, now);
+            date = hours + "小时前";
+        } else if (now.minusDays(1).isAfter(creationDate) && now.minusWeeks(1).isBefore(creationDate)) {
+            long days = ChronoUnit.DAYS.between(creationDate, now);
+            date = days + "天前";
+        } else if (now.minusWeeks(1).isAfter(creationDate) && now.minusMonths(1).isBefore(creationDate)) {
+            long weeks = ChronoUnit.WEEKS.between(creationDate, now);
+            date = weeks + "周前";
+        } else if (now.minusMonths(1).isAfter(creationDate) && now.minusYears(1).isBefore(creationDate)) {
+            date = creationDate.format(DateTimeFormatter.ofPattern("MM-dd hh:mm"));
         } else {
-            dateStr = date.format(getDateFormat("MM月dd日 HH:mm"));
+            date = creationDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm"));
         }
-        return dateStr;
+        return date;
     }
 
     /**

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.aspect.annotation.Idempotent;
+import com.xwbing.starter.aspect.annotation.Idempotent;
 import com.xwbing.service.domain.entity.sys.SysAuthority;
 import com.xwbing.service.domain.entity.sys.SysRole;
 import com.xwbing.service.domain.entity.sys.SysRoleAuthority;

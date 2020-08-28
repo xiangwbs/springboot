@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.xwbing.config.aliyun.oss.OssService;
-import com.xwbing.config.aliyun.oss.enums.ContentTypeEnum;
-import com.xwbing.config.aliyun.oss.vo.AccessCredentialsVO;
-import com.xwbing.config.aliyun.oss.vo.VideoPlayAuthVO;
-import com.xwbing.config.aliyun.oss.vo.VideoPlayInfoVO;
-import com.xwbing.config.aliyun.oss.vo.VideoUploadAuthVO;
+import com.xwbing.starter.aliyun.oss.OssService;
+import com.xwbing.starter.aliyun.oss.enums.ContentTypeEnum;
+import com.xwbing.starter.aliyun.oss.vo.AccessCredentialsVO;
+import com.xwbing.starter.aliyun.oss.vo.VideoPlayAuthVO;
+import com.xwbing.starter.aliyun.oss.vo.VideoPlayInfoVO;
+import com.xwbing.starter.aliyun.oss.vo.VideoUploadAuthVO;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

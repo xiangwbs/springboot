@@ -13,7 +13,7 @@
         <!-- 配置依赖 -->
         <dependency>
             <groupId>com.xwbing</groupId>
-            <artifactId>boot-config</artifactId>
+            <artifactId>boot-starter</artifactId>
             <version>1.0</version>
         </dependency>
         <!-- mail -->

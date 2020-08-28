@@ -4,9 +4,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.xwbing.config.aliyun.rocketmq.MessageEvent;
-import com.xwbing.config.aliyun.rocketmq.MessageOrderTypeEnum;
-import com.xwbing.config.aliyun.rocketmq.OnsTemplate;
+import com.xwbing.starter.aliyun.rocketmq.MessageEvent;
+import com.xwbing.starter.aliyun.rocketmq.MessageOrderTypeEnum;
+import com.xwbing.starter.aliyun.rocketmq.OnsTemplate;
 
 import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;

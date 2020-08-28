@@ -1,7 +1,7 @@
 package com.xwbing.service.demo.DesignPattern.obServer.ApplicationEvent;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.config.spring.ApplicationContextHelper;
+import com.xwbing.starter.spring.ApplicationContextHelper;
 
 /**
  * @author xiangwb

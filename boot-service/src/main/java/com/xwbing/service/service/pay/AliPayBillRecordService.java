@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.csvreader.CsvReader;
-import com.xwbing.config.constant.BaseConstant;
+import com.xwbing.starter.constant.BaseConstant;
 import com.xwbing.service.domain.entity.rest.AliPayBillRecord;
 import com.xwbing.service.domain.mapper.pay.AliPayBillRecordMapper;
 import com.xwbing.service.exception.BusinessException;
