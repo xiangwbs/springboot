@@ -1,6 +1,7 @@
 package com.xwbing.web.controller.rest;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.annotation.Resource;
 
@@ -11,9 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.xwbing.config.aliyun.oss.AccessCredentialsVO;
 import com.xwbing.config.aliyun.oss.OssService;
 import com.xwbing.config.aliyun.oss.enums.ContentTypeEnum;
+import com.xwbing.config.aliyun.oss.vo.AccessCredentialsVO;
+import com.xwbing.config.aliyun.oss.vo.VideoPlayAuthVO;
+import com.xwbing.config.aliyun.oss.vo.VideoPlayInfoVO;
+import com.xwbing.config.aliyun.oss.vo.VideoUploadAuthVO;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,6 +40,30 @@ public class OssController {
     @GetMapping("getCredentials")
     public AccessCredentialsVO getCredentials(@RequestParam ContentTypeEnum contentType, @RequestParam String suffix) {
         return ossService.getCredentials(contentType, suffix);
+    }
+
+    @ApiOperation("获取视频上传地址和凭证")
+    @GetMapping("getVideoUploadAuth")
+    public VideoUploadAuthVO getVideoUploadAuth(@RequestParam String title, @RequestParam String fileName) {
+        return ossService.getVideoUploadAuth(title, fileName);
+    }
+
+    @ApiOperation("刷新视频上传凭证")
+    @GetMapping("refreshVideoUploadAuth")
+    public VideoUploadAuthVO refreshVideoUploadAuth(@RequestParam String videoId) {
+        return ossService.refreshVideoUploadAuth(videoId);
+    }
+
+    @ApiOperation("获取视频播放凭证")
+    @GetMapping("getVideoPlayAuth")
+    public VideoPlayAuthVO getVideoPlayAuth(@RequestParam String videoId) {
+        return ossService.getVideoPlayAuth(videoId);
+    }
+
+    @ApiOperation("获取视频播放信息")
+    @GetMapping("getVideoPlayInfo")
+    public List<VideoPlayInfoVO> getVideoPlayInfo(@RequestParam String videoId) {
+        return ossService.getVideoPlayInfo(videoId);
     }
 
     @ApiOperation("上传富文本")

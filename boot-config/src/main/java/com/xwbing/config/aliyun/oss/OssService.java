@@ -10,7 +10,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.DigestUtils;
@@ -24,7 +26,19 @@ import com.aliyuncs.auth.sts.AssumeRoleRequest;
 import com.aliyuncs.auth.sts.AssumeRoleResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.http.MethodType;
+import com.aliyuncs.vod.model.v20170321.CreateUploadVideoRequest;
+import com.aliyuncs.vod.model.v20170321.CreateUploadVideoResponse;
+import com.aliyuncs.vod.model.v20170321.GetPlayInfoRequest;
+import com.aliyuncs.vod.model.v20170321.GetPlayInfoResponse;
+import com.aliyuncs.vod.model.v20170321.GetVideoPlayAuthRequest;
+import com.aliyuncs.vod.model.v20170321.GetVideoPlayAuthResponse;
+import com.aliyuncs.vod.model.v20170321.RefreshUploadVideoRequest;
+import com.aliyuncs.vod.model.v20170321.RefreshUploadVideoResponse;
 import com.xwbing.config.aliyun.oss.enums.ContentTypeEnum;
+import com.xwbing.config.aliyun.oss.vo.AccessCredentialsVO;
+import com.xwbing.config.aliyun.oss.vo.VideoPlayAuthVO;
+import com.xwbing.config.aliyun.oss.vo.VideoPlayInfoVO;
+import com.xwbing.config.aliyun.oss.vo.VideoUploadAuthVO;
 import com.xwbing.config.exception.ConfigException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +60,14 @@ public class OssService {
         this.ossProperties = ossProperties;
     }
 
+    /**
+     * 获取临时访问凭证
+     *
+     * @param contentType
+     * @param suffix 文件后缀
+     *
+     * @return
+     */
     public AccessCredentialsVO getCredentials(ContentTypeEnum contentType, String suffix) {
         final AssumeRoleRequest request = new AssumeRoleRequest();
         request.setMethod(MethodType.POST);
@@ -70,6 +92,95 @@ public class OssService {
         } catch (ClientException e) {
             log.error("获取SecurityToken异常:", e);
             throw new ConfigException("获取SecurityToken异常");
+        }
+    }
+
+    /**
+     * 获取视频上传地址和凭证
+     *
+     * @param title
+     * @param fileName 完整的文件名称（带后缀名）
+     *
+     * @return
+     */
+    public VideoUploadAuthVO getVideoUploadAuth(String title, String fileName) {
+        final CreateUploadVideoRequest request = new CreateUploadVideoRequest();
+        try {
+            request.setFileName(fileName);
+            request.setTitle(title);
+            // 视频分类
+            // request.setCateId(1000099146L);
+            final CreateUploadVideoResponse response = acsClient.getAcsResponse(request);
+            return VideoUploadAuthVO.builder().videoId(response.getVideoId()).uploadAuth(response.getUploadAuth())
+                    .uploadAddress(response.getUploadAddress()).build();
+        } catch (ClientException e) {
+            log.error("获取视频上传凭证异常:", e);
+            throw new ConfigException("获取视频上传凭证异常");
+        }
+    }
+
+    /**
+     * 刷新视频上传凭证
+     *
+     * @param videoId
+     *
+     * @return
+     */
+    public VideoUploadAuthVO refreshVideoUploadAuth(String videoId) {
+        final RefreshUploadVideoRequest request = new RefreshUploadVideoRequest();
+        try {
+            request.setVideoId(videoId);
+            final RefreshUploadVideoResponse response = acsClient.getAcsResponse(request);
+            return VideoUploadAuthVO.builder().requestId(response.getRequestId()).videoId(videoId)
+                    .uploadAuth(response.getUploadAuth()).uploadAddress(response.getUploadAddress()).build();
+        } catch (ClientException e) {
+            log.error("刷新视频上传凭证异常:", e);
+            throw new ConfigException("刷新视频上传凭证异常");
+        }
+    }
+
+    /**
+     * 获取视频播放凭证
+     *
+     * @param videoId
+     *
+     * @return
+     */
+    public VideoPlayAuthVO getVideoPlayAuth(String videoId) {
+        final GetVideoPlayAuthRequest request = new GetVideoPlayAuthRequest();
+        request.setVideoId(videoId);
+        try {
+            final GetVideoPlayAuthResponse response = acsClient.getAcsResponse(request);
+            GetVideoPlayAuthResponse.VideoMeta videoMeta = response.getVideoMeta();
+            return VideoPlayAuthVO.builder().playAuth(response.getPlayAuth()).videoMeta(
+                    VideoPlayAuthVO.VideoMeta.builder().videoId(videoMeta.getVideoId())
+                            .coverURL(videoMeta.getCoverURL()).status(videoMeta.getStatus())
+                            .duration(videoMeta.getDuration()).title(videoMeta.getTitle()).build()).build();
+        } catch (ClientException e) {
+            log.error("获取播放地址和播放凭证异常:", e);
+            throw new ConfigException("获取播放地址和播放凭证异常");
+        }
+    }
+
+    /**
+     * 获取视频播放信息
+     *
+     * @param videoId
+     *
+     * @return
+     */
+    public List<VideoPlayInfoVO> getVideoPlayInfo(String videoId) {
+        final GetPlayInfoRequest request = new GetPlayInfoRequest();
+        request.setVideoId(videoId);
+        try {
+            final GetPlayInfoResponse response = acsClient.getAcsResponse(request);
+            return response.getPlayInfoList().stream()
+                    .map(playInfo -> VideoPlayInfoVO.builder().playURL(playInfo.getPlayURL()).size(playInfo.getSize())
+                            .status(playInfo.getStatus()).definition(playInfo.getDefinition())
+                            .duration(Double.valueOf(playInfo.getDuration())).build()).collect(Collectors.toList());
+        } catch (ClientException e) {
+            log.error("获取播放地址异常:", e);
+            throw new ConfigException("获取播放地址异常");
         }
     }
 

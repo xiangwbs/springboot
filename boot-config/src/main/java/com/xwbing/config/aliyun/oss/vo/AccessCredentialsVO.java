@@ -1,4 +1,4 @@
-package com.xwbing.config.aliyun.oss;
+package com.xwbing.config.aliyun.oss.vo;
 
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
