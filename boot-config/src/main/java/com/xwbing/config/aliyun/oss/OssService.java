@@ -105,11 +105,11 @@ public class OssService {
      */
     public VideoUploadAuthVO getVideoUploadAuth(String title, String fileName) {
         final CreateUploadVideoRequest request = new CreateUploadVideoRequest();
+        request.setFileName(fileName);
+        request.setTitle(title);
+        // 视频分类
+        // request.setCateId(1000099146L);
         try {
-            request.setFileName(fileName);
-            request.setTitle(title);
-            // 视频分类
-            // request.setCateId(1000099146L);
             final CreateUploadVideoResponse response = acsClient.getAcsResponse(request);
             return VideoUploadAuthVO.builder().videoId(response.getVideoId()).uploadAuth(response.getUploadAuth())
                     .uploadAddress(response.getUploadAddress()).build();
@@ -128,8 +128,8 @@ public class OssService {
      */
     public VideoUploadAuthVO refreshVideoUploadAuth(String videoId) {
         final RefreshUploadVideoRequest request = new RefreshUploadVideoRequest();
+        request.setVideoId(videoId);
         try {
-            request.setVideoId(videoId);
             final RefreshUploadVideoResponse response = acsClient.getAcsResponse(request);
             return VideoUploadAuthVO.builder().requestId(response.getRequestId()).videoId(videoId)
                     .uploadAuth(response.getUploadAuth()).uploadAddress(response.getUploadAddress()).build();
