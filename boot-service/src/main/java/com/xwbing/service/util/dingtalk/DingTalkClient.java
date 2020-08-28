@@ -1,4 +1,4 @@
-package com.xwbing.starter.util.dingtalk;
+package com.xwbing.service.util.dingtalk;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

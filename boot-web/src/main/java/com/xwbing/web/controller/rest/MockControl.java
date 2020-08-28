@@ -26,9 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.starter.spring.ApplicationContextHelper;
-import com.xwbing.starter.util.dingtalk.DingTalkClient;
-import com.xwbing.starter.util.dingtalk.LinkMessage;
-import com.xwbing.starter.util.dingtalk.MarkdownMessage;
+import com.xwbing.service.util.dingtalk.DingTalkClient;
+import com.xwbing.service.util.dingtalk.LinkMessage;
+import com.xwbing.service.util.dingtalk.MarkdownMessage;
 import com.xwbing.service.domain.entity.model.NullModel;
 import com.xwbing.service.domain.entity.rest.FilesUpload;
 import com.xwbing.service.domain.entity.vo.ExcelVo;
