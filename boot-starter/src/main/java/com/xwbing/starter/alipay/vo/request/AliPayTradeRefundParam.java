@@ -1,4 +1,4 @@
-package com.xwbing.starter.alipay.vo;
+package com.xwbing.starter.alipay.vo.request;
 
 import java.math.BigDecimal;
 

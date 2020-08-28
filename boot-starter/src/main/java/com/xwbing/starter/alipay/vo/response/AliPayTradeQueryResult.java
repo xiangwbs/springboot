@@ -1,4 +1,4 @@
-package com.xwbing.starter.alipay.vo;
+package com.xwbing.starter.alipay.vo.response;
 
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.xwbing.starter.alipay.enums.AliPayTradeStatusEnum;

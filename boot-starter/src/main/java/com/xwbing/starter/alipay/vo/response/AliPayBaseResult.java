@@ -1,4 +1,4 @@
-package com.xwbing.starter.alipay.vo;
+package com.xwbing.starter.alipay.vo.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
