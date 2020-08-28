@@ -7,7 +7,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import com.xwbing.service.service.pay.AliPayBillRecordService;
-import com.xwbing.service.service.pay.enums.TradeTypeEnum;
+import com.xwbing.starter.alipay.enums.TradeTypeEnum;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.handler.annotation.JobHandler;

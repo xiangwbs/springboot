@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import com.xwbing.service.domain.entity.rest.TradeRecord;
 import com.xwbing.service.domain.mapper.pay.TradeRecordMapper;
 import com.xwbing.service.service.BaseService;
-import com.xwbing.service.service.pay.enums.PayStatusEnum;
+import com.xwbing.starter.alipay.enums.PayStatusEnum;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -37,4 +37,5 @@ public class AliPayProperties {
      * 应用私钥
      */
     private String appPrivateKey;
+    private String userId;
 }

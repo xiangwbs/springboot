@@ -1,5 +1,6 @@
 package com.xwbing.starter.aliyun.log;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -31,7 +32,7 @@ public class AliYunLogAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(AliYunLog.class)
+    @ConditionalOnBean(Client.class)
     public AliYunLog aliYunLog(Client aliYunLogClient) {
         return new AliYunLog(aliYunLogClient, aliYunLogProperties.getLogStore(), aliYunLogProperties.getTopic(),
                 aliYunLogProperties.getProject());

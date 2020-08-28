@@ -5,7 +5,7 @@ import javax.annotation.Resource;
 import org.junit.jupiter.api.Test;
 
 import com.xwbing.web.BaseTest;
-import com.xwbing.service.service.pay.AliPayService;
+import com.xwbing.starter.alipay.AliPayService;
 
 import lombok.extern.slf4j.Slf4j;
 

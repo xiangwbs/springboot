@@ -1,7 +1,7 @@
 package com.xwbing.starter.redis;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +41,7 @@ public class RedisAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(RedisService.class)
+    @ConditionalOnBean(JedisPool.class)
     public RedisService redisService(JedisPool pool) {
         return new RedisService(pool, redisProperties.getPrefix());
     }

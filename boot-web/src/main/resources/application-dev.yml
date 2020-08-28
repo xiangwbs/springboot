@@ -67,6 +67,3 @@ boot:
 
 swagger:
   enable: true
-
-alipay:
-  pay-gate-way: XX

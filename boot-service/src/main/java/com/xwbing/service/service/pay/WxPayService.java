@@ -1,14 +1,11 @@
 package com.xwbing.service.service.pay;
 
-import com.xwbing.service.constant.CommonConstant;
-import com.xwbing.service.domain.entity.pay.wxpay.*;
-import com.xwbing.service.exception.BusinessException;
-import com.xwbing.service.exception.PayException;
-import com.xwbing.service.util.wxpay.ClientCustomSSL;
-import com.xwbing.service.util.wxpay.RandomKit;
-import com.xwbing.service.util.wxpay.WxSignKit;
-import com.xwbing.service.util.wxpay.XmlUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -21,7 +18,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import com.xwbing.service.constant.CommonConstant;
+import com.xwbing.service.domain.entity.pay.wxpay.WxBarCodePayParam;
+import com.xwbing.service.domain.entity.pay.wxpay.WxBarCodePayResult;
+import com.xwbing.service.domain.entity.pay.wxpay.WxQueryResult;
+import com.xwbing.service.domain.entity.pay.wxpay.WxRefundParam;
+import com.xwbing.service.domain.entity.pay.wxpay.WxRefundResult;
+import com.xwbing.service.domain.entity.pay.wxpay.WxRefundStatusEnum;
+import com.xwbing.service.domain.entity.pay.wxpay.WxTradeStatusEnum;
+import com.xwbing.service.exception.BusinessException;
+import com.xwbing.service.util.wxpay.ClientCustomSSL;
+import com.xwbing.service.util.wxpay.RandomKit;
+import com.xwbing.service.util.wxpay.WxSignKit;
+import com.xwbing.service.util.wxpay.XmlUtil;
+import com.xwbing.starter.exception.PayException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 说明: 微信支付接口实现

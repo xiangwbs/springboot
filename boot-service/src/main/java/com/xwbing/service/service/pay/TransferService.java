@@ -5,11 +5,12 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import com.xwbing.service.domain.entity.rest.TradeRecord;
-import com.xwbing.service.service.pay.enums.PayStatusEnum;
-import com.xwbing.service.service.pay.enums.PayTypeEnum;
-import com.xwbing.service.service.pay.vo.AliPayTransferParam;
-import com.xwbing.service.service.pay.vo.AliPayTransferQueryResult;
-import com.xwbing.service.service.pay.vo.AliPayTransferResult;
+import com.xwbing.starter.alipay.AliPayService;
+import com.xwbing.starter.alipay.enums.PayStatusEnum;
+import com.xwbing.starter.alipay.enums.PayTypeEnum;
+import com.xwbing.starter.alipay.vo.AliPayTransferParam;
+import com.xwbing.starter.alipay.vo.AliPayTransferQueryResult;
+import com.xwbing.starter.alipay.vo.AliPayTransferResult;
 import com.xwbing.service.util.DateUtil2;
 import com.xwbing.service.util.DecimalUtil;
 

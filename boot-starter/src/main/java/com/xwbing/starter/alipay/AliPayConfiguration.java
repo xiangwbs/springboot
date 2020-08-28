@@ -1,5 +1,6 @@
 package com.xwbing.starter.alipay;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -45,5 +46,11 @@ public class AliPayConfiguration {
             log.error("initAliPayCertClient error", e);
             return null;
         }
+    }
+
+    @Bean
+    @ConditionalOnBean(AlipayClient.class)
+    public AliPayService aliPayService(AlipayClient alipayClient) {
+        return new AliPayService(aliPayProperties.getUserId(), alipayClient);
     }
 }

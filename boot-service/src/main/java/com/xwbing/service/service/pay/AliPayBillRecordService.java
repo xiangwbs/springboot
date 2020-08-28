@@ -27,12 +27,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.csvreader.CsvReader;
+import com.xwbing.starter.alipay.AliPayService;
 import com.xwbing.starter.constant.BaseConstant;
 import com.xwbing.service.domain.entity.rest.AliPayBillRecord;
 import com.xwbing.service.domain.mapper.pay.AliPayBillRecordMapper;
 import com.xwbing.service.exception.BusinessException;
 import com.xwbing.service.service.BaseService;
-import com.xwbing.service.service.pay.enums.TradeTypeEnum;
+import com.xwbing.starter.alipay.enums.TradeTypeEnum;
 import com.xwbing.service.util.DateUtil2;
 
 import lombok.extern.slf4j.Slf4j;

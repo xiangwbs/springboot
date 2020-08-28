@@ -46,7 +46,7 @@ public class OssAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(OSSClient.class)
+    @ConditionalOnBean({ OSSClient.class, DefaultAcsClient.class })
     public OssService ossService(OSSClient ossClient, DefaultAcsClient acsClient) {
         return new OssService(ossClient, acsClient, ossProperties);
     }

@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>boot-service</artifactId>
     <dependencies>
-        <!-- 配置依赖 -->
+        <!-- 自动配置依赖 -->
         <dependency>
             <groupId>com.xwbing</groupId>
             <artifactId>boot-starter</artifactId>

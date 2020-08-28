@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.service.service.pay.vo.notify.AliPayTradePayNotifyRequest;
+import com.xwbing.starter.alipay.vo.notify.AliPayTradePayNotifyRequest;
 import com.xwbing.service.domain.entity.vo.RestMessageVo;
 import com.xwbing.service.service.pay.AliPayNotifyService;
 

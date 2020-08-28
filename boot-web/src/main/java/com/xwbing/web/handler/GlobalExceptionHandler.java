@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.service.exception.BusinessException;
-import com.xwbing.service.exception.PayException;
+import com.xwbing.starter.exception.PayException;
 import com.xwbing.service.exception.UtilException;
 import com.xwbing.service.util.JsonResult;
 
