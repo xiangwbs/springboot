@@ -31,14 +31,10 @@ import lombok.extern.slf4j.Slf4j;
  * @author xiangwb
  */
 @Slf4j
-public class DingTalkClient {
-    private static HttpClient httpclient = HttpClients.createDefault();
-    private static final String CHAT_URL = "https://oapi.dingtalk.com/chat/send?access_token=%s";
-    private static final String PC_SLIDE_URL = "dingtalk://dingtalkclient/page/link?pc_slide=true&url=";
-    private static final String WEBHOK = "https://oapi.dingtalk.com/robot/send?access_token=da82d4099a3f2515480f35210cc17dd02f315e99537d29cd3de1a751e551b670";
-    private static final String secret = "SECa17df9ae897fb39d525a173c47dcc93a6b01133fbb4bf3e659060cd4ed4539ea";
+public class DingTalkUtil {
+    private static final HttpClient HTTP_CLIENT = HttpClients.createDefault();
 
-    public DingTalkClient() {
+    private DingTalkUtil() {
     }
 
     // ---------------------- Robot ----------------------
@@ -68,7 +64,7 @@ public class DingTalkClient {
      */
     public static SendResult sendRobotMessage(LinkMessage linkMessage) {
         try {
-            SendResult send = sendRobot(WEBHOK, secret, linkMessage);
+            SendResult send = sendRobot(DingTalkConstant.WEBHOK, DingTalkConstant.SECRET, linkMessage);
             if (!send.isSuccess()) {
                 log.error("{} - {}", linkMessage.getTitle(), send.toString());
             }
@@ -100,7 +96,7 @@ public class DingTalkClient {
             TextMessage textMessage = new TextMessage(content.toString());
             textMessage.addAtMobiles(atMobiles);
             textMessage.setAtAll(atAll);
-            SendResult send = sendRobot(WEBHOK, secret, textMessage);
+            SendResult send = sendRobot(DingTalkConstant.WEBHOK, DingTalkConstant.SECRET, textMessage);
             if (!send.isSuccess()) {
                 log.error("{} - {}", title, send.toString());
             }
@@ -120,7 +116,7 @@ public class DingTalkClient {
         try {
             //title当做一级标题
             markdownMessage.addItem(0, MarkdownMessage.getHeaderText(1, markdownMessage.getTitle()));
-            SendResult send = sendRobot(WEBHOK, secret, markdownMessage);
+            SendResult send = sendRobot(DingTalkConstant.WEBHOK, DingTalkConstant.SECRET, markdownMessage);
             if (!send.isSuccess()) {
                 log.error("{} - {}", markdownMessage.getTitle(), send.toString());
             }
@@ -209,7 +205,7 @@ public class DingTalkClient {
      * @throws IOException
      */
     public static SendResult sendChat(String accessToken, Message message) throws IOException {
-        return execute(String.format(DingTalkClient.CHAT_URL, accessToken), message.toChatString());
+        return execute(String.format(DingTalkConstant.CHAT_BASE_URL, accessToken), message.toChatString());
     }
 
     private static SendResult execute(String url, String body) throws IOException {
@@ -217,7 +213,7 @@ public class DingTalkClient {
         HttpPost httppost = new HttpPost(url);
         httppost.addHeader("Content-Type", "application/json; charset=utf-8");
         httppost.setEntity(new StringEntity(body, "utf-8"));
-        HttpResponse response = httpclient.execute(httppost);
+        HttpResponse response = HTTP_CLIENT.execute(httppost);
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
             String entity = EntityUtils.toString(response.getEntity());
             JSONObject result = JSONObject.parseObject(entity);
@@ -258,7 +254,7 @@ public class DingTalkClient {
      */
     public static String toPcSlide(String linkUrl) {
         try {
-            return PC_SLIDE_URL + URLEncoder.encode(linkUrl, "UTF-8");
+            return DingTalkConstant.PC_SLIDE_URL + URLEncoder.encode(linkUrl, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             return linkUrl;
         }

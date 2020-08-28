@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.starter.spring.ApplicationContextHelper;
-import com.xwbing.service.util.dingtalk.DingTalkClient;
+import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.service.util.dingtalk.LinkMessage;
 import com.xwbing.service.util.dingtalk.MarkdownMessage;
 import com.xwbing.service.domain.entity.model.NullModel;
@@ -129,7 +129,7 @@ public class MockControl {
     @ApiOperation("发送钉钉机器人消息")
     @GetMapping("sendTextMessage")
     public void sendTextMessage(@RequestParam boolean atAll, @RequestParam List<String> atMobiles) {
-        DingTalkClient.sendRobotMessage("我是一个文本", atAll, atMobiles, "test");
+        DingTalkUtil.sendRobotMessage("我是一个文本", atAll, atMobiles, "test");
     }
 
     @ApiOperation("发送钉钉机器人消息")
@@ -137,8 +137,8 @@ public class MockControl {
     public void sendLinkMessage() {
         LinkMessage linkMessage = LinkMessage.builder().title("通知公告测试").text("查看详情")
                 .picUrl("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png")
-                .messageUrl(DingTalkClient.toPcSlide("https://www.seniverse.com")).build();
-        DingTalkClient.sendRobotMessage(linkMessage);
+                .messageUrl(DingTalkUtil.toPcSlide("https://www.seniverse.com")).build();
+        DingTalkUtil.sendRobotMessage(linkMessage);
     }
 
     @ApiOperation("发送钉钉机器人消息")
@@ -161,10 +161,10 @@ public class MockControl {
         message.addItem(MarkdownMessage.getUnOrderListText(unOrderList));
         message.addItem(
                 MarkdownMessage.getImageText("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png"));
-        message.addItem(MarkdownMessage.getLinkText("天气", DingTalkClient.toPcSlide("https://www.seniverse.com")));
+        message.addItem(MarkdownMessage.getLinkText("天气", DingTalkUtil.toPcSlide("https://www.seniverse.com")));
         message.setAtAll(atAll);
         message.addAtMobiles(atMobiles);
-        DingTalkClient.sendRobotMessage(message);
+        DingTalkUtil.sendRobotMessage(message);
     }
 
     @ApiOperation("发送群消息")
@@ -173,7 +173,7 @@ public class MockControl {
         LinkMessage linkMessage = LinkMessage.builder().chatId("chat0f212fb4dc07478f0813eb98e9470ff6").title("link消息测试")
                 .text("消息内容消息内容测试").picUrl("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png")
                 .messageUrl("https://www.seniverse.com").build();
-        DingTalkClient.sendChatMessage(linkMessage, token);
+        DingTalkUtil.sendChatMessage(linkMessage, token);
     }
 
     @ApiOperation("发送群消息")
@@ -183,7 +183,7 @@ public class MockControl {
         message.setChatId("chat0f212fb4dc07478f0813eb98e9470ff6");
         message.setTitle("通知公告测试");
         message.addItem(MarkdownMessage.getLinkText("查看详情", "https://www.seniverse.com"));
-        DingTalkClient.sendChatMessage(message, token);
+        DingTalkUtil.sendChatMessage(message, token);
     }
 
     @ApiOperation("spring上下文")
