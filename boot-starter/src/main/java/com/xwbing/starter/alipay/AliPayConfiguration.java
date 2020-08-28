@@ -29,7 +29,7 @@ public class AliPayConfiguration {
 
     @Bean
     @ConditionalOnExpression("!'${alipay.alipay-root-cert-path:}'.empty")
-    public AlipayClient getAliPayCertClient() {
+    public AlipayClient aliPayCertClient() {
         try {
             CertAlipayRequest certAlipayRequest = new CertAlipayRequest();
             certAlipayRequest.setServerUrl(aliPayProperties.getServerUrl());
