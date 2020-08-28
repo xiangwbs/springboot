@@ -28,4 +28,10 @@ public class AliPayTransferParam {
     private BigDecimal amount;
     @ApiModelProperty(value = "转账业务的标题")
     private String title;
+
+    public static AliPayTransferParam build(String payAccount, String name, String outBizNo, BigDecimal amount,
+            String title) {
+        return AliPayTransferParam.builder().payAccount(payAccount).name(name).outBizNo(outBizNo).amount(amount)
+                .title(title).build();
+    }
 }

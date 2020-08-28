@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
  * @author xwbing
  */
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class AliPayWapPayParam {
