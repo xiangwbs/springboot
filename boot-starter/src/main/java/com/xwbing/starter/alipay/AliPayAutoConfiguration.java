@@ -20,10 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @EnableConfigurationProperties(AliPayProperties.class)
-public class AliPayConfiguration {
+public class AliPayAutoConfiguration {
     private final AliPayProperties aliPayProperties;
 
-    public AliPayConfiguration(AliPayProperties aliPayProperties) {
+    public AliPayAutoConfiguration(AliPayProperties aliPayProperties) {
         this.aliPayProperties = aliPayProperties;
     }
 

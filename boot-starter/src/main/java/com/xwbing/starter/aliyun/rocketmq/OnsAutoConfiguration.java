@@ -27,10 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @ConditionalOnProperty(prefix = OnsProperties.PREFIX, name = "name-server-address")
 @EnableConfigurationProperties(OnsProperties.class)
-public class OnsConfiguration {
+public class OnsAutoConfiguration {
     private final OnsProperties onsProperties;
 
-    public OnsConfiguration(OnsProperties onsProperties) {
+    public OnsAutoConfiguration(OnsProperties onsProperties) {
         this.onsProperties = onsProperties;
     }
 

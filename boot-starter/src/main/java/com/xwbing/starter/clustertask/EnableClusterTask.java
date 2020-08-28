@@ -19,7 +19,7 @@ import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(LockProviderConfiguration.class)
+@Import(LockProviderAutoConfiguration.class)
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtLeastFor = "10s", defaultLockAtMostFor = "30s")
 public @interface EnableClusterTask {

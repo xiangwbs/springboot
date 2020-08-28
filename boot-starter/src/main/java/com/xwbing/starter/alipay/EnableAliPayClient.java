@@ -16,6 +16,6 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(AliPayConfiguration.class)
+@Import(AliPayAutoConfiguration.class)
 public @interface EnableAliPayClient {
 }

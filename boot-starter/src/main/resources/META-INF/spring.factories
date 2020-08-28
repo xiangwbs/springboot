@@ -2,5 +2,5 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.xwbing.starter.aliyun.log.AliYunLogAutoConfiguration,\
 com.xwbing.starter.aliyun.oss.OssAutoConfiguration,\
 com.xwbing.starter.aspect.AspectAutoConfiguration,\
-com.xwbing.starter.xxljob.XxlJobConfiguration,\
+com.xwbing.starter.xxljob.XxlJobAutoConfiguration,\
 com.xwbing.starter.spring.ApplicationContextHelper

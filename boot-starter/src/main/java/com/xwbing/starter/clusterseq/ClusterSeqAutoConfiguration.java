@@ -19,7 +19,7 @@ import com.xwbing.starter.redis.RedisService;
  */
 @Configuration
 @ConditionalOnClass(RedisService.class)
-public class ClusterSeqConfiguration {
+public class ClusterSeqAutoConfiguration {
     @Value("${spring.profiles.active:test}")
     private String env;
     @Resource

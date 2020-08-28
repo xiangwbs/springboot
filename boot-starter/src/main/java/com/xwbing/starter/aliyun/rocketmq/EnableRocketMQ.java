@@ -16,6 +16,6 @@ import org.springframework.context.annotation.Import;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(OnsConfiguration.class)
+@Import(OnsAutoConfiguration.class)
 public @interface EnableRocketMQ {
 }

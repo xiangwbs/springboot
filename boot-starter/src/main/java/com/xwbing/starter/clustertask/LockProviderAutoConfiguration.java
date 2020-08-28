@@ -14,7 +14,7 @@ import net.javacrumbs.shedlock.provider.redis.spring.RedisLockProvider;
  * @since 2020年08月16日 15:49
  */
 @Configuration
-public class LockProviderConfiguration {
+public class LockProviderAutoConfiguration {
 
     @Bean
     public LockProvider lockProvider(RedisConnectionFactory connectionFactory, Environment environment) {

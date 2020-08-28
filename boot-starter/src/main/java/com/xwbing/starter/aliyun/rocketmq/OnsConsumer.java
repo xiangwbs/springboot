@@ -68,7 +68,7 @@ public class OnsConsumer implements ApplicationContextAware, InitializingBean, D
             // 一个GroupID在jvm里只能创建一个Consumer实例
             if (consumer == null) {
                 consumer = new ConsumerBean();
-                properties = OnsConfiguration.buildProperties(onsProperties);
+                properties = OnsAutoConfiguration.buildProperties(onsProperties);
                 properties.put(PropertyKeyConst.GROUP_ID, listener.groupId());
                 consumer.setProperties(properties);
                 consumerMap.put(listener.groupId(), consumer);

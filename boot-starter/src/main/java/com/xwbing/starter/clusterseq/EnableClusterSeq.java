@@ -16,6 +16,6 @@ import org.springframework.context.annotation.Import;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(ClusterSeqConfiguration.class)
+@Import(ClusterSeqAutoConfiguration.class)
 public @interface EnableClusterSeq {
 }

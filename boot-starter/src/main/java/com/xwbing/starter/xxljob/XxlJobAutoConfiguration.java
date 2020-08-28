@@ -18,11 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @ConditionalOnProperty(prefix = XxlJobProperties.PREFIX, name = {"enabled"}, havingValue = "true")
 @EnableConfigurationProperties(XxlJobProperties.class)
-public class XxlJobConfiguration {
+public class XxlJobAutoConfiguration {
 
     private final XxlJobProperties xxlJobProperties;
 
-    public XxlJobConfiguration(XxlJobProperties xxlJobProperties) {
+    public XxlJobAutoConfiguration(XxlJobProperties xxlJobProperties) {
         this.xxlJobProperties = xxlJobProperties;
     }
 
