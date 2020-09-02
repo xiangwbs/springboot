@@ -23,6 +23,10 @@ mysqladmin [-hIP地址] [-P端口号] -u用户名 -p旧密码 password 新密码
 导出数据库
 mysqldump [-hIP地址] [-P端口号] -u用户名 -p密码 数据库名 > sql文件名
 
+--修改身份验证类型(修改密码)
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'xxx';
+FLUSH PRIVILEGES;
+--刷新权限
 status;
 show databases;
 create database <数据库名>;

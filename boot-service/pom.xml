@@ -91,12 +91,6 @@
             <artifactId>httpclient</artifactId>
             <version>${httpclient.version}</version>
         </dependency>
-        <!-- servlet 有些方法需要HttpServletResponse和HttpServletRequest的支持 -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <!-- dom -->
         <dependency>
             <groupId>dom4j</groupId>

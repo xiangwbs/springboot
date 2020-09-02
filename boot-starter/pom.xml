@@ -46,13 +46,6 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
-        <!-- servlet 有些方法需要HttpServletResponse和HttpServletRequest的支持 -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
         <!-- redis -->
         <dependency>
             <groupId>redis.clients</groupId>
