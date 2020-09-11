@@ -19,11 +19,12 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Configuration
-public class ServletFilterConfig {
+public class ServletComponentConfig {
     @Bean
     public ServletRegistrationBean captchaServlet() {
         log.info("注册登陆验证码CaptchaServlet ======================= ");
-        ServletRegistrationBean registration = new ServletRegistrationBean(new CaptchaServlet());
+        ServletRegistrationBean<CaptchaServlet> registration = new ServletRegistrationBean<>();
+        registration.setServlet(new CaptchaServlet());
         registration.addUrlMappings("/captcha");
         return registration;
     }
@@ -33,7 +34,8 @@ public class ServletFilterConfig {
     @Bean
     public FilterRegistrationBean fileFilter() {
         log.info("注册防盗链过滤器FileFilter ======================= ");
-        FilterRegistrationBean registration = new FilterRegistrationBean(new FileFilter());
+        FilterRegistrationBean<FileFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(new FileFilter());
         registration.addUrlPatterns("/file/*");
         return registration;
     }

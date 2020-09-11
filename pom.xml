@@ -85,7 +85,6 @@
         <zxing.version>3.4.0</zxing.version>
         <guava.verison>29.0-jre</guava.verison>
         <rsa.version>1.46</rsa.version>
-        <httpclient.version>4.5.12</httpclient.version>
         <shedlock.version>4.7.1</shedlock.version>
         <swagger2.version>2.9.2</swagger2.version>
         <swagger.version>1.6.0</swagger.version>

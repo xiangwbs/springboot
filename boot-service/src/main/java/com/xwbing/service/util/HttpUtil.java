@@ -1,5 +1,6 @@
 package com.xwbing.service.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -29,7 +31,10 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
@@ -191,6 +196,22 @@ public class HttpUtil {
             log.error(e.getMessage());
             throw new UtilException("postByForm数据转换错误");
         }
+        return getResult(post);
+    }
+
+    public static JSONObject postFile(String url, File file, JSONObject header) {
+        if (StringUtils.isEmpty(url)) {
+            throw new IllegalArgumentException(URL_ERROR);
+        }
+        if (file == null) {
+            throw new IllegalArgumentException(PARAM_ERROR);
+        }
+        HttpPost post = new HttpPost(url);
+        HttpEntity requestEntity = MultipartEntityBuilder.create().addPart("file",
+                new FileBody(file, ContentType.create("multipart/form-data", Consts.UTF_8), file.getName())).build();
+        post.setEntity(requestEntity);
+        Optional.ofNullable(header).orElse(new JSONObject())
+                .forEach((key, value) -> post.addHeader(key, Objects.toString(value)));
         return getResult(post);
     }
 
