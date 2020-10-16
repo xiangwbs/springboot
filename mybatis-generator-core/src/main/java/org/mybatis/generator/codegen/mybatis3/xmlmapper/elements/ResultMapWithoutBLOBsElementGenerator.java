@@ -15,14 +15,15 @@
  */
 package org.mybatis.generator.codegen.mybatis3.xmlmapper.elements;
 
-import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
-
 import java.util.List;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
+
+
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
 /**
  * 
@@ -80,7 +81,7 @@ public class ResultMapWithoutBLOBsElementGenerator extends
      * modified
      * 添加resultMap信息
      * -去除jdbcType
-     * -去除无需装换字段
+     // * -去除无需装换字段
      */
     private void addResultMapElements(XmlElement answer) {
         for (IntrospectedColumn introspectedColumn : introspectedTable
@@ -111,10 +112,10 @@ public class ResultMapWithoutBLOBsElementGenerator extends
             columns = introspectedTable.getNonPrimaryKeyColumns();
         }
         for (IntrospectedColumn introspectedColumn : columns) {
-            String actualColumnName = introspectedColumn.getActualColumnName();
-            if(actualColumnName.indexOf('_')==-1){//去除无需转换的字段
-                continue;
-            }
+            // String actualColumnName = introspectedColumn.getActualColumnName();
+            // if(actualColumnName.indexOf('_')==-1){//去除无需转换的字段
+            //     continue;
+            // }
             XmlElement resultElement = new XmlElement("result"); //$NON-NLS-1$
 
             resultElement

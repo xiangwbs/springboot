@@ -96,9 +96,9 @@ public class UpdateByPrimaryKeySelectiveElementGenerator extends
                 sb.append(javaProperty);
                 sb.append("!=null\">");
                 sb.append(MyBatis3FormattingUtilities.getEscapedColumnName(introspectedColumn));
-                sb.append("=#{");
-                sb.append(javaProperty);
-                sb.append("},</if>");
+                sb.append("=");
+                sb.append(MyBatis3FormattingUtilities.getParameterClause(introspectedColumn));
+                sb.append(",</if>");
                 dynamicElement.addElement(new TextElement(sb.toString()));
 //                sb.setLength(0);
 //                sb.append(javaProperty);
