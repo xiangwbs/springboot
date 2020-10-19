@@ -10,14 +10,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.domain.entity.vo.ExcelProcessVo;
 import com.xwbing.service.service.rest.EasyExcelDealService;
 import com.xwbing.service.service.rest.ImportTaskService;
-import com.xwbing.service.util.JsonResult;
 import com.xwbing.service.util.Pagination;
-import com.xwbing.web.Response.ApiResponse;
-import com.xwbing.web.Response.ApiResponseUtil;
+import com.xwbing.web.response.ApiResponse;
+import com.xwbing.web.response.ApiResponseUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,16 +36,16 @@ public class EasyExcelController {
 
     @ApiOperation(value = "批量导入")
     @PostMapping("import")
-    public JSONObject readExcel(@RequestParam MultipartFile file) {
-        String sign = easyExcelDealService.readByStream(file, 0, 1);
-        return JsonResult.toJSONObj(sign, "");
+    public ApiResponse<String> readExcel(@RequestParam MultipartFile file) {
+        String importId = easyExcelDealService.readByStream(file, 0, 1);
+        return ApiResponseUtil.success(importId);
     }
 
     @ApiOperation("读取excel进度")
     @GetMapping("getProcess")
-    public JSONObject read(@RequestParam String importId) {
+    public ApiResponse<ExcelProcessVo> read(@RequestParam String importId) {
         ExcelProcessVo excelProgress = easyExcelDealService.getProcess(importId);
-        return JsonResult.toJSONObj(excelProgress, "");
+        return ApiResponseUtil.success(excelProgress);
     }
 
     @ApiOperation("下载导入失败记录")

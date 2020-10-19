@@ -1,4 +1,4 @@
-package com.xwbing.web.Response;
+package com.xwbing.web.response;
 
 /**
  * @author daofeng
@@ -6,7 +6,7 @@ package com.xwbing.web.Response;
  * @since 2018年06月14日 下午5:04
  */
 public class ApiResponseUtil {
-    private static final String DEFAULT_SUCCESS_CODE = "200";
+    static final String DEFAULT_SUCCESS_CODE = "200";
     private static final String DEFAULT_FAIL_CODE = "400";
 
     /**
@@ -18,7 +18,7 @@ public class ApiResponseUtil {
      * @return
      */
     public static <T> ApiResponse<T> success(T obj) {
-        return new ApiResponse(DEFAULT_SUCCESS_CODE, "", obj);
+        return new ApiResponse<>(DEFAULT_SUCCESS_CODE, "", obj);
     }
 
     /**
@@ -31,6 +31,17 @@ public class ApiResponseUtil {
     }
 
     /**
+     * 返回失败结果,code默认为HttpStatus.BAD_REQUEST
+     *
+     * @param error
+     *
+     * @return
+     */
+    public static ApiResponse fail(String error) {
+        return fail(DEFAULT_FAIL_CODE, error);
+    }
+
+    /**
      * 返回失败结果
      *
      * @param code
@@ -39,22 +50,7 @@ public class ApiResponseUtil {
      * @return
      */
     public static ApiResponse fail(String code, String error) {
-        ApiResponse apiResponse = new ApiResponse(code, error, null);
-        return apiResponse;
-    }
-
-    /**
-     * 返回失败结果
-     *
-     * @param code
-     * @param error
-     * @param errorTrace
-     *
-     * @return
-     */
-    public static ApiResponse fail(String code, String error, String errorTrace) {
-        ApiResponse apiResponse = new ApiResponse(code, error, errorTrace, null);
-        return apiResponse;
+        return new ApiResponse<>(code, error, null);
     }
 
     /**
@@ -70,14 +66,15 @@ public class ApiResponseUtil {
     }
 
     /**
-     * 返回失败结果,code默认为HttpStatus.BAD_REQUEST
+     * 返回失败结果
      *
+     * @param code
      * @param error
+     * @param errorTrace
      *
      * @return
      */
-    public static ApiResponse fail(String error) {
-        return fail(DEFAULT_FAIL_CODE, error);
+    public static ApiResponse fail(String code, String error, String errorTrace) {
+        return new ApiResponse<>(code, error, errorTrace, null);
     }
-
 }
