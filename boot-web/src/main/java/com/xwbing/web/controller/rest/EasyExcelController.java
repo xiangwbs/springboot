@@ -16,6 +16,8 @@ import com.xwbing.service.service.rest.EasyExcelDealService;
 import com.xwbing.service.service.rest.ImportTaskService;
 import com.xwbing.service.util.JsonResult;
 import com.xwbing.service.util.Pagination;
+import com.xwbing.web.Response.ApiResponse;
+import com.xwbing.web.Response.ApiResponseUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -56,9 +58,9 @@ public class EasyExcelController {
 
     @ApiOperation("导入记录")
     @GetMapping("pageImport")
-    public JSONObject pageImport(Pagination page) {
+    public ApiResponse<Pagination> pageImport(Pagination page) {
         Pagination pagination = importTaskService.page(page);
-        return JsonResult.toJSONObj(pagination, "");
+        return ApiResponseUtil.success(pagination);
     }
 }
 

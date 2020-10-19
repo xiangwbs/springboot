@@ -35,7 +35,7 @@ public class ImportTaskService extends BaseService<ImportTaskMapper, ImportTask>
     }
 
     public RestMessage updateExceptionFail(String id) {
-        ImportTask fail = ImportTask.builder().id(id).status(ImportStatusEnum.FAIL.getCode()).detail("系统异常，请重新导入")
+        ImportTask fail = ImportTask.builder().id(id).status(ImportStatusEnum.FAIL).detail("系统异常，请重新导入")
                 .build();
         return super.update(fail);
     }

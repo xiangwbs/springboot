@@ -4,10 +4,14 @@
     <resultMap id="BaseResultMap" type="com.xwbing.service.domain.entity.rest.ImportTask">
         <id column="id" property="id"/>
         <result column="create_time" property="createTime"/>
+        <result column="creator" property="creator"/>
         <result column="modified_time" property="modifiedTime"/>
+        <result column="modifier" property="modifier"/>
         <result column="file_name" property="fileName"/>
         <result column="total_count" property="totalCount"/>
         <result column="fail_count" property="failCount"/>
+        <result column="status" property="status" typeHandler="com.xwbing.service.enums.BaseEnumTypeHandler"/>
+        <result column="detail" property="detail"/>
         <result column="need_download" property="needDownload"/>
     </resultMap>
 
@@ -50,7 +54,7 @@
         #{fileName}, 
         #{totalCount}, 
         #{failCount}, 
-        #{status}, 
+        #{status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler}, 
         #{detail}, 
         #{needDownload}
         )
@@ -79,7 +83,7 @@
             #{obj.fileName}, 
             #{obj.totalCount}, 
             #{obj.failCount}, 
-            #{obj.status}, 
+            #{obj.status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler}, 
             #{obj.detail}, 
             #{obj.needDownload}
             )
@@ -116,7 +120,7 @@
             <if test="fileName!=null">file_name=#{fileName},</if>
             <if test="totalCount!=null">total_count=#{totalCount},</if>
             <if test="failCount!=null">fail_count=#{failCount},</if>
-            <if test="status!=null">`status`=#{status},</if>
+            <if test="status!=null">`status`=#{status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler},</if>
             <if test="detail!=null">detail=#{detail},</if>
             <if test="needDownload!=null">need_download=#{needDownload},</if>
         </set>
@@ -162,8 +166,8 @@
             </trim>
             <trim prefix="`status`=case" suffix="end,">
                 <foreach collection="list" item="obj">
-                    <if test="obj.status!=null">
-                        when id=#{obj.id} then #{obj.status}
+                    <if test="obj.status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler!=null">
+                        when id=#{obj.id} then #{obj.status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler}
                     </if>
                 </foreach>
             </trim>

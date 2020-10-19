@@ -129,7 +129,7 @@ public class EasyExcelDealService {
         if (!(ExcelTypeEnum.XLSX.getValue().equals(type) || ExcelTypeEnum.XLS.getValue().equals(type))) {
             throw new ExcelException("文件格式不正确");
         }
-        ImportTask importTask = ImportTask.builder().fileName(filename).status(ImportStatusEnum.EXPORT.getCode())
+        ImportTask importTask = ImportTask.builder().fileName(filename).status(ImportStatusEnum.EXPORT)
                 .needDownload(false).build();
         RestMessage restMessage = importTaskService.save(importTask);
         String importId = restMessage.getId();
@@ -143,7 +143,7 @@ public class EasyExcelDealService {
                     .doRead(), ThreadUtil.build().excelThreadPool()).exceptionally(throwable -> {
                 log.error("readByStream importId:{} error", importId, throwable);
                 ImportTask task = importTaskService.getById(importId);
-                if (ImportStatusEnum.EXPORT.getCode().equals(task.getStatus())) {
+                if (ImportStatusEnum.EXPORT.equals(task.getStatus())) {
                     importTaskService.updateExceptionFail(importId);
                 }
                 throw new ExcelException(throwable);
@@ -170,13 +170,13 @@ public class EasyExcelDealService {
         Integer totalCount = Optional.ofNullable(importTask.getTotalCount()).orElse(0);
         Integer failCount = Optional.ofNullable(importTask.getFailCount()).orElse(0);
         Integer successCount = totalCount - failCount;
-        String status = importTask.getStatus();
-        if (ImportStatusEnum.FAIL.getCode().equals(status)) {
+        ImportStatusEnum status = importTask.getStatus();
+        if (ImportStatusEnum.FAIL.equals(status)) {
             return ExcelProcessVo.builder().process(100).errorCount(failCount).successCount(successCount)
                     .msg(importTask.getDetail()).success(false).build();
         } else {
             int process;
-            if (ImportStatusEnum.SUCCESS.getCode().equals(status)) {
+            if (ImportStatusEnum.SUCCESS.equals(status)) {
                 process = 100;
             } else if (totalCount.equals(0)) {
                 process = 0;

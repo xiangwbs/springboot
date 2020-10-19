@@ -1,6 +1,7 @@
 package com.xwbing.service.domain.entity.rest;
 
 import com.xwbing.service.domain.entity.BaseEntity;
+import com.xwbing.service.enums.ImportStatusEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,14 +11,14 @@ import lombok.experimental.SuperBuilder;
 /**
  * @description 导入任务记录
  * @author xiangwb
- * @date 2020/04/28 14:11
+ * @date 2020/10/15 16:34
  */
 @SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class ImportTask extends BaseEntity {
-    private static final long serialVersionUID = 1418892742203862328L;
+    private static final long serialVersionUID = 2310583521450992889L;
     /**
      * 文件名
      */
@@ -31,9 +32,9 @@ public class ImportTask extends BaseEntity {
      */
     private Integer failCount;
     /**
-     * 状态 export fail success
+     * 状态 1、正在导入中2、失败3、成功
      */
-    private String status;
+    private ImportStatusEnum status;
     /**
      * 详情
      */

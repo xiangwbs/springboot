@@ -118,7 +118,7 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
         } else {
             detail = "总计导入数据" + totalCount + "条,成功导入数据" + (totalCount - failSize) + "条,异常数据" + failSize + "条";
         }
-        ImportTask build = ImportTask.builder().id(importId).status(ImportStatusEnum.SUCCESS.getCode())
+        ImportTask build = ImportTask.builder().id(importId).status(ImportStatusEnum.SUCCESS)
                 .failCount(failSize).detail(detail).needDownload(failSize != 0).build();
         importTaskService.update(build);
         deleteTmpFile();
@@ -159,7 +159,7 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
         }
         if (StringUtils.isNotEmpty(errorMsg)) {
             log.info("invokeHeadMap importId:{} fail:{}", importId, errorMsg);
-            ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL.getCode())
+            ImportTask fail = ImportTask.builder().id(importId).status(ImportStatusEnum.FAIL)
                     .totalCount(totalCount).failCount(totalCount).detail(errorMsg).build();
             importTaskService.update(fail);
             throw new ExcelException("导入失败");
