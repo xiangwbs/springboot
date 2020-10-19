@@ -12,6 +12,7 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.springframework.beans.BeanUtils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xwbing.service.enums.BaseEnum;
 import com.xwbing.service.exception.UtilException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,8 @@ public class ConvertUtil {
             ArrayList<JSONObject> result = new ArrayList<>();
             ((List<?>)obj).forEach(one -> result.add((JSONObject)beanToJson(one)));
             return result;
+        } else if (obj instanceof BaseEnum) {
+            return obj;
         } else {
             Map<String, Object> params = new HashMap<>(20);
             PropertyUtilsBean propertyUtilsBean = new PropertyUtilsBean();

@@ -13,7 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.xwbing.service.domain.entity.vo.ExcelProcessVo;
 import com.xwbing.service.service.rest.EasyExcelDealService;
 import com.xwbing.service.service.rest.ImportTaskService;
-import com.xwbing.service.util.Pagination;
+import com.xwbing.service.util.PageSearchVO;
+import com.xwbing.service.util.PageVO;
 import com.xwbing.web.response.ApiResponse;
 import com.xwbing.web.response.ApiResponseUtil;
 
@@ -57,9 +58,9 @@ public class EasyExcelController {
 
     @ApiOperation("导入记录")
     @GetMapping("pageImport")
-    public ApiResponse pageImport(Pagination page) {
-        Pagination pagination = importTaskService.page(page);
-        return ApiResponseUtil.success(pagination);
+    public ApiResponse pageImport(PageSearchVO pageSearch) {
+        PageVO pageVO = importTaskService.page(pageSearch);
+        return ApiResponseUtil.success(pageVO);
     }
 }
 

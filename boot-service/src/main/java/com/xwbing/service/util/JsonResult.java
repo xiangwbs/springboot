@@ -13,6 +13,7 @@ import lombok.Data;
  *
  * @author xiangwb
  */
+@Deprecated
 @Data
 public class JsonResult {
     /**

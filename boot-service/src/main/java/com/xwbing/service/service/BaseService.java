@@ -1,15 +1,15 @@
 package com.xwbing.service.service;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xwbing.service.domain.entity.BaseEntity;
 import com.xwbing.service.domain.mapper.BaseMapper;
 import com.xwbing.service.util.Pagination;
 import com.xwbing.service.util.RestMessage;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author: xiangwb
@@ -28,6 +28,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
      * 增
      *
      * @param t
+     *
      * @return
      */
     public RestMessage save(T t) {
@@ -47,6 +48,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
      * 批量新增
      *
      * @param list
+     *
      * @return
      */
     public RestMessage saveBatch(List<T> list) {
@@ -65,6 +67,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
      * 根据主键删除
      *
      * @param id
+     *
      * @return
      */
     public RestMessage removeById(String id) {
@@ -83,6 +86,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
      * 批量删除
      *
      * @param ids
+     *
      * @return
      */
     public RestMessage removeByIds(List<String> ids) {
@@ -101,6 +105,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
      * 根据条件删除
      *
      * @param params
+     *
      * @return
      */
     public RestMessage removeByParam(Map<String, Object> params) {
@@ -119,6 +124,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
      * 修改
      *
      * @param t
+     *
      * @return
      */
     public RestMessage update(T t) {
@@ -138,6 +144,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
      * 批量修改
      *
      * @param list
+     *
      * @return
      */
     public RestMessage updateBatch(List<T> list) {
@@ -156,6 +163,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
      * 根据主键查找
      *
      * @param id
+     *
      * @return
      */
     public T getById(String id) {
@@ -170,6 +178,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
      * 根据ids列表查找
      *
      * @param ids
+     *
      * @return
      */
     public List<T> listByIds(List<String> ids) {
@@ -184,6 +193,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
      * 根据条件列表查找
      *
      * @param params
+     *
      * @return
      */
     public List<T> listByParam(Map<String, Object> params) {
@@ -201,14 +211,16 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
 
     /**
      * 分页查询
+     * 直接使用PageHelper.startPage(int pageNum, int pageSize)
      *
      * @param page
      * @param map
+     *
      * @return
      */
+    @Deprecated
     public Pagination page(Pagination page, Map<String, Object> map) {
-        PageInfo<T> pageInfo = PageHelper
-                .startPage(page.getCurrentPage(), page.getPageSize())
+        PageInfo<T> pageInfo = PageHelper.startPage(page.getCurrentPage(), page.getPageSize())
                 .doSelectPageInfo(() -> getMapper().find(map));
         return page.result(page, pageInfo);
     }
