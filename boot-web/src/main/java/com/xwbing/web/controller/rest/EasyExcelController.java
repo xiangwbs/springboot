@@ -36,27 +36,28 @@ public class EasyExcelController {
 
     @ApiOperation(value = "批量导入")
     @PostMapping("import")
-    public ApiResponse<String> readExcel(@RequestParam MultipartFile file) {
+    public ApiResponse readExcel(@RequestParam MultipartFile file) {
         String importId = easyExcelDealService.readByStream(file, 0, 1);
         return ApiResponseUtil.success(importId);
     }
 
     @ApiOperation("读取excel进度")
     @GetMapping("getProcess")
-    public ApiResponse<ExcelProcessVo> read(@RequestParam String importId) {
+    public ApiResponse read(@RequestParam String importId) {
         ExcelProcessVo excelProgress = easyExcelDealService.getProcess(importId);
         return ApiResponseUtil.success(excelProgress);
     }
 
     @ApiOperation("下载导入失败记录")
     @GetMapping("downloadFailRecord")
-    public void downloadFailRecord(HttpServletResponse response, @RequestParam String importId) {
+    public ApiResponse downloadFailRecord(HttpServletResponse response, @RequestParam String importId) {
         easyExcelDealService.writeToBrowser(response, importId);
+        return ApiResponseUtil.success();
     }
 
     @ApiOperation("导入记录")
     @GetMapping("pageImport")
-    public ApiResponse<Pagination> pageImport(Pagination page) {
+    public ApiResponse pageImport(Pagination page) {
         Pagination pagination = importTaskService.page(page);
         return ApiResponseUtil.success(pagination);
     }
