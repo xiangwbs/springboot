@@ -211,7 +211,7 @@ public abstract class BaseService<M extends BaseMapper<T>, T extends BaseEntity>
 
     /**
      * 分页查询
-     * 直接使用PageHelper.startPage(int pageNum, int pageSize)
+     * 直接调用PageHelper.startPage(int pageNum, int pageSize)结合PageVO<T>
      *
      * @param page
      * @param map
