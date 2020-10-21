@@ -26,6 +26,12 @@ ADD COLUMN `col5` decimal(11,2) DEFAULT NULL COMMENT 'xxx' AFTER `col4`;
 
 ALTER TABLE `table` MODIFY COLUMN `col`varchar(10) not null COMMENT 'xxx';
 
+ALTER TABLE `table` drop COLUMN `col`;
+
+ALTER TABLE `table` CHANGE COLUMN `oldColumnName` `newColumnName` varchar(32) DEFAULT NULL COMMENT 'xxx';
+
+
+
 
 DML
 插入数据

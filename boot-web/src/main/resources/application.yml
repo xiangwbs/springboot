@@ -48,6 +48,11 @@ spring:
       hibernate:
         naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
         dialect: org.hibernate.dialect.MySQL5Dialect
+  #jackson日期返回格式
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
 
 #mybatis
 #mybatis:

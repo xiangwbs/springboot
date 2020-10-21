@@ -1,20 +1,26 @@
 package com.xwbing.service.demo;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.xwbing.service.domain.entity.BaseEntity;
 import com.xwbing.service.domain.entity.sys.SysUser;
 import com.xwbing.service.util.RestMessage;
-import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import lombok.Data;
 
 /**
  * 创建日期: 2017年3月18日 下午1:34:05
@@ -29,6 +35,8 @@ public class JsonDemo {
     private String name;
     @JSONField(name = "nick_name")
     private String nickName;
+    @JSONField(format = "yyyy-MM-dd hh:mm:ss")
+    private Date date;
     /*
      * gson注解
      */
