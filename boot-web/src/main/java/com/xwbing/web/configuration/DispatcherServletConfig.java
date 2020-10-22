@@ -142,10 +142,12 @@ public class DispatcherServletConfig implements WebMvcConfigurer {
                 SerializerFeature.WriteNullNumberAsZero,
                 SerializerFeature.WriteNullStringAsEmpty,
                 SerializerFeature.WriteNullListAsEmpty,
-                SerializerFeature.WriteNullBooleanAsFalse
+                SerializerFeature.WriteNullBooleanAsFalse,
+                SerializerFeature.WriteDateUseDateFormat
                 // SerializerFeature.WriteEnumUsingName
                 //@formatter:on
         );
+        fastJsonConfig.setDateFormat("yyyy-MM-dd hh:mm:ss");
         messageConverter.setFastJsonConfig(fastJsonConfig);
         return messageConverter;
     }
