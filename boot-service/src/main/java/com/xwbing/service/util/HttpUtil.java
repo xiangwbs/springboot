@@ -126,6 +126,17 @@ public class HttpUtil {
         return getResult(get);
     }
 
+    public static String getSimple(String url, JSONObject header) {
+        if (StringUtils.isEmpty(url)) {
+            throw new IllegalArgumentException(URL_ERROR);
+        }
+        url = url.replaceAll(" ", "%20");
+        HttpGet get = new HttpGet(url);
+        Optional.ofNullable(header).orElse(new JSONObject())
+                .forEach((key, value) -> get.addHeader(key, Objects.toString(value)));
+        return getSimpleResult(get);
+    }
+
     /**
      * get请求 带参数
      *
@@ -292,4 +303,35 @@ public class HttpUtil {
             poolingHttpClientConnectionManager.closeIdleConnections(120, TimeUnit.MILLISECONDS);
         }
     }
+
+    private static String getSimpleResult(HttpRequestBase request) {
+        String result = null;
+        CloseableHttpClient client = getHttpClient();// 创建HttpClient的实例
+        try {
+            long start = System.currentTimeMillis();
+            CloseableHttpResponse response = client.execute(request);
+            long end = System.currentTimeMillis();
+            long ms = end - start;
+            log.info("{} url:{} 请求时间{}ms", request.getMethod(), request.getURI().toString().replace("%20", " "), ms);
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {// 判断网络连接状态码是否正常(0-200都数正常)
+                HttpEntity entity = response.getEntity();// 获取结果实体
+                if (entity != null) {
+                    result = EntityUtils.toString(entity, "UTF-8");
+                }
+            } else {
+                log.error(response.getStatusLine().getReasonPhrase());
+            }
+            response.close();
+            return result;
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new UtilException("请求网络接口错误");
+        } catch (JSONException e) {
+            throw new UtilException("返回结果不是json");
+        } finally {
+            poolingHttpClientConnectionManager.closeExpiredConnections();
+            poolingHttpClientConnectionManager.closeIdleConnections(120, TimeUnit.MILLISECONDS);
+        }
+    }
+
 }

@@ -428,8 +428,8 @@ public class DateUtil2 {
     }
 
     public static void main(String[] args) {
-        long l = daysBetween("2019-12-25", "2020-06-06");
-        System.out.println("");
+        long l = daysBetween("2020-09-21", "2021-02-22");
+        System.out.println(l);
     }
 
     /**
