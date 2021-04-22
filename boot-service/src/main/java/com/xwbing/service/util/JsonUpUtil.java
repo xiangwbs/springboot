@@ -54,7 +54,7 @@ public class JsonUpUtil {
     }
 
     public static void main(String[] args) {
-        HtmlVO htmlInfo = getHtmlInfo("https://boss-test.dingtax.cn");
+        HtmlVO htmlInfo = getHtmlInfo("https://www.baidu.com");
         System.out.println(htmlInfo);
     }
 }
