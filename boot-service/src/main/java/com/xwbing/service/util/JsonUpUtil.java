@@ -1,10 +1,10 @@
 package com.xwbing.service.util;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,8 +42,8 @@ public class JsonUpUtil {
             // Elements titles = doc.getElementsByTag("title");
             // String title = titles.isEmpty() ? null : titles.get(0).text();
             String title = doc.title();
-            Elements descriptions = doc.select("meta[name=description]");
-            String description = descriptions.isEmpty() ? null : descriptions.get(0).attr("content");
+            String description = Optional.ofNullable(doc.select("meta[name=description]").first())
+                    .map(element -> element.attr("content")).orElse(null);
             String[] urls = url.split("/");
             return HtmlVO.builder().title(title).description(description)
                     .logo(urls[0] + "//" + urls[2] + "/" + "favicon.ico").build();
@@ -54,7 +54,7 @@ public class JsonUpUtil {
     }
 
     public static void main(String[] args) {
-        HtmlVO htmlInfo = getHtmlInfo("https://www.baidu.com");
+        HtmlVO htmlInfo = getHtmlInfo("https://boss-test.dingtax.cn");
         System.out.println(htmlInfo);
     }
 }
