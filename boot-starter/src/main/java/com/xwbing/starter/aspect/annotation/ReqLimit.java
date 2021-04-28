@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
-public @interface Limit {
+public @interface ReqLimit {
     /**
      * 超时时间(限制时间) 秒
      */

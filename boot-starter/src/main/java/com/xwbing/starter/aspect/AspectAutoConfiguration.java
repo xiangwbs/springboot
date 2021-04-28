@@ -88,8 +88,8 @@ public class AspectAutoConfiguration {
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean(LimitAspect.class)
-    public LimitAspect limitAspect(RedisService redisService) {
-        return new LimitAspect(redisService);
+    @ConditionalOnMissingBean(ReqLimitAspect.class)
+    public ReqLimitAspect limitAspect(RedisService redisService) {
+        return new ReqLimitAspect(redisService);
     }
 }

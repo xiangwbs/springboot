@@ -16,7 +16,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.xwbing.starter.aspect.annotation.Limit;
+import com.xwbing.starter.aspect.annotation.ReqLimit;
 import com.xwbing.starter.exception.ConfigException;
 import com.xwbing.starter.redis.RedisService;
 
@@ -33,28 +33,28 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Aspect
 @AllArgsConstructor
-public class LimitAspect {
-    private static final String LIMIT_KEY_PREFIX = "boot:limit_";
+public class ReqLimitAspect {
+    private static final String LIMIT_KEY_PREFIX = "boot:reqLimit_";
     private final RedisService redisService;
 
-    @Pointcut("@annotation(limit)")
-    public void pointcut(Limit limit) {
+    @Pointcut("@annotation(reqLimit)")
+    public void pointcut(ReqLimit reqLimit) {
     }
 
     /**
      * 目标方法执行时添加缓存
      *
      * @param joinPoint
-     * @param limit
+     * @param reqLimit
      */
-    @Before(value = "pointcut(limit)", argNames = "joinPoint,limit")
-    public void before(JoinPoint joinPoint, Limit limit) {
-        String key = getKey(joinPoint, limit);
+    @Before(value = "pointcut(reqLimit)", argNames = "joinPoint,reqLimit")
+    public void before(JoinPoint joinPoint, ReqLimit reqLimit) {
+        String key = getKey(joinPoint, reqLimit);
         String value = redisService.get(key);
         if (StringUtils.isEmpty(value)) {
-            redisService.set(key, "limit", limit.timeout());
+            redisService.set(key, "limit", reqLimit.timeout());
         } else {
-            throw new ConfigException(limit.remark());
+            throw new ConfigException(reqLimit.remark());
         }
     }
 
@@ -62,12 +62,12 @@ public class LimitAspect {
      * 目标方法异常时删除缓存
      *
      * @param joinPoint
-     * @param limit
+     * @param reqLimit
      * @param exception
      */
-    @AfterThrowing(value = "pointcut(limit)", throwing = "exception", argNames = "joinPoint,limit,exception")
-    public void afterThrowing(JoinPoint joinPoint, Limit limit, Exception exception) {
-        String key = getKey(joinPoint, limit);
+    @AfterThrowing(value = "pointcut(reqLimit)", throwing = "exception", argNames = "joinPoint,reqLimit,exception")
+    public void afterThrowing(JoinPoint joinPoint, ReqLimit reqLimit, Exception exception) {
+        String key = getKey(joinPoint, reqLimit);
         redisService.del(key);
         log.error("limitAspect key:{} error:", key, exception);
     }
@@ -77,14 +77,14 @@ public class LimitAspect {
      * 获取注解value值 #p0 | #p0.getXxx() | #paramName
      *
      * @param joinPoint
-     * @param limit
+     * @param reqLimit
      *
      * @return
      */
-    private String getKey(JoinPoint joinPoint, Limit limit) {
+    private String getKey(JoinPoint joinPoint, ReqLimit reqLimit) {
         String targetName = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
-        String key = limit.value();
+        String key = reqLimit.value();
         //创建SpEL表达式解析器
         ExpressionParser expressionParser = new SpelExpressionParser();
         //创建解析表达式上下文

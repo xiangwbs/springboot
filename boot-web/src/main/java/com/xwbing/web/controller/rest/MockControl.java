@@ -41,7 +41,7 @@ import com.xwbing.service.util.ZipUtil;
 import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.service.util.dingtalk.LinkMessage;
 import com.xwbing.service.util.dingtalk.MarkdownMessage;
-import com.xwbing.starter.aspect.annotation.Limit;
+import com.xwbing.starter.aspect.annotation.ReqLimit;
 import com.xwbing.starter.spring.ApplicationContextHelper;
 
 import io.swagger.annotations.Api;
@@ -329,7 +329,7 @@ public class MockControl {
         return NullModel.builder().string("字符串").sexEnum(SexEnum.MAN).build();
     }
 
-    @Limit("#p0")
+    @ReqLimit("#p0")
     // @Limit("#key")
     @GetMapping("limit")
     public void limit(@RequestParam String key) {
