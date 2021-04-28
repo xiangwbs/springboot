@@ -69,7 +69,7 @@ public class AliPayController {
         transferService.doTransfer(param);
     }
 
-    @Limit
+    @Limit("#p0.getOutTradeNo()")
     @ApiOperation(value = "交易创建", response = RestMessageVo.class)
     @PostMapping("tradeCreate")
     public AliPayTradeCreateResult tradePayNotify(@RequestBody AliPayTradeCreateParam param) {

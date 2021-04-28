@@ -1,7 +1,6 @@
 package com.xwbing.starter.aspect;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.lang.reflect.Method;
 
 import javax.annotation.Resource;
 
@@ -11,12 +10,18 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.xwbing.starter.aspect.annotation.Limit;
 import com.xwbing.starter.exception.ConfigException;
 import com.xwbing.starter.redis.RedisService;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -29,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Aspect
 public class LimitAspect {
-    private static final String SUFFIX = "/limit";
     @Resource
     private RedisService redisService;
 
@@ -37,30 +41,55 @@ public class LimitAspect {
     public void pointcut(Limit limit) {
     }
 
-    @SneakyThrows
     @Before(value = "pointcut(limit)", argNames = "joinPoint,limit")
     public void before(JoinPoint joinPoint, Limit limit) {
-        String key = getKey(joinPoint);
-        int timeout = limit.timeout();
+        String key = getKey(joinPoint, limit);
         String value = redisService.get(key);
         if (StringUtils.isEmpty(value)) {
-            redisService.set(key, "limit", timeout);
+            redisService.set(key, "limit", limit.timeout());
         } else {
-            throw new ConfigException("您的操作太快, 请稍后再试");
+            throw new ConfigException(limit.remark());
         }
     }
 
-    @SneakyThrows
-    @AfterReturning(pointcut = "pointcut(com.xwbing.starter.aspect.annotation.Limit)")
-    public void afterReturning(JoinPoint joinPoint) {
-        String key = getKey(joinPoint);
+    // @AfterReturning(pointcut = "pointcut(com.xwbing.starter.aspect.annotation.Limit)")
+    @AfterReturning(value = "pointcut(limit)", argNames = "joinPoint,limit")
+    public void afterReturning(JoinPoint joinPoint, Limit limit) {
+        String key = getKey(joinPoint, limit);
         redisService.del(key);
     }
 
-    private String getKey(JoinPoint joinPoint) throws UnknownHostException {
+    /**
+     * 获取key
+     * 获取注解value值 #p0 | #p0.getXxx() | #paramName
+     *
+     * @param joinPoint
+     * @param limit
+     *
+     * @return
+     */
+    private String getKey(JoinPoint joinPoint, Limit limit) {
         String targetName = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
-        String ip = InetAddress.getLocalHost().getHostAddress();
-        return targetName + "/" + methodName + "/" + ip + SUFFIX;
+        String key = limit.value();
+        //创建SpEL表达式解析器
+        ExpressionParser expressionParser = new SpelExpressionParser();
+        //创建解析表达式上下文
+        EvaluationContext context = new StandardEvaluationContext();
+        //上下文中设置变量
+        Object[] params = joinPoint.getArgs();
+        for (int i = 0; i < params.length; i++) {
+            //p0,p1......
+            context.setVariable(String.format("%s%s", "p", i), params[i]);
+        }
+        Method method = ((MethodSignature)joinPoint.getSignature()).getMethod();
+        ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+        String[] parameterNames = parameterNameDiscoverer.getParameterNames(method);
+        for (int i = 0; i < params.length; i++) {
+            //paramName1,paraName2......
+            context.setVariable(parameterNames[i], params[i]);
+        }
+        return "boot:starter:limit_" + targetName + "_" + methodName + "_" + String
+                .valueOf(expressionParser.parseExpression(key).getValue(context));
     }
 }

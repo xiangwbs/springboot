@@ -18,7 +18,27 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Limit {
     /**
-     * 超时时间 seconds
+     * 超时时间(限制时间) 秒
      */
     int timeout() default 10;
+
+    // /**
+    //  * 时间单位
+    //  */
+    // TimeUnit timeUnit() default TimeUnit.SECONDS;
+
+    /**
+     * 限制标识
+     * SpEL表达式:#p0|#p0.getXxx()|#paramName
+     *
+     * @return
+     */
+    String value();
+
+    /**
+     * 限制描述
+     *
+     * @return
+     */
+    String remark() default "您的操作太快, 请稍后再试";
 }
