@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.starter.aspect.annotation.FlowLimiter;
-import com.xwbing.starter.aspect.annotation.Idempotent;
+import com.xwbing.starter.aspect.annotation.ReqIdempotent;
 import com.xwbing.service.constant.CommonConstant;
 import com.xwbing.service.domain.entity.sys.SysAuthority;
 import com.xwbing.service.domain.entity.vo.ListSysAuthorityVo;
@@ -54,7 +54,7 @@ public class SysAuthorityControl {
     @Resource
     private SysAuthorityService sysAuthorityService;
 
-    @Idempotent
+    @ReqIdempotent
     @ApiOperation(value = "添加权限", response = RestMessageVo.class)
     @ApiImplicitParam(name = "sign", value = "签名", paramType = "header", dataType = "string")
     @PostMapping("save")

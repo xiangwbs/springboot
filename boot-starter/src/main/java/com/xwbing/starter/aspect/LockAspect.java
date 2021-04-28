@@ -74,7 +74,7 @@ public class LockAspect {
         }
     }
 
-    public void lock(String key, int timeout, String remark) throws LockException {
+    private void lock(String key, int timeout, String remark) throws LockException {
         log.debug("request lock , the key is : {}", key);
         key = String.format("%s%s", key, SUFFIX);
         Long now = System.currentTimeMillis();
@@ -99,17 +99,17 @@ public class LockAspect {
         }
     }
 
-    public void lock(String operator, String subject, int timeout, String remark) throws LockException {
+    private void lock(String operator, String subject, int timeout, String remark) throws LockException {
         this.lock(String.format("%s.%s", operator, subject), timeout, remark);
     }
 
-    public void unlock(String key) {
+    private void unlock(String key) {
         log.debug("request unlock , the key is : {}", key);
         key = String.format("%s%s", key, SUFFIX);
         redisService.del(key);
     }
 
-    public void unlock(String operator, String subject) {
+    private void unlock(String operator, String subject) {
         this.unlock(String.format("%s.%s", operator, subject));
     }
 }

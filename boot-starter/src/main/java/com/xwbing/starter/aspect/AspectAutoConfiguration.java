@@ -77,9 +77,9 @@ public class AspectAutoConfiguration {
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean(IdempotentAspect.class)
-    public IdempotentAspect idempotentAspect() {
-        return new IdempotentAspect();
+    @ConditionalOnMissingBean(ReqIdempotentAspect.class)
+    public ReqIdempotentAspect idempotentAspect() {
+        return new ReqIdempotentAspect();
     }
 
     /**

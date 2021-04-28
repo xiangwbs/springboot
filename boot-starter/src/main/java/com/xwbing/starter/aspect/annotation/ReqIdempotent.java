@@ -9,6 +9,10 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
-public @interface Idempotent {
+public @interface ReqIdempotent {
+    /**
+     * 值类型 header/param
+     * @return
+     */
     String type() default "header";
 }

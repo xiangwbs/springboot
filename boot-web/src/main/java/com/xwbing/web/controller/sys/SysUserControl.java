@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.starter.aspect.annotation.Idempotent;
+import com.xwbing.starter.aspect.annotation.ReqIdempotent;
 import com.xwbing.starter.aspect.annotation.Lock;
 import com.xwbing.service.domain.entity.sys.SysAuthority;
 import com.xwbing.service.domain.entity.sys.SysRole;
@@ -69,7 +69,7 @@ public class SysUserControl {
     @Resource
     private SysAuthorityService sysAuthorityService;
 
-    @Idempotent
+    @ReqIdempotent
     @ApiOperation(value = "添加用户", response = RestMessageVo.class)
     @ApiImplicitParam(name = "sign", value = "签名", paramType = "header", dataType = "string")
     @PostMapping("save")
