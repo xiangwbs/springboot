@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Aspect
 public class LimitAspect {
-    public static final String LIMIT_KEY_PREFIX = "boot:limit_";
+    private static final String LIMIT_KEY_PREFIX = "boot:limit_";
     @Resource
     private RedisService redisService;
 
