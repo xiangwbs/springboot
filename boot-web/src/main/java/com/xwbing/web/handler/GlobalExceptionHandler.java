@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.service.exception.BusinessException;
+import com.xwbing.starter.exception.ConfigException;
 import com.xwbing.starter.exception.PayException;
 import com.xwbing.service.exception.UtilException;
 import com.xwbing.service.util.JsonResult;
@@ -31,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
  * 说明:  全局异常处理
  * 项目名称: boot-module-pro
  * 创建时间: 2017/5/10 16:36
+ *
  * @author xwbing
  */
 // 作用在所有注解了@RequestMapping的控制器的方法上
@@ -41,6 +43,7 @@ public class GlobalExceptionHandler {
      * 自定义业务异常
      *
      * @param ex BusinessException
+     *
      * @return
      */
     // 拦截处理控制器里对应的异常。
@@ -56,6 +59,7 @@ public class GlobalExceptionHandler {
      * 自定义工具类异常
      *
      * @param ex UtilException
+     *
      * @return
      */
     @ExceptionHandler(value = UtilException.class)
@@ -66,9 +70,24 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 自定义配置异常
+     *
+     * @param ex
+     *
+     * @return
+     */
+    @ExceptionHandler(value = ConfigException.class)
+    @ResponseStatus(value = HttpStatus.OK)
+    public JSONObject handlerConfigException(ConfigException ex) {
+        log.error(ExceptionUtils.getStackTrace(ex));
+        return JsonResult.toJSONObj(ex.getMessage());
+    }
+
+    /**
      * 线上支付异常
      *
      * @param ex PayException
+     *
      * @return
      */
     @ExceptionHandler(value = PayException.class)
@@ -82,6 +101,7 @@ public class GlobalExceptionHandler {
      * CompletableFuture完成结果或任务过程中出现的异常
      *
      * @param ex CompletionException
+     *
      * @return
      */
     @ExceptionHandler(value = CompletionException.class)
@@ -102,14 +122,16 @@ public class GlobalExceptionHandler {
      *
      * @param request
      * @param response
-     * @param ex       BindException
+     * @param ex BindException
+     *
      * @return
      */
     @ExceptionHandler(value = BindException.class)
     public JSONObject handlerBindException(HttpServletRequest request, HttpServletResponse response, BindException ex) {
         log.error(ExceptionUtils.getStackTrace(ex));
         List<ObjectError> list = ex.getAllErrors();
-        String errorMessages = list.stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("&&"));
+        String errorMessages = list.stream().map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining("&&"));
         response.setStatus(HttpStatus.OK.value());
         return JsonResult.toJSONObj(errorMessages);
     }
@@ -118,6 +140,7 @@ public class GlobalExceptionHandler {
      * 表单检验(validator) 异常 @RequestBody
      *
      * @param ex MethodArgumentNotValidException
+     *
      * @return
      */
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
@@ -126,7 +149,8 @@ public class GlobalExceptionHandler {
         log.error(ExceptionUtils.getStackTrace(ex));
         BindingResult bindingResult = ex.getBindingResult();
         List<ObjectError> allErrors = bindingResult.getAllErrors();
-        String errorMessages = allErrors.stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("&&"));
+        String errorMessages = allErrors.stream().map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining("&&"));
         return JsonResult.toJSONObj(errorMessages);
     }
 
@@ -134,6 +158,7 @@ public class GlobalExceptionHandler {
      * 全部捕获
      *
      * @param ex Exception
+     *
      * @return
      */
     @ExceptionHandler(value = Exception.class)

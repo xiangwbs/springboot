@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -57,18 +56,6 @@ public class LimitAspect {
         } else {
             throw new ConfigException(limit.remark());
         }
-    }
-
-    /**
-     * 目标方法执行后删除缓存
-     *
-     * @param joinPoint
-     * @param limit
-     */
-    @AfterReturning(value = "pointcut(limit)", argNames = "joinPoint,limit")
-    public void afterReturning(JoinPoint joinPoint, Limit limit) {
-        String key = getKey(joinPoint, limit);
-        redisService.del(key);
     }
 
     /**
