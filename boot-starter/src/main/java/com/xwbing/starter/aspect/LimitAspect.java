@@ -35,15 +35,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Aspect
 public class LimitAspect {
+    public static final String LIMIT_KEY_PREFIX = "boot:limit_";
     @Resource
     private RedisService redisService;
 
     @Pointcut("@annotation(limit)")
     public void pointcut(Limit limit) {
-    }
-
-    @Pointcut("@annotation(com.xwbing.starter.aspect.annotation.Limit)")
-    public void pointcut() {
     }
 
     /**
@@ -82,8 +79,8 @@ public class LimitAspect {
      * @param limit
      * @param exception
      */
-    @AfterThrowing(value = "pointcut(limit)", throwing = "exception", argNames = "joinPoint,exception,limit")
-    public void afterThrowing(JoinPoint joinPoint, Exception exception, Limit limit) {
+    @AfterThrowing(value = "pointcut(limit)", throwing = "exception", argNames = "joinPoint,limit,exception")
+    public void afterThrowing(JoinPoint joinPoint, Limit limit, Exception exception) {
         String key = getKey(joinPoint, limit);
         redisService.del(key);
         log.error("limitAspect key:{} error:", key, exception);
@@ -119,7 +116,7 @@ public class LimitAspect {
             //paramName1,paraName2......
             context.setVariable(parameterNames[i], params[i]);
         }
-        return "boot:starter:limit_" + targetName + "_" + methodName + "_" + String
+        return LIMIT_KEY_PREFIX + targetName + "_" + methodName + "_" + String
                 .valueOf(expressionParser.parseExpression(key).getValue(context));
     }
 }

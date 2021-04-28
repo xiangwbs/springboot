@@ -25,11 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.starter.aspect.annotation.Limit;
-import com.xwbing.starter.spring.ApplicationContextHelper;
-import com.xwbing.service.util.dingtalk.DingTalkUtil;
-import com.xwbing.service.util.dingtalk.LinkMessage;
-import com.xwbing.service.util.dingtalk.MarkdownMessage;
 import com.xwbing.service.domain.entity.model.NullModel;
 import com.xwbing.service.domain.entity.rest.FilesUpload;
 import com.xwbing.service.domain.entity.vo.ExcelVo;
@@ -43,6 +38,11 @@ import com.xwbing.service.util.FileUtil;
 import com.xwbing.service.util.JsonResult;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.ZipUtil;
+import com.xwbing.service.util.dingtalk.DingTalkUtil;
+import com.xwbing.service.util.dingtalk.LinkMessage;
+import com.xwbing.service.util.dingtalk.MarkdownMessage;
+import com.xwbing.starter.aspect.annotation.Limit;
+import com.xwbing.starter.spring.ApplicationContextHelper;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -330,6 +330,7 @@ public class MockControl {
     }
 
     @Limit("#p0")
+    // @Limit("#key")
     @GetMapping("limit")
     public void limit(@RequestParam String key) {
         if (key.equals("key")) {
