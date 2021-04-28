@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -41,6 +42,10 @@ public class LimitAspect {
     public void pointcut(Limit limit) {
     }
 
+    @Pointcut("@annotation(com.xwbing.starter.aspect.annotation.Limit)")
+    public void pointcut() {
+    }
+
     @Before(value = "pointcut(limit)", argNames = "joinPoint,limit")
     public void before(JoinPoint joinPoint, Limit limit) {
         String key = getKey(joinPoint, limit);
@@ -52,11 +57,17 @@ public class LimitAspect {
         }
     }
 
-    // @AfterReturning(pointcut = "pointcut(com.xwbing.starter.aspect.annotation.Limit)")
     @AfterReturning(value = "pointcut(limit)", argNames = "joinPoint,limit")
     public void afterReturning(JoinPoint joinPoint, Limit limit) {
         String key = getKey(joinPoint, limit);
         redisService.del(key);
+    }
+
+    @AfterThrowing(value = "pointcut(limit)", throwing = "exception", argNames = "joinPoint,limit,exception")
+    public void afterThrowing(JoinPoint joinPoint, Limit limit, Exception exception) {
+        String key = getKey(joinPoint, limit);
+        redisService.del(key);
+        log.error("limitAspect key:{} error:", key, exception);
     }
 
     /**

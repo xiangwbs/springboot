@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xwbing.starter.aspect.annotation.Limit;
 import com.xwbing.starter.spring.ApplicationContextHelper;
 import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.service.util.dingtalk.LinkMessage;
@@ -326,6 +327,14 @@ public class MockControl {
     @GetMapping("nullModel")
     public NullModel nullModel() {
         return NullModel.builder().string("字符串").sexEnum(SexEnum.MAN).build();
+    }
+
+    @Limit("#p0")
+    @GetMapping("limit")
+    public void limit(@RequestParam String key) {
+        if (key.equals("key")) {
+            throw new RuntimeException("异常");
+        }
     }
 }
 
