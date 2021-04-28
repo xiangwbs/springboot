@@ -7,6 +7,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.xwbing.starter.redis.RedisService;
+
 /**
  * @author xiangwb
  *         切面自动配置类
@@ -43,8 +45,8 @@ public class AspectAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(LockAspect.class)
-    public LockAspect lockAspect() {
-        return new LockAspect();
+    public LockAspect lockAspect(RedisService redisService) {
+        return new LockAspect(redisService);
     }
 
     /**
@@ -87,7 +89,7 @@ public class AspectAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(LimitAspect.class)
-    public LimitAspect limitAspect() {
-        return new LimitAspect();
+    public LimitAspect limitAspect(RedisService redisService) {
+        return new LimitAspect(redisService);
     }
 }

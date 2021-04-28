@@ -2,8 +2,6 @@ package com.xwbing.starter.aspect;
 
 import java.lang.reflect.Method;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -23,6 +21,7 @@ import com.xwbing.starter.aspect.annotation.Limit;
 import com.xwbing.starter.exception.ConfigException;
 import com.xwbing.starter.redis.RedisService;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,10 +33,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Aspect
+@AllArgsConstructor
 public class LimitAspect {
     private static final String LIMIT_KEY_PREFIX = "boot:limit_";
-    @Resource
-    private RedisService redisService;
+    private final RedisService redisService;
 
     @Pointcut("@annotation(limit)")
     public void pointcut(Limit limit) {

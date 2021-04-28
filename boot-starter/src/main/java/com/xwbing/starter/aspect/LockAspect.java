@@ -2,8 +2,6 @@ package com.xwbing.starter.aspect;
 
 import java.lang.reflect.Method;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -21,18 +19,19 @@ import com.xwbing.starter.aspect.annotation.Lock;
 import com.xwbing.starter.exception.LockException;
 import com.xwbing.starter.redis.RedisService;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xiangwb
- * 分布式锁切面
+ *         分布式锁切面
  */
 @Slf4j
 @Aspect
+@AllArgsConstructor
 public class LockAspect {
     private static final String SUFFIX = ".lock";
-    @Resource
-    private RedisService redisService;
+    private final RedisService redisService;
 
     @Pointcut("@annotation(lock)")
     public void lockCut(Lock lock) {
@@ -40,7 +39,7 @@ public class LockAspect {
 
     @Around(value = "lockCut(lock)", argNames = "joinPoint,lock")
     public Object around(ProceedingJoinPoint joinPoint, Lock lock) throws Throwable {
-        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+        Method method = ((MethodSignature)joinPoint.getSignature()).getMethod();
         String subject = "";
         String value = lock.value();
         if (StringUtils.isNotEmpty(value)) {
@@ -63,8 +62,9 @@ public class LockAspect {
             //获取上下文变量值 #p0 | #p0.getXxx() | #paramName | 基本数据类型
             subject = String.valueOf(expressionParser.parseExpression(value).getValue(context));
         }
-        String operator = StringUtils.isNotEmpty(lock.operator()) ? lock.operator()
-                : String.format("%s.%s", joinPoint.getTarget().getClass().getName(), method.getName());
+        String operator = StringUtils.isNotEmpty(lock.operator()) ?
+                lock.operator() :
+                String.format("%s.%s", joinPoint.getTarget().getClass().getName(), method.getName());
         try {
             log.info("try lock");
             this.lock(subject, operator, lock.timeout(), lock.remark());
