@@ -46,6 +46,12 @@ public class LimitAspect {
     public void pointcut() {
     }
 
+    /**
+     * 目标方法执行时添加缓存
+     *
+     * @param joinPoint
+     * @param limit
+     */
     @Before(value = "pointcut(limit)", argNames = "joinPoint,limit")
     public void before(JoinPoint joinPoint, Limit limit) {
         String key = getKey(joinPoint, limit);
@@ -57,14 +63,27 @@ public class LimitAspect {
         }
     }
 
+    /**
+     * 目标方法执行后删除缓存
+     *
+     * @param joinPoint
+     * @param limit
+     */
     @AfterReturning(value = "pointcut(limit)", argNames = "joinPoint,limit")
     public void afterReturning(JoinPoint joinPoint, Limit limit) {
         String key = getKey(joinPoint, limit);
         redisService.del(key);
     }
 
-    @AfterThrowing(value = "pointcut(limit)", throwing = "exception", argNames = "joinPoint,limit,exception")
-    public void afterThrowing(JoinPoint joinPoint, Limit limit, Exception exception) {
+    /**
+     * 目标方法异常时删除缓存
+     *
+     * @param joinPoint
+     * @param limit
+     * @param exception
+     */
+    @AfterThrowing(value = "pointcut(limit)", throwing = "exception", argNames = "joinPoint,exception,limit")
+    public void afterThrowing(JoinPoint joinPoint, Exception exception, Limit limit) {
         String key = getKey(joinPoint, limit);
         redisService.del(key);
         log.error("limitAspect key:{} error:", key, exception);
