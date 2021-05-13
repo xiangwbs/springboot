@@ -329,7 +329,7 @@ public class MockControl {
         return NullModel.builder().string("字符串").sexEnum(SexEnum.MAN).build();
     }
 
-    @ReqLimit("#p0")
+    @ReqLimit(value = "#p0",timeout = 60)
     // @Limit("#key")
     @GetMapping("limit")
     public void limit(@RequestParam String key) {
