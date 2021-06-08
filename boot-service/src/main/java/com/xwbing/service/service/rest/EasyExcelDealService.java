@@ -88,6 +88,7 @@ public class EasyExcelDealService {
         if (CollectionUtils.isNotEmpty(excelData)) {
             try (ServletOutputStream outputStream = response.getOutputStream()) {
                 response.setCharacterEncoding("UTF-8");
+                // response.setContentType("application/vnd.ms-excel;charset=utf-8");
                 response.setContentType("application/octet-stream");
                 //防止中文乱码
                 String fileName = URLEncoder.encode(importTask.getFileName(), "UTF-8");
@@ -248,6 +249,7 @@ public class EasyExcelDealService {
             List<String> heads, List<List<Object>> excelData) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
+            // response.setContentType("application/vnd.ms-excel;charset=utf-8");
             response.setContentType("application/octet-stream");
             //防止中文乱码
             fileName = URLEncoder.encode(fileName, "UTF-8");
