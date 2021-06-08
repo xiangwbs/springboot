@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.annotation.JSONType;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,17 +17,13 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
+@JSONType(deserializer = FastJsonDeserializer.class, serializeEnumAsJavaBean = true)
 public enum ImportStatusEnum implements BaseEnum {
     //@formatter:off
-    EXPORT( 1,"正在导入中"),
-    FAIL(2,"失败"),
-    SUCCESS( 3,"成功"),
+    EXPORT(1, "正在导入中"),
+    FAIL(2, "失败"),
+    SUCCESS(3, "成功"),
     ;
-
-    @Override
-    public String toString() {
-        return getName();
-    }
 
     private int code;
     private String name;
