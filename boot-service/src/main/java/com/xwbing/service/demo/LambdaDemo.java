@@ -128,6 +128,10 @@ public class LambdaDemo {
                 .collect(Collectors.groupingBy(SysUser::getSex, Collectors.summingInt(SysUser::getAge)));
         Map<String, Long> sexCountMap = listAll().stream()
                 .collect(Collectors.groupingBy(SysUser::getSex, Collectors.counting()));
+        Map<String, List<String>> sexNameMap = listAll().stream().collect(
+                Collectors.groupingBy(SysUser::getSex, Collectors.mapping(SysUser::getName, Collectors.toList())));
+        Map<String, String> sexSingleNameMap = listAll().stream().collect(Collectors.groupingBy(SysUser::getSex,
+                Collectors.mapping(SysUser::getName, Collectors.reducing("", (name1, name2) -> name2))));
 
         //异步回调
         List<JSONObject> sysUsers = CompletableFuture.supplyAsync(LambdaDemo::getList)

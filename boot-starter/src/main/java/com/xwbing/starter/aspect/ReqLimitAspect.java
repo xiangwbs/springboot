@@ -105,4 +105,19 @@ public class ReqLimitAspect {
         return LIMIT_KEY_PREFIX + targetName + "_" + methodName + "_" + String
                 .valueOf(expressionParser.parseExpression(key).getValue(context));
     }
+
+    // public static void main(String[] args) {
+    //     Long limit = redisService.incrBy("", 1);
+    //     if (limit > 1) {
+    //         throw new RuntimeException("");
+    //     }
+    //     redisService.expire("", 10);
+    //     try {
+    //         // TODO:
+    //     } catch (Exception e) {
+    //         // TODO:
+    //     } finally {
+    //         redisService.del("");
+    //     }
+    // }
 }
