@@ -15,6 +15,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
+// fastJson反序列化处理
 // @JSONType(deserializer = FastJsonDeserializer.class, serializeEnumAsJavaBean = true)
 public enum ImportStatusEnum implements BaseEnum {
     //@formatter:off

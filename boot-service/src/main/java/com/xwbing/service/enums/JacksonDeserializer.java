@@ -3,6 +3,8 @@ package com.xwbing.service.enums;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.springframework.boot.jackson.JsonComponent;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -21,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version $
  * @since 2019年11月29日 18:59
  */
-// @JsonComponent
+@JsonComponent
 @Slf4j
 public final class JacksonDeserializer<T extends Enum<T> & BaseEnum> extends JsonDeserializer<T>
         implements ContextualDeserializer {
