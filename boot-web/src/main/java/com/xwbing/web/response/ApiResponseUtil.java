@@ -6,7 +6,7 @@ package com.xwbing.web.response;
  * @since 2018年06月14日 下午5:04
  */
 public class ApiResponseUtil {
-    static final String DEFAULT_SUCCESS_CODE = "200";
+    protected static final String DEFAULT_SUCCESS_CODE = "200";
     private static final String DEFAULT_FAIL_CODE = "400";
 
     /**

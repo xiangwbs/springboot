@@ -57,14 +57,14 @@
         FROM sys_user_login_in_out a left join sys_user_info b on
         (a.user_id=b.id)
         <where>
-            <if test="inout!=null">
-                a.inout_type=#{inout}
+            <if test="inoutType!=null">
+                a.inout_type=#{inoutType}
             </if>
             <if test="startDate!=null">
-                and a.create_time>=#{startDate}
+                and date_format( a.create_time, '%Y-%m-%d' ) >= #{startDate}
             </if>
             <if test="endDate!=null">
-                and a.create_time <![CDATA[ <= ]]> #{endDate}
+                and date_format( a.create_time, '%Y-%m-%d' ) <![CDATA[ <= ]]> #{endDate}
             </if>
         </where>
         ORDER BY a.create_time DESC
@@ -76,13 +76,35 @@
         <include refid="Table"/>
         <where>
             <if test="startDate!=null">
-                and create_time>=#{startDate}
+                and date_format( create_time, '%Y-%m-%d' ) >= #{startDate}
             </if>
             <if test="endDate!=null">
-                and create_time <![CDATA[ <= ]]> #{endDate}
+                and date_format( create_time, '%Y-%m-%d' ) <![CDATA[ <= ]]> #{endDate}
             </if>
         </where>
         group by inout_type
+    </select>
+
+    <select id="countByDate" resultType="com.xwbing.service.domain.entity.vo.InAndOutCountByDateVo">
+        select count(1) count,DATE_FORMAT(create_time,'%Y-%m-%d') date
+        from
+        <include refid="Table"/>
+        where inout_type=#{inoutType}
+        <if test="startDate != null">
+            and date_format( create_time, '%Y-%m-%d' ) >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            and date_format( create_time, '%Y-%m-%d' ) <![CDATA[ <= ]]> #{endDate}
+        </if>
+        group by date
+    </select>
+
+    <select id="countByUser" resultType="com.xwbing.service.domain.entity.vo.InAndOutCountByUserVo">
+        select user_id userId,count(1) count,max(create_time) createTime
+        from
+        <include refid="Table"/>
+        where inout_type=#{inoutType}
+        group by user_id
     </select>
 
 </mapper>

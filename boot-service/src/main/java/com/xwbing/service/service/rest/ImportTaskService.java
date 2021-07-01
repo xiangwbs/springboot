@@ -31,7 +31,7 @@ public class ImportTaskService extends BaseService<ImportTaskMapper, ImportTask>
         return importTaskMapper;
     }
 
-    public PageVO page(PageSearchVO pageSearch) {
+    public PageVO<ImportTask> page(PageSearchVO pageSearch) {
         Page<Object> page = PageHelper.startPage(pageSearch.getCurrentPage(), pageSearch.getPageSize());
         List<ImportTask> importTasks = listAll();
         return PageVO.<ImportTask>builder().data(importTasks).total(page.getTotal()).build();

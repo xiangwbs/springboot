@@ -84,10 +84,12 @@
         <zip4j.version>2.6.1</zip4j.version>
         <zxing.version>3.4.0</zxing.version>
         <guava.verison>29.0-jre</guava.verison>
+        <hutool.version>5.3.8</hutool.version>
         <rsa.version>1.46</rsa.version>
         <shedlock.version>4.7.1</shedlock.version>
         <swagger2.version>2.9.2</swagger2.version>
         <swagger.version>1.6.0</swagger.version>
+        <jsoup.verson>1.13.1</jsoup.verson>
     </properties>
 
     <dependencies>
@@ -185,6 +187,12 @@
             <artifactId>guava</artifactId>
             <version>${guava.verison}</version>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+        <!-- lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

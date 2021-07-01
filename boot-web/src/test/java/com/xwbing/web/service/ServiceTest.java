@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -25,8 +23,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.xwbing.starter.clusterseq.ClusterSeqGenerator;
-import com.xwbing.starter.redis.RedisService;
 import com.xwbing.service.domain.entity.model.ExpressInfo;
 import com.xwbing.service.domain.entity.sys.DataDictionary;
 import com.xwbing.service.domain.entity.sys.SysRole;
@@ -42,6 +38,8 @@ import com.xwbing.service.service.sys.SysRoleService;
 import com.xwbing.service.util.Pagination;
 import com.xwbing.service.util.RSAUtil;
 import com.xwbing.service.util.RestMessage;
+import com.xwbing.starter.clusterseq.ClusterSeqGenerator;
+import com.xwbing.starter.redis.RedisService;
 import com.xwbing.web.BaseTest;
 
 import lombok.extern.slf4j.Slf4j;
@@ -76,15 +74,13 @@ public class ServiceTest extends BaseTest {
     @Test
     public void page() {
         log.info("分页功能测试");
-        Map<String, Object> map = new HashMap<>();
-        map.put("inout", 1);
         Page<SysUserLoginInOut> page = PageHelper.startPage(1, 10)
-                .doSelectPage(() -> loginInOutMapper.findByInoutType(map));
+                .doSelectPage(() -> loginInOutMapper.findByInoutType(1, null, null));
         PageInfo<SysUserLoginInOut> pageInfo = PageHelper.startPage(1, 10)
-                .doSelectPageInfo(() -> loginInOutMapper.findByInoutType(map));
+                .doSelectPageInfo(() -> loginInOutMapper.findByInoutType(1, null, null));
         Pagination page1 = new Pagination(pageInfo);
         Pagination page2 = new Pagination(page);
-        long count = PageHelper.count(() -> loginInOutMapper.findByInoutType(map));
+        long count = PageHelper.count(() -> loginInOutMapper.findByInoutType(1, null, null));
     }
 
     @Transactional("jpaTransactionManager")

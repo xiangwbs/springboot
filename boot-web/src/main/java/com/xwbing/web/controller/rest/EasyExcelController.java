@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.xwbing.service.domain.entity.rest.ImportTask;
 import com.xwbing.service.domain.entity.vo.ExcelProcessVo;
 import com.xwbing.service.service.rest.EasyExcelDealService;
 import com.xwbing.service.service.rest.ImportTaskService;
@@ -37,14 +38,14 @@ public class EasyExcelController {
 
     @ApiOperation(value = "批量导入")
     @PostMapping("import")
-    public ApiResponse readExcel(@RequestParam MultipartFile file) {
+    public ApiResponse<String> readExcel(@RequestParam MultipartFile file) {
         String importId = easyExcelDealService.readByStream(file, 0, 1);
         return ApiResponseUtil.success(importId);
     }
 
     @ApiOperation("读取excel进度")
     @GetMapping("getProcess")
-    public ApiResponse read(@RequestParam String importId) {
+    public ApiResponse<ExcelProcessVo> read(@RequestParam String importId) {
         ExcelProcessVo excelProgress = easyExcelDealService.getProcess(importId);
         return ApiResponseUtil.success(excelProgress);
     }
@@ -58,8 +59,8 @@ public class EasyExcelController {
 
     @ApiOperation("导入记录")
     @GetMapping("pageImport")
-    public ApiResponse pageImport(PageSearchVO pageSearch) {
-        PageVO pageVO = importTaskService.page(pageSearch);
+    public ApiResponse<PageVO<ImportTask>> pageImport(PageSearchVO pageSearch) {
+        PageVO<ImportTask> pageVO = importTaskService.page(pageSearch);
         return ApiResponseUtil.success(pageVO);
     }
 }
