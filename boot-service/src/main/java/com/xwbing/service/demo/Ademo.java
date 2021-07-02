@@ -1,9 +1,5 @@
 package com.xwbing.service.demo;
 
-import com.xwbing.service.domain.entity.rest.ImportTask;
-import com.xwbing.service.enums.ImportStatusEnum;
-import com.xwbing.service.util.Jackson;
-
 import lombok.extern.java.Log;
 
 /**
@@ -15,10 +11,7 @@ import lombok.extern.java.Log;
 @Log
 public class Ademo {
     public static void main(String[] args) {
-        ImportTask build = ImportTask.builder().status(ImportStatusEnum.FAIL).build();
-        String s = Jackson.build().writeValueAsString(build);
-        System.out.println("");
-    }
 
+    }
 }
 

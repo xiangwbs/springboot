@@ -1,5 +1,6 @@
 package com.xwbing.service.demo;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -9,6 +10,8 @@ import java.util.Map;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -17,18 +20,35 @@ import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.xwbing.service.domain.entity.BaseEntity;
+import com.xwbing.service.domain.entity.rest.ImportTask;
 import com.xwbing.service.domain.entity.sys.SysUser;
+import com.xwbing.service.enums.ImportStatusEnum;
+import com.xwbing.service.util.Jackson;
 import com.xwbing.service.util.RestMessage;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 创建日期: 2017年3月18日 下午1:34:05
  * 作者: xiangwb
  */
+@Builder
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class JsonDemo {
-    /*
+    /**
+     * jackSon注解
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime dateTime;
+    @JsonIgnore
+    private String ignore;
+    private ImportStatusEnum statusEnum;
+    /**
      * fastJson注解
      */
     @JSONField(serialize = false)
@@ -37,7 +57,7 @@ public class JsonDemo {
     private String nickName;
     @JSONField(format = "yyyy-MM-dd hh:mm:ss")
     private Date date;
-    /*
+    /**
      * gson注解
      */
     @SerializedName("user_age")
@@ -49,6 +69,13 @@ public class JsonDemo {
     private String email;
 
     public static void main(String[] args) {
+        /**
+         * jackSon
+         */
+        JsonDemo jaskSonDemo = JsonDemo.builder().dateTime(LocalDateTime.now()).ignore("ignore")
+                .statusEnum(ImportStatusEnum.SUCCESS).build();
+        String s1 = Jackson.build().writeValueAsString(jaskSonDemo);
+
         /**
          * fastJson
          */
@@ -64,8 +91,7 @@ public class JsonDemo {
         /*
          * to javaObject
          */
-        BaseEntity entiry = JSONObject.toJavaObject(jsonObject,
-                BaseEntity.class);//jsonObject转javaObject
+        BaseEntity entiry = JSONObject.toJavaObject(jsonObject, BaseEntity.class);//jsonObject转javaObject
         entiry = JSONObject.parseObject(jsonStr, BaseEntity.class);// json字符串转javaObject
         /*
          * JSONArray <--> list
@@ -84,20 +110,19 @@ public class JsonDemo {
          * 获取jsonObject属性
          */
         String id = jsonObject.getString("id");
-        RestMessage result = JSONObject.toJavaObject(
-                jsonObject.getJSONObject("resultMessage"), RestMessage.class);
+        RestMessage result = JSONObject.toJavaObject(jsonObject.getJSONObject("resultMessage"), RestMessage.class);
 
         /**
          * gson
          */
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls().create();//不导出实体中没有用@Expose注解的属性,并把null值也转换
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls()
+                .create();//不导出实体中没有用@Expose注解的属性,并把null值也转换
         JsonDemo jsonDemo = new JsonDemo();
         jsonDemo.setUserAge("18");
         jsonDemo.setAddr("西溪湿地");
         String serialize = gson.toJson(jsonDemo);
         String s = new Gson().toJson(jsonDemo);
         JsonDemo deserialize = gson.fromJson(s, JsonDemo.class);
-
 
         String gsonStr = "{'name':'John', 'sex':1,'role':{'id':'33'}}";
         /*
@@ -122,5 +147,14 @@ public class JsonDemo {
         JsonObject gsonObject = jsonElement.getAsJsonObject();
         JsonElement role = jsonElement.getAsJsonObject().get("role");
         String name = jsonElement.getAsJsonObject().get("name").getAsString();
+    }
+
+    public static void serialize() {
+        ImportTask task = ImportTask.builder().status(ImportStatusEnum.FAIL).build();
+        String jackson = Jackson.build().writeValueAsString(task);
+        ImportTask jacksonTask = Jackson.build().readValue(jackson, ImportTask.class);
+        String fast = JSONObject.toJSONString(task);
+        ImportTask fasttask = JSONObject.parseObject(fast, ImportTask.class);
+        System.out.println("");
     }
 }

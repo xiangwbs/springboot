@@ -9,7 +9,7 @@ import com.alibaba.fastjson.parser.JSONToken;
 import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
 
 /**
- * fastjson枚举反序列化
+ * fastJson枚举反序列化
  *
  * @author daofeng
  * @version $Id$
@@ -27,13 +27,12 @@ public class FastJsonDeserializer implements ObjectDeserializer {
         if (BaseEnum.class.isAssignableFrom(enumType)) {
             for (Object enumConstant : enumConstants) {
                 BaseEnum baseEnum = (BaseEnum)enumConstant;
-                if (1 == baseEnum.getCode()) {
+                if (lexer.intValue() == baseEnum.getCode()) {
                     return (T)enumConstant;
                 }
             }
-
         } else {
-            //默认的按名字或者按ordinal
+            //没实现BaseEnum的 默认的按名字或者按ordinal
             if (token == JSONToken.LITERAL_INT) {
                 int intValue = lexer.intValue();
                 lexer.nextToken(JSONToken.COMMA);

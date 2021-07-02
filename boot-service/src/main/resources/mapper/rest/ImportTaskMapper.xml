@@ -26,6 +26,9 @@
 
     <sql id="Condition">
         <where>
+          <if test="status!=null">
+              status=#{status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler}
+          </if>
         </where>
     </sql>
 

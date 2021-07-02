@@ -1,6 +1,8 @@
 package com.xwbing.service.service.rest;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -32,8 +34,10 @@ public class ImportTaskService extends BaseService<ImportTaskMapper, ImportTask>
     }
 
     public PageVO<ImportTask> page(PageSearchVO pageSearch) {
-        Page<Object> page = PageHelper.startPage(pageSearch.getCurrentPage(), pageSearch.getPageSize());
-        List<ImportTask> importTasks = listAll();
+        Page<Object> page = PageHelper.startPage(pageSearch.getPageNumber(), pageSearch.getPageSize());
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", pageSearch.getStatus());
+        List<ImportTask> importTasks = listByParam(map);
         return PageVO.<ImportTask>builder().data(importTasks).total(page.getTotal()).build();
     }
 

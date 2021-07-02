@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.annotation.JSONType;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,8 +17,8 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-// fastJson反序列化处理
-// @JSONType(deserializer = FastJsonDeserializer.class, serializeEnumAsJavaBean = true)
+// fastJson反序列化处理 序列化生成bean
+@JSONType(deserializer = FastJsonDeserializer.class, serializeEnumAsJavaBean = true)
 public enum ImportStatusEnum implements BaseEnum {
     //@formatter:off
     EXPORT(1, "正在导入中"),

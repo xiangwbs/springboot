@@ -9,8 +9,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @version $Id$
  * @since 2020年09月11日 5:47 PM
  */
+// jackSon序列化返回枚举对象
+@JsonFormat(shape = Shape.OBJECT)
 // jackSon反序列化处理
-@JsonFormat(shape = Shape.OBJECT) //序列化返回枚举对象
 @JsonDeserialize(using = JacksonDeserializer.class)
 public interface BaseEnum {
     int getCode();
