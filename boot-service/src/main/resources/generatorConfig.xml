@@ -56,7 +56,7 @@
         <table tableName="import_task" domainObjectName="rest.ImportTask" mapperName="rest.ImportTaskMapper">
             <generatedKey column="id" sqlStatement="select replace(UUID(), '-', '')" identity="false"/>
             <columnOverride column="status"
-                            typeHandler="com.xwbing.service.enums.BaseEnumTypeHandler"/>
+                            typeHandler="com.xwbing.service.enums.base.BaseEnumTypeHandler"/>
         </table>
     </context>
 </generatorConfiguration>

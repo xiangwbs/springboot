@@ -10,7 +10,7 @@
         <result column="file_name" property="fileName"/>
         <result column="total_count" property="totalCount"/>
         <result column="fail_count" property="failCount"/>
-        <result column="status" property="status" typeHandler="com.xwbing.service.enums.BaseEnumTypeHandler"/>
+        <result column="status" property="status" typeHandler="com.xwbing.service.enums.base.BaseEnumTypeHandler"/>
         <result column="detail" property="detail"/>
         <result column="need_download" property="needDownload"/>
     </resultMap>
@@ -27,7 +27,7 @@
     <sql id="Condition">
         <where>
           <if test="status!=null">
-              status=#{status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler}
+              status=#{status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
           </if>
         </where>
     </sql>
@@ -57,7 +57,7 @@
         #{fileName}, 
         #{totalCount}, 
         #{failCount}, 
-        #{status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler}, 
+        #{status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler},
         #{detail}, 
         #{needDownload}
         )
@@ -86,7 +86,7 @@
             #{obj.fileName}, 
             #{obj.totalCount}, 
             #{obj.failCount}, 
-            #{obj.status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler}, 
+            #{obj.status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler},
             #{obj.detail}, 
             #{obj.needDownload}
             )
@@ -123,7 +123,7 @@
             <if test="fileName!=null">file_name=#{fileName},</if>
             <if test="totalCount!=null">total_count=#{totalCount},</if>
             <if test="failCount!=null">fail_count=#{failCount},</if>
-            <if test="status!=null">`status`=#{status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler},</if>
+            <if test="status!=null">`status`=#{status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler},</if>
             <if test="detail!=null">detail=#{detail},</if>
             <if test="needDownload!=null">need_download=#{needDownload},</if>
         </set>
@@ -170,7 +170,7 @@
             <trim prefix="`status`=case" suffix="end,">
                 <foreach collection="list" item="obj">
                     <if test="obj.status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler!=null">
-                        when id=#{obj.id} then #{obj.status,typeHandler=com.xwbing.service.enums.BaseEnumTypeHandler}
+                        when id=#{obj.id} then #{obj.status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
                     </if>
                 </foreach>
             </trim>

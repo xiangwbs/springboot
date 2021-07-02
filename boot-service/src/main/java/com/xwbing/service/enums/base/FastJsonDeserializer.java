@@ -1,4 +1,4 @@
-package com.xwbing.service.enums;
+package com.xwbing.service.enums.base;
 
 import java.lang.reflect.Type;
 

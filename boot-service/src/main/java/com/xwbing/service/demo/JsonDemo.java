@@ -2,6 +2,7 @@ package com.xwbing.service.demo;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -69,12 +71,18 @@ public class JsonDemo {
     private String email;
 
     public static void main(String[] args) {
+        serialize();
         /**
          * jackSon
          */
-        JsonDemo jaskSonDemo = JsonDemo.builder().dateTime(LocalDateTime.now()).ignore("ignore")
+        JsonDemo jackSonDemo = JsonDemo.builder().dateTime(LocalDateTime.now()).ignore("ignore")
                 .statusEnum(ImportStatusEnum.SUCCESS).build();
-        String s1 = Jackson.build().writeValueAsString(jaskSonDemo);
+        String s1 = Jackson.build().writeValueAsString(jackSonDemo);
+        JsonDemo jackSonDemo1 = Jackson.build().readValue(s1, JsonDemo.class);
+        List<JsonDemo> jackSonDemoList = Jackson.build()
+                .readValue(Jackson.build().writeValueAsString(Collections.singletonList(jackSonDemo)),
+                        new TypeReference<List<JsonDemo>>() {
+                        });
 
         /**
          * fastJson

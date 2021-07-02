@@ -12,7 +12,7 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.springframework.beans.BeanUtils;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.service.enums.BaseEnum;
+import com.xwbing.service.enums.base.BaseEnum;
 import com.xwbing.service.exception.UtilException;
 
 import lombok.extern.slf4j.Slf4j;

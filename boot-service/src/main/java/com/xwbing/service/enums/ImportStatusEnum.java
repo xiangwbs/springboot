@@ -6,6 +6,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.alibaba.fastjson.annotation.JSONType;
+import com.xwbing.service.enums.base.BaseEnum;
+import com.xwbing.service.enums.base.FastJsonDeserializer;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

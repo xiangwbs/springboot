@@ -1,4 +1,4 @@
-package com.xwbing.service.enums;
+package com.xwbing.service.enums.base;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
