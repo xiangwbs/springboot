@@ -17,7 +17,7 @@ import com.alibaba.fastjson.parser.deserializer.ObjectDeserializer;
  * @since 2020年10月21日 4:30 PM
  */
 public class FastJsonDeserializer implements ObjectDeserializer {
-
+    // TODO:道风 2021/7/2 反序列化问题
     @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialze(DefaultJSONParser parser, Type type, Object fieldName) {
