@@ -95,6 +95,12 @@
             <artifactId>alipay-sdk-java</artifactId>
             <version>${alipay-sdk.version}</version>
         </dependency>
+        <!-- wechatpay -->
+        <dependency>
+            <groupId>com.github.wechatpay-apiv3</groupId>
+            <artifactId>wechatpay-apache-httpclient</artifactId>
+            <version>${wechatpay-apache-httpclient.version}</version>
+        </dependency>
         <!-- xxl-job -->
         <dependency>
             <groupId>com.xuxueli</groupId>
