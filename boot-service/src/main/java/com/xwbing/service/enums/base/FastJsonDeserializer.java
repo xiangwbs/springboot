@@ -3,6 +3,7 @@ package com.xwbing.service.enums.base;
 import java.lang.reflect.Type;
 
 import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.DefaultJSONParser;
 import com.alibaba.fastjson.parser.JSONLexer;
 import com.alibaba.fastjson.parser.JSONToken;
@@ -25,9 +26,10 @@ public class FastJsonDeserializer implements ObjectDeserializer {
         Class enumType = (Class)type;
         Object[] enumConstants = enumType.getEnumConstants();
         if (BaseEnum.class.isAssignableFrom(enumType)) {
+            JSONObject jsonObject = JSONObject.parseObject(parser.getInput()).getJSONObject(String.valueOf(fieldName));
             for (Object enumConstant : enumConstants) {
                 BaseEnum baseEnum = (BaseEnum)enumConstant;
-                if (lexer.intValue() == baseEnum.getCode()) {
+                if (jsonObject.getInteger("code") == baseEnum.getCode()) {
                     return (T)enumConstant;
                 }
             }
