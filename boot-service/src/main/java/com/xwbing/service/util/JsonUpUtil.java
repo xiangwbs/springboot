@@ -1,6 +1,5 @@
 package com.xwbing.service.util;
 
-import java.io.IOException;
 import java.util.Optional;
 
 import org.jsoup.Jsoup;
@@ -47,7 +46,7 @@ public class JsonUpUtil {
             String[] urls = url.split("/");
             return HtmlVO.builder().title(title).description(description)
                     .logo(urls[0] + "//" + urls[2] + "/" + "favicon.ico").build();
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("getHtmlInfo error ", e);
             return HtmlVO.builder().build();
         }

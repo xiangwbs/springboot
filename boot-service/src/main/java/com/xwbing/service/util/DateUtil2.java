@@ -113,18 +113,28 @@ public class DateUtil2 {
         return dateTime.format(getDateFormat(pattern));
     }
 
+    public static LocalDateTime msToLocalDateTime(String ms) {
+        Instant instant = Instant.ofEpochMilli(Long.valueOf(ms));
+        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+    }
+
     /**
-     * 将时间戳转换为时间字符串
+     * 将秒转换为时间字符串
      *
      * @param s
      * @param pattern
      *
      * @return
      */
-    public static String stampToDateStr(String s, String pattern) {
+    public static String sToDateStr(String s, String pattern) {
         Instant instant = Instant.ofEpochSecond(Long.valueOf(s));
         LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
         return dateTime.format(getDateFormat(pattern));
+    }
+
+    public static LocalDateTime sToLocalDateTime(String s) {
+        Instant instant = Instant.ofEpochSecond(Long.valueOf(s));
+        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
     }
 
     /**
