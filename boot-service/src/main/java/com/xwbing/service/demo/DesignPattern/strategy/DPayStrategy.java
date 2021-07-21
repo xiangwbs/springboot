@@ -7,6 +7,6 @@ package com.xwbing.service.demo.DesignPattern.strategy;
  * spring读取资源信息:org.springframework.core.io.ResourceLoader.Resource
  * 解决多重if else判断的问题 提高扩展性
  */
-public interface PayStrategy {
+public interface DPayStrategy {
     String toPay();
 }

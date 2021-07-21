@@ -4,12 +4,12 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author xiangwb
- * @date 2020/3/6 18:15
+ * @date 2020/3/6 18:16
  */
 @Service
-public class AliPayStrategy implements PayStrategy {
+public class DWxPayStrategy implements DPayStrategy {
     @Override
     public String toPay() {
-        return "调用支付宝接口";
+        return "调用微信接口";
     }
 }

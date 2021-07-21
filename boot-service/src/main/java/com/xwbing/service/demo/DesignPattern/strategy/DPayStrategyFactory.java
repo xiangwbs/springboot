@@ -11,9 +11,9 @@ import com.xwbing.starter.spring.ApplicationContextHelper;
  * 代码结构简单 扩展时 只需要改工厂类就行
  * 枚举或数据库维护工厂类型
  */
-public class PayStrategyFactory {
-    public static PayStrategy getPayStrategy(String payType) {
-        String className = PayStrategyEnum.parse(payType).getClassName();
-        return ApplicationContextHelper.getBean(className, PayStrategy.class);
+public class DPayStrategyFactory {
+    public static DPayStrategy getPayStrategy(String payType) {
+        String className = DPayStrategyEnum.parse(payType).getClassName();
+        return ApplicationContextHelper.getBean(className, DPayStrategy.class);
     }
 }

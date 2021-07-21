@@ -4,12 +4,12 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author xiangwb
- * @date 2020/3/6 18:16
+ * @date 2020/3/6 18:15
  */
 @Service
-public class WxPayStrategy implements PayStrategy {
+public class DAliPayStrategy implements DPayStrategy {
     @Override
     public String toPay() {
-        return "调用微信接口";
+        return "调用支付宝接口";
     }
 }
