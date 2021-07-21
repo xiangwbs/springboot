@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.service.domain.entity.vo.RestMessageVo;
 import com.xwbing.service.service.rest.CommonService;
 import com.xwbing.service.util.JsonResult;
 import com.xwbing.service.util.RestMessage;
+import com.xwbing.starter.signature.RsaProperties;
+import com.xwbing.web.response.ApiResponse;
+import com.xwbing.web.response.ApiResponseUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,12 +32,20 @@ import io.swagger.annotations.ApiOperation;
 public class CommonControl {
     @Resource
     private CommonService commonService;
+    @Resource
+    private RsaProperties rsaProperties;
 
-    @ApiOperation(value = "获取签名", response = RestMessageVo.class)
+    @ApiOperation(value = "获取公钥", notes = "公钥被base64编码过,签名用rsa加密+base64编码")
+    @GetMapping("/getPublicKey")
+    public ApiResponse<String> getPublicKey() {
+        return ApiResponseUtil.success(rsaProperties.getPublicKeyBase64());
+    }
+
+    @ApiOperation("获取签名")
     @GetMapping("getSign")
-    public JSONObject getSign() {
+    public ApiResponse<String> getSign() {
         String sign = commonService.getSign();
-        return JsonResult.toJSONObj(sign, "");
+        return ApiResponseUtil.success(sign);
     }
 
     @ApiOperation("上传文件")
