@@ -12,6 +12,7 @@ import com.xwbing.starter.aspect.properties.RsaProperties;
 import com.xwbing.starter.redis.RedisService;
 
 import cn.hutool.crypto.asymmetric.RSA;
+import lombok.AllArgsConstructor;
 
 /**
  * 切面自动配置类
@@ -20,16 +21,12 @@ import cn.hutool.crypto.asymmetric.RSA;
  * @version $Id$
  * @since 2021年07月15日 1:54 PM
  */
+@AllArgsConstructor
 @Configuration
 @EnableConfigurationProperties({ AspectProperties.class, RsaProperties.class })
 public class AspectAutoConfiguration {
     private final AspectProperties aspectProperties;
     private final RsaProperties rsaProperties;
-
-    public AspectAutoConfiguration(AspectProperties aspectProperties, RsaProperties rsaProperties) {
-        this.aspectProperties = aspectProperties;
-        this.rsaProperties = rsaProperties;
-    }
 
     /**
      * service异常日志切面
