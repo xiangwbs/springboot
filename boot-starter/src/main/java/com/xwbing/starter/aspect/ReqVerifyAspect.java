@@ -53,14 +53,14 @@ public class ReqVerifyAspect {
         // 获取明文参数
         String sign = request.getHeader("sign");
         if (StringUtils.isEmpty(sign)) {
-            log.error("signCheckAspect no sign");
+            log.error("reqVerifyAspect no sign");
             throw new ConfigException(ERROR);
         }
         String decryptStr;
         try {
             decryptStr = rsa.decryptStr(sign, KeyType.PrivateKey);
         } catch (Exception e) {
-            log.error("signCheckAspect decrypt error", e);
+            log.error("reqVerifyAspect decrypt error", e);
             throw new ConfigException(ERROR);
         }
         Map<String, String> paramMap = Arrays.stream(decryptStr.split("&")).collect(Collectors
