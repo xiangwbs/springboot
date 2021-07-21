@@ -1,11 +1,11 @@
 package com.xwbing.starter.util;
 
-import com.alibaba.fastjson.JSONObject;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * 公共数据类
@@ -38,8 +38,8 @@ public class CommonDataUtil {
     /**
      * 存数据,带有效期
      *
-     * @param key    key
-     * @param value  value
+     * @param key key
+     * @param value value
      * @param minute 分钟
      */
     public static void setData(String key, Object value, int minute) {
@@ -54,6 +54,7 @@ public class CommonDataUtil {
      * 获取数据
      *
      * @param key
+     *
      * @return
      */
     public static Object getData(String key) {
@@ -68,6 +69,7 @@ public class CommonDataUtil {
                 if (expiry >= currentTimeMillis) {
                     return value;
                 } else {
+                    clearData(key);
                     return null;
                 }
             }
@@ -97,10 +99,8 @@ public class CommonDataUtil {
             JSONObject object = next.getValue();
             if (object != null) {
                 long expiry = object.getLongValue("expiry");
-                if (-1 != expiry) {
-                    if (expiry < currentTimeMillis) {
-                        iterator.remove();
-                    }
+                if (-1 != expiry && expiry < currentTimeMillis) {
+                    iterator.remove();
                 }
             }
         }

@@ -15,7 +15,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.xwbing.starter.aspect.annotation.ReqIdempotent;
-import com.xwbing.starter.exception.ConfigException;
+import com.xwbing.starter.aspect.enums.IdempotentParamTypeEnum;
 import com.xwbing.starter.util.CommonDataUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,16 +36,14 @@ public class ReqIdempotentAspect {
 
     @Around(value = "pointCut(reqIdempotent)", argNames = "pjp,reqIdempotent")
     public Object idempotent(ProceedingJoinPoint pjp, ReqIdempotent reqIdempotent) throws Throwable {
-        String type = reqIdempotent.type();
+        IdempotentParamTypeEnum paramType = reqIdempotent.paramType();
         ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
         String sign;
-        if ("header".equals(type)) {
+        if (IdempotentParamTypeEnum.HEADER.equals(paramType)) {
             sign = request.getHeader("sign");
-        } else if ("param".equals(type)) {
-            sign = request.getParameter("sign");
         } else {
-            throw new ConfigException("幂等类型错误");
+            sign = request.getParameter("sign");
         }
         if (StringUtils.isEmpty(sign)) {
             response("sign不能为空");
