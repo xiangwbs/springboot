@@ -108,9 +108,9 @@ public class AspectAutoConfiguration {
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean(SignCheckAspect.class)
-    public SignCheckAspect signCheckAspect() {
+    @ConditionalOnMissingBean(ReqVerifyAspect.class)
+    public ReqVerifyAspect reqVerifyAspect() {
         RSA rsa = new RSA(rsaProperties.getPrivateKeyBase64(), rsaProperties.getPublicKeyBase64());
-        return new SignCheckAspect(rsa);
+        return new ReqVerifyAspect(rsa);
     }
 }

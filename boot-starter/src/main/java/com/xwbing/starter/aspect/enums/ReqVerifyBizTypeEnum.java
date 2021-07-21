@@ -17,7 +17,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum SignCheckBizTypeEnum {
+public enum ReqVerifyBizTypeEnum {
     //@formatter:off
     DEFAULT("default", "默认"),
     ;
@@ -25,10 +25,10 @@ public enum SignCheckBizTypeEnum {
     private final String code;
     private final String name;
 
-    private static final Map<String, SignCheckBizTypeEnum> ENUM_MAP = Arrays.stream(SignCheckBizTypeEnum.values())
-            .collect(Collectors.toMap(SignCheckBizTypeEnum::getCode, Function.identity()));
+    private static final Map<String, ReqVerifyBizTypeEnum> ENUM_MAP = Arrays.stream(ReqVerifyBizTypeEnum.values())
+            .collect(Collectors.toMap(ReqVerifyBizTypeEnum::getCode, Function.identity()));
 
-    public static SignCheckBizTypeEnum parse(String code) {
+    public static ReqVerifyBizTypeEnum parse(String code) {
         return ENUM_MAP.get(code);
     }
 }

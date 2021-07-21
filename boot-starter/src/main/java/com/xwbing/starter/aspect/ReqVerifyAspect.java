@@ -16,9 +16,9 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.xwbing.starter.aspect.annotation.SignCheck;
+import com.xwbing.starter.aspect.annotation.ReqVerify;
 import com.xwbing.starter.exception.ConfigException;
-import com.xwbing.starter.aspect.enums.SignCheckBizTypeEnum;
+import com.xwbing.starter.aspect.enums.ReqVerifyBizTypeEnum;
 
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
@@ -36,18 +36,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Aspect
 @AllArgsConstructor
-public class SignCheckAspect {
+public class ReqVerifyAspect {
     private final RSA rsa;
     private static final String ERROR = "请求不合法";
     private static final String BIZ_TYPE = "bizType";
     private static final String TIMESTAMP = "timestamp";
 
-    @Pointcut("(@within(org.springframework.stereotype.Controller)||@within(org.springframework.web.bind.annotation.RestController))&&(@within(signCheck) || @annotation(signCheck))")
-    public void pointcut(SignCheck signCheck) {
+    @Pointcut("(@within(org.springframework.stereotype.Controller)||@within(org.springframework.web.bind.annotation.RestController))&&(@within(reqVerify) || @annotation(reqVerify))")
+    public void pointcut(ReqVerify reqVerify) {
     }
 
-    @Before(value = "pointcut(signCheck)", argNames = "signCheck")
-    public void before(SignCheck signCheck) {
+    @Before(value = "pointcut(reqVerify)", argNames = "reqVerify")
+    public void before(ReqVerify reqVerify) {
         ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
         // 获取明文参数
@@ -66,7 +66,7 @@ public class SignCheckAspect {
         Map<String, String> paramMap = Arrays.stream(decryptStr.split("&")).collect(Collectors
                 .toMap(str -> str.split("=")[0], str -> str.split("=").length >= 2 ? str.split("=")[1] : null));
         // 业务校验
-        SignCheckBizTypeEnum bizType = SignCheckBizTypeEnum.parse(paramMap.get(BIZ_TYPE));
+        ReqVerifyBizTypeEnum bizType = ReqVerifyBizTypeEnum.parse(paramMap.get(BIZ_TYPE));
         if (bizType == null) {
             throw new ConfigException(ERROR);
         }
