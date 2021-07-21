@@ -13,7 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.service.rest.CommonService;
 import com.xwbing.service.util.JsonResult;
 import com.xwbing.service.util.RestMessage;
-import com.xwbing.starter.signature.RsaProperties;
+import com.xwbing.starter.aspect.properties.RsaProperties;
 import com.xwbing.web.response.ApiResponse;
 import com.xwbing.web.response.ApiResponseUtil;
 
