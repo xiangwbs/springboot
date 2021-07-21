@@ -1,4 +1,4 @@
-package com.xwbing.starter.signature;
+package com.xwbing.starter.aspect.enums;
 
 import java.util.Arrays;
 import java.util.Map;

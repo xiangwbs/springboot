@@ -1,4 +1,4 @@
-package com.xwbing.starter.aspect;
+package com.xwbing.starter.aspect.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

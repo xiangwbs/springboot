@@ -7,19 +7,28 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.xwbing.starter.aspect.properties.AspectProperties;
+import com.xwbing.starter.aspect.properties.RsaProperties;
 import com.xwbing.starter.redis.RedisService;
 
+import cn.hutool.crypto.asymmetric.RSA;
+
 /**
- * @author xiangwb
- *         切面自动配置类
+ * 切面自动配置类
+ *
+ * @author daofeng
+ * @version $Id$
+ * @since 2021年07月15日 1:54 PM
  */
 @Configuration
-@EnableConfigurationProperties(AspectProperties.class)
+@EnableConfigurationProperties({ AspectProperties.class, RsaProperties.class })
 public class AspectAutoConfiguration {
     private final AspectProperties aspectProperties;
+    private final RsaProperties rsaProperties;
 
-    public AspectAutoConfiguration(AspectProperties aspectProperties) {
+    public AspectAutoConfiguration(AspectProperties aspectProperties, RsaProperties rsaProperties) {
         this.aspectProperties = aspectProperties;
+        this.rsaProperties = rsaProperties;
     }
 
     /**
@@ -91,5 +100,17 @@ public class AspectAutoConfiguration {
     @ConditionalOnMissingBean(ReqLimitAspect.class)
     public ReqLimitAspect limitAspect(RedisService redisService) {
         return new ReqLimitAspect(redisService);
+    }
+
+    /**
+     * 验签
+     *
+     * @return
+     */
+    @Bean
+    @ConditionalOnMissingBean(SignCheckAspect.class)
+    public SignCheckAspect signCheckAspect() {
+        RSA rsa = new RSA(rsaProperties.getPrivateKeyBase64(), rsaProperties.getPublicKeyBase64());
+        return new SignCheckAspect(rsa);
     }
 }
