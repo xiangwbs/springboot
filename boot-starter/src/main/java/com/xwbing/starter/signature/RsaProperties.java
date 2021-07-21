@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 @ConfigurationProperties(prefix = RsaProperties.PREFIX)
 public class RsaProperties {
-    public static final String PREFIX = "bot.rsa";
+    public static final String PREFIX = "boot.rsa";
     /**
      * 私钥(Base64编码)
      */
