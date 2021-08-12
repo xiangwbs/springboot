@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -58,7 +59,6 @@ public class LambdaDemo {
 
         System.out.println("map:" + lists.stream().map(o1 -> o1 * 2).collect(Collectors.toList()));//转换成新元素
         List<String> words = Arrays.asList("hello welcome", "world hello", "hello world", "hello world welcome");
-        List<String[]> map = words.stream().map(item -> item.split(" ")).distinct().collect(Collectors.toList());
         System.out.println("flatMap:" + words.stream().flatMap(item -> Arrays.stream(item.split(" "))).distinct()
                 .collect(Collectors.toList()));
 
@@ -111,16 +111,21 @@ public class LambdaDemo {
                 "all:" + lists.stream().filter(Objects::nonNull).distinct().mapToInt(num -> num * 2).skip(2).limit(4)
                         .sum());
 
-        //toMap 遍历list存入map里 key不能重复 value不能为null
+        //toMap
+        // 遍历list存入map里 key不能重复 value不能为null
+        Map<Integer, String> jsonMap = getList().stream()
+                .collect(Collectors.toMap(o1 -> o1.getInteger("id"), o2 -> o2.getString("name")));
         Map<String, SysUser> userMap = listAll().stream()
                 .collect(Collectors.toMap(SysUser::getId, Function.identity()));
         userMap = listAll().stream().collect(Collectors.toMap(SysUser::getId, sysUser -> sysUser));
-        // Map<String, String> nameMap = listAll().stream().collect(Collectors.toMap(SysUser::getName, SysUser::getSex));
-        Map<Integer, String> jsonMap = getList().stream()
-                .collect(Collectors.toMap(o1 -> o1.getInteger("id"), o2 -> o2.getString("name")));
+        Map<String, String> userNameMap = listAll().stream()
+                .collect(Collectors.toMap(SysUser::getId, SysUser::getName));
         //解决key重复 value为null
-        Map<String, String> fixMap = listAll().stream().filter(sysUser -> sysUser.getName() != null)
-                .collect(Collectors.toMap(SysUser::getName, SysUser::getSex, (sex1, sex2) -> sex1 + "," + sex2));
+        Map<String, String> userSexNameMap = listAll().stream().filter(sysUser -> sysUser.getName() != null)
+                .collect(Collectors.toMap(SysUser::getSex, SysUser::getName, (n1, n2) -> n1 + "," + n2));
+        Map<String, SysUser> userSexMinAgeMap = listAll().stream().collect(Collectors
+                .toMap(SysUser::getSex, Function.identity(),
+                        BinaryOperator.minBy(Comparator.comparing(SysUser::getAge))));
 
         //分组
         Map<String, List<SysUser>> sexMap = listAll().stream().collect(Collectors.groupingBy(SysUser::getSex));
@@ -130,8 +135,8 @@ public class LambdaDemo {
                 .collect(Collectors.groupingBy(SysUser::getSex, Collectors.counting()));
         Map<String, List<String>> sexNameMap = listAll().stream().collect(
                 Collectors.groupingBy(SysUser::getSex, Collectors.mapping(SysUser::getName, Collectors.toList())));
-        Map<String, String> sexSingleNameMap = listAll().stream().collect(Collectors.groupingBy(SysUser::getSex,
-                Collectors.mapping(SysUser::getName, Collectors.reducing("", (name1, name2) -> name2))));
+        // Map<String, String> sexSingleNameMap = listAll().stream().collect(Collectors.groupingBy(SysUser::getSex,
+        //         Collectors.mapping(SysUser::getName, Collectors.reducing("", (name1, name2) -> name2))));
 
         //异步回调
         List<JSONObject> sysUsers = CompletableFuture.supplyAsync(LambdaDemo::getList)
