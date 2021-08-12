@@ -40,6 +40,7 @@ public class LambdaDemo {
         t.start();
         List<String> abc = Arrays.asList("b", "c", "a");
         abc.sort(Comparator.naturalOrder());
+        abc.sort(Comparator.reverseOrder());
         /**
          * stream api 高级版本的迭代器
          */
