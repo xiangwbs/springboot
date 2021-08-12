@@ -136,6 +136,8 @@ public class LambdaDemo {
                 .collect(Collectors.groupingBy(SysUser::getSex, Collectors.counting()));
         Map<String, List<String>> sexNameMap = listAll().stream().collect(
                 Collectors.groupingBy(SysUser::getSex, Collectors.mapping(SysUser::getName, Collectors.toList())));
+        sexNameMap = listAll().stream().collect(Collectors.groupingBy(SysUser::getSex,
+                Collectors.mapping(o -> o.getName() + ":" + o.getAge(), Collectors.toList())));
         // Map<String, String> sexSingleNameMap = listAll().stream().collect(Collectors.groupingBy(SysUser::getSex,
         //         Collectors.mapping(SysUser::getName, Collectors.reducing("", (name1, name2) -> name2))));
 
