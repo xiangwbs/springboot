@@ -13,12 +13,13 @@ public class StopWatchDemo {
         // do something
         Thread.sleep(100);
         sw.stop();
+        System.out.println(sw.getTotalTimeMillis());
         sw.start("task2");
         // do something
         Thread.sleep(200);
         sw.stop();
-        System.out.println(sw.prettyPrint());
-        System.out.println(sw.shortSummary());
         System.out.println(sw.getTotalTimeMillis());
+        // System.out.println(sw.shortSummary());
+        System.out.println(sw.prettyPrint());
     }
 }
