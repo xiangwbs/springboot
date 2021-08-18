@@ -19,7 +19,7 @@ import com.aliyun.openservices.shade.com.alibaba.rocketmq.common.filter.Expressi
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OnsListener {
-    String groupId();
+    String consumerGroup();
 
     String topic();
 

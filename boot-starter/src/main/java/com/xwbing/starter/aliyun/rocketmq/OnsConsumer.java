@@ -63,21 +63,21 @@ public class OnsConsumer implements ApplicationContextAware, InitializingBean, D
             SubscriptionMeta subscriptionMeta = SubscriptionMeta.builder().onsListener(listener)
                     .messageListener((MessageListener)bean).build();
             subscriptionMetas.add(subscriptionMeta);
-            ConsumerBean consumer = consumerMap.get(listener.groupId());
+            ConsumerBean consumer = consumerMap.get(listener.consumerGroup());
             Properties properties;
             // 一个GroupID在jvm里只能创建一个Consumer实例
             if (consumer == null) {
                 consumer = new ConsumerBean();
                 properties = OnsAutoConfiguration.buildProperties(onsProperties);
-                properties.put(PropertyKeyConst.GROUP_ID, listener.groupId());
+                properties.put(PropertyKeyConst.GROUP_ID, listener.consumerGroup());
                 consumer.setProperties(properties);
-                consumerMap.put(listener.groupId(), consumer);
+                consumerMap.put(listener.consumerGroup(), consumer);
             }
         });
         // 订阅 1-n topic
         // 一个topic只能对应一个MessageListener 参考Subscription.hashCode()，Subscription.equals()
         Map<String, List<SubscriptionMeta>> metaMap = subscriptionMetas.stream()
-                .collect(Collectors.groupingBy(subscriptionMeta -> subscriptionMeta.getOnsListener().groupId()));
+                .collect(Collectors.groupingBy(subscriptionMeta -> subscriptionMeta.getOnsListener().consumerGroup()));
         consumerMap.forEach((groupId, consumerBean) -> {
             List<SubscriptionMeta> subscriptionMetas = metaMap.get(groupId);
             List<String> topics = subscriptionMetas.stream()
