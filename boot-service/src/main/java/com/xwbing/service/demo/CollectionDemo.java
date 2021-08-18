@@ -1,10 +1,20 @@
 package com.xwbing.service.demo;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Lists;
-
-import java.util.*;
 
 /**
  * 创建日期: 2017年2月16日 下午4:06:56
@@ -33,12 +43,12 @@ public class CollectionDemo {
          * 数组
          */
         int[] arr1 = new int[4];
-        int[] arr2 = new int[]{1, 3, 5, 7};
-        int[] arr3 = {12, 3, 5, 6, 2, 8, 9, 4};
+        int[] arr2 = new int[] { 1, 3, 5, 7 };
+        int[] arr3 = { 12, 3, 5, 6, 2, 8, 9, 4 };
 
         //打印数组
         System.out.println(Arrays.toString(arr3));
-        String[] arr4 = {"1","2"};
+        String[] arr4 = { "1", "2" };
         System.out.println(Arrays.deepToString(arr4));
 
         for (int i = 0; i < arr3.length - 1; i++) {//选择排序
@@ -62,7 +72,7 @@ public class CollectionDemo {
         /**
          * 数组字符串操作
          */
-        String[] arrays = {"1", "2", "3", "4"};
+        String[] arrays = { "1", "2", "3", "4" };
         List<String> strings = Arrays.asList(arrays);
         String arrayStr = JSONArray.toJSONString(strings);//数组字符串
         JSONArray jsonArray = JSON.parseArray(arrayStr);//转为JSONArray
@@ -73,7 +83,7 @@ public class CollectionDemo {
          * 数组转集合
          * 该集合表示原来的数组 对集合的操作就是对数组的操作，那么添加元素会导致原数组扩容，那么就不能表示原来的数组了,会抛出UnsupportedOperationException异常
          */
-        String[] array = {"one", "two", "three", "four"};
+        String[] array = { "one", "two", "three", "four" };
         List<String> collection = new ArrayList<>(Arrays.asList(array));
 
         /**
@@ -88,7 +98,12 @@ public class CollectionDemo {
          * 则使用该数组，若不可用，会自动创建一个与给定数组同类型的数组
          */
         arrayy = lsit.toArray(arrayy);
-
+        /**
+         * list转set
+         * set转list
+         */
+        HashSet<String> set = new HashSet<>(lsit);
+        lsit = new ArrayList<>(set);
         /**
          * 基本api
          */
@@ -227,6 +242,7 @@ public class CollectionDemo {
      *
      * @param list
      * @param rang
+     *
      * @return
      */
     public static List group(List list, int rang) {
