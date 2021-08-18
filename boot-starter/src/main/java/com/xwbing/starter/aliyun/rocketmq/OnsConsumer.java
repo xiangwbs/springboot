@@ -80,10 +80,11 @@ public class OnsConsumer implements ApplicationContextAware, InitializingBean, D
                 .collect(Collectors.groupingBy(subscriptionMeta -> subscriptionMeta.getOnsListener().consumerGroup()));
         consumerMap.forEach((groupId, consumerBean) -> {
             List<SubscriptionMeta> subscriptionMetas = metaMap.get(groupId);
+            //校验是否存在重复topic
             List<String> topics = subscriptionMetas.stream()
                     .map(subscriptionMeta -> subscriptionMeta.getOnsListener().topic()).collect(Collectors.toList());
-            //校验是否存在重复topic
             checkTopic(groupId, topics);
+            //添加订阅关系
             Map<Subscription, MessageListener> subscriptionTable = new HashMap<>();
             OnsListener onsListener;
             Subscription subscription;
