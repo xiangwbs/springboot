@@ -21,9 +21,8 @@ import springfox.documentation.annotations.ApiIgnore;
 @ApiIgnore
 @RestController
 @RequestMapping("task")
-@Profile({ "dev","prod" })
+@Profile({ "dev", "prod" })
 public class SchedulingTask {
-
     // @Lock
     @GetMapping("clearExpiryData")
     @Scheduled(cron = "0 0 6 * * ?")
@@ -34,12 +33,11 @@ public class SchedulingTask {
         log.info("clearExpiryData end");
     }
 
-    @Scheduled(cron = "0/10 * * * * ?")
+    @Scheduled(cron = "* * 0/1 * * ?")
     @SchedulerLock(name = "com.xwbing.web.controller.task.test", lockAtLeastFor = "1s", lockAtMostFor = "5s")
     public void test() {
         log.info("test start");
         CommonDataUtil.clearExpiryData();
         log.info("test end");
     }
-
 }

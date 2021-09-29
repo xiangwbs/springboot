@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xwbing.service.domain.mapper.rest.GoodsMapper">
+    <resultMap id="BaseResultMap" type="com.xwbing.service.domain.entity.rest.Goods">
+        <id column="id" property="id"/>
+        <result column="create_time" property="createTime"/>
+        <result column="creator" property="creator"/>
+        <result column="modified_time" property="modifiedTime"/>
+        <result column="modifier" property="modifier"/>
+        <result column="name" property="name"/>
+        <result column="price" property="price"/>
+        <result column="stock" property="stock"/>
+    </resultMap>
+
+    <sql id="Table">
+        goods
+    </sql>
+
+    <sql id="Base_Column_List">
+        id, create_time, creator, modified_time, modifier, `name`, price, stock
+    </sql>
+
+    <sql id="Condition">
+        <where>
+        </where>
+    </sql>
+
+    <insert id="insert">
+        <selectKey keyProperty="id" order="BEFORE" resultType="string">
+            select replace(UUID(), '-', '')
+        </selectKey>
+        insert into 
+        <include refid="Table"/>(
+        id, 
+        create_time, 
+        creator, 
+        modified_time, 
+        `name`, 
+        price, 
+        stock
+        )
+        values (
+        #{id}, 
+        now(), 
+        #{creator}, 
+        now(), 
+        #{name}, 
+        #{price}, 
+        #{stock}
+        )
+    </insert>
+
+    <insert id="insertBatch">
+        insert into 
+        <include refid="Table"/>(
+        id, 
+        create_time, 
+        creator, 
+        modified_time, 
+        `name`, 
+        price, 
+        stock
+        )
+        values
+        <foreach collection="list" item="obj" separator=",">(
+            (select replace(UUID(), '-', '') as id), 
+            now(), 
+            #{obj.creator}, 
+            now(), 
+            #{obj.name}, 
+            #{obj.price}, 
+            #{obj.stock}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteById">
+        delete from 
+        <include refid="Table"/>
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from 
+        <include refid="Table"/>
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="delete">
+        delete from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </delete>
+
+    <update id="update">
+        update 
+        <include refid="Table"/>
+        <set>
+            modified_time=now(),
+            <if test="modifier!=null">modifier=#{modifier},</if>
+            <if test="name!=null">`name`=#{name},</if>
+            <if test="price!=null">price=#{price},</if>
+            <if test="stock!=null">stock=#{stock},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateBatch">
+        update 
+        <include refid="Table"/>
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="modified_time=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    when id=#{obj.id} then now()
+                </foreach>
+            </trim>
+            <trim prefix="modifier=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.modifier!=null">
+                        when id=#{obj.id} then #{obj.modifier}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="`name`=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.name!=null">
+                        when id=#{obj.id} then #{obj.name}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="price=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.price!=null">
+                        when id=#{obj.id} then #{obj.price}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="stock=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.stock!=null">
+                        when id=#{obj.id} then #{obj.stock}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" item="obj" separator="," open="(" close=")">
+            #{obj.id}
+        </foreach>
+    </update>
+
+    <select id="findById" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where id = #{id}
+    </select>
+
+    <select id="findByIds" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where id in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="find" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+    </select>
+
+</mapper>

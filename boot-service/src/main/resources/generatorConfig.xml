@@ -53,13 +53,10 @@
             <property name="rootInterface" value="com.xwbing.service.domain.mapper.BaseMapper"/>
         </javaClientGenerator>
         <!-- table -->
-        <table tableName="trade_record" domainObjectName="rest.TradeRecord" mapperName="pay.TradeRecordMapper">
+        <table tableName="order" domainObjectName="rest.Order" mapperName="rest.OrderMapper">
             <generatedKey column="id" sqlStatement="select replace(UUID(), '-', '')" identity="false"/>
             <columnOverride column="status"
-                            javaType="com.xwbing.service.pay.enums.TradeStatusEnum"
-                            typeHandler="com.xwbing.service.enums.base.BaseEnumTypeHandler"/>
-            <columnOverride column="pay_type"
-                            javaType="com.xwbing.service.pay.enums.PayTypeEnum"
+                            javaType="com.xwbing.service.mall.enums.OrderStatusEnum"
                             typeHandler="com.xwbing.service.enums.base.BaseEnumTypeHandler"/>
         </table>
     </context>

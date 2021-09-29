@@ -3,8 +3,8 @@ package com.xwbing.service.domain.entity.rest;
 import java.util.Date;
 
 import com.xwbing.service.domain.entity.BaseEntity;
-import com.xwbing.service.pay.enums.PayTypeEnum;
-import com.xwbing.service.pay.enums.TradeStatusEnum;
+import com.xwbing.service.mall.enums.PayTypeEnum;
+import com.xwbing.service.mall.enums.TradeStatusEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
