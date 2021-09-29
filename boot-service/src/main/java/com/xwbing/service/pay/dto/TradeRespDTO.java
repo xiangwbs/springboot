@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class TradeRespDTO<T> {
+public class TradeRespDTO {
     /**
      * 订单号
      */
@@ -38,5 +38,5 @@ public class TradeRespDTO<T> {
     /**
      * 返回数据
      */
-    private T resp;
+    private Object resp;
 }

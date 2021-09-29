@@ -20,30 +20,10 @@ public interface IPayStrategy {
      * 创建流水
      *
      * @param payReqDTO
-     * @param <T>
      *
      * @return
      */
-    <T> TradeRespDTO<T> createTrade(TradeReqDTO payReqDTO);
-
-    /**
-     * 退款
-     *
-     * @param dto
-     *
-     * @return
-     */
-    RefundRespDTO createRefund(RefundReqDTO dto);
-
-    /**
-     * 支付回调
-     *
-     * @param request
-     * @param <T>
-     *
-     * @return
-     */
-    <T> PayNotifyDTO<T> payNotify(HttpServletRequest request);
+    TradeRespDTO createTrade(TradeReqDTO payReqDTO);
 
     /**
      * 查询流水
@@ -56,6 +36,25 @@ public interface IPayStrategy {
     TradeQueryRespDTO queryTrade(String tradeNo, String outTradeNo);
 
     /**
+     * 支付回调
+     *
+     * @param <T>
+     * @param request
+     *
+     * @return
+     */
+    <T> PayNotifyDTO payNotify(HttpServletRequest request);
+
+    /**
+     * 退款
+     *
+     * @param dto
+     *
+     * @return
+     */
+    RefundRespDTO createRefund(RefundReqDTO dto);
+
+    /**
      * 查询退款
      *
      * @param refundNo
@@ -65,4 +64,14 @@ public interface IPayStrategy {
      * @return
      */
     RefundQueryRespDTO queryRefund(String refundNo, String tradeNo, String outTradeNo);
+
+    /**
+     * 撤销流水
+     *
+     * @param tradeNo
+     * @param outTradeNo
+     *
+     * @return
+     */
+    boolean cancelTrade(String tradeNo, String outTradeNo);
 }

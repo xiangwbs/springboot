@@ -6,11 +6,11 @@ import org.springframework.stereotype.Service;
 
 import com.xwbing.service.pay.dto.PayNotifyDTO;
 import com.xwbing.service.pay.dto.RefundQueryRespDTO;
+import com.xwbing.service.pay.dto.RefundReqDTO;
+import com.xwbing.service.pay.dto.RefundRespDTO;
 import com.xwbing.service.pay.dto.TradeQueryRespDTO;
 import com.xwbing.service.pay.dto.TradeReqDTO;
 import com.xwbing.service.pay.dto.TradeRespDTO;
-import com.xwbing.service.pay.dto.RefundReqDTO;
-import com.xwbing.service.pay.dto.RefundRespDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,18 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class WeChatPayStrategy implements IPayStrategy {
-    @Override
-    public <T> TradeRespDTO<T> createTrade(TradeReqDTO payReqDTO) {
-        return null;
-    }
 
     @Override
-    public RefundRespDTO createRefund(RefundReqDTO dto) {
-        return null;
-    }
-
-    @Override
-    public <T> PayNotifyDTO<T> payNotify(HttpServletRequest request) {
+    public TradeRespDTO createTrade(TradeReqDTO payReqDTO) {
         return null;
     }
 
@@ -43,7 +34,22 @@ public class WeChatPayStrategy implements IPayStrategy {
     }
 
     @Override
+    public <T> PayNotifyDTO payNotify(HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public RefundRespDTO createRefund(RefundReqDTO dto) {
+        return null;
+    }
+
+    @Override
     public RefundQueryRespDTO queryRefund(String refundNo, String tradeNo, String outTradeNo) {
         return null;
+    }
+
+    @Override
+    public boolean cancelTrade(String tradeNo, String outTradeNo) {
+        return false;
     }
 }

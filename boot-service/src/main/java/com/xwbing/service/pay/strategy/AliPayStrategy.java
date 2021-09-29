@@ -66,7 +66,7 @@ public class AliPayStrategy implements IPayStrategy {
     private final AliPayHelper aliPayHelper;
 
     @Override
-    public <T> TradeRespDTO<T> createTrade(TradeReqDTO dto) {
+    public TradeRespDTO createTrade(TradeReqDTO dto) {
         PayWayEnum payWay = dto.getPayWay();
         String tradeNo = dto.getTradeNo();
         String subject = dto.getSubject();
@@ -108,29 +108,23 @@ public class AliPayStrategy implements IPayStrategy {
                 throw new PayException("该交易类型暂不支持");
         }
         //@formatter:off
-        TradeRespDTO payRespDTO = TradeRespDTO.builder()
+        return TradeRespDTO.builder()
                 .orderNo(dto.getOrderNo())
                 .tradeNo(dto.getTradeNo())
                 .tradeStatus(TradeStatusEnum.PAYING)
                 .desc(dto.getSubject())
                 .resp(resp).build();
         //@formatter:on
-        return payRespDTO;
     }
 
     @Override
-    public RefundRespDTO createRefund(RefundReqDTO dto) {
-        log.info("aliPay createRefund tradeNo:{} dto", dto.getTradeNo(), dto);
-        AliPayTradeRefundParam param = AliPayTradeRefundParam
-                .of(dto.getRefundNo(), dto.getOutTradeNo(), dto.getTradeNo(), DecimalUtil.toYuan(dto.getRefundAmount()),
-                        dto.getRefundReason());
-        AliPayTradeRefundResult result = aliPayHelper.tradeRefund(param);
-        log.info("aliPay createRefund tradeNo:{} result", dto.getTradeNo(), result);
-        return result.isSuccess() ? RefundRespDTO.ofSuccess(result.getRefundTime()) : RefundRespDTO.ofFail();
+    public TradeQueryRespDTO queryTrade(String tradeNo, String outTradeNo) {
+        AliPayTradeQueryResult result = aliPayHelper.tradeQuery(tradeNo, outTradeNo);
+        return result.isSuccess() ? TradeQueryRespDTO.of(result) : null;
     }
 
     @Override
-    public <T> PayNotifyDTO<T> payNotify(HttpServletRequest request) {
+    public <T> PayNotifyDTO payNotify(HttpServletRequest request) {
         Map<String, String[]> parameterMap = request.getParameterMap();
         log.info("aliPay notify request:{}", Jackson.build().writeValueAsString(parameterMap));
         Map<String, String> paramMap = new HashMap<>(parameterMap.size());
@@ -158,7 +152,7 @@ public class AliPayStrategy implements IPayStrategy {
         AliPayTradeStatusEnum aliPayTradeStatus = AliPayTradeStatusEnum.parse(notifyInfo.getTrade_status());
         //@formatter:off
         PayNotifyDTO notify = PayNotifyDTO
-                .builder()
+                .<AliPayPayNotifyRequest>builder()
                 .outTradeNo(notifyInfo.getTrade_no())
                 .tradeNo(notifyInfo.getOut_trade_no())
                 .totalAmount(DecimalUtil.toFen(new BigDecimal(notifyInfo.getTotal_amount())))
@@ -173,14 +167,24 @@ public class AliPayStrategy implements IPayStrategy {
     }
 
     @Override
-    public TradeQueryRespDTO queryTrade(String tradeNo, String outTradeNo) {
-        AliPayTradeQueryResult result = aliPayHelper.tradeQuery(tradeNo, outTradeNo);
-        return result.isSuccess() ? TradeQueryRespDTO.of(result) : null;
+    public RefundRespDTO createRefund(RefundReqDTO dto) {
+        log.info("aliPay createRefund tradeNo:{} dto", dto.getTradeNo(), dto);
+        AliPayTradeRefundParam param = AliPayTradeRefundParam
+                .of(dto.getRefundNo(), dto.getOutTradeNo(), dto.getTradeNo(), DecimalUtil.toYuan(dto.getRefundAmount()),
+                        dto.getRefundReason());
+        AliPayTradeRefundResult result = aliPayHelper.tradeRefund(param);
+        log.info("aliPay createRefund tradeNo:{} result", dto.getTradeNo(), result);
+        return result.isSuccess() ? RefundRespDTO.ofSuccess(result.getRefundTime()) : RefundRespDTO.ofFail();
     }
 
     @Override
     public RefundQueryRespDTO queryRefund(String refundNo, String tradeNo, String outTradeNo) {
         AliPayRefundQueryResult result = aliPayHelper.refundQuery(refundNo, tradeNo, outTradeNo);
         return result.isSuccess() ? RefundQueryRespDTO.of(result) : null;
+    }
+
+    @Override
+    public boolean cancelTrade(String tradeNo, String outTradeNo) {
+        return aliPayHelper.tradeCancel(tradeNo, outTradeNo);
     }
 }

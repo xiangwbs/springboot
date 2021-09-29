@@ -14,6 +14,7 @@ import com.alipay.api.domain.AlipayFundAccountQueryModel;
 import com.alipay.api.domain.AlipayFundTransCommonQueryModel;
 import com.alipay.api.domain.AlipayFundTransUniTransferModel;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
+import com.alipay.api.domain.AlipayTradeCancelModel;
 import com.alipay.api.domain.AlipayTradeCloseModel;
 import com.alipay.api.domain.AlipayTradeCreateModel;
 import com.alipay.api.domain.AlipayTradeFastpayRefundQueryModel;
@@ -29,6 +30,7 @@ import com.alipay.api.request.AlipayFundAccountQueryRequest;
 import com.alipay.api.request.AlipayFundTransCommonQueryRequest;
 import com.alipay.api.request.AlipayFundTransUniTransferRequest;
 import com.alipay.api.request.AlipayTradeAppPayRequest;
+import com.alipay.api.request.AlipayTradeCancelRequest;
 import com.alipay.api.request.AlipayTradeCloseRequest;
 import com.alipay.api.request.AlipayTradeCreateRequest;
 import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
@@ -43,6 +45,7 @@ import com.alipay.api.response.AlipayFundAccountQueryResponse;
 import com.alipay.api.response.AlipayFundTransCommonQueryResponse;
 import com.alipay.api.response.AlipayFundTransUniTransferResponse;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
+import com.alipay.api.response.AlipayTradeCancelResponse;
 import com.alipay.api.response.AlipayTradeCloseResponse;
 import com.alipay.api.response.AlipayTradeCreateResponse;
 import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
@@ -410,7 +413,7 @@ public class AliPayHelper {
                 model.setOutTradeNo(tradeNo);
             }
             if (StringUtils.isNotEmpty(outTradeNo)) {
-                model.setTradeNo(tradeNo);
+                model.setTradeNo(outTradeNo);
             }
             AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
             request.setBizModel(model);
@@ -426,6 +429,43 @@ public class AliPayHelper {
                 ExceptionUtils.rethrow(e);
             }
             return AliPayTradeCloseResult.ofError();
+        }
+    }
+
+    /**
+     * 统一收单交易撤销
+     * 支付交易返回失败或支付系统超时，调用该接口撤销交易
+     *
+     * @param tradeNo
+     * @param outTradeNo
+     *
+     * @return
+     */
+    public boolean tradeCancel(String tradeNo, String outTradeNo) {
+        try {
+            log.info("tradeCancel tradeNo:{} outTradeNo:{} ", tradeNo, outTradeNo);
+            if (StringUtils.isEmpty(outTradeNo) && StringUtils.isEmpty(tradeNo)) {
+                throw new PayException("商户订单号和支付宝交易号不能同时为空");
+            }
+            AlipayTradeCancelModel model = new AlipayTradeCancelModel();
+            if (StringUtils.isNotEmpty(tradeNo)) {
+                model.setOutTradeNo(tradeNo);
+            }
+            if (StringUtils.isNotEmpty(outTradeNo)) {
+                model.setTradeNo(outTradeNo);
+            }
+            AlipayTradeCancelRequest request = new AlipayTradeCancelRequest();
+            request.setBizModel(model);
+            AlipayTradeCancelResponse response = aliPayCertClient.certificateExecute(request);
+            log.info("tradeClose tradeNo:{} outTradeNo:{} response:{}", tradeNo, outTradeNo,
+                    JSONObject.toJSONString(response));
+            return response.isSuccess() && StringUtils.isNotEmpty(response.getTradeNo());
+        } catch (Exception e) {
+            log.error("tradeClose tradeNo:{} outTradeNo:{} error", tradeNo, outTradeNo, e);
+            if (e instanceof PayException) {
+                ExceptionUtils.rethrow(e);
+            }
+            return false;
         }
     }
 
