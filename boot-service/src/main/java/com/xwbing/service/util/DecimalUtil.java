@@ -14,10 +14,16 @@ public class DecimalUtil {
     private static final int DEF_DIV_SCALE = 5;
 
     public static BigDecimal toYuan(Long l) {
-        return BigDecimal.valueOf(l).divide(BigDecimal.valueOf(100), DEF_DIV_SCALE, BigDecimal.ROUND_HALF_UP);
+        if (l == null) {
+            return null;
+        }
+        return BigDecimal.valueOf(l).divide(BigDecimal.valueOf(100), 2, BigDecimal.ROUND_HALF_UP);
     }
 
     public static Long toFen(BigDecimal b) {
+        if (b==null) {
+            return null;
+        }
         return b.multiply(BigDecimal.valueOf(100)).longValue();
     }
 

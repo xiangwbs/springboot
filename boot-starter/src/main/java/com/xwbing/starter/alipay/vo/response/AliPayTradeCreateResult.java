@@ -22,15 +22,15 @@ public class AliPayTradeCreateResult extends AliPayBaseResult {
     /**
      * 商户订单号
      */
-    private String outTradeNo;
+    private String tradeNo;
     /**
      * 支付宝交易号
      */
-    private String tradeNo;
+    private String outTradeNo;
 
     public static AliPayTradeCreateResult ofSuccess(AlipayTradeCreateResponse response) {
         return AliPayTradeCreateResult.builder().success(true).message(response.getMsg()).code(response.getCode())
-                .outTradeNo(response.getOutTradeNo()).tradeNo(response.getTradeNo()).build();
+                .tradeNo(response.getOutTradeNo()).outTradeNo(response.getTradeNo()).build();
     }
 
     public static AliPayTradeCreateResult ofFail(AlipayTradeCreateResponse response) {

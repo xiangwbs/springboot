@@ -18,18 +18,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AliPayAppPayParam {
-    @ApiModelProperty(value = "商户订单号")
-    private String outTradeNo;
-    @ApiModelProperty(value = "订单标题")
+    @ApiModelProperty("商户订单号")
+    private String tradeNo;
+    @ApiModelProperty("订单标题")
     private String subject;
-    @ApiModelProperty(value = "总金额 单位为元 精确到小数点后两位 [0.01,100000000]")
+    @ApiModelProperty("总金额 单位为元 精确到小数点后两位 [0.01,100000000]")
     private BigDecimal totalAmount;
-    @ApiModelProperty(value = "回调地址")
+    @ApiModelProperty("回调地址")
     private String notifyUrl;
+    @ApiModelProperty("业务扩展参数")
     private AliPayExtendParam extendParam;
 
-    public static AliPayAppPayParam build(String outTradeNo, String subject, BigDecimal totalAmount, String notifyUrl) {
-        return AliPayAppPayParam.builder().outTradeNo(outTradeNo).subject(subject).totalAmount(totalAmount)
-                .notifyUrl(notifyUrl).build();
+    public static AliPayAppPayParam of(String tradeNo, String subject, BigDecimal totalAmount, String notifyUrl) {
+        //@formatter:off
+        return AliPayAppPayParam
+                .builder()
+                .tradeNo(tradeNo)
+                .subject(subject)
+                .totalAmount(totalAmount)
+                .notifyUrl(notifyUrl)
+                .build();
     }
 }

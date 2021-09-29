@@ -1,7 +1,11 @@
 package com.xwbing.starter.alipay.vo.response;
 
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.alipay.api.domain.TradeFundBill;
 import com.alipay.api.response.AlipayTradePayResponse;
@@ -24,11 +28,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class AliPayTradePayResult extends AliPayBaseResult {
     /**
-     * 支付宝交易号
+     * 商户订单号
      */
     private String tradeNo;
     /**
-     * 商户订单号
+     * 支付宝交易号
      */
     private String outTradeNo;
     /**
@@ -46,36 +50,47 @@ public class AliPayTradePayResult extends AliPayBaseResult {
     /**
      * 交易金额
      */
-    private String totalAmount;
+    private BigDecimal totalAmount;
     /**
      * 实收金额
      */
-    private String receiptAmount;
+    private BigDecimal receiptAmount;
     /**
      * 商家优惠金额
      */
-    private String mdiscountAmount;
+    private BigDecimal mdiscountAmount;
     /**
      * 平台优惠金额
      */
-    private String discountAmount;
+    private BigDecimal discountAmount;
     /**
      * 交易支付时间
      */
-    private Date gmtPayment;
+    private LocalDateTime gmtPayment;
     /**
      * 交易支付使用的资金渠道
      */
     private List<TradeFundBill> fundBillList;
 
     public static AliPayTradePayResult ofSuccess(AlipayTradePayResponse response) {
-        return AliPayTradePayResult.builder().success(true).code(response.getCode()).message(response.getMsg())
-                .outTradeNo(response.getOutTradeNo()).tradeNo(response.getTradeNo())
-                .buyerLogonId(response.getBuyerLogonId()).buyerUserId(response.getBuyerUserId())
-                .buyerUserType(response.getBuyerUserType()).totalAmount(response.getTotalAmount())
-                .receiptAmount(response.getReceiptAmount()).mdiscountAmount(response.getMdiscountAmount())
-                .discountAmount(response.getDiscountAmount()).gmtPayment(response.getGmtPayment())
-                .fundBillList(response.getFundBillList()).build();
+        //@formatter:off
+        return AliPayTradePayResult
+                .builder()
+                .success(true)
+                .code(response.getCode())
+                .message(response.getMsg())
+                .tradeNo(response.getOutTradeNo())
+                .outTradeNo(response.getTradeNo())
+                .buyerLogonId(response.getBuyerLogonId())
+                .buyerUserId(response.getBuyerUserId())
+                .buyerUserType(response.getBuyerUserType())
+                .totalAmount(new BigDecimal(response.getTotalAmount()))
+                .receiptAmount(new BigDecimal(response.getReceiptAmount()))
+                .mdiscountAmount(StringUtils.isNotEmpty(response.getMdiscountAmount()) ? new BigDecimal(response.getMdiscountAmount()) : null)
+                .discountAmount(StringUtils.isNotEmpty(response.getDiscountAmount()) ? new BigDecimal(response.getDiscountAmount()) : null)
+                .gmtPayment(response.getGmtPayment() != null ? LocalDateTime.ofInstant(response.getGmtPayment().toInstant(), ZoneId.systemDefault()) : null)
+                .fundBillList(response.getFundBillList())
+                .build();
     }
 
     public static AliPayTradePayResult ofFail(AlipayTradePayResponse response) {
@@ -86,5 +101,4 @@ public class AliPayTradePayResult extends AliPayBaseResult {
     public static AliPayTradePayResult ofError() {
         return AliPayTradePayResult.builder().success(false).code("unknow-error").message("服务暂不可用").build();
     }
-
 }

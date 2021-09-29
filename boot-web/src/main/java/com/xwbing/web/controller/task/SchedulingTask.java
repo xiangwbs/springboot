@@ -34,4 +34,12 @@ public class SchedulingTask {
         log.info("clearExpiryData end");
     }
 
+    @Scheduled(cron = "0/10 * * * * ?")
+    @SchedulerLock(name = "com.xwbing.web.controller.task.test", lockAtLeastFor = "1s", lockAtMostFor = "5s")
+    public void test() {
+        log.info("test start");
+        CommonDataUtil.clearExpiryData();
+        log.info("test end");
+    }
+
 }

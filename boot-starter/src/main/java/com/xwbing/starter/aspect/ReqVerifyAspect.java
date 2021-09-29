@@ -4,22 +4,26 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.xwbing.starter.aspect.annotation.ReqVerify;
-import com.xwbing.starter.exception.ConfigException;
 import com.xwbing.starter.aspect.enums.ReqVerifyBizTypeEnum;
+import com.xwbing.starter.exception.ConfigException;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
 import lombok.AllArgsConstructor;
@@ -46,10 +50,20 @@ public class ReqVerifyAspect {
     public void pointcut(ReqVerify reqVerify) {
     }
 
-    @Before(value = "pointcut(reqVerify)", argNames = "reqVerify")
-    public void before(ReqVerify reqVerify) {
+    @Before(value = "pointcut(reqVerify)", argNames = "joinPoint,reqVerify")
+    public void before(JoinPoint joinPoint, ReqVerify reqVerify) {
         ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        String[] parameters =  methodSignature.getParameterNames();
+        Object[] args = joinPoint.getArgs();
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        Map<String, Object> map = new HashMap<>(parameterMap.size());
+        parameterMap.forEach((k, v) -> {
+            if (ArrayUtil.length(v) == 1) {
+                map.put(k, v[0]);
+            }
+        });
         // 获取明文参数
         String sign = request.getHeader("sign");
         if (StringUtils.isEmpty(sign)) {
@@ -63,6 +77,7 @@ public class ReqVerifyAspect {
             log.error("reqVerifyAspect decrypt error", e);
             throw new ConfigException(ERROR);
         }
+
         Map<String, String> paramMap = Arrays.stream(decryptStr.split("&")).collect(Collectors
                 .toMap(str -> str.split("=")[0], str -> str.split("=").length >= 2 ? str.split("=")[1] : null));
         // 业务校验

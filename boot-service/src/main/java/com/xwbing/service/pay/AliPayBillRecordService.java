@@ -1,4 +1,4 @@
-package com.xwbing.service.service.pay;
+package com.xwbing.service.pay;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.csvreader.CsvReader;
-import com.xwbing.starter.alipay.AliPayService;
+import com.xwbing.starter.alipay.AliPayHelper;
 import com.xwbing.starter.constant.BaseConstant;
 import com.xwbing.service.domain.entity.rest.AliPayBillRecord;
 import com.xwbing.service.domain.mapper.pay.AliPayBillRecordMapper;
@@ -55,7 +55,7 @@ public class AliPayBillRecordService extends BaseService<AliPayBillRecordMapper,
     @Resource
     private AliPayBillRecordMapper aliPayBillRecordMapper;
     @Resource
-    private AliPayService aliPayTradeService;
+    private AliPayHelper aliPayTradeService;
 
     @Override
     protected AliPayBillRecordMapper getMapper() {

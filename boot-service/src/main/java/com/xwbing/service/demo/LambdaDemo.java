@@ -35,41 +35,37 @@ public class LambdaDemo {
     private ThreadPoolTaskExecutor taskExecutor;
 
     public static void main(String[] args) {
+        List<String> abc = Arrays.asList("b", "c", "a");
+        Integer[] ints = { 1, 2, 4, 2, 3, 5, 5, 6, 8, 9, 7, 10 };
+        List<Integer> lists = new ArrayList<>(Arrays.asList(ints));
         //匿名内部类
         Thread t = new Thread(() -> System.out.println("hello,lambda"));
         t.start();
-        List<String> abc = Arrays.asList("b", "c", "a");
-        abc.sort(Comparator.naturalOrder());
-        abc.sort(Comparator.reverseOrder());
-        /**
-         * stream api 高级版本的迭代器
-         */
-        Integer[] ints = { 1, 2, 4, 2, 3, 5, 5, 6, 8, 9, 7, 10 };
-        List<Integer> lists = new ArrayList<>(Arrays.asList(ints));
+
         //获取stream
-        Arrays.stream(ints);
-        lists.stream();
-        Stream.of(lists);
-        Stream.of(ints);
+        Stream<Integer> stream = Arrays.stream(ints);
+        stream = Stream.of(ints);
+        stream = lists.stream();
+        Stream<List<Integer>> streams = Stream.of(lists);
 
         //遍历
         IntStream.rangeClosed(1, 2).parallel().forEach(System.out::println);//遍历时：对象,json等引用类型可直接转换
         //排序
-        lists.sort(Comparator.comparingInt(o -> o));//升序排序，不需要收集
-        System.out.println("sort:" + lists.stream().sorted((o1, o2) -> o2 - o1).collect(Collectors.toList()));//降序
+        lists.sort(Comparator.naturalOrder());//升序，不需要收集
+        lists.sort(Comparator.reverseOrder());//降序，不需要收集
+        lists.sort(Comparator.comparingInt(o -> o));//升序，不需要收集
+        lists = lists.stream().sorted((o1, o2) -> o2 - o1).collect(Collectors.toList());// 降序，需要收集
 
         System.out.println("map:" + lists.stream().map(o1 -> o1 * 2).collect(Collectors.toList()));//转换成新元素
-        List<String> words = Arrays.asList("hello welcome", "world hello", "hello world", "hello world welcome");
-        System.out.println("flatMap:" + words.stream().flatMap(item -> Arrays.stream(item.split(" "))).distinct()
-                .collect(Collectors.toList()));
-
+        System.out.println("flatMap:" + Stream.of("hello welcome", "world hello", "hello world", "hello world welcome")
+                .flatMap(item -> Arrays.stream(item.split(" "))).distinct().collect(Collectors.toList()));
         System.out.println(
                 "peak:" + lists.stream().peek(String::valueOf).collect(Collectors.toList()));//生成一个包含原Stream元素的新Stream
         System.out.println("distinct:" + lists.stream().distinct().collect(Collectors.toList()));//去重(去重逻辑依赖元素的equals方法)
         System.out.println("limit:" + lists.stream().limit(4).collect(Collectors.toList()));//截取
         System.out.println("skip:" + lists.stream().skip(4).collect(Collectors.toList()));//丢弃
         //去重
-        ArrayList<SysUser> collect = listAll().stream().collect(Collectors
+        List<SysUser> collect = listAll().stream().collect(Collectors
                 .collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(SysUser::getName))),
                         ArrayList::new));
         List<SysUser> collect1 = listAll().stream().filter(distinctByKey(SysUser::getName))

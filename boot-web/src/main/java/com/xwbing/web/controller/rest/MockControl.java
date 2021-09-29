@@ -20,9 +20,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.domain.entity.model.NullModel;
@@ -36,6 +38,7 @@ import com.xwbing.service.service.rest.UploadService;
 import com.xwbing.service.util.EncodeUtil;
 import com.xwbing.service.util.FileUtil;
 import com.xwbing.service.util.JsonResult;
+import com.xwbing.service.util.PdfUtil;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.ZipUtil;
 import com.xwbing.service.util.dingtalk.DingTalkUtil;
@@ -112,6 +115,34 @@ public class MockControl {
                 OutputStream out = response.getOutputStream();
                 out.write(bytes);
             }
+        }
+    }
+
+    @ApiOperation("pdf转图片")
+    @GetMapping("urlToImage")
+    public void pdfConvert(HttpServletResponse response, @RequestParam String url) throws IOException {
+        byte[] bytes = PdfUtil.urlToImage(url);
+        if (bytes != null) {
+            response.setContentType("image/jpeg");
+            response.setHeader("Pragma", "No-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expire", 0);
+            OutputStream out = response.getOutputStream();
+            out.write(bytes);
+        }
+    }
+
+    @ApiOperation("pdf转图片")
+    @PostMapping("fileToImage")
+    public void pdfConvert(HttpServletResponse response, @RequestParam MultipartFile file) throws IOException {
+        byte[] bytes = PdfUtil.fileToImage(file);
+        if (bytes != null) {
+            response.setContentType("image/jpeg");
+            response.setHeader("Pragma", "No-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expire", 0);
+            OutputStream out = response.getOutputStream();
+            out.write(bytes);
         }
     }
 
@@ -329,7 +360,7 @@ public class MockControl {
         return NullModel.builder().string("字符串").sexEnum(SexEnum.MAN).build();
     }
 
-    @ReqLimit(value = "#p0",timeout = 60)
+    @ReqLimit(value = "#p0", timeout = 60)
     // @Limit("#key")
     @GetMapping("limit")
     public void limit(@RequestParam String key) {

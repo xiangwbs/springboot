@@ -18,23 +18,32 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AliPayWapPayParam {
-    @ApiModelProperty(value = "订单标题")
+    @ApiModelProperty("订单标题")
     private String subject;
-    @ApiModelProperty(value = "商户订单号")
-    private String outTradeNo;
-    @ApiModelProperty(value = "总金额 单位为元 精确到小数点后两位 [0.01,100000000]")
+    @ApiModelProperty("商户订单号")
+    private String tradeNo;
+    @ApiModelProperty("总金额 单位为元 精确到小数点后两位 [0.01,100000000]")
     private BigDecimal totalAmount;
-    @ApiModelProperty(value = "用户付款中途退出返回商户网站的地址")
+    @ApiModelProperty("用户付款中途退出返回商户网站的地址")
     private String quitUrl;
-    @ApiModelProperty(value = "页面跳转同步通知页面地址")
+    @ApiModelProperty("页面跳转同步通知页面地址")
     private String returnUrl;
-    @ApiModelProperty(value = "回调地址")
+    @ApiModelProperty("回调地址")
     private String notifyUrl;
+    @ApiModelProperty("业务扩展参数")
     private AliPayExtendParam extendParam;
 
-    public static AliPayWapPayParam build(String outTradeNo, String subject, BigDecimal totalAmount, String returnUrl,
+    public static AliPayWapPayParam of(String tradeNo, String subject, BigDecimal totalAmount, String returnUrl,
             String quitUrl, String notifyUrl) {
-        return AliPayWapPayParam.builder().outTradeNo(outTradeNo).subject(subject).totalAmount(totalAmount)
-                .returnUrl(returnUrl).quitUrl(quitUrl).notifyUrl(notifyUrl).build();
+        //@formatter:off
+        return AliPayWapPayParam
+                .builder()
+                .tradeNo(tradeNo)
+                .subject(subject)
+                .totalAmount(totalAmount)
+                .returnUrl(returnUrl)
+                .quitUrl(quitUrl)
+                .notifyUrl(notifyUrl)
+                .build();
     }
 }

@@ -22,7 +22,7 @@ public class AliPayTradePreCreateResult extends AliPayBaseResult {
     /**
      * 商户订单号
      */
-    private String outTradeNo;
+    private String tradeNo;
     /**
      * 二维码
      */
@@ -30,7 +30,7 @@ public class AliPayTradePreCreateResult extends AliPayBaseResult {
 
     public static AliPayTradePreCreateResult ofSuccess(AlipayTradePrecreateResponse response) {
         return AliPayTradePreCreateResult.builder().success(true).code(response.getCode()).message(response.getMsg())
-                .outTradeNo(response.getOutTradeNo()).qrCode(response.getQrCode()).build();
+                .tradeNo(response.getOutTradeNo()).qrCode(response.getQrCode()).build();
     }
 
     public static AliPayTradePreCreateResult ofFail(AlipayTradePrecreateResponse response) {

@@ -21,10 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @EnableConfigurationProperties(AliPayProperties.class)
 public class AliPayAutoConfiguration {
-    private final AliPayProperties aliPayProperties;
+    private final AliPayProperties properties;
 
-    public AliPayAutoConfiguration(AliPayProperties aliPayProperties) {
-        this.aliPayProperties = aliPayProperties;
+    public AliPayAutoConfiguration(AliPayProperties properties) {
+        this.properties = properties;
     }
 
     @Bean
@@ -32,15 +32,15 @@ public class AliPayAutoConfiguration {
     public AlipayClient aliPayCertClient() {
         try {
             CertAlipayRequest certAlipayRequest = new CertAlipayRequest();
-            certAlipayRequest.setServerUrl(aliPayProperties.getServerUrl());
-            certAlipayRequest.setAppId(aliPayProperties.getAppId());
-            certAlipayRequest.setPrivateKey(aliPayProperties.getAppPrivateKey());
-            certAlipayRequest.setFormat("json");
-            certAlipayRequest.setCharset("UTF-8");
-            certAlipayRequest.setSignType("RSA2");
-            certAlipayRequest.setCertPath(aliPayProperties.getAppCertPublicKeyPath());
-            certAlipayRequest.setAlipayPublicCertPath(aliPayProperties.getAliPayPublicCertPath());
-            certAlipayRequest.setRootCertPath(aliPayProperties.getAliPayRootCertPath());
+            certAlipayRequest.setServerUrl(properties.getServerUrl());
+            certAlipayRequest.setAppId(properties.getAppId());
+            certAlipayRequest.setPrivateKey(properties.getAppPrivateKey());
+            certAlipayRequest.setCertPath(properties.getAppCertPublicKeyPath());
+            certAlipayRequest.setAlipayPublicCertPath(properties.getAliPayPublicCertPath());
+            certAlipayRequest.setRootCertPath(properties.getAliPayRootCertPath());
+            certAlipayRequest.setFormat(properties.getFormat());
+            certAlipayRequest.setCharset(properties.getCharset());
+            certAlipayRequest.setSignType(properties.getSignType());
             return new DefaultAlipayClient(certAlipayRequest);
         } catch (Exception e) {
             log.error("initAliPayCertClient error", e);
@@ -50,7 +50,7 @@ public class AliPayAutoConfiguration {
 
     @Bean
     @ConditionalOnBean(AlipayClient.class)
-    public AliPayService aliPayService(AlipayClient alipayClient) {
-        return new AliPayService(aliPayProperties.getUserId(), alipayClient);
+    public AliPayHelper aliPayService(AlipayClient alipayClient, AliPayProperties properties) {
+        return new AliPayHelper(alipayClient, properties);
     }
 }

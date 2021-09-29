@@ -14,6 +14,18 @@ import lombok.Data;
 public class AliPayProperties {
     public static final String PREFIX = "alipay";
     /**
+     * 字符集
+     */
+    private String charset = "utf-8";
+    /**
+     * 签名
+     */
+    private String signType = "RSA2";
+    /**
+     * 格式
+     */
+    private String format = "json";
+    /**
      * 支付宝网关
      */
     private String serverUrl;
@@ -26,6 +38,10 @@ public class AliPayProperties {
      */
     private String appCertPublicKeyPath;
     /**
+     * 应用私钥
+     */
+    private String appPrivateKey;
+    /**
      * 支付宝公钥证书
      */
     private String aliPayPublicCertPath;
@@ -34,8 +50,19 @@ public class AliPayProperties {
      */
     private String aliPayRootCertPath;
     /**
-     * 应用私钥
+     * 支付宝账号ID
      */
-    private String appPrivateKey;
     private String userId;
+    /**
+     * 回调url
+     */
+    private String notifyUrl;
+    /**
+     * 页面跳转同步通知页面地址
+     */
+    private String returnUrl;
+    /**
+     * 用户付款中途退出返回商户网站的地址
+     */
+    private String quitUrl;
 }

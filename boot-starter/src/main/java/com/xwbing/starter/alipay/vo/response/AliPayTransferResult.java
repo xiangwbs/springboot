@@ -50,5 +50,4 @@ public class AliPayTransferResult extends AliPayBaseResult {
     public static AliPayTransferResult ofError() {
         return AliPayTransferResult.builder().success(false).code("unknow-error").message("服务暂不可用").build();
     }
-
 }

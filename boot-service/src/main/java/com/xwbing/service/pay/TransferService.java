@@ -1,13 +1,13 @@
-package com.xwbing.service.service.pay;
+package com.xwbing.service.pay;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
 import com.xwbing.service.domain.entity.rest.TradeRecord;
-import com.xwbing.starter.alipay.AliPayService;
-import com.xwbing.starter.alipay.enums.PayStatusEnum;
-import com.xwbing.starter.alipay.enums.PayTypeEnum;
+import com.xwbing.starter.alipay.AliPayHelper;
+import com.xwbing.service.pay.enums.TradeStatusEnum;
+import com.xwbing.service.pay.enums.PayTypeEnum;
 import com.xwbing.starter.alipay.vo.request.AliPayTransferParam;
 import com.xwbing.starter.alipay.vo.response.AliPayTransferQueryResult;
 import com.xwbing.starter.alipay.vo.response.AliPayTransferResult;
@@ -38,7 +38,7 @@ public class TransferService {
     @Resource
     private TradeRecordService tradeRecordService;
     @Resource
-    private AliPayService aliPayTradeService;
+    private AliPayHelper aliPayTradeService;
 
     /**
      * 转账
@@ -51,19 +51,19 @@ public class TransferService {
         //@formatter:off
         String tradeNo = param.getOutBizNo();
         //查询支付中流水
-        TradeRecord tradeRecord = tradeRecordService.selectByTradeNo(tradeNo, PayStatusEnum.PAYING.getCode());
+        TradeRecord tradeRecord = tradeRecordService.selectByTradeNo(tradeNo, TradeStatusEnum.PAYING);
         if (tradeRecord != null) {
             return;
         }
         //添加支付中流水
-        tradeRecordService.insertPaying(tradeNo, PayTypeEnum.ALIPAY.getCode(), DecimalUtil.toFen(param.getAmount()), param.getTitle(), null);
+        tradeRecordService.insertPaying(tradeNo, PayTypeEnum.ALIPAY, DecimalUtil.toFen(param.getAmount()), param.getTitle(), null);
         //转账
         AliPayTransferResult transfer = aliPayTradeService.transfer(param);
         if (!"unknow-error".equals(transfer.getCode())) {
             if (transfer.isSuccess()) {
                 tradeRecordService.updateSuccess(tradeNo, transfer.getOrderId(), DateUtil2.strToDate(transfer.getTransDate(), DateUtil2.YYYY_MM_DD_HH_MM_SS), null, null);
             } else {
-                tradeRecordService.updateFail(tradeNo, transfer.getOrderId(), transfer.getCode(), transfer.getMessage(), null, null);
+                tradeRecordService.updateClose(tradeNo, transfer.getOrderId(), transfer.getCode(), transfer.getMessage(), null, null);
             }
             return;
         }
@@ -71,7 +71,7 @@ public class TransferService {
         AliPayTransferQueryResult query = aliPayTradeService.transferQuery(tradeNo);
         //支付宝接口异常
         if ("unknow-error".equals(query.getCode())) {
-            tradeRecordService.updateFail(tradeNo, query.getOrderId(), query.getCode(), query.getMessage(), null, null);
+            tradeRecordService.updateClose(tradeNo, query.getOrderId(), query.getCode(), query.getMessage(), null, null);
             return;
         }
         if (query.isSuccess()) {
@@ -82,7 +82,7 @@ public class TransferService {
             if (transfer.isSuccess()) {
                 tradeRecordService.updateSuccess(tradeNo, transfer.getOrderId(), DateUtil2.strToDate(transfer.getTransDate(), DateUtil2.YYYY_MM_DD_HH_MM_SS), null, null);
             } else {
-                tradeRecordService.updateFail(tradeNo, transfer.getOrderId(), transfer.getCode(), transfer.getMessage(), null, null);
+                tradeRecordService.updateClose(tradeNo, transfer.getOrderId(), transfer.getCode(), transfer.getMessage(), null, null);
             }
         }
     }

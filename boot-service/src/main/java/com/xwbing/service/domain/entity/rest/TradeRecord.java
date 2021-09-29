@@ -3,6 +3,8 @@ package com.xwbing.service.domain.entity.rest;
 import java.util.Date;
 
 import com.xwbing.service.domain.entity.BaseEntity;
+import com.xwbing.service.pay.enums.PayTypeEnum;
+import com.xwbing.service.pay.enums.TradeStatusEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,14 +14,14 @@ import lombok.experimental.SuperBuilder;
 /**
  * @description 交易流水表
  * @author xiangwb
- * @date 2020/07/28 14:56
+ * @date 2021/07/07 14:46
  */
 @SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class TradeRecord extends BaseEntity {
-    private static final long serialVersionUID = 4817388674992041518L;
+    private static final long serialVersionUID = 6959032886650979987L;
     /**
      * 返回码
      */
@@ -41,9 +43,9 @@ public class TradeRecord extends BaseEntity {
      */
     private Long amount;
     /**
-     * 状态 PAYING、SUCCESS、FAIL、CLOSED
+     * 状态:1=支付中,2=支付成功,3=支付失败,4=已退款
      */
-    private String status;
+    private TradeStatusEnum status;
     /**
      * 交易内容
      */
@@ -63,5 +65,5 @@ public class TradeRecord extends BaseEntity {
     /**
      * 支付类型
      */
-    private String payType;
+    private PayTypeEnum payType;
 }

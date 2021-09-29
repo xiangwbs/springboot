@@ -1,4 +1,4 @@
-package com.xwbing.service.service.pay;
+package com.xwbing.service.pay;
 
 import java.util.Arrays;
 import java.util.Collections;

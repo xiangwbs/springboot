@@ -18,27 +18,27 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AliPayTradeRefundParam {
-    @ApiModelProperty(value = "商户订单号  订单号和支付宝交易号2选1")
-    private String outTradeNo;
-    @ApiModelProperty(value = "支付宝交易号(推荐) 订单号和支付宝交易号2选1")
+    @ApiModelProperty("商户订单号  订单号和支付宝交易号2选1")
     private String tradeNo;
-    @ApiModelProperty(value = "退款请求号(部分退款，此参数必传)")
-    private String outRequestNo;
-    @ApiModelProperty(value = "退款金额")
+    @ApiModelProperty("支付宝交易号(推荐) 订单号和支付宝交易号2选1")
+    private String outTradeNo;
+    @ApiModelProperty("退款请求号(部分退款，此参数必传)")
+    private String requestNo;
+    @ApiModelProperty("退款金额")
     private BigDecimal refundAmount;
-    @ApiModelProperty(value = "退款原因")
+    @ApiModelProperty("退款原因")
     private String refundReason;
 
-    public static AliPayTradeRefundParam build(String outRequestNo, String outTradeNo, BigDecimal refundAmount,
-            String refundReason) {
-        return AliPayTradeRefundParam.builder().outRequestNo(outRequestNo).outTradeNo(outTradeNo)
-                .refundAmount(refundAmount).refundReason(refundReason).build();
-
-    }
-
-    public static AliPayTradeRefundParam build(String outRequestNo, String tradeNo, String refundReason,
-            BigDecimal refundAmount) {
-        return AliPayTradeRefundParam.builder().outRequestNo(outRequestNo).tradeNo(tradeNo).refundAmount(refundAmount)
-                .refundReason(refundReason).build();
+    public static AliPayTradeRefundParam of(String requestNo, String tradeNo, String outTradeNo,
+            BigDecimal refundAmount, String refundReason) {
+        //@formatter:off
+        return AliPayTradeRefundParam
+                .builder()
+                .requestNo(requestNo)
+                .outTradeNo(outTradeNo)
+                .tradeNo(tradeNo)
+                .refundAmount(refundAmount)
+                .refundReason(refundReason)
+                .build();
     }
 }
