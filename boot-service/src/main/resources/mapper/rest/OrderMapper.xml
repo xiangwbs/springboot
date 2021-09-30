@@ -10,10 +10,13 @@
         <result column="order_no" property="orderNo"/>
         <result column="user_id" property="userId"/>
         <result column="goods_id" property="goodsId"/>
-        <result column="total_amount" property="totalAmount"/>
+        <result column="actual_amount" property="actualAmount"/>
         <result column="goods_num" property="goodsNum"/>
         <result column="refundable_num" property="refundableNum"/>
+        <result column="name" property="name"/>
         <result column="status" property="status" typeHandler="com.xwbing.service.enums.base.BaseEnumTypeHandler"/>
+        <result column="paid_time" property="paidTime"/>
+        <result column="close_type" property="closeType" typeHandler="com.xwbing.service.enums.base.BaseEnumTypeHandler"/>
     </resultMap>
 
     <sql id="Table">
@@ -21,8 +24,8 @@
     </sql>
 
     <sql id="Base_Column_List">
-        id, create_time, creator, modified_time, modifier, order_no, user_id, goods_id, total_amount, 
-        goods_num, refundable_num, `status`
+        id, create_time, creator, modified_time, modifier, order_no, user_id, goods_id, actual_amount, 
+        goods_num, refundable_num, `name`, `status`, paid_time, close_type
     </sql>
 
     <sql id="Condition">
@@ -43,10 +46,13 @@
         order_no, 
         user_id, 
         goods_id, 
-        total_amount, 
+        actual_amount, 
         goods_num, 
         refundable_num, 
-        `status`
+        `name`, 
+        `status`, 
+        paid_time, 
+        close_type
         )
         values (
         #{id}, 
@@ -56,10 +62,13 @@
         #{orderNo}, 
         #{userId}, 
         #{goodsId}, 
-        #{totalAmount}, 
+        #{actualAmount}, 
         #{goodsNum}, 
         #{refundableNum}, 
-        #{status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
+        #{name}, 
+        #{status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}, 
+        #{paidTime}, 
+        #{closeType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
         )
     </insert>
 
@@ -73,10 +82,13 @@
         order_no, 
         user_id, 
         goods_id, 
-        total_amount, 
+        actual_amount, 
         goods_num, 
         refundable_num, 
-        `status`
+        `name`, 
+        `status`, 
+        paid_time, 
+        close_type
         )
         values
         <foreach collection="list" item="obj" separator=",">(
@@ -87,10 +99,13 @@
             #{obj.orderNo}, 
             #{obj.userId}, 
             #{obj.goodsId}, 
-            #{obj.totalAmount}, 
+            #{obj.actualAmount}, 
             #{obj.goodsNum}, 
             #{obj.refundableNum}, 
-            #{obj.status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
+            #{obj.name}, 
+            #{obj.status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}, 
+            #{obj.paidTime}, 
+            #{obj.closeType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
             )
         </foreach>
     </insert>
@@ -125,10 +140,13 @@
             <if test="orderNo!=null">order_no=#{orderNo},</if>
             <if test="userId!=null">user_id=#{userId},</if>
             <if test="goodsId!=null">goods_id=#{goodsId},</if>
-            <if test="totalAmount!=null">total_amount=#{totalAmount},</if>
+            <if test="actualAmount!=null">actual_amount=#{actualAmount},</if>
             <if test="goodsNum!=null">goods_num=#{goodsNum},</if>
             <if test="refundableNum!=null">refundable_num=#{refundableNum},</if>
+            <if test="name!=null">`name`=#{name},</if>
             <if test="status!=null">`status`=#{status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler},</if>
+            <if test="paidTime!=null">paid_time=#{paidTime},</if>
+            <if test="closeType!=null">close_type=#{closeType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler},</if>
         </set>
         where id = #{id}
     </update>
@@ -170,10 +188,10 @@
                     </if>
                 </foreach>
             </trim>
-            <trim prefix="total_amount=case" suffix="end,">
+            <trim prefix="actual_amount=case" suffix="end,">
                 <foreach collection="list" item="obj">
-                    <if test="obj.totalAmount!=null">
-                        when id=#{obj.id} then #{obj.totalAmount}
+                    <if test="obj.actualAmount!=null">
+                        when id=#{obj.id} then #{obj.actualAmount}
                     </if>
                 </foreach>
             </trim>
@@ -191,10 +209,31 @@
                     </if>
                 </foreach>
             </trim>
+            <trim prefix="`name`=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.name!=null">
+                        when id=#{obj.id} then #{obj.name}
+                    </if>
+                </foreach>
+            </trim>
             <trim prefix="`status`=case" suffix="end,">
                 <foreach collection="list" item="obj">
                     <if test="obj.status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler!=null">
                         when id=#{obj.id} then #{obj.status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="paid_time=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.paidTime!=null">
+                        when id=#{obj.id} then #{obj.paidTime}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="close_type=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.closeType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler!=null">
+                        when id=#{obj.id} then #{obj.closeType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
                     </if>
                 </foreach>
             </trim>
@@ -237,6 +276,14 @@
         <include refid="Base_Column_List"/>
         from 
         <include refid="Table"/>
+    </select>
+
+    <select id="getByOrderNo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        <include refid="Table"/>
+        where order_no = #{orderNo}
     </select>
 
 </mapper>

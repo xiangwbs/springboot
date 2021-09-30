@@ -58,6 +58,9 @@
             <columnOverride column="status"
                             javaType="com.xwbing.service.mall.enums.OrderStatusEnum"
                             typeHandler="com.xwbing.service.enums.base.BaseEnumTypeHandler"/>
+            <columnOverride column="close_type"
+                            javaType="com.xwbing.service.mall.enums.OrderCloseTypeEnum"
+                            typeHandler="com.xwbing.service.enums.base.BaseEnumTypeHandler"/>
         </table>
     </context>
 </generatorConfiguration>

@@ -186,4 +186,18 @@
         <include refid="Table"/>
     </select>
 
+    <update id="decreaseStock">
+        update
+        <include refid="Table"/>
+        SET stock = stock - #{num}
+        WHERE ID = #{id}
+        AND stock >= #{num}
+    </update>
+
+    <update id="increaseStock">
+        update
+        <include refid="Table"/>
+        SET stock = stock + #{num}
+        WHERE ID = #{id}
+    </update>
 </mapper>

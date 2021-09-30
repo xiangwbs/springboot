@@ -19,11 +19,12 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum OrderStatusEnum implements BaseEnum {
+public enum OrderCloseTypeEnum implements BaseEnum {
     //@formatter:off
-    WAIT(10, "待支付"),
-    SUCCESS(20, "交易成功"),
-    CLOSE(30, "交易关闭"),
+    CLOSE(10, "关闭"),
+    TIMEOUT(20, "超时"),
+    REFUND(30, "退款"),
+    UN_KNOW(99, "交易关闭"),
     ;
     //@formatter:on
 
@@ -31,10 +32,10 @@ public enum OrderStatusEnum implements BaseEnum {
     private final String desc;
 
 
-    private static final Map<Integer, OrderStatusEnum> ENUM_MAP = Arrays.stream(OrderStatusEnum.values())
-            .collect(Collectors.toMap(OrderStatusEnum::getCode, Function.identity()));
+    private static final Map<Integer, OrderCloseTypeEnum> ENUM_MAP = Arrays.stream(OrderCloseTypeEnum.values())
+            .collect(Collectors.toMap(OrderCloseTypeEnum::getCode, Function.identity()));
 
-    public static OrderStatusEnum parse(int code) {
+    public static OrderCloseTypeEnum parse(int code) {
         return ENUM_MAP.get(code);
     }
 }
