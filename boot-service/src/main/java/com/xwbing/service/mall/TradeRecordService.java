@@ -33,29 +33,45 @@ public class TradeRecordService extends BaseService<TradeRecordMapper, TradeReco
         return tradeRecordMapper;
     }
 
-    public TradeRecord insertPaying(String tradeNo, PayTypeEnum payType, Long amount, String subject,
-            String notifyStatus) {
-        TradeRecord tradeRecord = TradeRecord.builder().payType(payType).tradeNo(tradeNo).amount(amount)
-                .status(TradeStatusEnum.PAYING).subject(subject).notifyStatus(notifyStatus).build();
+    public TradeRecord insertPaying(String orderNo, String tradeNo, PayTypeEnum payType, Long amount, String subject) {
+        TradeRecord tradeRecord = TradeRecord.builder().orderNo(orderNo).payType(payType).tradeNo(tradeNo)
+                .amount(amount).status(TradeStatusEnum.PAYING).subject(subject).valid(true).build();
         tradeRecordMapper.insert(tradeRecord);
         return tradeRecord;
     }
 
     public void updateSuccess(String tradeNo, String outTradeNo, Date paidDate, String notifyStatus, String notifyMsg) {
-        TradeRecord tradeRecord = TradeRecord.builder().status(TradeStatusEnum.SUCCESS).tradeNo(tradeNo)
+        TradeRecord tradeRecord = this.selectByTradeNo(tradeNo, null);
+        if (tradeRecord == null) {
+            return;
+        }
+        tradeRecord = TradeRecord.builder().id(tradeRecord.getId()).status(TradeStatusEnum.SUCCESS)
                 .outTradeNo(outTradeNo).paidDate(paidDate).notifyStatus(notifyStatus).notifyMsg(notifyMsg).build();
         tradeRecordMapper.update(tradeRecord);
     }
 
     public void updateClose(String tradeNo, String outTradeNo, String code, String msg, String notifyStatus,
             String notifyMsg) {
-        TradeRecord tradeRecord = TradeRecord.builder().tradeNo(tradeNo).outTradeNo(outTradeNo).code(code).msg(msg)
+        TradeRecord tradeRecord = this.selectByTradeNo(tradeNo, null);
+        if (tradeRecord == null) {
+            return;
+        }
+        tradeRecord = TradeRecord.builder().id(tradeRecord.getId()).outTradeNo(outTradeNo).code(code).msg(msg)
                 .status(TradeStatusEnum.CLOSED).notifyStatus(notifyStatus).notifyMsg(notifyMsg).build();
         tradeRecordMapper.update(tradeRecord);
     }
 
-    public void updateClosed(String tradeNo) {
-        TradeRecord tradeRecord = TradeRecord.builder().tradeNo(tradeNo).status(TradeStatusEnum.CLOSED).build();
+    public void updateClose(String orderNo) {
+        TradeRecord tradeRecord = TradeRecord.builder().tradeNo(orderNo).status(TradeStatusEnum.CLOSED).build();
+        tradeRecordMapper.update(tradeRecord);
+    }
+
+    public void updateValid(String tradeNo) {
+        TradeRecord tradeRecord = this.selectByTradeNo(tradeNo, null);
+        if (tradeRecord == null) {
+            return;
+        }
+        tradeRecord = TradeRecord.builder().id(tradeRecord.getId()).valid(false).build();
         tradeRecordMapper.update(tradeRecord);
     }
 

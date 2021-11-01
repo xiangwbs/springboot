@@ -37,7 +37,7 @@ public class PayStrategyFactory {
         IPayStrategy payStrategy = strategyMap.get(Introspector.decapitalize(payTypeMap.get(payType)));
         if (payStrategy == null) {
             log.error("getStrategy null");
-            throw new BusinessException("");
+            throw new BusinessException("暂不支持该支付类型");
         }
         return payStrategy;
     }

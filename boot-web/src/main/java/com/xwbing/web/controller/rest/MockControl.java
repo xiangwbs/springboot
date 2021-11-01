@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.domain.entity.model.NullModel;
 import com.xwbing.service.domain.entity.rest.FilesUpload;
-import com.xwbing.service.domain.entity.vo.ExcelVo;
+import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 import com.xwbing.service.enums.SexEnum;
 import com.xwbing.service.service.rest.CookieSessionService;
 import com.xwbing.service.service.rest.EasyExcelDealService;
@@ -307,11 +307,11 @@ public class MockControl {
     @ApiOperation("生成excel到本地")
     @GetMapping("writeToLocal")
     public void writeToLocal() {
-        List<ExcelVo> excelData = new ArrayList<>();
-        ExcelVo data = ExcelVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
-        ExcelVo data1 = ExcelVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
-        ExcelVo data2 = ExcelVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功").build();
-        ExcelVo data3 = ExcelVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功").build();
+        List<ExcelHeaderVo> excelData = new ArrayList<>();
+        ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
+        ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
+        ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功").build();
+        ExcelHeaderVo data3 = ExcelHeaderVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功").build();
         excelData.add(data);
         excelData.add(data1);
         excelData.add(data2);
@@ -322,17 +322,17 @@ public class MockControl {
     @ApiOperation("生成excel到本地")
     @GetMapping("writeToLocalByPage")
     public void writeToLocalByPage() {
-        Function<Integer, List<ExcelVo>> dataFunction = pageNumber -> {
+        Function<Integer, List<ExcelHeaderVo>> dataFunction = pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
             }
             //模拟分页
             // PageHelper.startPage(pageNumber, 500);
-            List<ExcelVo> excelData = new ArrayList<>();
-            ExcelVo data = ExcelVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
-            ExcelVo data1 = ExcelVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
-            ExcelVo data2 = ExcelVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功").build();
-            ExcelVo data3 = ExcelVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功").build();
+            List<ExcelHeaderVo> excelData = new ArrayList<>();
+            ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
+            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
+            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功").build();
+            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功").build();
             excelData.add(data);
             excelData.add(data1);
             excelData.add(data2);

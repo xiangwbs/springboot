@@ -34,9 +34,9 @@ import com.xwbing.starter.redis.RedisService;
 import com.xwbing.service.enums.ImportStatusEnum;
 import com.xwbing.service.domain.entity.rest.ImportFailLog;
 import com.xwbing.service.domain.entity.rest.ImportTask;
-import com.xwbing.service.domain.entity.vo.EasyExcelHeadVo;
+import com.xwbing.service.domain.entity.vo.ExcelFailHeadVo;
 import com.xwbing.service.domain.entity.vo.ExcelProcessVo;
-import com.xwbing.service.domain.entity.vo.ExcelVo;
+import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 import com.xwbing.service.exception.BusinessException;
 import com.xwbing.service.exception.ExcelException;
 import com.xwbing.service.exception.UtilException;
@@ -81,8 +81,8 @@ public class EasyExcelDealService {
             throw new BusinessException("导入任务不存在");
         }
         List<ImportFailLog> importFailLogs = importFailLogService.listByImportId(importId);
-        List<EasyExcelHeadVo> excelData = importFailLogs.stream().map(importFailLog -> {
-            EasyExcelHeadVo headVo = JSONObject.parseObject(importFailLog.getContent(), EasyExcelHeadVo.class);
+        List<ExcelFailHeadVo> excelData = importFailLogs.stream().map(importFailLog -> {
+            ExcelFailHeadVo headVo = JSONObject.parseObject(importFailLog.getContent(), ExcelFailHeadVo.class);
             return headVo.toBuilder().remark(importFailLog.getRemark()).build();
         }).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(excelData)) {
@@ -96,7 +96,7 @@ public class EasyExcelDealService {
                 response.setHeader("Pragma", "No-cache");
                 response.setHeader("Cache-Control", "no-cache");
                 response.setDateHeader("Expires", 0);
-                EasyExcel.write(outputStream, EasyExcelHeadVo.class).autoTrim(Boolean.TRUE).sheet("sheet0")
+                EasyExcel.write(outputStream, ExcelFailHeadVo.class).autoTrim(Boolean.TRUE).sheet("sheet0")
                         .doWrite(excelData);
             } catch (Exception e) {
                 log.error("writeToBrowser importId:{} error", importId, e);
@@ -138,7 +138,7 @@ public class EasyExcelDealService {
             //将上传文件复制到自定义临时文件,提高效率。用默认临时文件，多线程高并发下会出现FileNotFoundException
             File tmpFile = File.createTempFile(filename, type);
             FileUtils.copyInputStreamToFile(file.getInputStream(), tmpFile);
-            CompletableFuture.runAsync(() -> EasyExcel.read(tmpFile, ExcelVo.class,
+            CompletableFuture.runAsync(() -> EasyExcel.read(tmpFile, ExcelHeaderVo.class,
                     new EasyExcelReadListener(importId, tmpFile, this, importTaskService, importFailLogService))
                     .readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum).sheet(sheetNo)
                     .doRead(), ThreadUtil.build().excelThreadPool()).exceptionally(throwable -> {
@@ -200,7 +200,7 @@ public class EasyExcelDealService {
      * @param list
      * @param importId
      */
-    public void dealExcelData(List<ExcelVo> list, String importId) {
+    public void dealExcelData(List<ExcelHeaderVo> list, String importId) {
         log.info("dealExcelData importId:{}", importId);
         int size = list.size();
         try {
@@ -282,24 +282,24 @@ public class EasyExcelDealService {
      * @param excelData
      */
     public void writeToLocal(String basedir, String fileName, String sheetName, String password,
-            List<ExcelVo> excelData) {
+            List<ExcelHeaderVo> excelData) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
-        EasyExcel.write(path.toString()).head(ExcelVo.class)
+        EasyExcel.write(path.toString()).head(ExcelHeaderVo.class)
                 .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).sheet(sheetName)
                 .autoTrim(Boolean.TRUE).doWrite(excelData);
     }
 
     public void writeToLocalByPage(String basedir, String fileName, String sheetName, String password,
-            Function<Integer, List<ExcelVo>> dataFunction) {
+            Function<Integer, List<ExcelHeaderVo>> dataFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
         ExcelWriter excelWriter = null;
         try {
-            excelWriter = EasyExcel.write(path.toString()).head(ExcelVo.class)
+            excelWriter = EasyExcel.write(path.toString()).head(ExcelHeaderVo.class)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
             WriteSheet writeSheet = EasyExcel.writerSheet(sheetName).autoTrim(Boolean.TRUE).build();
             int pageNumber = 1;
             while (true) {
-                List<ExcelVo> data = dataFunction.apply(pageNumber);
+                List<ExcelHeaderVo> data = dataFunction.apply(pageNumber);
                 if (data.isEmpty()) {
                     break;
                 }
@@ -325,8 +325,9 @@ public class EasyExcelDealService {
         WriteSheet writeSheet;
         for (int i = 0; i < 2; i++) {
             writeSheet = EasyExcel.writerSheet(i, "sheet" + i)
-                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).head(ExcelVo.class).build();
-            ExcelVo java = ExcelVo.builder().name("java").age(18).tel("1348888888" + i).introduction("这是sheet" + i)
+                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).head(ExcelHeaderVo.class).build();
+            ExcelHeaderVo java = ExcelHeaderVo
+                    .builder().name("java").age(18).tel("1348888888" + i).introduction("这是sheet" + i)
                     .build();
             excelWriter.write(Collections.singletonList(java), writeSheet);
         }
@@ -385,7 +386,7 @@ public class EasyExcelDealService {
         String importId = PassWordUtil.createUuId();
         CompletableFuture.runAsync(() -> EasyExcel.read(fullPath,
                 new EasyExcelReadListener(importId, null, this, importTaskService, importFailLogService))
-                .head(ExcelVo.class).readCache(new MapCache()).headRowNumber(headRowNum).ignoreEmptyRow(Boolean.FALSE)
+                .head(ExcelHeaderVo.class).readCache(new MapCache()).headRowNumber(headRowNum).ignoreEmptyRow(Boolean.FALSE)
                 .sheet(sheetNo).doRead());
         return importId;
     }

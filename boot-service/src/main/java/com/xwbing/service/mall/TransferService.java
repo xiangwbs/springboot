@@ -56,7 +56,7 @@ public class TransferService {
             return;
         }
         //添加支付中流水
-        tradeRecordService.insertPaying(tradeNo, PayTypeEnum.ALIPAY, DecimalUtil.toFen(param.getAmount()), param.getTitle(), null);
+        tradeRecordService.insertPaying(tradeNo,tradeNo, PayTypeEnum.ALIPAY, DecimalUtil.toFen(param.getAmount()), param.getTitle());
         //转账
         AliPayTransferResult transfer = aliPayTradeService.transfer(param);
         if (!"unknow-error".equals(transfer.getCode())) {

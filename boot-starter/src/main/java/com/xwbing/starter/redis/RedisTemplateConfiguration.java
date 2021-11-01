@@ -1,6 +1,5 @@
 package com.xwbing.starter.redis;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +19,6 @@ import com.aliyun.openservices.shade.com.alibaba.fastjson.support.spring.FastJso
 @Configuration
 public class RedisTemplateConfiguration {
     @Bean
-    @ConditionalOnMissingBean(RedisTemplate.class)
     public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
             StringRedisTemplate stringRedisTemplate) {
         RedisTemplate<Object, Object> template = new RedisTemplate<>();
@@ -36,11 +34,31 @@ public class RedisTemplateConfiguration {
         FastJsonRedisSerializer fastJsonRedisSerializer = new FastJsonRedisSerializer(Object.class);
         template.setValueSerializer(fastJsonRedisSerializer);
         template.setHashValueSerializer(fastJsonRedisSerializer);
+        template.afterPropertiesSet();
         return template;
     }
 
     @Bean
-    @ConditionalOnMissingBean(StringRedisTemplate.class)
+    public RedisTemplate<String, Object> objectRedisTemplate(RedisConnectionFactory redisConnectionFactory,
+            StringRedisTemplate stringRedisTemplate) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        // 配置连接工厂
+        template.setConnectionFactory(redisConnectionFactory);
+
+        RedisSerializer<String> stringSerializer = stringRedisTemplate.getStringSerializer();
+        //key和hashKey的序列化采用StringRedisSerializer
+        template.setKeySerializer(stringSerializer);
+        template.setHashKeySerializer(stringSerializer);
+
+        //value和hashValue序列化采用fastJsonRedisSerializer
+        FastJsonRedisSerializer fastJsonRedisSerializer = new FastJsonRedisSerializer(Object.class);
+        template.setValueSerializer(fastJsonRedisSerializer);
+        template.setHashValueSerializer(fastJsonRedisSerializer);
+        template.afterPropertiesSet();
+        return template;
+    }
+
+    @Bean
     public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(redisConnectionFactory);

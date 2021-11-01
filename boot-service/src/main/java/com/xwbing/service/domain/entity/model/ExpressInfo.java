@@ -16,8 +16,4 @@ public class ExpressInfo {
     private String shipperCode;
     @ApiModelProperty(value = "物流单号", example = "211386517825")
     private String logisticCode;
-//    @ApiModelProperty(value = "快递名称", example = "百世汇通")
-//    private String expressName;
-//    @ApiModelProperty(value = "订单编号", example = "201703140000000018")
-//    private String orderNo;
 }

@@ -7,17 +7,19 @@
         <result column="creator" property="creator"/>
         <result column="modified_time" property="modifiedTime"/>
         <result column="modifier" property="modifier"/>
-        <result column="code" property="code"/>
-        <result column="msg" property="msg"/>
-        <result column="out_trade_no" property="outTradeNo"/>
+        <result column="order_no" property="orderNo"/>
         <result column="trade_no" property="tradeNo"/>
+        <result column="out_trade_no" property="outTradeNo"/>
         <result column="amount" property="amount"/>
         <result column="status" property="status" typeHandler="com.xwbing.service.enums.base.BaseEnumTypeHandler"/>
         <result column="subject" property="subject"/>
         <result column="paid_date" property="paidDate"/>
+        <result column="pay_type" property="payType" typeHandler="com.xwbing.service.enums.base.BaseEnumTypeHandler"/>
+        <result column="valid" property="valid"/>
+        <result column="msg" property="msg"/>
+        <result column="code" property="code"/>
         <result column="notify_msg" property="notifyMsg"/>
         <result column="notify_status" property="notifyStatus"/>
-        <result column="pay_type" property="payType" typeHandler="com.xwbing.service.enums.base.BaseEnumTypeHandler"/>
     </resultMap>
 
     <sql id="Table">
@@ -25,8 +27,8 @@
     </sql>
 
     <sql id="Base_Column_List">
-        id, create_time, creator, modified_time, modifier, code, msg, out_trade_no, trade_no, 
-        amount, `status`, subject, paid_date, notify_msg, notify_status, pay_type
+        id, create_time, creator, modified_time, modifier, order_no, trade_no, out_trade_no, 
+        amount, `status`, subject, paid_date, pay_type, `valid`, msg, code, notify_msg, notify_status
     </sql>
 
     <sql id="Condition">
@@ -50,34 +52,38 @@
         create_time, 
         creator, 
         modified_time, 
-        code, 
-        msg, 
-        out_trade_no, 
+        order_no, 
         trade_no, 
+        out_trade_no, 
         amount, 
         `status`, 
         subject, 
         paid_date, 
+        pay_type, 
+        `valid`, 
+        msg, 
+        code, 
         notify_msg, 
-        notify_status, 
-        pay_type
+        notify_status
         )
         values (
         #{id}, 
         now(), 
         #{creator}, 
         now(), 
-        #{code}, 
-        #{msg}, 
-        #{outTradeNo}, 
+        #{orderNo}, 
         #{tradeNo}, 
+        #{outTradeNo}, 
         #{amount}, 
         #{status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}, 
         #{subject}, 
         #{paidDate}, 
+        #{payType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}, 
+        #{valid}, 
+        #{msg}, 
+        #{code}, 
         #{notifyMsg}, 
-        #{notifyStatus}, 
-        #{payType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
+        #{notifyStatus}
         )
     </insert>
 
@@ -88,17 +94,19 @@
         create_time, 
         creator, 
         modified_time, 
-        code, 
-        msg, 
-        out_trade_no, 
+        order_no, 
         trade_no, 
+        out_trade_no, 
         amount, 
         `status`, 
         subject, 
         paid_date, 
+        pay_type, 
+        `valid`, 
+        msg, 
+        code, 
         notify_msg, 
-        notify_status, 
-        pay_type
+        notify_status
         )
         values
         <foreach collection="list" item="obj" separator=",">(
@@ -106,17 +114,19 @@
             now(), 
             #{obj.creator}, 
             now(), 
-            #{obj.code}, 
-            #{obj.msg}, 
-            #{obj.outTradeNo}, 
+            #{obj.orderNo}, 
             #{obj.tradeNo}, 
+            #{obj.outTradeNo}, 
             #{obj.amount}, 
             #{obj.status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}, 
             #{obj.subject}, 
             #{obj.paidDate}, 
+            #{obj.payType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}, 
+            #{obj.valid}, 
+            #{obj.msg}, 
+            #{obj.code}, 
             #{obj.notifyMsg}, 
-            #{obj.notifyStatus}, 
-            #{obj.payType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
+            #{obj.notifyStatus}
             )
         </foreach>
     </insert>
@@ -148,17 +158,19 @@
         <set>
             modified_time=now(),
             <if test="modifier!=null">modifier=#{modifier},</if>
-            <if test="code!=null">code=#{code},</if>
-            <if test="msg!=null">msg=#{msg},</if>
-            <if test="outTradeNo!=null">out_trade_no=#{outTradeNo},</if>
+            <if test="orderNo!=null">order_no=#{orderNo},</if>
             <if test="tradeNo!=null">trade_no=#{tradeNo},</if>
+            <if test="outTradeNo!=null">out_trade_no=#{outTradeNo},</if>
             <if test="amount!=null">amount=#{amount},</if>
             <if test="status!=null">`status`=#{status,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler},</if>
             <if test="subject!=null">subject=#{subject},</if>
             <if test="paidDate!=null">paid_date=#{paidDate},</if>
+            <if test="payType!=null">pay_type=#{payType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler},</if>
+            <if test="valid!=null">`valid`=#{valid},</if>
+            <if test="msg!=null">msg=#{msg},</if>
+            <if test="code!=null">code=#{code},</if>
             <if test="notifyMsg!=null">notify_msg=#{notifyMsg},</if>
             <if test="notifyStatus!=null">notify_status=#{notifyStatus},</if>
-            <if test="payType!=null">pay_type=#{payType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler},</if>
         </set>
         where id = #{id}
     </update>
@@ -179,24 +191,10 @@
                     </if>
                 </foreach>
             </trim>
-            <trim prefix="code=case" suffix="end,">
+            <trim prefix="order_no=case" suffix="end,">
                 <foreach collection="list" item="obj">
-                    <if test="obj.code!=null">
-                        when id=#{obj.id} then #{obj.code}
-                    </if>
-                </foreach>
-            </trim>
-            <trim prefix="msg=case" suffix="end,">
-                <foreach collection="list" item="obj">
-                    <if test="obj.msg!=null">
-                        when id=#{obj.id} then #{obj.msg}
-                    </if>
-                </foreach>
-            </trim>
-            <trim prefix="out_trade_no=case" suffix="end,">
-                <foreach collection="list" item="obj">
-                    <if test="obj.outTradeNo!=null">
-                        when id=#{obj.id} then #{obj.outTradeNo}
+                    <if test="obj.orderNo!=null">
+                        when id=#{obj.id} then #{obj.orderNo}
                     </if>
                 </foreach>
             </trim>
@@ -204,6 +202,13 @@
                 <foreach collection="list" item="obj">
                     <if test="obj.tradeNo!=null">
                         when id=#{obj.id} then #{obj.tradeNo}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="out_trade_no=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.outTradeNo!=null">
+                        when id=#{obj.id} then #{obj.outTradeNo}
                     </if>
                 </foreach>
             </trim>
@@ -235,6 +240,34 @@
                     </if>
                 </foreach>
             </trim>
+            <trim prefix="pay_type=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.payType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler!=null">
+                        when id=#{obj.id} then #{obj.payType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="`valid`=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.valid!=null">
+                        when id=#{obj.id} then #{obj.valid}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="msg=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.msg!=null">
+                        when id=#{obj.id} then #{obj.msg}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="code=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.code!=null">
+                        when id=#{obj.id} then #{obj.code}
+                    </if>
+                </foreach>
+            </trim>
             <trim prefix="notify_msg=case" suffix="end,">
                 <foreach collection="list" item="obj">
                     <if test="obj.notifyMsg!=null">
@@ -246,13 +279,6 @@
                 <foreach collection="list" item="obj">
                     <if test="obj.notifyStatus!=null">
                         when id=#{obj.id} then #{obj.notifyStatus}
-                    </if>
-                </foreach>
-            </trim>
-            <trim prefix="pay_type=case" suffix="end,">
-                <foreach collection="list" item="obj">
-                    <if test="obj.payType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler!=null">
-                        when id=#{obj.id} then #{obj.payType,typeHandler=com.xwbing.service.enums.base.BaseEnumTypeHandler}
                     </if>
                 </foreach>
             </trim>

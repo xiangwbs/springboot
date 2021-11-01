@@ -33,7 +33,7 @@ public class SchedulingTask {
         log.info("clearExpiryData end");
     }
 
-    @Scheduled(cron = "* * 0/1 * * ?")
+    @Scheduled(cron = "* * 6 * * ?")
     @SchedulerLock(name = "com.xwbing.web.controller.task.test", lockAtLeastFor = "1s", lockAtMostFor = "5s")
     public void test() {
         log.info("test start");

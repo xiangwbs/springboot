@@ -87,7 +87,7 @@ public class OrderService extends BaseService<OrderMapper, Order> {
                 .refundableNum(0).build();
         super.update(update);
         // 取消流水
-        // tradeRecordService.updateClose();
+        tradeRecordService.updateClose(orderNo);
         // 返库存
         goodsService.increaseStock(order.getGoodsId(), order.getGoodsNum());
     }

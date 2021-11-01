@@ -21,7 +21,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.xwbing.service.enums.ImportStatusEnum;
 import com.xwbing.service.domain.entity.rest.ImportFailLog;
 import com.xwbing.service.domain.entity.rest.ImportTask;
-import com.xwbing.service.domain.entity.vo.ExcelVo;
+import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 import com.xwbing.service.exception.ExcelException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2020年04月14日 下午9:51
  */
 @Slf4j
-public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
+public class EasyExcelReadListener extends AnalysisEventListener<ExcelHeaderVo> {
     /**
      * 每隔500条处理数据,然后清理list,方便内存回收
      */
@@ -42,7 +42,7 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
     private static final int MAX_COUNT = 50000;
     private static final int SAMPLE_LINES = 0;
     private List<CompletableFuture> completableFutures = new ArrayList<>();
-    private List<ExcelVo> list = new ArrayList<>();
+    private List<ExcelHeaderVo> list = new ArrayList<>();
     private ThreadPoolExecutor excelThreadPool = new ThreadPoolExecutor(3, 3, 600L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("EasyExcelReadListener").build());
     private int totalCount;
@@ -68,7 +68,7 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
      * @param context
      */
     @Override
-    public void invoke(ExcelVo data, AnalysisContext context) {
+    public void invoke(ExcelHeaderVo data, AnalysisContext context) {
         Integer currentRowNum = context.readRowHolder().getRowIndex();
         log.info("invoke importId:{} rowNum:{} data:{}", importId, currentRowNum, JSON.toJSONString(data));
         //不处理示例数据
@@ -175,7 +175,7 @@ public class EasyExcelReadListener extends AnalysisEventListener<ExcelVo> {
      */
     private void dealData() {
         log.info("dealExcelData importId:{}", importId);
-        List<ExcelVo> lists = new ArrayList<>(list);
+        List<ExcelHeaderVo> lists = new ArrayList<>(list);
         list.clear();
         CompletableFuture<Void> completableFuture = CompletableFuture
                 .runAsync(() -> easyExcelDealService.dealExcelData(lists, importId), excelThreadPool);

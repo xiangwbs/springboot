@@ -14,30 +14,26 @@ import lombok.experimental.SuperBuilder;
 /**
  * @description 交易流水表
  * @author xiangwb
- * @date 2021/07/07 14:46
+ * @date 2021/09/30 14:41
  */
 @SuperBuilder(toBuilder = true)
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 public class TradeRecord extends BaseEntity {
-    private static final long serialVersionUID = 6959032886650979987L;
+    private static final long serialVersionUID = 6295068736574140526L;
     /**
-     * 返回码
+     * 订单号
      */
-    private String code;
-    /**
-     * 返回码描述
-     */
-    private String msg;
-    /**
-     * 外部交易号
-     */
-    private String outTradeNo;
+    private String orderNo;
     /**
      * 交易号
      */
     private String tradeNo;
+    /**
+     * 外部交易号
+     */
+    private String outTradeNo;
     /**
      * 金额
      */
@@ -55,6 +51,22 @@ public class TradeRecord extends BaseEntity {
      */
     private Date paidDate;
     /**
+     * 支付类型:10=支付宝,20=微信
+     */
+    private PayTypeEnum payType;
+    /**
+     * 是否有效
+     */
+    private Boolean valid;
+    /**
+     * 返回码描述
+     */
+    private String msg;
+    /**
+     * 返回码
+     */
+    private String code;
+    /**
      * 通知信息
      */
     private String notifyMsg;
@@ -62,8 +74,4 @@ public class TradeRecord extends BaseEntity {
      * notNotified、notified
      */
     private String notifyStatus;
-    /**
-     * 支付类型
-     */
-    private PayTypeEnum payType;
 }

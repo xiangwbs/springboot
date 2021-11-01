@@ -22,17 +22,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class EasyExcelHeadVo {
-    @ExcelProperty(value = "姓名", index = 0)
-    private String name;
-    @ExcelProperty(value = "年龄", index = 1)
-    private Integer age;
-    @ExcelProperty(value = "电话", index = 2)
-    private String tel;
-    @ColumnWidth(45)
-    @ExcelProperty(value = "简介", index = 3)
-    private String introduction;
-    @ColumnWidth(30)
-    @ExcelProperty(value = "说明", index = 4)
+public class ExcelFailHeadVo extends ExcelHeaderVo {
+    @ExcelProperty(value = "错误信息(导入时需删除)", index = 4)
     private String remark;
 }

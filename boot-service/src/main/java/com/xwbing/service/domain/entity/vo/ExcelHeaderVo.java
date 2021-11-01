@@ -3,9 +3,9 @@ package com.xwbing.service.domain.entity.vo;
 import com.alibaba.excel.annotation.ExcelProperty;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * @author daofeng
@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
  * @since 2020年04月15日 上午9:33
  */
 @Data
-@Builder
+@SuperBuilder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExcelVo {
+public class ExcelHeaderVo {
     @ExcelProperty(index = 0, value = "姓名")
     private String name;
     @ExcelProperty(index = 1, value = "年龄")

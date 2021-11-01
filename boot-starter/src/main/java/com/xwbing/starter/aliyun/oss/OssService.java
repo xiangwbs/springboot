@@ -73,6 +73,7 @@ public class OssService {
         request.setMethod(MethodType.POST);
         request.setRoleArn(ossProperties.getStsRoleArn());
         request.setRoleSessionName(ossProperties.getStsRoleSessionName());
+        request.setDurationSeconds(3600L);
         try {
             final AssumeRoleResponse response = acsClient.getAcsResponse(request);
             AssumeRoleResponse.Credentials credentials = response.getCredentials();
@@ -107,6 +108,7 @@ public class OssService {
         final CreateUploadVideoRequest request = new CreateUploadVideoRequest();
         request.setFileName(fileName);
         request.setTitle(title);
+
         // 视频分类
         // request.setCateId(1000099146L);
         try {
