@@ -112,7 +112,11 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.OK)
     public JSONObject completionException(CompletionException e) {
         log.error(ExceptionUtils.getStackTrace(e));
-        return JsonResult.toJSONObj(e.getCause().getMessage());
+        if (e.getCause() instanceof BusinessException) {
+            return JsonResult.toJSONObj(e.getCause().getMessage());
+        } else {
+            return JsonResult.toJSONObj("服务器繁忙，请稍后重试！");
+        }
     }
 
     /**
