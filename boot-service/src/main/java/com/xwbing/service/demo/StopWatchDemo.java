@@ -21,5 +21,6 @@ public class StopWatchDemo {
         sw.stop();
         // System.out.println(sw.getTotalTimeMillis());
         System.out.println(sw.prettyPrint());
+        log.info("StopWatchDemo {}", sw.prettyPrint());
     }
 }
