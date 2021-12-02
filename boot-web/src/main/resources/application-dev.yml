@@ -56,7 +56,7 @@ boot:
       name-server-address: xx
       producer-group-id: xx
     oss:
-      endpoint: https://oss-cn-hangzhou.aliyuncs.com
+      endpoint: oss-cn-hangzhou.aliyuncs.com
       region: oss-cn-hangzhou
       region-id: cn-hangzhou
       access-id: xx
