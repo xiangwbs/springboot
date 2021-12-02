@@ -10,8 +10,9 @@ package com.xwbing.starter.aliyun.oss.enums;
 public enum ContentTypeEnum {
     //@formatter:off
     IMAGE("image","图片"),
-    HTML("html", "富文本内容"),
+    RTF("rtf", "富文本内容"),
     FILE("file","普通文件"),
+    VIDEO("video","视频"),
     ;
     private final String code;
 

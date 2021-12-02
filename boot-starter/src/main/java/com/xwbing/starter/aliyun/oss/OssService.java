@@ -204,8 +204,8 @@ public class OssService {
      *
      * @return
      */
-    public String putHtml(String content) {
-        String objectKey = generateObjectKey(ContentTypeEnum.HTML);
+    public String putRtf(String content) {
+        String objectKey = generateObjectKey(ContentTypeEnum.RTF);
         PutObjectRequest putObjectRequest = new PutObjectRequest(ossProperties.getBucket(), objectKey,
                 new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
         ossClient.putObject(putObjectRequest);

@@ -73,7 +73,7 @@ public class OssController {
     @ApiOperation("上传富文本")
     @GetMapping("putHtml")
     public ApiResponse putHtml(@RequestParam String content) {
-        return ApiResponseUtil.success(ossService.putHtml(content));
+        return ApiResponseUtil.success(ossService.putRtf(content));
     }
 
     @ApiOperation("上传图片")
