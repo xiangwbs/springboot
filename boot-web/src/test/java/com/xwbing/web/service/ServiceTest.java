@@ -121,8 +121,8 @@ public class ServiceTest extends BaseTest {
     public void expressInfoTest() {
         log.debug("快递查询");
         ExpressInfo info = new ExpressInfo();
-        info.setLogisticCode("800430151641580299");
-        info.setShipperCode("YTO");
+        info.setLogisticCode("SF1325114211593");
+        info.setShipperCode("SF");
         if (StringUtils.isEmpty(info.getLogisticCode()) || StringUtils.isEmpty(info.getShipperCode())) {
             log.error("快递公司或物流单号不能为空");
         }

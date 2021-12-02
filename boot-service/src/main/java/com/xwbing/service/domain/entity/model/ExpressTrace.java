@@ -9,6 +9,16 @@ import lombok.Data;
  */
 @Data
 public class ExpressTrace {
-    private String acceptTime;
-    private String acceptStation;
+    /**
+     * 时间
+     */
+    private String AcceptTime;
+    /**
+     * 描述
+     */
+    private String AcceptStation;
+    /**
+     * 备注
+     */
+    private String Remark;
 }

@@ -1,9 +1,10 @@
 package com.xwbing.service.domain.entity.vo;
 
-import com.xwbing.service.domain.entity.model.ExpressTrace;
-import lombok.Data;
-
 import java.util.List;
+
+import com.xwbing.service.domain.entity.model.ExpressTrace;
+
+import lombok.Data;
 
 /**
  * 创建时间: 2017/11/17 9:20
@@ -13,24 +14,28 @@ import java.util.List;
 @Data
 public class ExpressInfoVo {
     /**
-     * 快递代码
+     * 快递公司编码
      */
-    private String shipperCode;
-    private boolean success;
+    private String ShipperCode;
     /**
-     * 运单号
+     * 物流运单号
      */
-    private String logisticCode;
+    private String LogisticCode;
+    private boolean Success;
+    /**
+     * 失败原因
+     */
+    private String Reason;
     /**
      * 状态
      */
-    private String state;
+    private String State;
     /**
      * 物流信息
      */
-    private List<ExpressTrace> traces;
+    private List<ExpressTrace> Traces;
     /**
      * 描述
      */
-    private String describe;
+    private String Describe;
 }
