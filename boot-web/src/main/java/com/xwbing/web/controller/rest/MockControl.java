@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ import com.xwbing.service.domain.entity.model.NullModel;
 import com.xwbing.service.domain.entity.rest.FilesUpload;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 import com.xwbing.service.enums.SexEnum;
+import com.xwbing.service.exception.BusinessException;
 import com.xwbing.service.service.rest.CookieSessionService;
 import com.xwbing.service.service.rest.EasyExcelDealService;
 import com.xwbing.service.service.rest.QRCodeZipService;
@@ -367,6 +369,22 @@ public class MockControl {
         if (key.equals("key")) {
             throw new RuntimeException("异常");
         }
+    }
+
+    @GetMapping("completableFuture")
+    public JSONObject completableFuture() {
+        CompletableFuture[] futures = new CompletableFuture[2];
+        futures[0] = CompletableFuture.runAsync(() -> {
+            System.out.println("111");
+        });
+        futures[1] = CompletableFuture.runAsync(() -> {
+            if (1 == 1) {
+                throw new BusinessException("异步错误");
+            }
+        });
+        CompletableFuture.allOf(futures).join();
+        System.out.println("22222");
+        return JsonResult.toJSONObj("异步正常", "");
     }
 }
 

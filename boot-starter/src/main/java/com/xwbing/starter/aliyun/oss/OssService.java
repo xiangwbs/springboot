@@ -61,6 +61,17 @@ public class OssService {
     }
 
     /**
+     * 获取oss资源地址
+     *
+     * @param objectKey
+     *
+     * @return
+     */
+    public String getUrl(String objectKey) {
+        return "https://" + ossProperties.getBucket() + "." + ossProperties.getEndpoint() + "/" + objectKey;
+    }
+
+    /**
      * 获取临时访问凭证
      *
      * @param contentType
@@ -262,13 +273,13 @@ public class OssService {
     }
 
     /**
-     * 获取字符串
+     * 获取富文本字符串
      *
      * @param objectKey
      *
      * @return
      */
-    public String getObject(String objectKey) {
+    public String getString(String objectKey) {
         try {
             OSSObject object = ossClient.getObject(ossProperties.getBucket(), objectKey);
             InputStream inputStream = object.getObjectContent();
