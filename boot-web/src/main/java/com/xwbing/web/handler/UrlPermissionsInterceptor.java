@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,9 +25,9 @@ import com.xwbing.service.domain.entity.sys.SysUser;
 import com.xwbing.service.enums.YesOrNoEnum;
 import com.xwbing.service.service.sys.SysAuthorityService;
 import com.xwbing.service.service.sys.SysUserService;
-import com.xwbing.starter.util.CommonDataUtil;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.ThreadLocalUtil;
+import com.xwbing.starter.util.CommonDataUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,8 +54,8 @@ public class UrlPermissionsInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String path = request.getRequestURI().substring(request.getContextPath().length()).replaceAll("[/]+$", "");
-        Optional<String> optionalAllowedPath = ALLOWED_PATH.stream().filter(s -> MATCHER.match(s, path)).findAny();
-        if (!optionalAllowedPath.isPresent()) {
+        boolean anyMatch = ALLOWED_PATH.stream().anyMatch(s -> MATCHER.match(s, path));
+        if (!anyMatch) {
             String servletPath = request.getServletPath();
             if (checkUrlExit(servletPath)) {
                 List<String> permissionList = permissionList();

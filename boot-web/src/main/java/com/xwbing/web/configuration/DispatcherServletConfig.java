@@ -11,7 +11,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.Ordered;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -82,24 +81,25 @@ public class DispatcherServletConfig implements WebMvcConfigurer {
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 
-    /**
-     * 解决跨域
-     *
-     * @param registry
-     */
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        //@formatter:off
-        registry.addMapping("/**")
-                //允许请求带有验证信息
-                .allowCredentials(true)
-                .allowedOrigins("*")
-                .allowedHeaders("*")
-                .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS")
-                //指定本次预检请求的有效期,单位为秒
-                .maxAge(24L * 60 * 60);
-        //@formatter:on
-    }
+    // /**
+    //  * 解决跨域
+    //  * 拦截器执行早于这个，所以废弃
+    //  *
+    //  * @param registry
+    //  */
+    // @Override
+    // public void addCorsMappings(CorsRegistry registry) {
+    //     //@formatter:off
+    //     registry.addMapping("/**")
+    //             //允许请求带有验证信息
+    //             .allowCredentials(true)
+    //             .allowedOrigins("*")
+    //             .allowedHeaders("*")
+    //             .allowedMethods("GET", "POST", "DELETE", "PUT", "PATCH", "OPTIONS")
+    //             //指定本次预检请求的有效期,单位为秒
+    //             .maxAge(24L * 60 * 60);
+    //     //@formatter:on
+    // }
 
     /**
      * 扩展消息转换器，增加fastJson

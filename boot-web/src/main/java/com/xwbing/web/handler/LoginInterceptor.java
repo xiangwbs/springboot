@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,10 +15,10 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.starter.util.CommonDataUtil;
 import com.xwbing.service.util.HeaderUtil;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.ThreadLocalUtil;
+import com.xwbing.starter.util.CommonDataUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  * 说明:  登录拦截器
  * 项目名称: boot-module-pro
  * 创建时间: 2017/5/10 16:36
+ *
  * @author xwbing
  */
 @Slf4j
@@ -48,8 +48,8 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String path = request.getRequestURI().substring(request.getContextPath().length()).replaceAll("[/]+$", "");
-        Optional<String> optionalAllowedPath = ALLOWED_PATH.stream().filter(s -> MATCHER.match(s, path)).findAny();
-        if (!optionalAllowedPath.isPresent()) {
+        boolean anyMatch = ALLOWED_PATH.stream().anyMatch(s -> MATCHER.match(s, path));
+        if (!anyMatch) {
             String token = HeaderUtil.getToken(request);
             if (StringUtils.isEmpty(token)) {
                 getOutputStream(response, "请先登录");

@@ -57,6 +57,7 @@ public class ApplicationContextConfig {
     // /**
     //  * 文件上传解析器
     //  * 需关闭自带multipartResolver,否则commonsMultipartResolver解析会得不到数据
+    //  * 可在配置文件里配置
     //  *
     //  * @return
     //  */
