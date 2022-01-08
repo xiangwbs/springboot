@@ -38,18 +38,18 @@ public class MqProducerClient {
         onsTemplate.send(event);
     }
 
-    @PostMapping("/mq/sendOrder")
-    public void sendOrder(@RequestParam String key) {
-        Msg message = Msg.builder().author("daofeng").title("sendOrder").content("同步发送顺序消息").build();
-        MessageEvent event = MessageEvent.builder().topic(Topic.TOPIC1).tag(Tag.TAG1).data(message).key(key).build();
-        onsTemplate.sendOrder(event, MessageOrderTypeEnum.TAG);
-    }
-
     @PostMapping("/mq/sendAsync")
     public void sendAsync(@RequestParam String key) {
         Msg message = Msg.builder().author("daofeng").title("sendAsync").content("异步发送").build();
         MessageEvent event = MessageEvent.builder().topic(Topic.TOPIC1).tag(Tag.TAG1).data(message).key(key).build();
         onsTemplate.sendAsync(event);
+    }
+
+    @PostMapping("/mq/sendOrder")
+    public void sendOrder(@RequestParam String key) {
+        Msg message = Msg.builder().author("daofeng").title("sendOrder").content("同步发送顺序消息").build();
+        MessageEvent event = MessageEvent.builder().topic(Topic.TOPIC1).tag(Tag.TAG1).data(message).key(key).build();
+        onsTemplate.sendOrder(event, MessageOrderTypeEnum.TAG);
     }
 
     @Data
