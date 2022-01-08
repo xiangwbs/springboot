@@ -5,14 +5,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-import org.springframework.util.StringUtils;
-
 import com.alibaba.fastjson.JSONObject;
 import com.aliyun.openservices.ons.api.Message;
 import com.aliyun.openservices.ons.api.SendCallback;
 import com.aliyun.openservices.ons.api.SendResult;
 import com.aliyun.openservices.ons.api.bean.OrderProducerBean;
 import com.aliyun.openservices.ons.api.bean.ProducerBean;
+import com.aliyun.openservices.shade.org.apache.commons.lang3.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -196,7 +195,11 @@ public class OnsTemplate {
                 shardingKey = "#" + event.getTopic() + "#";
                 break;
             case TAG:
-                shardingKey = "#" + event.getTopic() + "#" + event.getTag() + "#";
+                if (StringUtils.isEmpty(event.getTag())) {
+                    shardingKey = "#" + event.getTopic() + "#";
+                } else {
+                    shardingKey = "#" + event.getTopic() + "#" + event.getTag() + "#";
+                }
                 break;
             default:
                 shardingKey = "#global#";

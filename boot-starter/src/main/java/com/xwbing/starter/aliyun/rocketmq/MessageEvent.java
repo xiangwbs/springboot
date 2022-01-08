@@ -2,7 +2,7 @@ package com.xwbing.starter.aliyun.rocketmq;
 
 import java.io.Serializable;
 
-import com.aliyun.openservices.shade.io.netty.util.internal.StringUtil;
+import com.aliyun.openservices.shade.org.apache.commons.lang3.StringUtils;
 
 import cn.hutool.core.util.IdUtil;
 import lombok.AllArgsConstructor;
@@ -39,8 +39,13 @@ public class MessageEvent implements Serializable {
     private String key;
 
     public String getKey() {
-        String myKey = getTopic() + ":" + getTag() + ":";
-        if (StringUtil.isNullOrEmpty(this.key)) {
+        String myKey;
+        if (StringUtils.isEmpty(this.tag)) {
+            myKey = this.topic + ":";
+        } else {
+            myKey = this.topic + ":" + this.tag + ":";
+        }
+        if (StringUtils.isEmpty(this.key)) {
             myKey += IdUtil.simpleUUID();
         } else {
             myKey += this.key;
