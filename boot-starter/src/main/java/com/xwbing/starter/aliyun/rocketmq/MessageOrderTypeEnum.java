@@ -1,7 +1,5 @@
 package com.xwbing.starter.aliyun.rocketmq;
 
-import java.util.Arrays;
-
 /**
  * 顺序消息,消息分区类型
  *
@@ -32,9 +30,5 @@ public enum MessageOrderTypeEnum {
 
     public byte getCode() {
         return code;
-    }
-
-    public static MessageOrderTypeEnum valueOf(byte code) {
-        return Arrays.stream(MessageOrderTypeEnum.values()).filter(obj -> obj.getCode()==(code)).findFirst().orElse(null);
     }
 }

@@ -47,8 +47,4 @@ public class MessageEvent implements Serializable {
         }
         return myKey;
     }
-
-    public String getTag() {
-        return StringUtil.isNullOrEmpty(this.tag) ? "*" : this.tag;
-    }
 }

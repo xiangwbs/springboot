@@ -32,20 +32,7 @@ public class OnsTemplate {
         this.producer = producer;
         this.orderProducer = orderProducer;
     }
-
-    /**
-     * 同步发送
-     *
-     * @param event
-     *
-     * @return
-     */
-    public SendResult send(MessageEvent event) {
-        Message message = getMessage(event);
-        SendResult result = this.producer.send(message);
-        log.info("send message success {}", result.toString());
-        return result;
-    }
+    // ---------------------- 同步发送 ----------------------
 
     /**
      * 单向发送
@@ -57,7 +44,20 @@ public class OnsTemplate {
     public void sendOneway(MessageEvent event) {
         Message message = getMessage(event);
         this.producer.sendOneway(message);
-        log.info("send message success");
+    }
+
+    /**
+     * 同步发送
+     *
+     * @param event
+     *
+     * @return
+     */
+    public SendResult send(MessageEvent event) {
+        Message message = getMessage(event);
+        SendResult result = this.producer.send(message);
+        log.info("onsTemplate send key:{} msgId:{}", message.getKey(), result.getMessageId());
+        return result;
     }
 
     /**
@@ -72,7 +72,7 @@ public class OnsTemplate {
         Message message = getMessage(event);
         message.setStartDeliverTime(System.currentTimeMillis() + delay);
         SendResult result = this.producer.send(message);
-        log.info("send message success {}", result.toString());
+        log.info("onsTemplate send key:{} msgId:{} delay:{}", message.getKey(), result.getMessageId(), delay);
         return result;
     }
 
@@ -101,6 +101,7 @@ public class OnsTemplate {
         long delay = getDelay(date);
         return send(event, delay);
     }
+    // ---------------------- 异步发送 ----------------------
 
     /**
      * 异步发送
@@ -160,6 +161,7 @@ public class OnsTemplate {
         long delay = getDelay(date);
         sendAsync(event, delay, callback);
     }
+    // ---------------------- 同步发送顺序消息 ----------------------
 
     /**
      * 同步发送顺序消息
@@ -176,7 +178,7 @@ public class OnsTemplate {
      * 同步发送顺序消息
      *
      * shardingKey:
-     * 分区顺序消息中区分不同分区的关键字段，sharding key 于普通消息的 key 是完全不同的概念。
+     * 分区顺序消息中区分不同分区的关键字段，shardingKey于普通消息的key是完全不同的概念。
      * 全局顺序消息，该字段可以设置为任意非空字符串
      *
      * @param event
@@ -214,21 +216,23 @@ public class OnsTemplate {
     private SendResult sendOrder(MessageEvent event, String shardingKey) {
         Message message = getMessage(event);
         SendResult result = this.orderProducer.send(message, shardingKey);
-        log.info("send message success {}", result.toString());
+        log.info("onsTemplate sendOrder key:{} msgId:{} shardingKey:{}", message.getKey(), result.getMessageId(),
+                shardingKey);
         return result;
     }
 
     private Message getMessage(MessageEvent event) {
         if (event == null) {
-            throw new RuntimeException("event is null");
+            throw new RuntimeException("onsTemplate getMessage event is null");
         }
-        log.info("start to send message [topic: {} , tag: {}]", event.getTopic(), event.getTag());
         if (StringUtils.isEmpty(event.getTopic()) || event.getData() == null) {
-            throw new RuntimeException("topic or data is null");
+            throw new RuntimeException("onsTemplate getMessage topic or data is null");
         }
         final byte[] body = JSONObject.toJSONString(event.getData()).getBytes(StandardCharsets.UTF_8);
         Message message = new Message(event.getTopic(), event.getTag(), body);
         message.setKey(event.getKey());
+        log.info("onsTemplate getMessage topic:{} tag:{} key:{} data:{}", event.getTopic(), event.getTag(),
+                message.getKey(), event.getData());
         return message;
     }
 
@@ -236,7 +240,7 @@ public class OnsTemplate {
         Date now = new Date();
         long delay = date.getTime() - now.getTime();
         if (delay <= 0) {
-            throw new RuntimeException("send time cannot be less than the current time");
+            throw new RuntimeException("onsTemplate deliverTime cannot be less than the current time");
         }
         return delay;
     }
@@ -246,7 +250,7 @@ public class OnsTemplate {
         ZoneId zone = ZoneId.systemDefault();
         long delay = date.atZone(zone).toInstant().toEpochMilli() - now.atZone(zone).toInstant().toEpochMilli();
         if (delay <= 0) {
-            throw new RuntimeException("send time cannot be less than the current time");
+            throw new RuntimeException("onsTemplate deliverTime cannot be less than the current time");
         }
         return delay;
     }

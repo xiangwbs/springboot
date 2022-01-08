@@ -7,7 +7,7 @@ import com.aliyun.openservices.ons.api.SendResult;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 消息者监听(订阅消费内容)
+ * 异步发送默认回调接口
  *
  * @author daofeg
  * @version $
@@ -15,14 +15,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class DefaultSendCallback implements SendCallback {
-
     @Override
     public void onSuccess(SendResult sendResult) {
-        log.info("消息发送成功:  topic=" + sendResult.getTopic() + ", msgId=" + sendResult.getMessageId());
+        log.info("sendCallback onSuccess topic:{} msgId:{}", sendResult.getTopic(), sendResult.getMessageId());
     }
 
     @Override
     public void onException(OnExceptionContext context) {
-        log.warn("消息发送失败: topic=" + context.getTopic() + ", msgId=" + context.getMessageId(), context.getException());
+        log.error("sendCallback onException topic:{} msgId:{}", context.getTopic(), context.getMessageId());
     }
 }
