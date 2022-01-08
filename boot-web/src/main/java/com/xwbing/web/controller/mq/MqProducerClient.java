@@ -33,21 +33,21 @@ public class MqProducerClient {
 
     @PostMapping("/mq/send")
     public void send(@RequestParam String key) {
-        Msg message = Msg.builder().author("daofeng").title("send").content("同步发送").build();
+        Msg message = Msg.builder().userId(10000L).content("同步发送").build();
         MessageEvent event = MessageEvent.builder().topic(Topic.TOPIC1).tag(Tag.TAG1).data(message).key(key).build();
         onsTemplate.send(event);
     }
 
     @PostMapping("/mq/sendAsync")
     public void sendAsync(@RequestParam String key) {
-        Msg message = Msg.builder().author("daofeng").title("sendAsync").content("异步发送").build();
+        Msg message = Msg.builder().userId(10000L).content("异步发送").build();
         MessageEvent event = MessageEvent.builder().topic(Topic.TOPIC1).tag(Tag.TAG1).data(message).key(key).build();
         onsTemplate.sendAsync(event);
     }
 
     @PostMapping("/mq/sendOrder")
     public void sendOrder(@RequestParam String key) {
-        Msg message = Msg.builder().author("daofeng").title("sendOrder").content("同步发送顺序消息").build();
+        Msg message = Msg.builder().userId(10000L).content("同步发送顺序消息").build();
         MessageEvent event = MessageEvent.builder().topic(Topic.TOPIC1).tag(Tag.TAG1).data(message).key(key).build();
         onsTemplate.sendOrder(event, MessageOrderTypeEnum.TAG);
     }
@@ -57,8 +57,7 @@ public class MqProducerClient {
     @NoArgsConstructor
     @AllArgsConstructor
     static class Msg {
-        private String author;
-        private String title;
+        private Long userId;
         private String content;
     }
 }
