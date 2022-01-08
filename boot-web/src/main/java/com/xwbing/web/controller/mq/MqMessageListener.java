@@ -28,13 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 @OnsListener(consumerGroup = Group.GID1, topic = Topic.TOPIC1, expression = Tag.TAG1 + "||" + Tag.TAG2)
 @Component
 public class MqMessageListener implements MessageListener {
-
     @Override
     public Action consume(Message message, ConsumeContext context) {
         String body = new String(message.getBody(), StandardCharsets.UTF_8);
         String tag = message.getTag();
-        log.info("mqMessageListener consume key:{} msgId:{} tag:{} data:{}", message.getKey(), message.getMsgID(), tag,
-                body);
+        log.info("mqMessageListener key:{} msgId:{} data:{}", message.getKey(), message.getMsgID(), body);
         try {
             Msg msg = JSONObject.parseObject(body, Msg.class);
             switch (tag) {
@@ -49,8 +47,7 @@ public class MqMessageListener implements MessageListener {
             }
             return Action.CommitMessage;
         } catch (Exception e) {
-            log.error("mqMessageListener consume key:{} msgId:{} tag:{} error", message.getKey(), message.getMsgID(),
-                    tag, e);
+            log.error("mqMessageListener key:{} msgId:{} error", message.getKey(), message.getMsgID(), tag, e);
             return Action.ReconsumeLater;
         }
     }
