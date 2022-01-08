@@ -1,11 +1,10 @@
 package com.xwbing.starter.aliyun.rocketmq;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.UUID;
 
 import com.aliyun.openservices.shade.io.netty.util.internal.StringUtil;
 
+import cn.hutool.core.util.IdUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,10 +41,14 @@ public class MessageEvent implements Serializable {
     public String getKey() {
         String key = getTopic() + ":" + getTag() + ":";
         if (StringUtil.isNullOrEmpty(domainKey)) {
-            key += LocalDate.now() + ":" + UUID.randomUUID().toString().replace("-", "");
+            key += IdUtil.simpleUUID();
         } else {
             key += domainKey;
         }
         return key;
+    }
+
+    public String getTag() {
+        return StringUtil.isNullOrEmpty(this.tag) ? "*" : this.tag;
     }
 }
