@@ -34,18 +34,18 @@ public class MessageEvent implements Serializable {
      */
     private Object domain;
     /**
-     * 传递的领域对象的唯一标识,用来构建消息的唯一标识,不检测重复,可以为空,不影响消息收发
+     * 数据的唯一标识,用来构建消息的唯一标识,不检测重复,可以为空,不影响消息收发
      */
-    private String domainKey;
+    private String key;
 
     public String getKey() {
-        String key = getTopic() + ":" + getTag() + ":";
-        if (StringUtil.isNullOrEmpty(domainKey)) {
-            key += IdUtil.simpleUUID();
+        String myKey = getTopic() + ":" + getTag() + ":";
+        if (StringUtil.isNullOrEmpty(this.key)) {
+            myKey += IdUtil.simpleUUID();
         } else {
-            key += domainKey;
+            myKey += this.key;
         }
-        return key;
+        return myKey;
     }
 
     public String getTag() {

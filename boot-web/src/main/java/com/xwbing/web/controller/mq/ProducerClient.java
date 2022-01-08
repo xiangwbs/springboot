@@ -33,7 +33,7 @@ public class ProducerClient {
     public void send(@RequestParam String key) {
         Msg message = Msg.builder().author("daofeng").title("send").content("同步发送").build();
         MessageEvent event = MessageEvent.builder().topic("rap_content").tag("OPEN_DETAIL").domain(message)
-                .domainKey(key).build();
+                .key(key).build();
         onsTemplate.send(event);
     }
 
@@ -41,7 +41,7 @@ public class ProducerClient {
     public void sendOrder(@RequestParam String key) {
         Msg message = Msg.builder().author("daofeng").title("sendOrder").content("同步发送顺序消息").build();
         MessageEvent event = MessageEvent.builder().topic("rap_content").tag("OPEN_DETAIL").domain(message)
-                .domainKey(key).build();
+                .key(key).build();
         onsTemplate.sendOrder(event, MessageOrderTypeEnum.TAG);
     }
 
@@ -49,7 +49,7 @@ public class ProducerClient {
     public void sendAsync(@RequestParam String key) {
         Msg message = Msg.builder().author("daofeng").title("sendAsync").content("异步发送").build();
         MessageEvent event = MessageEvent.builder().topic("rap_content").tag("CLOSE_DETAIL").domain(message)
-                .domainKey(key).build();
+                .key(key).build();
         onsTemplate.sendAsync(event);
     }
 
