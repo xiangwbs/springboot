@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.xwbing.starter.aliyun.rocketmq.MessageEvent;
 import com.xwbing.starter.aliyun.rocketmq.MessageOrderTypeEnum;
 import com.xwbing.starter.aliyun.rocketmq.OnsTemplate;
+import com.xwbing.web.controller.mq.MqConstant.Tag;
+import com.xwbing.web.controller.mq.MqConstant.Topic;
 
 import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
@@ -26,30 +28,27 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Api(tags = "producerClient", description = "mq发送demo")
 @RestController
-public class ProducerClient {
+public class MqProducerClient {
     private final OnsTemplate onsTemplate;
 
     @PostMapping("/mq/send")
     public void send(@RequestParam String key) {
         Msg message = Msg.builder().author("daofeng").title("send").content("同步发送").build();
-        MessageEvent event = MessageEvent.builder().topic("rap_content").tag("OPEN_DETAIL").domain(message)
-                .key(key).build();
+        MessageEvent event = MessageEvent.builder().topic(Topic.TOPIC1).tag(Tag.TAG1).data(message).key(key).build();
         onsTemplate.send(event);
     }
 
     @PostMapping("/mq/sendOrder")
     public void sendOrder(@RequestParam String key) {
         Msg message = Msg.builder().author("daofeng").title("sendOrder").content("同步发送顺序消息").build();
-        MessageEvent event = MessageEvent.builder().topic("rap_content").tag("OPEN_DETAIL").domain(message)
-                .key(key).build();
+        MessageEvent event = MessageEvent.builder().topic(Topic.TOPIC1).tag(Tag.TAG1).data(message).key(key).build();
         onsTemplate.sendOrder(event, MessageOrderTypeEnum.TAG);
     }
 
     @PostMapping("/mq/sendAsync")
     public void sendAsync(@RequestParam String key) {
         Msg message = Msg.builder().author("daofeng").title("sendAsync").content("异步发送").build();
-        MessageEvent event = MessageEvent.builder().topic("rap_content").tag("CLOSE_DETAIL").domain(message)
-                .key(key).build();
+        MessageEvent event = MessageEvent.builder().topic(Topic.TOPIC1).tag(Tag.TAG1).data(message).key(key).build();
         onsTemplate.sendAsync(event);
     }
 

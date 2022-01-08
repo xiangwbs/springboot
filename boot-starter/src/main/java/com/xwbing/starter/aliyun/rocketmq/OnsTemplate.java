@@ -43,7 +43,7 @@ public class OnsTemplate {
     public SendResult send(MessageEvent event) {
         Message message = getMessage(event);
         SendResult result = this.producer.send(message);
-        log.info("send message success. {}", result.toString());
+        log.info("send message success {}", result.toString());
         return result;
     }
 
@@ -57,7 +57,7 @@ public class OnsTemplate {
     public void sendOneway(MessageEvent event) {
         Message message = getMessage(event);
         this.producer.sendOneway(message);
-        log.info("send message success. ");
+        log.info("send message success");
     }
 
     /**
@@ -72,7 +72,7 @@ public class OnsTemplate {
         Message message = getMessage(event);
         message.setStartDeliverTime(System.currentTimeMillis() + delay);
         SendResult result = this.producer.send(message);
-        log.info("send message success. {}", result.toString());
+        log.info("send message success {}", result.toString());
         return result;
     }
 
@@ -214,19 +214,19 @@ public class OnsTemplate {
     private SendResult sendOrder(MessageEvent event, String shardingKey) {
         Message message = getMessage(event);
         SendResult result = this.orderProducer.send(message, shardingKey);
-        log.info("send message success. {}", result.toString());
+        log.info("send message success {}", result.toString());
         return result;
     }
 
     private Message getMessage(MessageEvent event) {
         if (event == null) {
-            throw new RuntimeException("event is null.");
+            throw new RuntimeException("event is null");
         }
-        log.info("start to send message. [topic: {} , tag: {}]", event.getTopic(), event.getTag());
-        if (StringUtils.isEmpty(event.getTopic()) || event.getDomain() == null) {
-            throw new RuntimeException("topic or body is null. ");
+        log.info("start to send message [topic: {} , tag: {}]", event.getTopic(), event.getTag());
+        if (StringUtils.isEmpty(event.getTopic()) || event.getData() == null) {
+            throw new RuntimeException("topic or data is null");
         }
-        final byte[] body = JSONObject.toJSONString(event.getDomain()).getBytes(StandardCharsets.UTF_8);
+        final byte[] body = JSONObject.toJSONString(event.getData()).getBytes(StandardCharsets.UTF_8);
         Message message = new Message(event.getTopic(), event.getTag(), body);
         message.setKey(event.getKey());
         return message;

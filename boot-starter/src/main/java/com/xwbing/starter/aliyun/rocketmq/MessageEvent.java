@@ -30,11 +30,11 @@ public class MessageEvent implements Serializable {
      */
     private String tag;
     /**
-     * 需要传递的领域对象
+     * 数据
      */
-    private Object domain;
+    private Object data;
     /**
-     * 数据的唯一标识,用来构建消息的唯一标识,不检测重复,可以为空,不影响消息收发
+     * 用来构建消息的唯一标识,不检测重复,可以为空,不影响消息收发
      */
     private String key;
 
