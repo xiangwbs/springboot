@@ -12,11 +12,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cn.binarywang.wx.miniapp.api.WxMaService;
+import cn.binarywang.wx.miniapp.api.WxMaUserService;
+import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.binarywang.wx.miniapp.bean.WxMaMessage;
+import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
 import cn.binarywang.wx.miniapp.constant.WxMaConstants;
 import cn.binarywang.wx.miniapp.message.WxMaMessageRouter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.common.error.WxErrorException;
 
 /**
  * @author Binary Wang(https://github.com/binarywang)
@@ -87,5 +91,35 @@ public class WxMaPortalController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    /**
+     * 获取用户信息接口
+     */
+    public WxMaUserInfo getUserInfo(String code, String signature, String rawData, String encryptedData, String iv)
+            throws WxErrorException {
+        WxMaUserService userService = wxMaService.getUserService();
+        WxMaJscode2SessionResult session = userService.getSessionInfo(code);
+        // 用户信息校验
+        if (!userService.checkUserInfo(session.getSessionKey(), rawData, signature)) {
+            return null;
+        }
+        // 解密用户信息
+        return userService.getUserInfo(session.getSessionKey(), encryptedData, iv);
+    }
+
+    /**
+     * 获取用户绑定手机号信息
+     */
+    public String getPhoneNoInfo(String code, String signature, String rawData, String encryptedData, String iv)
+            throws WxErrorException {
+        WxMaUserService userService = wxMaService.getUserService();
+        WxMaJscode2SessionResult session = userService.getSessionInfo(code);
+        // 用户信息校验
+        if (!userService.checkUserInfo(session.getSessionKey(), rawData, signature)) {
+            return null;
+        }
+        // 解密手机号
+        return userService.getPhoneNoInfo(session.getSessionKey(), encryptedData, iv).getPurePhoneNumber();
     }
 }

@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.common.bean.WxJsapiSignature;
+import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
+import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
+import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpMessageRouter;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
@@ -92,5 +96,32 @@ public class WxMpPortalController {
             log.error("路由消息时出现异常！", e);
         }
         return null;
+    }
+
+    /**
+     * 获取Jsapi签名
+     *
+     * @param url
+     *
+     * @return
+     *
+     * @throws WxErrorException
+     */
+    public WxJsapiSignature getJsapiTicket(String url) throws WxErrorException {
+        return wxMpService.createJsapiSignature(url);
+    }
+
+    /**
+     * 获取用户信息
+     *
+     * @param code
+     *
+     * @return
+     *
+     * @throws WxErrorException
+     */
+    public WxOAuth2UserInfo getUserInfo(String code) throws WxErrorException {
+        WxOAuth2AccessToken accessToken = wxMpService.getOAuth2Service().getAccessToken(code);
+        return wxMpService.getOAuth2Service().getUserInfo(accessToken, null);
     }
 }
