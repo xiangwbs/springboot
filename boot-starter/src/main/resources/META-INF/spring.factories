@@ -5,4 +5,5 @@ com.xwbing.starter.aspect.AspectAutoConfiguration,\
 com.xwbing.starter.xxljob.XxlJobAutoConfiguration,\
 com.xwbing.starter.wx.mp.WxMpAutoConfiguration,\
 com.xwbing.starter.wx.open.app.WxOpenAppAutoConfiguration,\
+com.xwbing.starter.wx.ma.WxMaAutoConfiguration,\
 com.xwbing.starter.spring.ApplicationContextHelper

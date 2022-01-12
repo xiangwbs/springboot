@@ -25,7 +25,7 @@ import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 @RequestMapping("/wx/mp/portal/{appId}")
 public class WxMpPortalController {
     private final WxMpService wxMpService;
-    private final WxMpMessageRouter messageRouter;
+    private final WxMpMessageRouter wxMpMessageRouter;
 
     @GetMapping(produces = "text/plain;charset=utf-8")
     public String authGet(@PathVariable String appId,
@@ -87,7 +87,7 @@ public class WxMpPortalController {
 
     private WxMpXmlOutMessage route(WxMpXmlMessage message) {
         try {
-            return this.messageRouter.route(message);
+            return this.wxMpMessageRouter.route(message);
         } catch (Exception e) {
             log.error("路由消息时出现异常！", e);
         }
