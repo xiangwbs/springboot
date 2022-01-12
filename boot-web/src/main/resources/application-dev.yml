@@ -81,7 +81,7 @@ boot:
         configs:
           ## 移动应用
           - app-id: wxaa53522f91fbf6b4
-          - secret: 9c81a97bf231df562c4e850ecc2cb334
+            secret: 9c81a97bf231df562c4e850ecc2cb334
     pay:
 
   host: http://3f75-60-191-78-7.ngrok.io
