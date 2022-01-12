@@ -94,7 +94,7 @@ public class WxMaPortalController {
     }
 
     /**
-     * 获取用户信息接口
+     * 获取用户信息
      */
     public WxMaUserInfo getUserInfo(String code, String signature, String rawData, String encryptedData, String iv)
             throws WxErrorException {
