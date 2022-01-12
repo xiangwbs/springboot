@@ -9,12 +9,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.xwbing.web.response.ApiResponse;
+import com.xwbing.web.response.ApiResponseUtil;
+
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxJsapiSignature;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.common.error.WxErrorException;
+import me.chanjar.weixin.common.service.WxOAuth2Service;
 import me.chanjar.weixin.mp.api.WxMpMessageRouter;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
@@ -98,30 +103,17 @@ public class WxMpPortalController {
         return null;
     }
 
-    /**
-     * 获取Jsapi签名
-     *
-     * @param url
-     *
-     * @return
-     *
-     * @throws WxErrorException
-     */
-    public WxJsapiSignature getJsapiTicket(String url) throws WxErrorException {
-        return wxMpService.createJsapiSignature(url);
+    @ApiOperation("获取Jsapi签名")
+    @GetMapping("/getJsApiSignature")
+    public ApiResponse<WxJsapiSignature> getJsApiSignature(@RequestParam String url) throws WxErrorException {
+        return ApiResponseUtil.success(wxMpService.createJsapiSignature(url));
     }
 
-    /**
-     * 获取用户信息
-     *
-     * @param code
-     *
-     * @return
-     *
-     * @throws WxErrorException
-     */
-    public WxOAuth2UserInfo getUserInfo(String code) throws WxErrorException {
-        WxOAuth2AccessToken accessToken = wxMpService.getOAuth2Service().getAccessToken(code);
-        return wxMpService.getOAuth2Service().getUserInfo(accessToken, null);
+    @ApiOperation("获取用户信息")
+    @GetMapping("/getUserInfo")
+    public ApiResponse<WxOAuth2UserInfo> getUserInfo(@RequestParam String code) throws WxErrorException {
+        WxOAuth2Service oAuth2Service = wxMpService.getOAuth2Service();
+        WxOAuth2AccessToken accessToken = oAuth2Service.getAccessToken(code);
+        return ApiResponseUtil.success(oAuth2Service.getUserInfo(accessToken, null));
     }
 }

@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.xwbing.web.response.ApiResponse;
+import com.xwbing.web.response.ApiResponseUtil;
+
 import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.binarywang.wx.miniapp.api.WxMaUserService;
 import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
@@ -18,6 +21,7 @@ import cn.binarywang.wx.miniapp.bean.WxMaMessage;
 import cn.binarywang.wx.miniapp.bean.WxMaUserInfo;
 import cn.binarywang.wx.miniapp.constant.WxMaConstants;
 import cn.binarywang.wx.miniapp.message.WxMaMessageRouter;
+import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
@@ -93,10 +97,10 @@ public class WxMaPortalController {
         }
     }
 
-    /**
-     * 获取用户信息
-     */
-    public WxMaUserInfo getUserInfo(String code, String signature, String rawData, String encryptedData, String iv)
+    @ApiOperation("获取用户信息")
+    @GetMapping("/getUserInfo")
+    public ApiResponse<WxMaUserInfo> getUserInfo(@RequestParam String code, @RequestParam String signature,
+            @RequestParam String rawData, @RequestParam String encryptedData, @RequestParam String iv)
             throws WxErrorException {
         WxMaUserService userService = wxMaService.getUserService();
         WxMaJscode2SessionResult session = userService.getSessionInfo(code);
@@ -105,13 +109,15 @@ public class WxMaPortalController {
             return null;
         }
         // 解密用户信息
-        return userService.getUserInfo(session.getSessionKey(), encryptedData, iv);
+        WxMaUserInfo userInfo = userService.getUserInfo(session.getSessionKey(), encryptedData, iv);
+        return ApiResponseUtil.success(userInfo);
+
     }
 
-    /**
-     * 获取用户绑定手机号信息
-     */
-    public String getPhoneNoInfo(String code, String signature, String rawData, String encryptedData, String iv)
+    @ApiOperation("获取用户绑定手机号信息")
+    @GetMapping("/getPhoneNoInfo")
+    public ApiResponse<String> getPhoneNoInfo(@RequestParam String code, @RequestParam String signature,
+            @RequestParam String rawData, @RequestParam String encryptedData, @RequestParam String iv)
             throws WxErrorException {
         WxMaUserService userService = wxMaService.getUserService();
         WxMaJscode2SessionResult session = userService.getSessionInfo(code);
@@ -119,7 +125,9 @@ public class WxMaPortalController {
         if (!userService.checkUserInfo(session.getSessionKey(), rawData, signature)) {
             return null;
         }
-        // 解密手机号
-        return userService.getPhoneNoInfo(session.getSessionKey(), encryptedData, iv).getPurePhoneNumber();
+        // 解密用户手机号
+        String purePhoneNumber = userService.getPhoneNoInfo(session.getSessionKey(), encryptedData, iv)
+                .getPurePhoneNumber();
+        return ApiResponseUtil.success(purePhoneNumber);
     }
 }
