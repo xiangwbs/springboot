@@ -3,4 +3,6 @@ com.xwbing.starter.aliyun.log.AliYunLogAutoConfiguration,\
 com.xwbing.starter.aliyun.oss.OssAutoConfiguration,\
 com.xwbing.starter.aspect.AspectAutoConfiguration,\
 com.xwbing.starter.xxljob.XxlJobAutoConfiguration,\
+com.xwbing.starter.wx.mp.WxMpAutoConfiguration,\
+com.xwbing.starter.wx.open.app.WxOpenAppAutoConfiguration,\
 com.xwbing.starter.spring.ApplicationContextHelper

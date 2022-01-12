@@ -64,6 +64,24 @@ boot:
       bucket: moo-oss-test
       sts-roleArn: xx
       sts-role-session-name: xx
+  wx:
+    mp:
+     app-id: xx
+     secret: xx
+     token: xx
+     aes-key: xx
+    ma:
+     app-id: xx
+     secret: xx
+     token: xx
+     aes-key: xx
+    open:
+      app:
+        configs:
+          ## 移动应用
+          - app-id: wxaa53522f91fbf6b4
+          - secret: 9c81a97bf231df562c4e850ecc2cb334
+
   host: http://3f75-60-191-78-7.ngrok.io
   appHost: 127.0.0.1
   rsa:

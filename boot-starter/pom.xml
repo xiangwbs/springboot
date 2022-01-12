@@ -101,6 +101,12 @@
             <artifactId>wechatpay-apache-httpclient</artifactId>
             <version>${wechatpay-apache-httpclient.version}</version>
         </dependency>
+        <!-- weixin-open 包含mp，ma-->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-open</artifactId>
+            <version>${weixin-java-open.version}</version>
+        </dependency>
         <!-- xxl-job -->
         <dependency>
             <groupId>com.xuxueli</groupId>
