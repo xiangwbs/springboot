@@ -38,7 +38,7 @@ public class WxMpAutoConfiguration {
         config.setSecret(properties.getSecret());
         config.setToken(properties.getToken());
         config.setAesKey(properties.getAesKey());
-        WxMpServiceImpl service = new WxMpServiceImpl();
+        WxMpService service = new WxMpServiceImpl();
         service.setWxMpConfigStorage(config);
         return service;
     }
