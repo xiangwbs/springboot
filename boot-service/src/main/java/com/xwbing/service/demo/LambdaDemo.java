@@ -113,7 +113,7 @@ public class LambdaDemo {
         Map<Integer, String> jsonMap = getList().stream()
                 .collect(Collectors.toMap(o1 -> o1.getInteger("id"), o2 -> o2.getString("name")));
         Map<String, SysUser> userMap = listAll().stream()
-                .collect(Collectors.toMap(SysUser::getId, Function.identity()));
+                .collect(Collectors.toMap(SysUser::getId, Function.identity(), (o, o2) -> o));
         userMap = listAll().stream().collect(Collectors.toMap(SysUser::getId, sysUser -> sysUser));
         Map<String, String> userNameMap = listAll().stream()
                 .collect(Collectors.toMap(SysUser::getId, SysUser::getName));

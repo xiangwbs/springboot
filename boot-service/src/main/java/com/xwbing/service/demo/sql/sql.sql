@@ -44,6 +44,11 @@ GRANT SElECT ON *.* TO 'guest'@'%' IDENTIFIED BY '123456';
 --刷新权限
 FLUSH PRIVILEGES;
 
+--修改MySQL连接权限(这样就可以远程通过IP连接)
+mysql>use mysql;
+msyql>update user set user.Host='%' where user.User='root';
+mysql>flush privileges;
+
 status;
 show databases;
 create database <数据库名>;
@@ -54,8 +59,3 @@ describe tableName; 显示表结构
 source F:/file.sql;导入sql文件
 
 exit(回车)
-
---修改MySQL连接权限(这样就可以远程通过IP连接)
-mysql>use mysql;
-msyql>update user set user.Host='%' where user.User='root';
-mysql>flush privileges;
