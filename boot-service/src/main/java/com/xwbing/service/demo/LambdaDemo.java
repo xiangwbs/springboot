@@ -153,8 +153,8 @@ public class LambdaDemo {
             list.add(i);
         }
         int size = list.size();
-        CompletableFuture[] futures = new CompletableFuture[size];
         List<Integer> finalList = new ArrayList<>(size);
+        CompletableFuture[] futures = new CompletableFuture[size];
         for (int i = 0; i < size; i++) {
             finalList.add(null);//在异步之前size+1，必须有这步，否则会下标越界
             Integer integer = list.get(i);
@@ -169,6 +169,10 @@ public class LambdaDemo {
         //            log.error(e.getMessage());
         //            throw new BusinessException("获取数据出错");
         //        }
+        List<CompletableFuture<Void>> collect = list.stream()
+                .map(integer -> CompletableFuture.runAsync(() -> System.out.println(integer)))
+                .collect(Collectors.toList());
+        CompletableFuture.allOf(collect.toArray(new CompletableFuture[list.size()])).join();
         return finalList;
     }
 

@@ -20,6 +20,7 @@ public class PageDemo {
 
     public void pageHelper(int pageSize) {
         Page<Object> page = PageHelper.startPage(1, 1);
+        query();
         long count = page.getTotal();
         if (count == 0) {
             return;
@@ -35,6 +36,7 @@ public class PageDemo {
 
     public void pageHelperDealSelfSync(int pageSize) {
         Page<Object> page = PageHelper.startPage(1, 1);
+        query();
         long count = page.getTotal();
         if (count == 0) {
             return;
@@ -50,6 +52,7 @@ public class PageDemo {
 
     public void pageHelperDealSelfAsync(int pageSize) {
         Page<Object> checkPage = PageHelper.startPage(1, 1);
+        query();
         long count = checkPage.getTotal();
         if (count == 0) {
             return;

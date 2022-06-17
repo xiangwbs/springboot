@@ -76,7 +76,7 @@
                     <includeSystemScope>true</includeSystemScope>
                 </configuration>
             </plugin>
-            <!-- war包命名为ROOT.war -->
+            <!-- war包命名为ROOT.war(if packaging=war) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
