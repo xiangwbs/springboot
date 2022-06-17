@@ -65,7 +65,7 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
 
-        <fastjson.version>1.2.76</fastjson.version>
+        <fastjson.version>1.2.83</fastjson.version>
         <alipay-sdk.version>4.10.70.ALL</alipay-sdk.version>
         <wechatpay-apache-httpclient.version>0.2.2</wechatpay-apache-httpclient.version>
         <easyexcel.verison>2.2.6</easyexcel.verison>
