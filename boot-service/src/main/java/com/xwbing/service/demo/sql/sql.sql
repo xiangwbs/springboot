@@ -2,6 +2,9 @@
 show variables like 'slow_query%';
 查询超过多少秒才记录
 show variables like 'long_query_time';
+获取eq_range_index_dive_limit(in 最大数量)
+SHOW VARIABLES LIKE '%dive%';
+
 
 mysqld --remove 卸载mysql服务
 sc delete mysql 彻底删除mysql服务
