@@ -37,7 +37,6 @@ import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder.Type;
 import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
@@ -81,6 +80,12 @@ public class EsDemo {
             log.info("es update id:{} upsert:{} request:{}", id, upsert, updateRequest.toString());
             UpdateResponse updateResponse = restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);
             log.info("es update id:{} upsert:{} response:{}", id, upsert, updateResponse.toString());
+            ShardInfo shardInfo = updateResponse.getShardInfo();
+            if (shardInfo.getFailed() > 0) {
+                List<String> failReasons = Arrays.stream(shardInfo.getFailures()).map(Failure::reason)
+                        .collect(Collectors.toList());
+                log.error("es update id:{} upsert:{} failed reasons:{}", id, upsert, failReasons);
+            }
         } catch (Exception e) {
             log.error("es update id:{} upsert:{} error", id, upsert, e);
         }
@@ -113,12 +118,12 @@ public class EsDemo {
         }
     }
 
-    public void deleteById(Long id, String index) {
-        DeleteRequest request = new DeleteRequest(index, String.valueOf(id));
-        request.setRefreshPolicy(RefreshPolicy.IMMEDIATE);
+    public void delete(Long id, String index) {
+        DeleteRequest deleteRequest = new DeleteRequest(index, String.valueOf(id));
+        deleteRequest.setRefreshPolicy(RefreshPolicy.IMMEDIATE);
         try {
-            log.info("es deleteById id:{} request:{}", id, request.toString());
-            DeleteResponse deleteResponse = restHighLevelClient.delete(request, RequestOptions.DEFAULT);
+            log.info("es deleteById id:{} request:{}", id, deleteRequest.toString());
+            DeleteResponse deleteResponse = restHighLevelClient.delete(deleteRequest, RequestOptions.DEFAULT);
             log.info("es deleteById id:{} response:{}", id, deleteResponse.toString());
             ShardInfo shardInfo = deleteResponse.getShardInfo();
             if (shardInfo.getFailed() > 0) {
@@ -131,13 +136,33 @@ public class EsDemo {
         }
     }
 
-    public void deleteByQuery(QueryBuilder queryBuilder, String index) {
+    public void bulkDelete(List<Long> ids, String index) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        BulkRequest bulkRequest = new BulkRequest();
+        ids.forEach(id -> bulkRequest.add(new DeleteRequest().index(index).id(String.valueOf(id))));
+        bulkRequest.setRefreshPolicy(RefreshPolicy.IMMEDIATE);
+        try {
+            log.info("es bulkDelete request:{}", Jackson.build().writeValueAsString(bulkRequest));
+            BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+            log.info("es bulkDelete response:{}", Jackson.build().writeValueAsString(bulkResponse));
+            if (bulkResponse.hasFailures()) {
+                log.error("es bulkDelete hasFailures:{}", bulkResponse.buildFailureMessage());
+            }
+        } catch (Exception e) {
+            log.error("es bulkDelete error", e);
+        }
+    }
+
+    public void deleteByQuery(BoolQueryBuilder bool, String index) {
         DeleteByQueryRequest request = new DeleteByQueryRequest(index);
-        request.setQuery(queryBuilder);
+        request.setQuery(bool);
+        request.setBatchSize(100);
         // 刷新索引
         request.setRefresh(true);
         try {
-            log.info("es deleteByQuery dsl:{}", queryBuilder.toString());
+            log.info("es deleteByQuery dsl:{}", bool.toString());
             BulkByScrollResponse response = restHighLevelClient.deleteByQuery(request, RequestOptions.DEFAULT);
             log.info("es deleteByQuery response:{}", response.toString());
             List<BulkItemResponse.Failure> bulkFailures = response.getBulkFailures();
@@ -151,35 +176,37 @@ public class EsDemo {
         }
     }
 
-    public <T> T getById(Long id, Class<T> clazz, String index) {
-        GetRequest request = new GetRequest(index, String.valueOf(id));
-        GetResponse response;
+    public <T> T get(Long id, Class<T> clazz, String index) {
+        GetRequest getRequest = new GetRequest(index, String.valueOf(id));
+        GetResponse getResponse;
         try {
-            log.info("es getById id:{} request:{}", id, request.toString());
-            response = restHighLevelClient.get(request, RequestOptions.DEFAULT);
-            log.info("es getById id:{} response:{}", id, Jackson.build().writeValueAsString(response));
+            log.info("es get id:{} request:{}", id, getRequest.toString());
+            getResponse = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);
+            log.info("es get id:{} response:{}", id, Jackson.build().writeValueAsString(getResponse));
         } catch (Exception e) {
-            log.error("es getById id:{} error", id, e);
+            log.error("es get id:{} error", id, e);
             return null;
         }
-        if (!response.isExists()) {
+        if (!getResponse.isExists()) {
             return null;
         }
-        return Jackson.build().readValue(response.getSourceAsString(), clazz);
+        return Jackson.build().readValue(getResponse.getSourceAsString(), clazz);
     }
 
-    public <T> List<T> listByIds(List<Long> ids, Class<T> clazz, String index) {
+    public <T> List<T> mget(List<Long> ids, Class<T> clazz, String index) {
         if (CollectionUtils.isEmpty(ids)) {
             return Collections.emptyList();
         }
-        MultiGetRequest req = new MultiGetRequest();
-        ids.forEach(id -> req.add(index, String.valueOf(id)));
+        MultiGetRequest multiGetRequest = new MultiGetRequest();
+        ids.forEach(id -> multiGetRequest.add(index, String.valueOf(id)));
         try {
-            log.info("es listByIds ids:{}", ids);
-            MultiGetResponse responses = restHighLevelClient.mget(req, RequestOptions.DEFAULT);
+            log.info("es mget ids:{}", ids);
+            MultiGetResponse multiGetResponse = restHighLevelClient.mget(multiGetRequest, RequestOptions.DEFAULT);
+            log.info("es mget ids:{} response:{}", ids, Jackson.build().writeValueAsString(multiGetResponse));
             List<T> res = new LinkedList<>();
-            for (MultiGetItemResponse itemResponse : responses.getResponses()) {
+            for (MultiGetItemResponse itemResponse : multiGetResponse.getResponses()) {
                 if (itemResponse.getFailure() != null) {
+                    log.error("es mget error:{}", itemResponse.getFailure().getMessage());
                     continue;
                 }
                 GetResponse getResponse = itemResponse.getResponse();
@@ -189,7 +216,7 @@ public class EsDemo {
             }
             return res;
         } catch (Exception e) {
-            log.error("es listByIds ids:{} error", ids, e);
+            log.error("es mget ids:{} error", ids, e);
             return Collections.emptyList();
         }
     }

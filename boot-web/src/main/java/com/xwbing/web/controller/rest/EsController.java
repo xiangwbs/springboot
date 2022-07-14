@@ -39,13 +39,13 @@ public class EsController {
     @ApiOperation("详情")
     @GetMapping("/getById")
     public ApiResponse<UserEsVO> getById(@RequestParam Long id) {
-        return ApiResponseUtil.success(esDemo.getById(id, UserEsVO.class, EsDemo.INDEX));
+        return ApiResponseUtil.success(esDemo.get(id, UserEsVO.class, EsDemo.INDEX));
     }
 
     @ApiOperation("列表")
     @GetMapping("/listByIds")
     public ApiResponse<List<UserEsVO>> listByIds(@RequestParam List<Long> ids) {
-        return ApiResponseUtil.success(esDemo.listByIds(ids, UserEsVO.class, EsDemo.INDEX));
+        return ApiResponseUtil.success(esDemo.mget(ids, UserEsVO.class, EsDemo.INDEX));
     }
 
     @ApiOperation("用户列表")
