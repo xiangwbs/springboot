@@ -27,19 +27,42 @@ import lombok.extern.slf4j.Slf4j;
 public class PageDemo {
 
     public static void pageHelper(int pageSize) {
+        log.info("pageHelper start");
         Page<Object> page = PageHelper.startPage(1, 1);
         query();
         long count = page.getTotal();
+        log.info("pageHelper size:{}", count);
         if (count == 0) {
             return;
         }
-        List<Object> list;
+        StopWatch sw = new StopWatch();
+        sw.start();
         long times = (count % pageSize == 0) ? count / pageSize : (count / pageSize + 1);
+        log.info("pageHelper page:{}", times);
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(3, 3, 600L, TimeUnit.MICROSECONDS,
+                new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("pageHelper-pool-%d").build());
+        CompletableFuture[] futures = new CompletableFuture[(int)times];
         for (int i = 1; i <= times; i++) {
             PageHelper.startPage(i, pageSize);
-            list = query();
-            // TODO: 处理业务逻辑
+            List<Object> list = query();
+            int finalI = i;
+            futures[i - 1] = CompletableFuture.runAsync(() -> {
+                StopWatch pageSw = new StopWatch();
+                pageSw.start();
+                list.forEach(ordersResponse -> {
+                    // TODO: 处理业务逻辑
+                });
+                pageSw.stop();
+                log.info("pageHelper pageNum:{} cost:{}s", finalI, pageSw.getTotalTimeSeconds());
+            }, threadPool).exceptionally(throwable -> {
+                log.error("pageHelper pageNum:{} error", finalI, throwable);
+                return null;
+            });
         }
+        CompletableFuture.allOf(futures).join();
+        threadPool.shutdown();
+        sw.stop();
+        log.info("pageHelper end cost:{}m", sw.getTotalTimeSeconds() / 60);
     }
 
     public static void pageHelperDealSelfSync(int pageSize) {
@@ -119,6 +142,7 @@ public class PageDemo {
             pageNum++;
         }
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()])).join();
+        threadPool.shutdown();
         sw.stop();
         log.info("whilePage end cost:{}m", sw.getTotalTimeSeconds() / 60);
     }

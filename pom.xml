@@ -93,6 +93,7 @@
         <swagger2.version>2.9.2</swagger2.version>
         <swagger.version>1.6.0</swagger.version>
         <jsoup.verson>1.13.1</jsoup.verson>
+        <elasticsearch.version>7.15.0</elasticsearch.version>
     </properties>
 
     <dependencies>
