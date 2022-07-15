@@ -57,13 +57,13 @@ public class EsController {
     @ApiOperation("删除")
     @GetMapping("/delete")
     public ApiResponse delete(@RequestParam Long id) {
-        baseEsService.delete(id, UserEsService.INDEX);
+        baseEsService.delete(String.valueOf(id), UserEsService.INDEX);
         return ApiResponseUtil.success();
     }
 
     @ApiOperation("删除")
     @GetMapping("/bulkDelete")
-    public ApiResponse bulkDelete(@RequestParam List<Long> ids) {
+    public ApiResponse bulkDelete(@RequestParam List<String> ids) {
         baseEsService.bulkDelete(ids, UserEsService.INDEX);
         return ApiResponseUtil.success();
     }
@@ -71,13 +71,19 @@ public class EsController {
     @ApiOperation("详情")
     @GetMapping("/getById")
     public ApiResponse<UserEsVO> getById(@RequestParam Long id) {
-        return ApiResponseUtil.success(baseEsService.get(id, UserEsVO.class, UserEsService.INDEX));
+        return ApiResponseUtil.success(baseEsService.get(String.valueOf(id), UserEsVO.class, UserEsService.INDEX));
     }
 
     @ApiOperation("列表")
     @GetMapping("/listByIds")
-    public ApiResponse<List<UserEsVO>> listByIds(@RequestParam List<Long> ids) {
+    public ApiResponse<List<UserEsVO>> listByIds(@RequestParam List<String> ids) {
         return ApiResponseUtil.success(baseEsService.mget(ids, UserEsVO.class, UserEsService.INDEX));
+    }
+
+    @ApiOperation("count")
+    @GetMapping("/count")
+    public ApiResponse<Integer> count(@RequestParam String nickName) {
+        return ApiResponseUtil.success(userEsService.count(nickName));
     }
 
     @ApiOperation("用户列表")

@@ -66,8 +66,8 @@ public class BaseEsService {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class UpsertDoc {
-        private Object doc;
         private String id;
+        private Object doc;
 
         public static UpsertDoc of(String id, Object doc) {
             return UpsertDoc.builder().id(id).doc(doc).build();
@@ -116,8 +116,8 @@ public class BaseEsService {
         }
     }
 
-    public void delete(Long id, String index) {
-        DeleteRequest request = new DeleteRequest(index, String.valueOf(id)).setRefreshPolicy(RefreshPolicy.IMMEDIATE);
+    public void delete(String id, String index) {
+        DeleteRequest request = new DeleteRequest(index, id).setRefreshPolicy(RefreshPolicy.IMMEDIATE);
         try {
             log.info("elasticsearch delete id:{} request:{}", id, request.toString());
             DeleteResponse response = restHighLevelClient.delete(request, RequestOptions.DEFAULT);
@@ -133,12 +133,12 @@ public class BaseEsService {
         }
     }
 
-    public void bulkDelete(List<Long> ids, String index) {
+    public void bulkDelete(List<String> ids, String index) {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
         BulkRequest bulkRequest = new BulkRequest().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
-        ids.forEach(id -> bulkRequest.add(new DeleteRequest().index(index).id(String.valueOf(id))));
+        ids.forEach(id -> bulkRequest.add(new DeleteRequest().index(index).id(id)));
         try {
             log.info("elasticsearch bulkDelete requests:{}", bulkRequest.requests());
             BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
@@ -168,8 +168,8 @@ public class BaseEsService {
         }
     }
 
-    public <T> T get(Long id, Class<T> clazz, String index) {
-        GetRequest request = new GetRequest(index, String.valueOf(id));
+    public <T> T get(String id, Class<T> clazz, String index) {
+        GetRequest request = new GetRequest(index, id);
         GetResponse response;
         try {
             log.info("elasticsearch get id:{} request:{}", id, request.toString());
@@ -185,12 +185,12 @@ public class BaseEsService {
         return Jackson.build().readValue(response.getSourceAsString(), clazz);
     }
 
-    public <T> List<T> mget(List<Long> ids, Class<T> clazz, String index) {
+    public <T> List<T> mget(List<String> ids, Class<T> clazz, String index) {
         if (CollectionUtils.isEmpty(ids)) {
             return Collections.emptyList();
         }
         MultiGetRequest request = new MultiGetRequest();
-        ids.forEach(id -> request.add(index, String.valueOf(id)));
+        ids.forEach(id -> request.add(index, id));
         try {
             log.info("elasticsearch mget ids:{}", ids);
             MultiGetResponse response = restHighLevelClient.mget(request, RequestOptions.DEFAULT);
@@ -215,16 +215,16 @@ public class BaseEsService {
 
     public Integer count(BoolQueryBuilder bool, String index) {
         CountRequest request = new CountRequest(index).query(bool);
-        CountResponse countResponse;
+        CountResponse response;
         try {
             log.info("elasticsearch count dsl:{}", bool.toString());
-            countResponse = restHighLevelClient.count(request, RequestOptions.DEFAULT);
-            log.info("elasticsearch count response:{}", countResponse);
+            response = restHighLevelClient.count(request, RequestOptions.DEFAULT);
+            log.info("elasticsearch count response:{}", response.toString());
         } catch (Exception e) {
             log.info("elasticsearch count error", e);
             return 0;
         }
-        return Math.toIntExact(countResponse.getCount());
+        return Math.toIntExact(response.getCount());
     }
 
     /**
@@ -285,5 +285,4 @@ public class BaseEsService {
     private int from(Integer page, Integer size) {
         return page <= 0 ? 0 : (page - 1) * size;
     }
-
 }

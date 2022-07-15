@@ -56,6 +56,12 @@ public class UserEsService {
         baseEsService.bulkUpsert(docs, INDEX);
     }
 
+    public Integer count(String nickName) {
+        BoolQueryBuilder bool = QueryBuilders.boolQuery();
+        bool.must(QueryBuilders.termQuery("nickName", nickName));
+        return baseEsService.count(bool, INDEX);
+    }
+
     public PageVO<UserEsVO> searchUser(UserEsDTO dto) {
         BoolQueryBuilder bool = this.userBool(dto);
         SortBuilder[] sorts = { SortBuilders.fieldSort("creationDate").order(SortOrder.DESC) };
