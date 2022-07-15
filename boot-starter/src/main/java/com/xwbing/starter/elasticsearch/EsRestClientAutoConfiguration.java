@@ -1,4 +1,4 @@
-package com.xwbing.starter.es;
+package com.xwbing.starter.elasticsearch;
 
 import java.util.List;
 
@@ -30,16 +30,7 @@ public class EsRestClientAutoConfiguration {
     private static final String SCHEME_HTTPS = "https";
 
     public EsRestClientAutoConfiguration() {
-        log.info("Initializing moo-elasticsearch-starter EsRestClientAutoConfiguration");
-    }
-
-    private RestClientBuilder restClientBuilder(EsRestClientProperties esRestClientProperties) {
-        if (StringUtils.isNotBlank(esRestClientProperties.getUsername()) && StringUtils
-                .isNotBlank(esRestClientProperties.getPassword())) {
-            return secureConnect(esRestClientProperties);
-        } else {
-            return simpleConnect(esRestClientProperties);
-        }
+        log.info("Initializing EsRestClientAutoConfiguration");
     }
 
     @Bean(destroyMethod = "close")
@@ -71,6 +62,15 @@ public class EsRestClientAutoConfiguration {
         credentialsProvider.setCredentials(AuthScope.ANY, credentials);
         return RestClient.builder(setHttpHosts(esRestClientProperties)).setHttpClientConfigCallback(
                 httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+    }
+
+    private RestClientBuilder restClientBuilder(EsRestClientProperties esRestClientProperties) {
+        if (StringUtils.isNotBlank(esRestClientProperties.getUsername()) && StringUtils
+                .isNotBlank(esRestClientProperties.getPassword())) {
+            return secureConnect(esRestClientProperties);
+        } else {
+            return simpleConnect(esRestClientProperties);
+        }
     }
 
     /**
