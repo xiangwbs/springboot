@@ -101,7 +101,8 @@ public class BaseEsService {
         BulkRequest bulkRequest = new BulkRequest().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
         docs.forEach(doc -> {
             UpdateRequest updateRequest = new UpdateRequest(index, doc.getId())
-                    .doc(Jackson.build().writeValueAsString(doc.getDoc()), XContentType.JSON).docAsUpsert(true);
+                    .doc(Jackson.build().writeValueAsString(doc.getDoc()), XContentType.JSON).docAsUpsert(true)
+                    .retryOnConflict(2);
             bulkRequest.add(updateRequest);
         });
         try {
@@ -257,9 +258,9 @@ public class BaseEsService {
         if (ObjectUtils.isNotEmpty(sorts)) {
             Arrays.stream(sorts).forEach(searchSourceBuilder::sort);
         }
-        log.info("elasticsearch search source:{}", searchSourceBuilder.toString());
         request.source(searchSourceBuilder);
         try {
+            log.info("elasticsearch search source:{}", searchSourceBuilder.toString());
             SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
             log.info("elasticsearch search response:{}", response.toString());
             log.info("elasticsearch search took {}ms", response.getTook().getMillis());
