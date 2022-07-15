@@ -14,8 +14,8 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Service;
 
-import com.xwbing.service.service.BaseEsService;
-import com.xwbing.service.service.BaseEsService.UpsertDoc;
+import com.xwbing.service.service.EsBaseService;
+import com.xwbing.service.service.EsBaseService.UpsertDoc;
 import com.xwbing.service.util.PageVO;
 
 import cn.hutool.core.date.DatePattern;
@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class UserEsService {
     public static final String INDEX = "moo_user";
-    private final BaseEsService baseEsService;
+    private final EsBaseService esBaseService;
 
     /**
      * 单个更新或者新增
@@ -42,7 +42,7 @@ public class UserEsService {
      */
     public void upsert(UserEsVO dto) {
         UpsertDoc doc = UpsertDoc.of(String.valueOf(dto.getUserId()), dto);
-        baseEsService.upsert(doc, INDEX);
+        esBaseService.upsert(doc, INDEX);
     }
 
     /**
@@ -53,19 +53,19 @@ public class UserEsService {
     public void bulkUpsert(List<UserEsVO> list) {
         List<UpsertDoc> docs = list.stream().map(dto -> UpsertDoc.of(String.valueOf(dto.getUserId()), dto))
                 .collect(Collectors.toList());
-        baseEsService.bulkUpsert(docs, INDEX);
+        esBaseService.bulkUpsert(docs, INDEX);
     }
 
     public Integer count(String nickName) {
         BoolQueryBuilder bool = QueryBuilders.boolQuery();
         bool.must(QueryBuilders.termQuery("nickName", nickName));
-        return baseEsService.count(bool, INDEX);
+        return esBaseService.count(bool, INDEX);
     }
 
     public PageVO<UserEsVO> searchUser(UserEsDTO dto) {
         BoolQueryBuilder bool = this.userBool(dto);
         SortBuilder[] sorts = { SortBuilders.fieldSort("creationDate").order(SortOrder.DESC) };
-        return baseEsService.search(bool, sorts, 1, 10, null, null, UserEsVO.class, INDEX);
+        return esBaseService.search(bool, sorts, 1, 10, null, null, UserEsVO.class, INDEX);
     }
 
     private BoolQueryBuilder userBool(UserEsDTO dto) {

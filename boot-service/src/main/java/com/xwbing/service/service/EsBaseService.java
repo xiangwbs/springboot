@@ -58,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class BaseEsService {
+public class EsBaseService {
     private final RestHighLevelClient restHighLevelClient;
 
     @Data

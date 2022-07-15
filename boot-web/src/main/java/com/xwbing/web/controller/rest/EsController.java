@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.xwbing.service.demo.es.UserEsDTO;
 import com.xwbing.service.demo.es.UserEsService;
 import com.xwbing.service.demo.es.UserEsVO;
-import com.xwbing.service.service.BaseEsService;
+import com.xwbing.service.service.EsBaseService;
 import com.xwbing.service.util.PageVO;
 import com.xwbing.web.response.ApiResponse;
 import com.xwbing.web.response.ApiResponseUtil;
@@ -33,11 +33,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/es/")
 public class EsController {
     private final UserEsService userEsService;
-    private final BaseEsService baseEsService;
+    private final EsBaseService esBaseService;
 
-    public EsController(UserEsService userEsService, BaseEsService baseEsService) {
+    public EsController(UserEsService userEsService, EsBaseService esBaseService) {
         this.userEsService = userEsService;
-        this.baseEsService = baseEsService;
+        this.esBaseService = esBaseService;
     }
 
     @ApiOperation("新增或修改")
@@ -57,27 +57,27 @@ public class EsController {
     @ApiOperation("删除")
     @GetMapping("/delete")
     public ApiResponse delete(@RequestParam Long id) {
-        baseEsService.delete(String.valueOf(id), UserEsService.INDEX);
+        esBaseService.delete(String.valueOf(id), UserEsService.INDEX);
         return ApiResponseUtil.success();
     }
 
     @ApiOperation("删除")
     @GetMapping("/bulkDelete")
     public ApiResponse bulkDelete(@RequestParam List<String> ids) {
-        baseEsService.bulkDelete(ids, UserEsService.INDEX);
+        esBaseService.bulkDelete(ids, UserEsService.INDEX);
         return ApiResponseUtil.success();
     }
 
     @ApiOperation("详情")
     @GetMapping("/getById")
     public ApiResponse<UserEsVO> getById(@RequestParam Long id) {
-        return ApiResponseUtil.success(baseEsService.get(String.valueOf(id), UserEsVO.class, UserEsService.INDEX));
+        return ApiResponseUtil.success(esBaseService.get(String.valueOf(id), UserEsVO.class, UserEsService.INDEX));
     }
 
     @ApiOperation("列表")
     @GetMapping("/listByIds")
     public ApiResponse<List<UserEsVO>> listByIds(@RequestParam List<String> ids) {
-        return ApiResponseUtil.success(baseEsService.mget(ids, UserEsVO.class, UserEsService.INDEX));
+        return ApiResponseUtil.success(esBaseService.mget(ids, UserEsVO.class, UserEsService.INDEX));
     }
 
     @ApiOperation("count")
