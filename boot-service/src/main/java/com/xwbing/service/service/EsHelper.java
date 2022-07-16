@@ -32,7 +32,7 @@ import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.core.TimeValue;
-import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.SearchHits;
@@ -58,7 +58,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class EsBaseService {
+public class EsHelper {
     private final RestHighLevelClient restHighLevelClient;
 
     @Data
@@ -98,19 +98,16 @@ public class EsBaseService {
         if (CollectionUtils.isEmpty(docs)) {
             return;
         }
-        BulkRequest bulkRequest = new BulkRequest().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
-        docs.forEach(doc -> {
-            UpdateRequest updateRequest = new UpdateRequest(index, doc.getId())
-                    .doc(Jackson.build().writeValueAsString(doc.getDoc()), XContentType.JSON).docAsUpsert(true)
-                    .retryOnConflict(2);
-            bulkRequest.add(updateRequest);
-        });
+        BulkRequest request = new BulkRequest().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
+        docs.forEach(doc -> request.add(new UpdateRequest(index, doc.getId())
+                .doc(Jackson.build().writeValueAsString(doc.getDoc()), XContentType.JSON).docAsUpsert(true)
+                .retryOnConflict(2)));
         try {
-            log.info("elasticsearch bulkUpsert requests:{}", bulkRequest.requests());
-            BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
-            log.info("elasticsearch bulkUpsert response:{}", Jackson.build().writeValueAsString(bulkResponse));
-            if (bulkResponse.hasFailures()) {
-                log.error("elasticsearch bulkUpsert hasFailures:{}", bulkResponse.buildFailureMessage());
+            log.info("elasticsearch bulkUpsert requests:{}", request.requests());
+            BulkResponse response = restHighLevelClient.bulk(request, RequestOptions.DEFAULT);
+            log.info("elasticsearch bulkUpsert response:{}", Jackson.build().writeValueAsString(response));
+            if (response.hasFailures()) {
+                log.error("elasticsearch bulkUpsert hasFailures:{}", response.buildFailureMessage());
             }
         } catch (Exception e) {
             log.error("elasticsearch bulkUpsert error", e);
@@ -138,24 +135,24 @@ public class EsBaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        BulkRequest bulkRequest = new BulkRequest().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
-        ids.forEach(id -> bulkRequest.add(new DeleteRequest().index(index).id(id)));
+        BulkRequest request = new BulkRequest().setRefreshPolicy(RefreshPolicy.IMMEDIATE);
+        ids.forEach(id -> request.add(new DeleteRequest().index(index).id(id)));
         try {
-            log.info("elasticsearch bulkDelete requests:{}", bulkRequest.requests());
-            BulkResponse bulkResponse = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);
-            log.info("elasticsearch bulkDelete response:{}", Jackson.build().writeValueAsString(bulkResponse));
-            if (bulkResponse.hasFailures()) {
-                log.error("es bulkDelete hasFailures:{}", bulkResponse.buildFailureMessage());
+            log.info("elasticsearch bulkDelete requests:{}", request.requests());
+            BulkResponse response = restHighLevelClient.bulk(request, RequestOptions.DEFAULT);
+            log.info("elasticsearch bulkDelete response:{}", Jackson.build().writeValueAsString(response));
+            if (response.hasFailures()) {
+                log.error("es bulkDelete hasFailures:{}", response.buildFailureMessage());
             }
         } catch (Exception e) {
             log.error("elasticsearch bulkDelete error", e);
         }
     }
 
-    public void deleteByQuery(BoolQueryBuilder bool, String index) {
-        DeleteByQueryRequest request = new DeleteByQueryRequest(index).setRefresh(true).setQuery(bool);
+    public void deleteByQuery(QueryBuilder query, String index) {
+        DeleteByQueryRequest request = new DeleteByQueryRequest(index).setRefresh(true).setQuery(query);
         try {
-            log.info("elasticsearch deleteByQuery dsl:{}", bool.toString());
+            log.info("elasticsearch deleteByQuery dsl:{}", query.toString());
             BulkByScrollResponse response = restHighLevelClient.deleteByQuery(request, RequestOptions.DEFAULT);
             log.info("elasticsearch deleteByQuery response:{}", response.toString());
             List<BulkItemResponse.Failure> bulkFailures = response.getBulkFailures();
@@ -214,11 +211,11 @@ public class EsBaseService {
         }
     }
 
-    public Integer count(BoolQueryBuilder bool, String index) {
-        CountRequest request = new CountRequest(index).query(bool);
+    public Integer count(QueryBuilder query, String index) {
+        CountRequest request = new CountRequest(index).query(query);
         CountResponse response;
         try {
-            log.info("elasticsearch count dsl:{}", bool.toString());
+            log.info("elasticsearch count dsl:{}", query.toString());
             response = restHighLevelClient.count(request, RequestOptions.DEFAULT);
             log.info("elasticsearch count response:{}", response.toString());
         } catch (Exception e) {
@@ -229,7 +226,7 @@ public class EsBaseService {
     }
 
     /**
-     * @param bool 搜索条件
+     * @param query 搜索条件
      * @param sorts 排序
      * @param page 页码
      * @param size 页数大小
@@ -239,28 +236,28 @@ public class EsBaseService {
      *
      * @return
      */
-    public <T> PageVO<T> search(BoolQueryBuilder bool, SortBuilder[] sorts, int page, int size, String[] includes,
+    public <T> PageVO<T> search(QueryBuilder query, SortBuilder[] sorts, int page, int size, String[] includes,
             String[] excludes, Class<T> clazz, String index) {
         SearchRequest request = new SearchRequest(index);
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        SearchSourceBuilder source = new SearchSourceBuilder();
         // 搜索条件
-        searchSourceBuilder.query(bool);
+        source.query(query);
         // 分页设置
-        searchSourceBuilder.from(from(page, size));
-        searchSourceBuilder.size(size);
+        source.from(from(page, size));
+        source.size(size);
         // 解决数据只显示10000+问题
-        searchSourceBuilder.trackTotalHits(true);
+        source.trackTotalHits(true);
         // 超时时间
-        searchSourceBuilder.timeout(new TimeValue(3, TimeUnit.SECONDS));
+        source.timeout(new TimeValue(3, TimeUnit.SECONDS));
         // 字段设置
-        searchSourceBuilder.fetchSource(includes, excludes);
+        source.fetchSource(includes, excludes);
         // 排序设置
         if (ObjectUtils.isNotEmpty(sorts)) {
-            Arrays.stream(sorts).forEach(searchSourceBuilder::sort);
+            Arrays.stream(sorts).forEach(source::sort);
         }
-        request.source(searchSourceBuilder);
+        request.source(source);
         try {
-            log.info("elasticsearch search source:{}", searchSourceBuilder.toString());
+            log.info("elasticsearch search source:{}", source.toString());
             SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
             log.info("elasticsearch search response:{}", response.toString());
             log.info("elasticsearch search took {}ms", response.getTook().getMillis());

@@ -14,8 +14,8 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Service;
 
-import com.xwbing.service.service.EsBaseService;
-import com.xwbing.service.service.EsBaseService.UpsertDoc;
+import com.xwbing.service.service.EsHelper;
+import com.xwbing.service.service.EsHelper.UpsertDoc;
 import com.xwbing.service.util.PageVO;
 
 import cn.hutool.core.date.DatePattern;
@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class UserEsService {
     public static final String INDEX = "moo_user";
-    private final EsBaseService esBaseService;
+    private final EsHelper esBaseService;
 
     /**
      * 单个更新或者新增

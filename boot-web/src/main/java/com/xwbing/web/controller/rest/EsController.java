@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.xwbing.service.demo.es.UserEsDTO;
 import com.xwbing.service.demo.es.UserEsService;
 import com.xwbing.service.demo.es.UserEsVO;
-import com.xwbing.service.service.EsBaseService;
+import com.xwbing.service.service.EsHelper;
 import com.xwbing.service.util.PageVO;
 import com.xwbing.web.response.ApiResponse;
 import com.xwbing.web.response.ApiResponseUtil;
@@ -33,9 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/es/")
 public class EsController {
     private final UserEsService userEsService;
-    private final EsBaseService esBaseService;
+    private final EsHelper esBaseService;
 
-    public EsController(UserEsService userEsService, EsBaseService esBaseService) {
+    public EsController(UserEsService userEsService, EsHelper esBaseService) {
         this.userEsService = userEsService;
         this.esBaseService = esBaseService;
     }
