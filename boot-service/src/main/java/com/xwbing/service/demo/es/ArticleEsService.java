@@ -79,7 +79,6 @@ public class ArticleEsService {
         highlightBuilder.postTags("</span>");
         highlightBuilder.field(new HighlightBuilder.Field("title").numOfFragments(0));
         highlightBuilder.field(new HighlightBuilder.Field("content").fragmentSize(100).numOfFragments(50));
-        // highlightBuilder.requireFieldMatch(false);
         return highlightBuilder;
     }
 
