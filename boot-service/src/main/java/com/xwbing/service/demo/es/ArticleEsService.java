@@ -78,7 +78,7 @@ public class ArticleEsService {
         highlightBuilder.preTags("<span style='color:#1677ff'>");
         highlightBuilder.postTags("</span>");
         highlightBuilder.field(new HighlightBuilder.Field("title").numOfFragments(0));
-        highlightBuilder.field(new HighlightBuilder.Field("content").fragmentSize(100).numOfFragments(100));
+        highlightBuilder.field(new HighlightBuilder.Field("content").fragmentSize(100).numOfFragments(50));
         // highlightBuilder.requireFieldMatch(false);
         return highlightBuilder;
     }
