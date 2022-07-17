@@ -83,22 +83,6 @@ public class ArticleEsService {
     }
 
     private FunctionScoreQueryBuilder functionScore(QueryBuilder query) {
-        // FilterFunctionBuilder[] filterFunctionBuilders;
-        // HashMap<String, Object> param = Maps.newHashMap();
-        // param.put("origin", LocalDateTime.now());
-        // param.put("scale", "365d");
-        // param.put("offset", "0d");
-        // param.put("decay", 0.5);
-        // String scriptStr =
-        //         "if(doc['publishDate'].size()>0){return decayDateGauss(params.origin, params.scale, params.offset, params.decay, doc['publishDate'].value);}"
-        //                 + "else{return 0;}";
-        // Script script = new Script(ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG, scriptStr, param);
-        // ScriptScoreFunctionBuilder scriptScoreFunction = ScoreFunctionBuilders.scriptFunction(script).setWeight(100);
-        // FilterFunctionBuilder filterFunctionBuilder = new FilterFunctionBuilder(scriptScoreFunction);
-        // filterFunctionBuilders = new FilterFunctionBuilder[] { filterFunctionBuilder };
-        // return QueryBuilders.functionScoreQuery(query, filterFunctionBuilders).scoreMode(ScoreMode.SUM)
-        //         .boostMode(CombineFunction.SUM);
-
         GaussDecayFunctionBuilder publishDate = ScoreFunctionBuilders
                 .gaussDecayFunction("publishDate", LocalDateTime.now(), "365d", "0d", 0.5).setWeight(100);
         FilterFunctionBuilder f1 = new FilterFunctionBuilder(publishDate);
