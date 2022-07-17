@@ -4,10 +4,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -30,6 +32,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.core.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -37,6 +40,8 @@ import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.springframework.stereotype.Service;
 
@@ -227,6 +232,7 @@ public class EsHelper {
 
     /**
      * @param query 搜索条件
+     * @param highlight 高亮条件
      * @param sorts 排序
      * @param page 页码
      * @param size 页数大小
@@ -236,12 +242,14 @@ public class EsHelper {
      *
      * @return
      */
-    public <T> PageVO<T> search(QueryBuilder query, SortBuilder[] sorts, int page, int size, String[] includes,
-            String[] excludes, Class<T> clazz, String index) {
+    public <T> PageVO<T> search(QueryBuilder query, HighlightBuilder highlight, SortBuilder[] sorts, int page, int size,
+            String[] includes, String[] excludes, Class<T> clazz, String index) {
         SearchRequest request = new SearchRequest(index);
         SearchSourceBuilder source = new SearchSourceBuilder();
         // 搜索条件
         source.query(query);
+        // 高亮条件
+        source.highlighter(highlight);
         // 分页设置
         source.from(from(page, size));
         source.size(size);
@@ -257,14 +265,27 @@ public class EsHelper {
         }
         request.source(source);
         try {
-            log.info("elasticsearch search source:{}", source.toString());
+            log.info("elasticsearch search dsl:{}", source.toString());
             SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
             log.info("elasticsearch search response:{}", response.toString());
             log.info("elasticsearch search took {}ms", response.getTook().getMillis());
             SearchHits hits = response.getHits();
-            List<T> collect = Arrays.stream(hits.getHits())
-                    .map(searchHit -> Jackson.build().readValue(searchHit.getSourceAsString(), clazz))
-                    .collect(Collectors.toList());
+            List<T> collect = Arrays.stream(hits.getHits()).map(searchHit -> {
+                Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
+                if (highlight != null) {
+                    Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
+                    if (MapUtils.isNotEmpty(highlightFields)) {
+                        highlightFields.forEach((field, highlightField) -> {
+                            StringBuilder sb = new StringBuilder();
+                            for (Text text : highlightField.getFragments()) {
+                                sb.append(text);
+                            }
+                            sourceAsMap.put(field, sb.toString());
+                        });
+                    }
+                }
+                return Jackson.build().convertToValue(sourceAsMap, clazz);
+            }).collect(Collectors.toList());
             return PageVO.<T>builder().total(hits.getTotalHits().value).data(collect).build();
         } catch (Exception e) {
             log.error("elasticsearch search error", e);

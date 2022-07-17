@@ -102,5 +102,9 @@ public class Jackson {
         public Map<String, Object> convertToMap(Object value) {
             return this.mapper.convertValue(value, Map.class);
         }
+
+        public <T> T convertToValue(Map<String, Object> map, Class<T> valueType) {
+            return this.mapper.convertValue(map, valueType);
+        }
     }
 }

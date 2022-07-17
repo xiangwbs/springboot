@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserEsDTO {
+    private String searchKey;
     private Long userId;
 
     private List<Long> excludeUserIds;
