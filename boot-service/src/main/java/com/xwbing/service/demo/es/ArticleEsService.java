@@ -83,8 +83,9 @@ public class ArticleEsService {
     }
 
     private FunctionScoreQueryBuilder functionScore(QueryBuilder query) {
-        GaussDecayFunctionBuilder publishDate = ScoreFunctionBuilders
-                .gaussDecayFunction("publishDate", LocalDateTime.now(), "365d", "0d", 0.5).setWeight(100);
+        GaussDecayFunctionBuilder publishDate = ScoreFunctionBuilders.gaussDecayFunction("publishDate",
+                DateUtil.format(LocalDateTime.now(), DatePattern.NORM_DATETIME_PATTERN), "365d", "0d", 0.5)
+                .setWeight(100);
         FilterFunctionBuilder f1 = new FilterFunctionBuilder(publishDate);
 
         HashMap<String, Object> params = Maps.newHashMap();
