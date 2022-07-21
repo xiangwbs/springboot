@@ -113,11 +113,13 @@ public class ArticleEsService {
         if (StringUtils.isNotEmpty(searchKey)) {
             BoolQueryBuilder keyBuilder = QueryBuilders.boolQuery();
             if (dto.isWasMatchSearch()) {
-                // 模糊匹配 会分词
+                // 模糊匹配 分词 分为多个term
+                //（where term=term0 or term=term1）/（where term=term0 and term=term1）
                 keyBuilder.should(QueryBuilders.matchQuery("title", searchKey).operator(Operator.AND)).boost(100);
                 keyBuilder.should(QueryBuilders.matchQuery("content", searchKey).operator(Operator.AND)).boost(5);
             } else {
-                // 需要精准匹配
+                // 精准匹配 分词 term都包含且顺序一致 slop:term之间的position容错差值
+                //（where term=term0 and term0_position=0 and term=term1 and term1_position=1）
                 keyBuilder.should(QueryBuilders.matchPhraseQuery("title", searchKey).slop(1)).boost(100);
                 keyBuilder.should(QueryBuilders.matchPhraseQuery("content", searchKey).slop(1)).boost(5);
             }
@@ -126,7 +128,8 @@ public class ArticleEsService {
         if (StringUtils.isNotEmpty(dto.getIssueDept())) {
             bool.must(QueryBuilders.matchPhraseQuery("issueDept", dto.getIssueDept()).slop(1));
         }
-        // 与match_phrase查询一致，但是它将查询字符串的最后一个词作为前缀(prefix)使用
+        // 与match_phrase查询一致，但是它将查询字符串的最后一个term作为前缀(prefix)使用
+        //（where term=term0 and term0_position=0 and term=term1 and term1_position=1 and term like t%）
         // 使用场景：自动补全的即时搜索
         // if (StringUtils.isNotEmpty(dto.getXxx())) {
         //     bool.must(QueryBuilders.matchPhrasePrefixQuery("xxx", dto.getXxx()).maxExpansions(20));

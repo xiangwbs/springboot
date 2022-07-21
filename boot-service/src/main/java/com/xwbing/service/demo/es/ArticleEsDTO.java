@@ -24,8 +24,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ArticleEsDTO {
     private String searchKey;
+    @ApiModelProperty("模糊匹配")
     private boolean wasMatchSearch;
-
     @ApiModelProperty("发文部门")
     private String issueDept;
     @ApiModelProperty(value = "发文部门代码")
