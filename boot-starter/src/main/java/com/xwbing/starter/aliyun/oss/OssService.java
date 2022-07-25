@@ -41,6 +41,8 @@ import com.xwbing.starter.aliyun.oss.vo.VideoPlayInfoVO;
 import com.xwbing.starter.aliyun.oss.vo.VideoUploadAuthVO;
 import com.xwbing.starter.exception.ConfigException;
 
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -225,6 +227,11 @@ public class OssService {
         PutObjectRequest putObjectRequest = new PutObjectRequest(ossProperties.getBucket(), objectKey, inputStream);
         ossClient.putObject(putObjectRequest);
         return objectKey;
+    }
+
+    public String putImage(String url) {
+        String suffix = url.substring(url.lastIndexOf(".")).toLowerCase();
+        return this.putImage(IoUtil.toStream(HttpUtil.downloadBytes(url)), suffix);
     }
 
     /**

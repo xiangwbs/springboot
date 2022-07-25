@@ -102,6 +102,6 @@ alipay:
 
 elasticsearch:
   username: elastic
-  password: 8RWTLqfPPrjXnTWoplWylldOS_K9u
+  password: 8RWTLqfPPrjXnTWoplWylldOS_K9
   hosts:
     - 172.30.37.164:3006
