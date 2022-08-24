@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.es;
+package com.xwbing.service.demo.es.article;
 
 import com.xwbing.service.enums.base.BaseEnum;
 

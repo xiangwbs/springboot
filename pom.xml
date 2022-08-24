@@ -94,6 +94,7 @@
         <swagger.version>1.6.0</swagger.version>
         <jsoup.verson>1.13.1</jsoup.verson>
         <elasticsearch.version>7.15.0</elasticsearch.version>
+        <redisson.version>3.5.4</redisson.version>
     </properties>
 
     <dependencies>

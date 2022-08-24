@@ -1,5 +1,8 @@
 package com.xwbing.starter.redis;
 
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -63,5 +66,26 @@ public class RedisTemplateConfiguration {
         StringRedisTemplate template = new StringRedisTemplate();
         template.setConnectionFactory(redisConnectionFactory);
         return template;
+    }
+
+    // @Bean(name = "redissonClient")
+    // public RedissonClient getRedissonClient() {
+    //     Config config = new Config();
+    //     //cluster方式至少6个节点(3主3从，3主做sharding，3从用来保证主宕机后可以高可用)
+    //     config.useClusterServers()
+    //             .addNodeAddress("redis://192.168.8.127:6381")
+    //             .addNodeAddress("redis://192.168.8.128:6381")
+    //             .addNodeAddress("redis://192.168.8.129:6381")
+    //             .addNodeAddress("redis://192.168.8.127:6380")
+    //             .addNodeAddress("redis://192.168.8.128:6380")
+    //             .addNodeAddress("redis://192.168.8.129:6380");
+    //     return Redisson.create(config);
+    // }
+
+    @Bean(name = "redissonClient")
+    public RedissonClient getRedissonClient() {
+        Config config = new Config();
+        config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+        return Redisson.create(config);
     }
 }

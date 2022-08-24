@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.es;
+package com.xwbing.service.demo.es.article;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

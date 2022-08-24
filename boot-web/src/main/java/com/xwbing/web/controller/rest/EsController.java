@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.xwbing.service.demo.es.ArticleEsDTO;
-import com.xwbing.service.demo.es.ArticleEsService;
-import com.xwbing.service.demo.es.ArticleEsVO;
+import com.xwbing.service.demo.es.article.ArticleEsDTO;
+import com.xwbing.service.demo.es.article.ArticleEsService;
+import com.xwbing.service.demo.es.article.ArticleEsVO;
 import com.xwbing.service.service.EsHelper;
 import com.xwbing.service.util.PageVO;
 import com.xwbing.web.response.ApiResponse;
