@@ -23,7 +23,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xwbing.service.constant.CommonConstant;
-import com.xwbing.service.domain.entity.vo.UserDto;
 import com.xwbing.service.domain.entity.model.EmailModel;
 import com.xwbing.service.domain.entity.sys.SysAuthority;
 import com.xwbing.service.domain.entity.sys.SysConfig;
@@ -31,14 +30,13 @@ import com.xwbing.service.domain.entity.sys.SysRole;
 import com.xwbing.service.domain.entity.sys.SysUser;
 import com.xwbing.service.domain.entity.sys.SysUserLoginInOut;
 import com.xwbing.service.domain.entity.sys.SysUserRole;
+import com.xwbing.service.domain.entity.vo.UserDto;
 import com.xwbing.service.domain.mapper.sys.SysUserMapper;
 import com.xwbing.service.enums.LoginInOutEnum;
 import com.xwbing.service.enums.SexEnum;
 import com.xwbing.service.enums.YesOrNoEnum;
 import com.xwbing.service.exception.BusinessException;
-import com.xwbing.service.rabbit.Sender;
 import com.xwbing.service.service.BaseService;
-import com.xwbing.starter.util.CommonDataUtil;
 import com.xwbing.service.util.DigestsUtil;
 import com.xwbing.service.util.EmailUtil;
 import com.xwbing.service.util.EncodeUtil;
@@ -49,6 +47,7 @@ import com.xwbing.service.util.PassWordUtil;
 import com.xwbing.service.util.RSAUtil;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.ThreadLocalUtil;
+import com.xwbing.starter.util.CommonDataUtil;
 
 /**
  * 说明: 用户服务层
@@ -69,8 +68,6 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
     private SysUserRoleService sysUserRoleService;
     @Resource
     private SysUserMapper userMapper;
-    @Resource
-    private Sender sender;
 
     @Override
     protected SysUserMapper getMapper() {
@@ -103,7 +100,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         }
         String[] msg = { sysUser.getMail(), userName, res[0] };
         //使用mq发送邮件
-        sender.sendEmail(msg);
+        // sender.sendEmail(msg);
         return result;
     }
 
@@ -236,7 +233,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         }
         //使用mq发送邮件
         String[] msg = { old.getMail(), userName, str[0] };
-        sender.sendEmail(msg);
+        // sender.sendEmail(msg);
         return result;
     }
 

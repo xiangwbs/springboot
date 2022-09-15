@@ -2,21 +2,21 @@ server:
   port: 8080
 
 spring:
-  rabbitmq:
-    host: 127.0.0.1
-    port: 5672
-    username: guest
-    password: guest
-    virtual-host: /
-    connection-timeout: 60000
-    publisher-confirms: true #确认消息已发送到交换机ack
-    publisher-returns: true #确认消息已发送到队列ack
-    cache:
-      channel:
-        size: 1
-    listener:
-      simple:
-        acknowledge-mode: manual
+#  rabbitmq:
+#    host: 127.0.0.1
+#    port: 5672
+#    username: guest
+#    password: guest
+#    virtual-host: /
+#    connection-timeout: 60000
+#    publisher-confirms: true #确认消息已发送到交换机ack
+#    publisher-returns: true #确认消息已发送到队列ack
+#    cache:
+#      channel:
+#        size: 1
+#    listener:
+#      simple:
+#        acknowledge-mode: manual
   redis:
     host: 127.0.0.1
     port: 6379

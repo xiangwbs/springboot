@@ -30,7 +30,6 @@ import com.xwbing.service.domain.entity.sys.SysUserLoginInOut;
 import com.xwbing.service.domain.entity.vo.ExpressInfoVo;
 import com.xwbing.service.domain.mapper.sys.SysUserLoginInOutMapper;
 import com.xwbing.service.enums.KdniaoShipperCodeEnum;
-import com.xwbing.service.rabbit.Sender;
 import com.xwbing.service.service.rest.ExpressDeliveryService;
 import com.xwbing.service.service.rest.QRCodeZipService;
 import com.xwbing.service.service.sys.DataDictionaryService;
@@ -58,8 +57,8 @@ public class ServiceTest extends BaseTest {
     private ExpressDeliveryService expressDeliveryService;
     @Resource
     private QRCodeZipService qrCodeZipService;
-    @Resource
-    private Sender sender;
+    // @Resource
+    // private Sender sender;
     @Resource
     private SysRoleService sysRoleService;
     @Resource
@@ -154,10 +153,10 @@ public class ServiceTest extends BaseTest {
         Assertions.assertEquals("123456", de);
     }
 
-    @Test
-    public void sendTest() {
-        sender.sendMessage(new String[] { "mq测试" });
-    }
+    // @Test
+    // public void sendTest() {
+    //     sender.sendMessage(new String[] { "mq测试" });
+    // }
 
     @Test
     public void redisTest() {

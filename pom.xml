@@ -95,6 +95,7 @@
         <jsoup.verson>1.13.1</jsoup.verson>
         <elasticsearch.version>7.15.0</elasticsearch.version>
         <redisson.version>3.5.4</redisson.version>
+        <netty.version>4.1.67.Final</netty.version>
     </properties>
 
     <dependencies>

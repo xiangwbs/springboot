@@ -2,10 +2,7 @@ package com.xwbing.starter.xxljob;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,19 +23,19 @@ public class XxlJobAutoConfiguration {
         this.xxlJobProperties = xxlJobProperties;
     }
 
-    @Bean(initMethod = "start", destroyMethod = "destroy")
-    public XxlJobSpringExecutor xxlJobExecutor() {
-        log.info(">>>>>>>>>>> xxl-job config init.");
-        XxlJobSpringExecutor xxlJobSpringExecutor = new XxlJobSpringExecutor();
-        xxlJobSpringExecutor.setAdminAddresses(xxlJobProperties.getAdminAddresses());
-        xxlJobSpringExecutor.setAccessToken(xxlJobProperties.getAccessToken());
-        xxlJobSpringExecutor.setAppName(xxlJobProperties.getExecutorAppName());
-        xxlJobSpringExecutor.setIp(xxlJobProperties.getExecutorIp());
-        xxlJobSpringExecutor.setPort(xxlJobProperties.getExecutorPort());
-        xxlJobSpringExecutor.setLogPath(xxlJobProperties.getExecutorLogPath());
-        xxlJobSpringExecutor.setLogRetentionDays(xxlJobProperties.getExecutorLogRetentionDays());
-        return xxlJobSpringExecutor;
-    }
+    // @Bean(initMethod = "start", destroyMethod = "destroy")
+    // public XxlJobSpringExecutor xxlJobExecutor() {
+    //     log.info(">>>>>>>>>>> xxl-job config init.");
+    //     XxlJobSpringExecutor xxlJobSpringExecutor = new XxlJobSpringExecutor();
+    //     xxlJobSpringExecutor.setAdminAddresses(xxlJobProperties.getAdminAddresses());
+    //     xxlJobSpringExecutor.setAccessToken(xxlJobProperties.getAccessToken());
+    //     xxlJobSpringExecutor.setAppName(xxlJobProperties.getExecutorAppName());
+    //     xxlJobSpringExecutor.setIp(xxlJobProperties.getExecutorIp());
+    //     xxlJobSpringExecutor.setPort(xxlJobProperties.getExecutorPort());
+    //     xxlJobSpringExecutor.setLogPath(xxlJobProperties.getExecutorLogPath());
+    //     xxlJobSpringExecutor.setLogRetentionDays(xxlJobProperties.getExecutorLogRetentionDays());
+    //     return xxlJobSpringExecutor;
+    // }
 
     /**
      * 针对多网卡、容器内部署等情况，可借助 "spring-cloud-commons" 提供的 "InetUtils" 组件灵活定制注册IP；

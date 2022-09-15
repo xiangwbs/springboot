@@ -2,21 +2,21 @@ server:
   port: 8081
 
 spring:
-  rabbitmq:
-    host: 127.0.0.1
-    port: 5672
-    username: guest
-    password: guest
-    virtual-host: /
-    connection-timeout: 60000 #毫秒
-    publisher-confirms: true #支持发布确认（确认消息是否发送到交换器）
-    publisher-returns: true #支持发布返回（确认消息没有存入到相应的队列）
-    cache:
-      channel:
-        size: 1
-    listener:
-      simple:
-        acknowledge-mode: manual #消息接收手动ack确认
+#  rabbitmq:
+#    host: 127.0.0.1
+#    port: 5672
+#    username: guest
+#    password: guest
+#    virtual-host: /
+#    connection-timeout: 60000 #毫秒
+#    publisher-confirms: true #支持发布确认（确认消息是否发送到交换器）
+#    publisher-returns: true #支持发布返回（确认消息没有存入到相应的队列）
+#    cache:
+#      channel:
+#        size: 1
+#    listener:
+#      simple:
+#        acknowledge-mode: manual #消息接收手动ack确认
 
 xxl:
   job:

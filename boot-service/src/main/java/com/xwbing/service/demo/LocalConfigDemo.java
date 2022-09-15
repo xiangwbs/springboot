@@ -18,6 +18,17 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class LocalConfigDemo {
     private final Environment environment;
+    /**
+     * AutowiredAnnotationBeanPostProcessor.AutowiredFieldElement#inject
+     *     ->resolveFieldValue(field, bean, beanName)
+     *     	->beanFactory.resolveDependency(desc, beanName, autowiredBeanNames, typeConverter)
+     *     		->doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter)
+     *                 // 获取到@Value属性上的value
+     *     			->Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor)
+     *                 // 根据value从env中寻找与之对应的值
+     *     			->String strVal = resolveEmbeddedValue((String) value)
+     *     ->field.set(bean,value)
+     */
     @Value("${server.servlet.context-path}")
     private String path;
 
