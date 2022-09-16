@@ -96,6 +96,9 @@
         <elasticsearch.version>7.15.0</elasticsearch.version>
         <redisson.version>3.5.4</redisson.version>
         <netty.version>4.1.67.Final</netty.version>
+        <curator-recipes.vesion>5.2.1</curator-recipes.vesion>
+        <zookeeper.version>3.7.1</zookeeper.version>
+
     </properties>
 
     <dependencies>
