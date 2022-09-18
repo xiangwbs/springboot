@@ -15,10 +15,10 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
 public class NettyClient {
-    public void connect(int port, String host) throws InterruptedException {
-        EventLoopGroup group = new NioEventLoopGroup();
+    public static void main(String[] args) {
+        EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(group).channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, true)
+        bootstrap.group(eventLoopGroup).channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, true)
                 .handler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
@@ -27,15 +27,18 @@ public class NettyClient {
                         // 客户端编码要发送的java对象
                         pipeline.addLast(new ObjectEncoder());
                         // 客户端解码接收的java对象码流
-                        pipeline.addLast(new ObjectDecoder(ClassResolvers.cacheDisabled(ClassLoader.getSystemClassLoader())));
+                        pipeline.addLast(
+                                new ObjectDecoder(ClassResolvers.cacheDisabled(ClassLoader.getSystemClassLoader())));
                         pipeline.addLast(new SimpleClientHandler());
                     }
                 });
-        ChannelFuture future = bootstrap.connect(host, port).sync();
-        future.channel().closeFuture().sync();
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        new NettyClient().connect(8080, "127.0.0.1");
+        try {
+            ChannelFuture channelFuture = bootstrap.connect("localhost", 8080).sync();
+            channelFuture.channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            eventLoopGroup.shutdownGracefully();
+        }
     }
 }

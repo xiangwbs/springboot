@@ -6,12 +6,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public class SimpleServerHandler extends ChannelInboundHandlerAdapter {
-    private int counter = 0;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         Model model = (Model)msg;
-        System.out.println("this is " + (++counter) + " times receive client [" + model.getModelName() + "]");
+        System.out.println("收到客户端的消息内容：" + model);
+        // 写数据给客户端
+        model = new Model("服务端", "我是服务端");
         ctx.writeAndFlush(model);
     }
 
