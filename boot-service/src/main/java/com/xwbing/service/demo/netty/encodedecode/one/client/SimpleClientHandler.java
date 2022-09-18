@@ -6,6 +6,10 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 public class SimpleClientHandler extends ChannelInboundHandlerAdapter {
     /**
      * 客户端连接成功后，就会调用此方法，然后给服务端去发送消息
+     *
+     * @param ctx
+     *
+     * @throws Exception
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
