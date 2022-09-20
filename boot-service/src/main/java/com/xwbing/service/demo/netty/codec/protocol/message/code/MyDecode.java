@@ -40,7 +40,7 @@ public class MyDecode extends LengthFieldBasedFrameDecoder {
      * @return
      */
     private static MyMessageRecord decode(ByteBuffer byteBuffer) {
-        // headerLength | headerData | bodyData（定义的解码规则是读取数据去除长度字段）
+        // headerLength | headerData | bodyData（定义的解码规则是去除长度字段）
         // 获取到byteBuf的长度
         int length = byteBuffer.limit();
         // 头和序列化方式组成的字节的长度
