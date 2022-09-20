@@ -65,6 +65,7 @@ public class MyDecode extends LengthFieldBasedFrameDecoder {
         if (bodyLength > 0) {
             bodyData = new byte[bodyLength];
             byteBuffer.get(bodyData);
+            // []
         }
         record.setBody(SerializerUtil.deserializable(User.class, bodyData, getProtocolType(oriHeaderLen)));
         return record;

@@ -33,7 +33,7 @@ public class MyEncode extends MessageToByteEncoder<MyMessageRecord> {
      * @return
      */
     private ByteBuffer encodeHead(MyMessageRecord msg) {
-        // headerLength+headerData+body
+        // headerLength+headerData+bodyData
         int dataLength = 0;
         // 头部的length字段长度
         int headerLength = 4;
