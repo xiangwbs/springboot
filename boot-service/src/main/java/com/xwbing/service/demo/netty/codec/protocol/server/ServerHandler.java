@@ -27,14 +27,11 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         headerData.setSerializableType(SerializerEnum.JSON.code());
         gpHeader.setHeaderData(headerData);
         record.setHeader(gpHeader);
-
         User user = new User();
         user.setName("我是服务端数据");
         user.setAge(age);
         record.setBody(user);
-
         ctx.writeAndFlush(record);
-
         super.channelRead(ctx, msg);
     }
 

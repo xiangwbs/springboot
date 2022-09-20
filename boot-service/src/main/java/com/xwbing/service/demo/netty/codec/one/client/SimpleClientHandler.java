@@ -24,4 +24,9 @@ public class SimpleClientHandler extends ChannelInboundHandlerAdapter {
         System.out.println("收到服务端的消息内容：" + str);
         super.channelRead(ctx, msg);
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        ctx.close();
+    }
 }
