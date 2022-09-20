@@ -12,7 +12,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 /**
- * 自定义解码和编码
+ * 自定义消息协议
  */
 public class NettyServer {
     public static void main(String[] args) {
