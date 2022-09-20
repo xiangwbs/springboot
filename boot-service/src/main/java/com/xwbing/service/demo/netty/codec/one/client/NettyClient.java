@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.netty.encodedecode.one.client;
+package com.xwbing.service.demo.netty.codec.one.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;

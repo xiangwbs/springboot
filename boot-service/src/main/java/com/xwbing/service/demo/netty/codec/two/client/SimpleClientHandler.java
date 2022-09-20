@@ -1,6 +1,6 @@
-package com.xwbing.service.demo.netty.encodedecode.two.client;
+package com.xwbing.service.demo.netty.codec.two.client;
 
-import com.xwbing.service.demo.netty.encodedecode.two.Model;
+import com.xwbing.service.demo.netty.codec.two.Model;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

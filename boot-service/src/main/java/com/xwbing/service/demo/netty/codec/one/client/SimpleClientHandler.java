@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.netty.encodedecode.one.client;
+package com.xwbing.service.demo.netty.codec.one.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
