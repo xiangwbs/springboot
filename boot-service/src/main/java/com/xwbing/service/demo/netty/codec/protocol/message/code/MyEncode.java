@@ -48,9 +48,9 @@ public class MyEncode extends MessageToByteEncoder<MyMessageRecord> {
         dataLength += bodyLength;
         // 定义一个length+headerLength+headerData数据的buffer
         ByteBuffer byteBuffer = ByteBuffer.allocate(4 + dataLength - bodyLength);
-        // 整体的数据长度
+        // 整体数据长度
         byteBuffer.putInt(dataLength);
-        // 把序列化的方式藏在了头长度的第一个字节里面
+        // 头数据长度（把序列化的方式藏在了头长度的第一个字节里面）
         byteBuffer.put(markProtocolType(headerData.length, msg.getHeader().getHeaderData().getSerializableType()));
         // 头的数据
         byteBuffer.put(headerData);

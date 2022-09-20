@@ -40,25 +40,26 @@ public class MyDecode extends LengthFieldBasedFrameDecoder {
      * @return
      */
     private static MyMessageRecord decode(ByteBuffer byteBuffer) {
+        // headerLength | headerData | bodyData（定义的解码规则是读取数据去除长度字段）
         // 获取到byteBuf的长度
         int length = byteBuffer.limit();
         // 头和序列化方式组成的字节的长度
         int oriHeaderLen = byteBuffer.getInt();
+        // headerData | bodyData
         // 头真正的长度
         int headerLength = getHeaderLength(oriHeaderLen);
         // 头的字节数据
         byte[] headerDataByte = new byte[headerLength];
         byteBuffer.get(headerDataByte);
-
+        // bodyData
         MyMessageRecord record = new MyMessageRecord();
         record.setLength(length);
-        // 反序列化头数据得到头对象
+        // 反序列化头数据
         MyHeader myHeader = SerializerUtil
                 .deserializable(MyHeader.class, headerDataByte, getProtocolType(oriHeaderLen));
         myHeader.setHeaderLength(headerLength);
         record.setHeader(myHeader);
-        // 反序列化body对象
-        // 获取body长度
+        // 反序列化body数据
         int bodyLength = length - 4 - headerLength;
         byte[] bodyData = null;
         if (bodyLength > 0) {
