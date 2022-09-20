@@ -63,6 +63,7 @@ public class MyEncode extends MessageToByteEncoder<MyMessageRecord> {
     /**
      * @param headerLength：头的长度
      * @param type：序列化方式
+     * 0xFF=11111111
      *
      * @return
      */

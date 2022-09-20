@@ -72,10 +72,24 @@ public class MyDecode extends LengthFieldBasedFrameDecoder {
         return record;
     }
 
+    /**
+     * 0xFFFFFF=11111111 11111111 11111111
+     *
+     * @param oriHeaderLen
+     *
+     * @return
+     */
     private static int getHeaderLength(int oriHeaderLen) {
         return oriHeaderLen & 0xFFFFFF;
     }
 
+    /**
+     * 0xFF=11111111
+     *
+     * @param oriHeaderLen
+     *
+     * @return
+     */
     private static byte getProtocolType(int oriHeaderLen) {
         return (byte)((oriHeaderLen >> 24) & 0xFF);
     }
