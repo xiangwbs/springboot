@@ -1,6 +1,6 @@
-package com.xwbing.service.demo.netty.codec.protocol.message.serializer;
+package com.xwbing.service.demo.netty.customprotocol.message.serializer;
 
-import com.xwbing.service.demo.netty.codec.protocol.message.enums.SerializerEnum;
+import com.xwbing.service.demo.netty.customprotocol.message.enums.SerializerEnum;
 
 public class SerializerUtil {
     public static <T> T deserializable(Class<T> clazz, byte[] bytes, byte serializerType) {

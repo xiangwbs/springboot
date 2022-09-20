@@ -1,9 +1,9 @@
-package com.xwbing.service.demo.netty.codec.protocol.message.code;
+package com.xwbing.service.demo.netty.customprotocol.message.code;
 
 import java.nio.ByteBuffer;
 
-import com.xwbing.service.demo.netty.codec.protocol.message.MyMessageRecord;
-import com.xwbing.service.demo.netty.codec.protocol.message.serializer.SerializerUtil;
+import com.xwbing.service.demo.netty.customprotocol.message.MyMessageRecord;
+import com.xwbing.service.demo.netty.customprotocol.message.serializer.SerializerUtil;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

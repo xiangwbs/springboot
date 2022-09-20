@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.netty.codec.protocol.message.serializer;
+package com.xwbing.service.demo.netty.customprotocol.message.serializer;
 
 public interface ISerializable {
     /**

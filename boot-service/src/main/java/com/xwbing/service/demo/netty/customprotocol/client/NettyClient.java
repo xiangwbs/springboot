@@ -1,9 +1,9 @@
-package com.xwbing.service.demo.netty.codec.protocol.client;
+package com.xwbing.service.demo.netty.customprotocol.client;
 
 import java.net.InetSocketAddress;
 
-import com.xwbing.service.demo.netty.codec.protocol.message.code.MyDecode;
-import com.xwbing.service.demo.netty.codec.protocol.message.code.MyEncode;
+import com.xwbing.service.demo.netty.customprotocol.message.code.MyDecode;
+import com.xwbing.service.demo.netty.customprotocol.message.code.MyEncode;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;

@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.netty.codec.protocol.message;
+package com.xwbing.service.demo.netty.customprotocol.message;
 
 import java.io.Serializable;
 

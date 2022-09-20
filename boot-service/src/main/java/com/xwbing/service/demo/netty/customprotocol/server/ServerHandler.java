@@ -1,12 +1,12 @@
-package com.xwbing.service.demo.netty.codec.protocol.server;
+package com.xwbing.service.demo.netty.customprotocol.server;
 
-import com.xwbing.service.demo.netty.codec.protocol.message.MyHeader;
-import com.xwbing.service.demo.netty.codec.protocol.message.MyHeaderData;
-import com.xwbing.service.demo.netty.codec.protocol.message.MyMessageRecord;
-import com.xwbing.service.demo.netty.codec.protocol.message.entity.User;
-import com.xwbing.service.demo.netty.codec.protocol.message.enums.LanguageEnum;
-import com.xwbing.service.demo.netty.codec.protocol.message.enums.ReqEnum;
-import com.xwbing.service.demo.netty.codec.protocol.message.enums.SerializerEnum;
+import com.xwbing.service.demo.netty.customprotocol.message.MyHeader;
+import com.xwbing.service.demo.netty.customprotocol.message.MyHeaderData;
+import com.xwbing.service.demo.netty.customprotocol.message.MyMessageRecord;
+import com.xwbing.service.demo.netty.customprotocol.message.entity.User;
+import com.xwbing.service.demo.netty.customprotocol.message.enums.LanguageEnum;
+import com.xwbing.service.demo.netty.customprotocol.message.enums.ReqEnum;
+import com.xwbing.service.demo.netty.customprotocol.message.enums.SerializerEnum;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
