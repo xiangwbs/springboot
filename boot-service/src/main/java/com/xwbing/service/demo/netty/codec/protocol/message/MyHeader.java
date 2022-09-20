@@ -6,6 +6,8 @@ import lombok.Data;
 
 @Data
 public class MyHeader implements Serializable {
-    private int headerLength;// 4个字节
+    // 4个字节 头长度
+    private int headerLength;
+    // 头内容
     private MyHeaderData headerData;
 }

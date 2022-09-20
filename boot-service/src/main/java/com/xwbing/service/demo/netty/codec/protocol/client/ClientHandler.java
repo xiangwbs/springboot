@@ -17,7 +17,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
         System.out.println("连接成功");
         for (int i = 0; i < 2; i++) {
             // 报文格式: length |  headerLength | headerData | bodyData
-            // 那么我们就可以构建数据内容
+            // 消息总长度 | 序列化方式 + 头消息长度 | 头数据 | 消息体
             MyMessageRecord record = new MyMessageRecord();
             MyHeader header = new MyHeader();
             MyHeaderData headerData = new MyHeaderData();

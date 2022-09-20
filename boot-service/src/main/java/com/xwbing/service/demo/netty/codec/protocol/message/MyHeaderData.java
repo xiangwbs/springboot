@@ -6,8 +6,12 @@ import lombok.Data;
 
 @Data
 public class MyHeaderData implements Serializable {
-    private int version;//4个字节
-    private byte languageCode;// 1个字节
-    private byte serializableType;// 序列化方式 1个字节
-    private byte reqType;//请求类型 1个字节
+    // 版本 4个字节
+    private int version;
+    // 语言 1个字节
+    private byte languageCode;
+    // 序列化方式 1个字节
+    private byte serializableType;
+    // 请求类型 1个字节
+    private byte reqType;
 }

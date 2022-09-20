@@ -27,6 +27,7 @@ public class MyEncode extends MessageToByteEncoder<MyMessageRecord> {
 
     /**
      * 报文格式：length | headerLength | headerData | bodyData
+     * 消息总长度 | 序列化方式 + 头消息长度 | 头数据 | 消息体
      *
      * @param msg
      *
