@@ -1,28 +1,28 @@
-package com.xwbing.service.demo.netty.codec.two.client;
-
-import com.xwbing.service.demo.netty.codec.two.Model;
+package com.xwbing.service.demo.netty.code.one.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public class SimpleClientHandler extends ChannelInboundHandlerAdapter {
+    /**
+     * 客户端连接成功后，就会调用此方法，然后给服务端去发送消息
+     *
+     * @param ctx
+     *
+     * @throws Exception
+     */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         System.out.println("连接成功");
-        Model model = new Model("客户端", "我是客户端");
-        ctx.writeAndFlush(model);
+        ctx.writeAndFlush("你好，我是客户端");
+        super.channelActive(ctx);
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Model model = (Model)msg;
-        System.out.println("收到服务端的消息内容：" + model);
+        String str = (String)msg;
+        System.out.println("收到服务端的消息内容：" + str);
         super.channelRead(ctx, msg);
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        ctx.flush();
     }
 
     @Override

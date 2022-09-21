@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.netty.codec.two;
+package com.xwbing.service.demo.netty.code.two;
 
 import java.io.Serializable;
 

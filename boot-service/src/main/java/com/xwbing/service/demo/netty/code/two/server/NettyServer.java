@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.netty.codec.two.server;
+package com.xwbing.service.demo.netty.code.two.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
