@@ -18,15 +18,15 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
         System.out.println("收到客户端消息：" + gpMessageRecord);
         // 给客户端返回数据
         MyMessageRecord record = new MyMessageRecord();
-        MyHeader gpHeader = new MyHeader();
+        MyHeader header = new MyHeader();
         int age = ((User)gpMessageRecord.getBody()).getAge();
         MyHeaderData headerData = new MyHeaderData();
         headerData.setReqType(ReqEnum.RES.code());
         headerData.setVersion(2);
         headerData.setLanguageCode(LanguageEnum.JAVA.code());
         headerData.setSerializableType(SerializerEnum.JSON.code());
-        gpHeader.setHeaderData(headerData);
-        record.setHeader(gpHeader);
+        header.setHeaderData(headerData);
+        record.setHeader(header);
         User user = new User();
         user.setName("我是服务端数据");
         user.setAge(age);
