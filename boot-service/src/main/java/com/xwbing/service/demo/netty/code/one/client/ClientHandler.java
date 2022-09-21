@@ -3,7 +3,7 @@ package com.xwbing.service.demo.netty.code.one.client;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-public class SimpleClientHandler extends ChannelInboundHandlerAdapter {
+public class ClientHandler extends ChannelInboundHandlerAdapter {
     /**
      * 客户端连接成功后，就会调用此方法，然后给服务端去发送消息
      *

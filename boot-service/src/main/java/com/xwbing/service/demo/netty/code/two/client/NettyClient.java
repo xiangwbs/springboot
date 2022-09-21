@@ -29,7 +29,7 @@ public class NettyClient {
                         // 客户端解码接收的java对象码流
                         pipeline.addLast(
                                 new ObjectDecoder(ClassResolvers.cacheDisabled(ClassLoader.getSystemClassLoader())));
-                        pipeline.addLast(new SimpleClientHandler());
+                        pipeline.addLast(new ClientHandler());
                     }
                 });
         try {

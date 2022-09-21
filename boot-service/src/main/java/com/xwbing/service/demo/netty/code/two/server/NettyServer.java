@@ -35,7 +35,7 @@ public class NettyServer {
                         // 服务端返回客户端，编码java对象，使用Netty提供的二次编码器ObejctEncoder
                         .addLast(new ObjectEncoder())
                         // 编写的业务handler
-                        .addLast(new SimpleServerHandler());
+                        .addLast(new ServerHandler());
             }
         });
         //@formatter:on

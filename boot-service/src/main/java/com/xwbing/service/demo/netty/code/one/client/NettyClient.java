@@ -29,7 +29,7 @@ public class NettyClient {
                                 .addLast(new LengthFieldPrepender(4, 0, false))
                                 .addLast(new StringDecoder())
                                 .addLast(new StringEncoder())
-                                .addLast(new SimpleClientHandler());
+                                .addLast(new ClientHandler());
                          //@formatter:on
                     }
                 });

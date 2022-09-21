@@ -44,7 +44,7 @@ public class NettyServer {
                                 .addLast(new LengthFieldPrepender(4, 0, false))
                                 .addLast(new StringDecoder())
                                 .addLast(new StringEncoder())
-                                .addLast(new SimpleServerHandler());
+                                .addLast(new ServerHandler());
                         //@formatter:on
                     }
                 });
