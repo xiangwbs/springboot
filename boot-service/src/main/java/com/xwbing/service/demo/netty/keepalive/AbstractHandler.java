@@ -1,9 +1,9 @@
 package com.xwbing.service.demo.netty.keepalive;
 
-import com.xwbing.service.demo.netty.customprotocol.message.MyHeader;
-import com.xwbing.service.demo.netty.customprotocol.message.MyHeaderData;
-import com.xwbing.service.demo.netty.customprotocol.message.MyMessageRecord;
-import com.xwbing.service.demo.netty.customprotocol.message.enums.ReqEnum;
+import com.xwbing.service.demo.netty.myprotocol.message.MyHeader;
+import com.xwbing.service.demo.netty.myprotocol.message.MyHeaderData;
+import com.xwbing.service.demo.netty.myprotocol.message.MyMessageRecord;
+import com.xwbing.service.demo.netty.myprotocol.message.enums.ReqEnum;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

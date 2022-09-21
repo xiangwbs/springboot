@@ -1,12 +1,12 @@
-package com.xwbing.service.demo.netty.customprotocol.client;
+package com.xwbing.service.demo.netty.myprotocol.client;
 
-import com.xwbing.service.demo.netty.customprotocol.message.MyHeader;
-import com.xwbing.service.demo.netty.customprotocol.message.MyHeaderData;
-import com.xwbing.service.demo.netty.customprotocol.message.MyMessageRecord;
-import com.xwbing.service.demo.netty.customprotocol.message.entity.User;
-import com.xwbing.service.demo.netty.customprotocol.message.enums.LanguageEnum;
-import com.xwbing.service.demo.netty.customprotocol.message.enums.ReqEnum;
-import com.xwbing.service.demo.netty.customprotocol.message.enums.SerializerEnum;
+import com.xwbing.service.demo.netty.myprotocol.message.MyHeader;
+import com.xwbing.service.demo.netty.myprotocol.message.MyHeaderData;
+import com.xwbing.service.demo.netty.myprotocol.message.MyMessageRecord;
+import com.xwbing.service.demo.netty.myprotocol.message.entity.User;
+import com.xwbing.service.demo.netty.myprotocol.message.enums.LanguageEnum;
+import com.xwbing.service.demo.netty.myprotocol.message.enums.ReqEnum;
+import com.xwbing.service.demo.netty.myprotocol.message.enums.SerializerEnum;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.netty.customprotocol.message.enums;
+package com.xwbing.service.demo.netty.myprotocol.message.enums;
 
 public enum LanguageEnum {
     JAVA((byte)0),

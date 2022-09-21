@@ -1,6 +1,6 @@
 package com.xwbing.service.demo.netty.keepalive.client;
 
-import com.xwbing.service.demo.netty.customprotocol.message.enums.ReqEnum;
+import com.xwbing.service.demo.netty.myprotocol.message.enums.ReqEnum;
 import com.xwbing.service.demo.netty.keepalive.AbstractHandler;
 
 import io.netty.channel.ChannelHandlerContext;

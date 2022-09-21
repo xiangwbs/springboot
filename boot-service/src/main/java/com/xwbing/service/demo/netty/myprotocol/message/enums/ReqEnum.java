@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.netty.customprotocol.message.enums;
+package com.xwbing.service.demo.netty.myprotocol.message.enums;
 
 public enum ReqEnum {
     REQ((byte)0),

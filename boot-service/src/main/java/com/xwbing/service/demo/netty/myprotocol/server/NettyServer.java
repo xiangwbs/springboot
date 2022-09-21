@@ -1,7 +1,7 @@
-package com.xwbing.service.demo.netty.customprotocol.server;
+package com.xwbing.service.demo.netty.myprotocol.server;
 
-import com.xwbing.service.demo.netty.customprotocol.message.code.MyDecode;
-import com.xwbing.service.demo.netty.customprotocol.message.code.MyEncode;
+import com.xwbing.service.demo.netty.myprotocol.message.code.MyDecode;
+import com.xwbing.service.demo.netty.myprotocol.message.code.MyEncode;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

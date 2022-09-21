@@ -1,11 +1,11 @@
-package com.xwbing.service.demo.netty.customprotocol.message.code;
+package com.xwbing.service.demo.netty.myprotocol.message.code;
 
 import java.nio.ByteBuffer;
 
-import com.xwbing.service.demo.netty.customprotocol.message.MyHeader;
-import com.xwbing.service.demo.netty.customprotocol.message.MyMessageRecord;
-import com.xwbing.service.demo.netty.customprotocol.message.entity.User;
-import com.xwbing.service.demo.netty.customprotocol.message.serializer.SerializerUtil;
+import com.xwbing.service.demo.netty.myprotocol.message.MyHeader;
+import com.xwbing.service.demo.netty.myprotocol.message.MyMessageRecord;
+import com.xwbing.service.demo.netty.myprotocol.message.entity.User;
+import com.xwbing.service.demo.netty.myprotocol.message.serializer.SerializerUtil;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

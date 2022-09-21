@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.netty.customprotocol.message.serializer;
+package com.xwbing.service.demo.netty.myprotocol.message.serializer;
 
 import java.nio.charset.StandardCharsets;
 
