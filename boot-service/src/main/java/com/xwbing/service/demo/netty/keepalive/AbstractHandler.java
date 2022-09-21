@@ -106,12 +106,12 @@ public abstract class AbstractHandler extends ChannelInboundHandlerAdapter {
     }
 
     protected void sendMsg(ChannelHandlerContext ctx, ReqEnum req) {
-        MyMessageRecord record = createObject(req.code());
+        MyMessageRecord record = createRecord(req.code());
         ctx.writeAndFlush(record);
         System.out.println(name + " 发送" + req.name() + "到 " + ctx.channel().remoteAddress());
     }
 
-    private MyMessageRecord createObject(byte reqType) {
+    private MyMessageRecord createRecord(byte reqType) {
         MyMessageRecord record = new MyMessageRecord();
         MyHeader header = new MyHeader();
         MyHeaderData headerData = new MyHeaderData();
