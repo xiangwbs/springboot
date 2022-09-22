@@ -9,7 +9,7 @@ public class ClientHandler extends AbstractHandler {
     private NettyClient nettyClient;
 
     public ClientHandler(NettyClient nettyClient) {
-        super("nettyClient");
+        super(NettyClient.class.getSimpleName());
         this.nettyClient = nettyClient;
     }
 

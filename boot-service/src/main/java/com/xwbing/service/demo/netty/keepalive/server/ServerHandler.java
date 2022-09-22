@@ -6,7 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class ServerHandler extends AbstractHandler {
     public ServerHandler() {
-        super("nettyServer");
+        super(NettyServer.class.getSimpleName());
     }
 
     @Override

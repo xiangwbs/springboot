@@ -33,7 +33,8 @@ public class NettyServer {
                                 // writerIdleTimeSeconds：Channel多久没有写数据会触发IdleStateEvent，其中IdleState为IdleState.WRITER_IDLE
                                 // allIdleTimeSeconds：Channel多久没有读和写数据会触发IdleStateEvent，其中IdleState为IdleState.ALL_IDLE
                                 .addLast(new IdleStateHandler(5, 0, 0))
-                                .addLast(new MyEncode()).addLast(new MyDecode())
+                                .addLast(new MyEncode())
+                                .addLast(new MyDecode())
                                 .addLast(new ServerHandler());
                     }
                 });
