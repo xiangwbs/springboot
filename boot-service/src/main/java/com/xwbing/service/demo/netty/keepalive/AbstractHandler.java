@@ -55,7 +55,7 @@ public abstract class AbstractHandler extends ChannelInboundHandlerAdapter {
             // PONG
             case (byte)3:
                 // 如果收到的是服务端的pong报文，不做处理
-                System.out.println(name + " get pong msg from " + ctx.channel().remoteAddress());
+                System.out.println(name + " receive pong from " + ctx.channel().remoteAddress());
                 break;
             default:
                 break;
@@ -108,7 +108,7 @@ public abstract class AbstractHandler extends ChannelInboundHandlerAdapter {
     protected void sendMsg(ChannelHandlerContext ctx, ReqEnum req) {
         MyMessageRecord record = createRecord(req.code());
         ctx.writeAndFlush(record);
-        System.out.println(name + " send" + req.name() + " to " + ctx.channel().remoteAddress());
+        System.out.println(name + " send " + req.name() + " to " + ctx.channel().remoteAddress());
     }
 
     private MyMessageRecord createRecord(byte reqType) {
