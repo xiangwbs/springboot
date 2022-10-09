@@ -12,7 +12,7 @@
     <artifactId>boot-starter</artifactId>
 
     <dependencies>
-        <!-- 所有starter标配 -->
+        <!-- SpringBoot的核心启动器，包含了自动配置 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>

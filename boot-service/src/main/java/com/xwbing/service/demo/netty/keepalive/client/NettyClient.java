@@ -52,8 +52,8 @@ public class NettyClient {
         if (channel != null && channel.isActive()) {
             return;
         }
-        final ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress("localhost", 8080));
         try {
+            final ChannelFuture channelFuture = bootstrap.connect(new InetSocketAddress("localhost", 8080)).sync();
             // 添加一个监听器
             channelFuture.addListener((ChannelFutureListener)future -> {
                 if (channelFuture.isSuccess()) {
@@ -63,7 +63,7 @@ public class NettyClient {
                     System.out.println("每隔2s重连....");
                     channelFuture.channel().eventLoop().schedule(this::createConnect, 2, TimeUnit.SECONDS);
                 }
-            }).sync();
+            });
             channelFuture.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

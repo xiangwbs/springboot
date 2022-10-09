@@ -27,7 +27,7 @@
             <artifactId>boot-service</artifactId>
             <version>1.0</version>
         </dependency>
-        <!-- springBoot必备的Jar包,支持Web应用开发。包含Tomcat,Spring WebMvc框架,Spring框架,jackson,SpringBoot提供的自动配置功能等 -->
+        <!-- 支持Web应用开发。包含Tomcat,Spring WebMvc框架 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
