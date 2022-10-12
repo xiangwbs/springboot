@@ -17,6 +17,9 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StopWatch;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
@@ -122,10 +125,26 @@ public class WebLogAspect {
      */
     //    @Around(value = "pointCutWithMsg(logInfo)", argNames = "pjp,logInfo")
     public Object around(ProceedingJoinPoint pjp, LogInfo logInfo) throws Throwable {
-        String info = logInfo.value();// 获取注解信息
-        log.info("{} start", info);//前置通知
-        Object result = pjp.proceed();
-        log.info("{} end", info);//后置通知
+        //前置通知
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        String info = logInfo.value();
+        log.info("记录日志:{}", info);
+        String requestUri = getRequestUri();
+        Object[] args = pjp.getArgs();
+        Long totalTimeMillis = 0L;
+        Object result = null;
+        try {
+            result = pjp.proceed();
+            stopWatch.stop();
+            totalTimeMillis = stopWatch.getTotalTimeMillis();
+        } catch (Exception e) {
+            log.error("requestUri:{} args:{} result:{} cost:{} status:{}", requestUri, args, result, totalTimeMillis,
+                    0);
+            throw e;
+        }
+        //后置通知
+        log.error("requestUri:{} args:{} result:{} cost:{} status:{}", requestUri, args, result, totalTimeMillis, 1);
         return result;
     }
 
@@ -147,5 +166,10 @@ public class WebLogAspect {
         Method[] methods = targetClass.getMethods();
         Method method = methodSignature.getMethod();
         String value = method.getAnnotation(LogInfo.class).value();
+    }
+
+    private String getRequestUri() {
+        ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+        return attributes.getRequest().getRequestURI();
     }
 }
