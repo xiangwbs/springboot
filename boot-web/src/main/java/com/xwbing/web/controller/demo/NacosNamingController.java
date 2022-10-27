@@ -19,9 +19,9 @@ import com.xwbing.service.util.Jackson;
  * @version $Id$
  * @since 2022年10月27日 11:14 AM
  */
-@RequestMapping("/nacos")
+@RequestMapping("/nacos/naming")
 @RestController
-public class NacosController {
+public class NacosNamingController {
     @NacosInjected
     private NamingService namingService;
 

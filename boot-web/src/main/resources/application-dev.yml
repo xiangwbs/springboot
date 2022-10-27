@@ -105,7 +105,14 @@ elasticsearch:
   password: 8RWTLqfPPrjXnTWoplWylldOS_K9
   hosts:
     - 172.30.37.164:3006
+
 nacos:
   discovery:
     server-addr: 127.0.0.1:8848
+#    namespace: 00246e3a-6129-4d67-9012-549b29df5b89
+  config:
+    server-addr: 127.0.0.1:8848
+    data-id: com.ifugle.nami-dev.yaml
+    auto-refresh: true
+    type: yaml
 #    namespace: 00246e3a-6129-4d67-9012-549b29df5b89
