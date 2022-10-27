@@ -105,3 +105,6 @@ elasticsearch:
   password: 8RWTLqfPPrjXnTWoplWylldOS_K9
   hosts:
     - 172.30.37.164:3006
+nacos:
+  discovery:
+    server-addr: 127.0.0.1:8848

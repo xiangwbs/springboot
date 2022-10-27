@@ -13,6 +13,8 @@ spring:
       multipart:
         max-file-size: 100MB
         max-request-size: 100MB
+  application:
+    name: boot-module-pro
   aop:
     auto: true # Add @EnableAspectJAutoProxy
     proxy-target-class: false
