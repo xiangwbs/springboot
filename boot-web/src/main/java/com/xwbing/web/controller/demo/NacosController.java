@@ -42,7 +42,7 @@ public class NacosController {
         instance.setPort(8080);
         // 权重取值范围1到100，数值越大，权重越大
         // instance.setWeight(4.0);
-        namingService.registerInstance("boot-module-pro", instance);
+        namingService.registerInstance("boot-module-pro", "myGroup",instance);
     }
 
     /**
