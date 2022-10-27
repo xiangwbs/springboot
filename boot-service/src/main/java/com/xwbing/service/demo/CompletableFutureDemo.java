@@ -1,10 +1,12 @@
 package com.xwbing.service.demo;
 
-import com.alibaba.fastjson.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import com.alibaba.fastjson.JSONObject;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 项目名称: boot-module-pro
@@ -14,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
  * supplyAsync()有返回值，runAsync()无返回值
  * 参数: Function(函数)有返回值 Consumer(消费者)无返回值
  */
+@Slf4j
 public class CompletableFutureDemo {
     /**
      * 结合两个CompletionStage的结果，进行转化后返回
@@ -35,19 +38,19 @@ public class CompletableFutureDemo {
                 e.printStackTrace();
             }
             //出现异常,异常会被限制在执行任务的线程的范围内，最终会杀死该线程，而这会导致等待 get 方法返回结果的线程永久地被阻塞。
-            if (1 == 1)
+            if (1 == 1) {
                 throw new RuntimeException("异常");
+            }
             return "world";
         }), (s1, s2) -> {
             JSONObject object = new JSONObject();
             object.put("s1", s1);
             object.put("s2", s2);
             return object;
-        })
-//                .exceptionally(e -> {//捕获CompletionException，如有全局异常处理，可省略
-//                    throw new RuntimeException(e.getMessage());
-//                })
-                .join();
+        }).exceptionally(e -> {//捕获CompletionException，如有全局异常处理，可省略
+            log.error(e.getMessage());
+            return null;
+        }).join();
     }
 
     public static void main(String[] args) {
