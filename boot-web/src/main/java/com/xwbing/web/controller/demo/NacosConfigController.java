@@ -24,13 +24,13 @@ import com.alibaba.nacos.spring.context.annotation.config.NacosPropertySource;
  * @version $Id$
  * @since 2022年10月27日 11:14 AM
  */
-@NacosPropertySource(dataId = "com.xwbing.bot-test.yaml", type = ConfigType.YAML, autoRefreshed = true)
+@NacosPropertySource(dataId = "com.xwbing.bot.yaml", type = ConfigType.YAML, autoRefreshed = true)
 @RequestMapping("/nacos/config")
 @RestController
 public class NacosConfigController {
     @Autowired
     private ThreadPoolProperties threadPoolProperties;
-    @NacosValue(value = "${thread.pool.coreThread:0}", autoRefreshed = true)
+    @NacosValue(value = "${thread.pool.coreThread:1}", autoRefreshed = true)
     private int coreThread;
 
     @GetMapping("/getConfig")
@@ -45,11 +45,11 @@ public class NacosConfigController {
         // 通过nacosfactory创建一个配置中心的服务
         ConfigService configService = NacosFactory.createConfigService(properties);
         // 从远程服务器获取配置
-        String content = configService.getConfig("com.xwbing.bot-test.yaml", "DEFAULT_GROUP", 3000);
+        String content = configService.getConfig("com.xwbing.bot.yaml", "DEFAULT_GROUP", 3000);
         System.out.println(content);
 
         // 监听配置的变化
-        configService.addListener("example", "DEFAULT_GROUP", new Listener() {
+        configService.addListener("com.xwbing.bot.yaml", "DEFAULT_GROUP", new Listener() {
             @Override
             public Executor getExecutor() {
                 return null;

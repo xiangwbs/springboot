@@ -13,7 +13,7 @@ import lombok.Data;
  * @since 2022年10月27日 4:53 PM
  */
 @Data
-@NacosConfigurationProperties(prefix = "thread.pool", dataId = "com.xwbing.bot-test.yaml", type = ConfigType.YAML, autoRefreshed = true)
+@NacosConfigurationProperties(prefix = "thread.pool", dataId = "com.xwbing.bot.yaml", type = ConfigType.YAML, autoRefreshed = true)
 @Configuration
 public class ThreadPoolProperties {
     private int coreThread;
