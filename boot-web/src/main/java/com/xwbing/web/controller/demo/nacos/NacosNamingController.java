@@ -1,4 +1,4 @@
-package com.xwbing.web.controller.demo;
+package com.xwbing.web.controller.demo.nacos;
 
 import java.util.List;
 
