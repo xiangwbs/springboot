@@ -5,21 +5,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.xwbing.service.demo.ratelimiter.Sentinel.SentinelService;
+import com.xwbing.service.demo.ratelimit.Sentinel.SentinelRateLimitService;
 
 @RequestMapping("/sentinel")
 @RestController
 public class SentinelController {
 
     @Autowired
-    SentinelService helloService;
+    SentinelRateLimitService helloService;
 
-    @GetMapping("/testBlock")
+    @GetMapping("/rateLimit/testBlock")
     public String testBlock() {
         return helloService.testBlock();
     }
 
-    @GetMapping("/testFallback")
+    @GetMapping("/rateLimit/testFallback")
     public String testFallback() {
         return helloService.testFallback();
     }

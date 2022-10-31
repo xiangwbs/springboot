@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.ratelimiter.Sentinel;
+package com.xwbing.service.demo.ratelimit.Sentinel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +14,13 @@ import com.alibaba.csp.sentinel.slots.block.RuleConstant;
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;
 
-public class SentinelDemo {
+public class SentinelRateLimitDemo {
     {
         initFlowRules();
     }
 
     public static void main(String[] args) {
-        SentinelDemo se = new SentinelDemo();
+        SentinelRateLimitDemo se = new SentinelRateLimitDemo();
         se.doRequest();
     }
 

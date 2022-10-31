@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.ratelimiter;
+package com.xwbing.service.demo.ratelimit;
 
 import java.io.IOException;
 import java.util.Random;

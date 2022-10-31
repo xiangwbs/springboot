@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.ratelimiter.Sentinel;
+package com.xwbing.service.demo.ratelimit.Sentinel;
 
 import org.springframework.stereotype.Service;
 
@@ -9,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class SentinelService {
-    @SentinelResource(value = "testBlock", blockHandlerClass = SentinelService.class, blockHandler = "handleBlock")
+public class SentinelRateLimitService {
+    @SentinelResource(value = "testBlock", blockHandlerClass = SentinelRateLimitService.class, blockHandler = "handleBlock")
     public String testBlock() {
         return "Hello testBlock";
     }

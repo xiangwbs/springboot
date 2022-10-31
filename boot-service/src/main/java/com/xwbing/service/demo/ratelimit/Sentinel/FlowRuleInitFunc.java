@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.ratelimiter.Sentinel;
+package com.xwbing.service.demo.ratelimit.Sentinel;
 
 import java.util.ArrayList;
 import java.util.List;
