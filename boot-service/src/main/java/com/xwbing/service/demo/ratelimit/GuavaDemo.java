@@ -6,6 +6,9 @@ import java.util.stream.IntStream;
 
 import com.google.common.util.concurrent.RateLimiter;
 
+/**
+ * 基于令牌桶 漏桶
+ */
 public class GuavaDemo {
     RateLimiter rateLimiter = RateLimiter.create(10); //qps=10
 

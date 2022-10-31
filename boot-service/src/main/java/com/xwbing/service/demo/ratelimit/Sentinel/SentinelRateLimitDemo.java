@@ -14,6 +14,9 @@ import com.alibaba.csp.sentinel.slots.block.RuleConstant;
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;
 
+/**
+ * 基于滑动窗口
+ */
 public class SentinelRateLimitDemo {
     {
         initFlowRules();
