@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.ratelimit.Sentinel;
+package com.xwbing.service.demo.sentinel;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

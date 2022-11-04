@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.ratelimit.Sentinel;
+package com.xwbing.service.demo.sentinel.ratelimit;
 
 import org.springframework.stereotype.Service;
 

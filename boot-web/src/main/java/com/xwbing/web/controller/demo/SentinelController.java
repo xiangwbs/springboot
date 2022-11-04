@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.xwbing.service.demo.ratelimit.Sentinel.SentinelRateLimitService;
+import com.xwbing.service.demo.sentinel.ratelimit.SentinelRateLimitService;
 
 @RequestMapping("/sentinel")
 @RestController
