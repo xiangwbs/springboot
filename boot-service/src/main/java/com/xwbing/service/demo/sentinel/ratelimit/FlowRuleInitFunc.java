@@ -12,14 +12,13 @@ public class FlowRuleInitFunc implements InitFunc {
     @Override
     public void init() {
         List<FlowRule> rules = new ArrayList<>();
-        // 限流的规则
         FlowRule rule1 = new FlowRule();
-        // 限流阈值
-        rule1.setCount(2);
-        // 限流阈值类型（基于QPS/并发数的流量控制）
-        // RuleConstant.FLOW_GRADE_QPS  qps
-        // RuleConstant.FLOW_GRADE_THREAD 并发线程数
+        // 限流阈值类型（基于QPS/并发线程数的流量控制）
+        // qps
         rule1.setGrade(RuleConstant.FLOW_GRADE_QPS);
+        // 并发线程数
+        // rule1.setGrade(RuleConstant.FLOW_GRADE_THREAD);
+        rule1.setCount(2);// 限流阈值
 
         // 限流策略（基于调用关系的流量控制）
         // 根据调用方限流
@@ -39,9 +38,9 @@ public class FlowRuleInitFunc implements InitFunc {
         // 冷启动
         // rule1.setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_WARM_UP);
         // rule1.setWarmUpPeriodSec(60);
-        // 匀速排队
+        // 匀速排队（漏桶算法）
         // rule1.setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_RATE_LIMITER);
-        // rule1.setMaxQueueingTimeMs(500);
+        // rule1.setMaxQueueingTimeMs(500);// 每一次请求最长排队等待时间
 
         // 被保护的资源
         rule1.setResource("testBlock");
@@ -52,6 +51,7 @@ public class FlowRuleInitFunc implements InitFunc {
         rule2.setGrade(RuleConstant.FLOW_GRADE_QPS);
         rule2.setResource("testFallback");
         rules.add(rule2);
+
         // 让Sentinel加载限流规则
         FlowRuleManager.loadRules(rules);
     }
