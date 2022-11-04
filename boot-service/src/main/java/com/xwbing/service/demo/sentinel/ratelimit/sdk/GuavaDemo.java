@@ -1,6 +1,5 @@
 package com.xwbing.service.demo.sentinel.ratelimit.sdk;
 
-import java.io.IOException;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -10,7 +9,7 @@ import com.google.common.util.concurrent.RateLimiter;
  * 基于令牌桶
  */
 public class GuavaDemo {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         // qps=5
         RateLimiter rateLimiter = RateLimiter.create(5);
         Random random = new Random();
@@ -27,6 +26,5 @@ public class GuavaDemo {
                 System.out.println(Thread.currentThread().getName() + ":请求数量过多");
             }
         }).start());
-        System.in.read();
     }
 }
