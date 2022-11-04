@@ -26,7 +26,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.exception.BusinessException;
 import com.xwbing.service.exception.UtilException;
 import com.xwbing.service.util.JsonResult;
-import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.starter.exception.ConfigException;
 import com.xwbing.starter.exception.PayException;
 
@@ -211,7 +210,7 @@ public class GlobalExceptionHandler {
     public JSONObject exception(Exception e) {
         String stackTrace = ExceptionUtils.getStackTrace(e);
         log.error(stackTrace);
-        DingTalkUtil.sendRobotMessage("业务流程异常", true, null, stackTrace);
+        // DingTalkUtil.sendRobotMessage("业务流程异常", true, null, stackTrace);
         return JsonResult.toJSONObj("服务器繁忙，请稍后重试！");
     }
 }
