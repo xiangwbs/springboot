@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.sentinel.ratelimit.sdk;
+package com.xwbing.service.demo.sentinel.flow.sdk;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;
 /**
  * 基于滑动窗口
  */
-public class SentinelRateLimitDemo {
+public class SentinelFlowDemo {
     public static void main(String[] args) {
         initFlowRules();
         while (true) {

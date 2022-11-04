@@ -1,4 +1,4 @@
-package com.xwbing.service.demo.sentinel.ratelimit.sdk;
+package com.xwbing.service.demo.sentinel.flow.sdk;
 
 import java.util.Random;
 import java.util.stream.IntStream;

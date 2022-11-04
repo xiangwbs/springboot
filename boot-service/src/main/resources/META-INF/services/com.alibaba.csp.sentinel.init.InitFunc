@@ -1,1 +1,2 @@
-com.xwbing.service.demo.sentinel.ratelimit.FlowRuleInitFunc
+com.xwbing.service.demo.sentinel.flow.FlowRuleInitFunc
+com.xwbing.service.demo.sentinel.degrade.DegradeRuleInitFunc
