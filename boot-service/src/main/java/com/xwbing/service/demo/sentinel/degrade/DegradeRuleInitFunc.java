@@ -27,11 +27,11 @@ public class DegradeRuleInitFunc implements InitFunc {
         // 异常数量
         rule.setGrade(CircuitBreakerStrategy.ERROR_COUNT.getType());
         // 异常比例、异常数量、慢调用最大响应时间（毫秒）
-        rule.setCount(3);
+        rule.setCount(1);
         // 熔断时长（秒）
-        rule.setTimeWindow(10);
+        rule.setTimeWindow(60);
         // 熔断触发的最小请求数
-        rule.setMinRequestAmount(5);
+        rule.setMinRequestAmount(1);
         // 统计时长（秒）
         rule.setStatIntervalMs(1000);
         rule.setResource("testDegrade");
