@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.alibaba.csp.sentinel.Entry;
 import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.Tracer;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
@@ -24,8 +25,12 @@ public class SentinelDegradeDemo {
             } catch (BlockException ex) {
                 ex.printStackTrace();
                 System.out.println("业务操作失败");
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                // 记录业务异常
+                if (!BlockException.isBlockException(e)) {
+                    Tracer.trace(e);
+                }
             }
         }
     }
