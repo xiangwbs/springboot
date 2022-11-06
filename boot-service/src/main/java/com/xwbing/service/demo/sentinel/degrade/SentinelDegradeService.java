@@ -3,7 +3,6 @@ package com.xwbing.service.demo.sentinel.degrade;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
-import com.xwbing.service.exception.BusinessException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,7 +12,7 @@ public class SentinelDegradeService {
     @SentinelResource(value = "testDegrade", fallback = "handleDegrade")
     public String testDegrade(int time) {
         if (time == 1) {
-            throw new BusinessException("biz error");
+            throw new RuntimeException("testDegrade error");
         }
         return "Hello testDegrade";
     }
