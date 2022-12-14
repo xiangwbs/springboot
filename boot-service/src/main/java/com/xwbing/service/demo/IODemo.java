@@ -14,6 +14,11 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.cache.MapCache;
+import com.alibaba.excel.context.AnalysisContext;
+import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.fastjson.JSONObject;
 import com.csvreader.CsvReader;
 
@@ -138,5 +143,43 @@ public class IODemo {
             }
         }
         log.info("dealCsv end");
+    }
+
+    public static <E> void dealExcel(InputStream inputStream, Class<E> headClass, Integer sheetNo,
+            Integer headRowNumber, Integer batchNumber) {
+        List<E> list = new ArrayList<>();
+        ExcelReaderBuilder read = EasyExcel.read(inputStream, headClass, new AnalysisEventListener<E>() {
+            /**
+             * 这个每一条数据解析都会来调用
+             * @param e
+             * @param analysisContext
+             */
+            @Override
+            public void invoke(E e, AnalysisContext analysisContext) {
+                list.add(e);
+                //达到batchNumber，需要去处理一次数据，防止数据几万条数据在内存，容易OOM
+                if (list.size() >= batchNumber) {
+                    dealData();
+                }
+            }
+
+            /**
+             * 所有数据解析完成后调用
+             * @param analysisContext
+             */
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext analysisContext) {
+                //处理剩余数据
+                dealData();
+            }
+
+            private void dealData() {
+                List<E> datas = new ArrayList<>(list);
+                list.clear();
+                //TODO 处理数据
+            }
+        });
+        read.readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNumber).sheet(sheetNo)
+                .doRead();
     }
 }

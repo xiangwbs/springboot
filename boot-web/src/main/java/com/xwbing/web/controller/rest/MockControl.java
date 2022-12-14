@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xwbing.service.demo.IODemo;
 import com.xwbing.service.domain.entity.model.NullModel;
 import com.xwbing.service.domain.entity.rest.FilesUpload;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
@@ -48,6 +49,8 @@ import com.xwbing.service.util.dingtalk.LinkMessage;
 import com.xwbing.service.util.dingtalk.MarkdownMessage;
 import com.xwbing.starter.aspect.annotation.ReqLimit;
 import com.xwbing.starter.spring.ApplicationContextHelper;
+import com.xwbing.web.response.ApiResponse;
+import com.xwbing.web.response.ApiResponseUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -310,8 +313,10 @@ public class MockControl {
     @GetMapping("writeToLocal")
     public void writeToLocal() {
         List<ExcelHeaderVo> excelData = new ArrayList<>();
-        ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
-        ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
+        ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
+                .build();
+        ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
+                .build();
         ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功").build();
         ExcelHeaderVo data3 = ExcelHeaderVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功").build();
         excelData.add(data);
@@ -331,10 +336,14 @@ public class MockControl {
             //模拟分页
             // PageHelper.startPage(pageNumber, 500);
             List<ExcelHeaderVo> excelData = new ArrayList<>();
-            ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
-            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介").build();
-            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功").build();
-            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功").build();
+            ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
+                    .build();
+            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
+                    .build();
+            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功")
+                    .build();
+            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功")
+                    .build();
             excelData.add(data);
             excelData.add(data1);
             excelData.add(data2);
@@ -386,5 +395,10 @@ public class MockControl {
         System.out.println("22222");
         return JsonResult.toJSONObj("异步正常", "");
     }
-}
 
+    @PostMapping("dealExcel")
+    public ApiResponse dealExcel(@RequestParam MultipartFile file) throws IOException {
+        IODemo.dealExcel(file.getInputStream(), null, 0, 1, 500);
+        return ApiResponseUtil.success();
+    }
+}
