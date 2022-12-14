@@ -146,8 +146,16 @@ public class IODemo {
         log.info("dealCsv end");
     }
 
+    /**
+     * @param inputStream
+     * @param headClass
+     * @param sheetNo
+     * @param headRowNumber 表头行数
+     * @param batchNumber 批量处理数
+     * @param dealMethod 数据处理方法
+     */
     public static <T> void dealExcel(InputStream inputStream, Class<T> headClass, Integer sheetNo,
-            Integer headRowNumber, Integer batchNumber, Consumer<List<T>> consumer) {
+            Integer headRowNumber, Integer batchNumber, Consumer<List<T>> dealMethod) {
         List<T> list = new ArrayList<>();
         ExcelReaderBuilder read = EasyExcel.read(inputStream, headClass, new AnalysisEventListener<T>() {
             /**
@@ -180,7 +188,7 @@ public class IODemo {
             private void dealData() {
                 List<T> data = new ArrayList<>(list);
                 list.clear();
-                consumer.accept(data);
+                dealMethod.accept(data);
             }
         });
         read.readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNumber).sheet(sheetNo)
