@@ -31,6 +31,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.demo.IODemo;
 import com.xwbing.service.domain.entity.model.NullModel;
 import com.xwbing.service.domain.entity.rest.FilesUpload;
+import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 import com.xwbing.service.enums.SexEnum;
 import com.xwbing.service.exception.BusinessException;
@@ -398,7 +399,9 @@ public class MockControl {
 
     @PostMapping("dealExcel")
     public ApiResponse dealExcel(@RequestParam MultipartFile file) throws IOException {
-        IODemo.dealExcel(file.getInputStream(), null, 0, 1, 500);
+        IODemo.dealExcel(file.getInputStream(), ExcelHeaderDemoVo.class, 0, 1, 10, objects -> {
+            System.out.println("");
+        });
         return ApiResponseUtil.success();
     }
 }

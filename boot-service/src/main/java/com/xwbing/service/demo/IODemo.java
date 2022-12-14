@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.cache.MapCache;
@@ -145,17 +146,17 @@ public class IODemo {
         log.info("dealCsv end");
     }
 
-    public static <E> void dealExcel(InputStream inputStream, Class<E> headClass, Integer sheetNo,
-            Integer headRowNumber, Integer batchNumber) {
-        List<E> list = new ArrayList<>();
-        ExcelReaderBuilder read = EasyExcel.read(inputStream, headClass, new AnalysisEventListener<E>() {
+    public static <T> void dealExcel(InputStream inputStream, Class<T> headClass, Integer sheetNo,
+            Integer headRowNumber, Integer batchNumber, Consumer<List<T>> consumer) {
+        List<T> list = new ArrayList<>();
+        ExcelReaderBuilder read = EasyExcel.read(inputStream, headClass, new AnalysisEventListener<T>() {
             /**
              * 这个每一条数据解析都会来调用
              * @param e
              * @param analysisContext
              */
             @Override
-            public void invoke(E e, AnalysisContext analysisContext) {
+            public void invoke(T e, AnalysisContext analysisContext) {
                 list.add(e);
                 //达到batchNumber，需要去处理一次数据，防止数据几万条数据在内存，容易OOM
                 if (list.size() >= batchNumber) {
@@ -173,10 +174,13 @@ public class IODemo {
                 dealData();
             }
 
+            /**
+             * 处理数据
+             */
             private void dealData() {
-                List<E> datas = new ArrayList<>(list);
+                List<T> data = new ArrayList<>(list);
                 list.clear();
-                //TODO 处理数据
+                consumer.accept(data);
             }
         });
         read.readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNumber).sheet(sheetNo)
