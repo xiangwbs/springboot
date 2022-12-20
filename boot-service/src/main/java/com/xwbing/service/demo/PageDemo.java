@@ -31,7 +31,7 @@ public class PageDemo {
         Page<Object> page = PageHelper.startPage(1, 1);
         query();
         long count = page.getTotal();
-        log.info("pageHelper size:{}", count);
+        log.info("pageHelper count:{}", count);
         if (count == 0) {
             return;
         }
@@ -49,7 +49,7 @@ public class PageDemo {
             futures[i - 1] = CompletableFuture.runAsync(() -> {
                 StopWatch pageSw = new StopWatch();
                 pageSw.start();
-                list.forEach(ordersResponse -> {
+                list.forEach(item -> {
                     // TODO: 处理业务逻辑
                 });
                 pageSw.stop();

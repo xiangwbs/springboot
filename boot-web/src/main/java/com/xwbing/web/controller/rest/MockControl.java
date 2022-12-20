@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -399,9 +400,14 @@ public class MockControl {
 
     @PostMapping("dealExcel")
     public ApiResponse dealExcel(@RequestParam MultipartFile file) throws IOException {
-        IODemo.dealExcel(file.getInputStream(), ExcelHeaderDemoVo.class, 0, 1, 10, objects -> {
-            System.out.println("");
+        AtomicInteger count = new AtomicInteger();
+        Integer allCount = IODemo.dealExcel(file.getInputStream(), ExcelHeaderDemoVo.class, 0, 1, 10, data -> {
+            log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
+            data.forEach(d -> {
+                log.info("dealExcel head:{}", d);
+            });
         });
+        log.info("readProductExcel allCount:{}", count.incrementAndGet(), allCount);
         return ApiResponseUtil.success();
     }
 }

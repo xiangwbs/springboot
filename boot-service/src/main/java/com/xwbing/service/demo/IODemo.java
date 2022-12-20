@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import com.alibaba.excel.EasyExcel;
@@ -154,9 +155,10 @@ public class IODemo {
      * @param batchNumber 批量处理数
      * @param dealMethod 数据处理方法
      */
-    public static <T> void dealExcel(InputStream inputStream, Class<T> headClass, Integer sheetNo,
+    public static <T> Integer dealExcel(InputStream inputStream, Class<T> headClass, Integer sheetNo,
             Integer headRowNumber, Integer batchNumber, Consumer<List<T>> dealMethod) {
         List<T> list = new ArrayList<>();
+        AtomicInteger count = new AtomicInteger();
         ExcelReaderBuilder read = EasyExcel.read(inputStream, headClass, new AnalysisEventListener<T>() {
             /**
              * 这个每一条数据解析都会来调用
@@ -165,6 +167,7 @@ public class IODemo {
              */
             @Override
             public void invoke(T e, AnalysisContext analysisContext) {
+                count.incrementAndGet();
                 list.add(e);
                 //达到batchNumber，需要去处理一次数据，防止数据几万条数据在内存，容易OOM
                 if (list.size() >= batchNumber) {
@@ -193,5 +196,6 @@ public class IODemo {
         });
         read.readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNumber).sheet(sheetNo)
                 .doRead();
+        return count.get();
     }
 }
