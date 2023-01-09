@@ -23,6 +23,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.demo.IODemo;
+import com.xwbing.service.demo.dingtalk.DingTalkHelper;
+import com.xwbing.service.demo.dingtalk.DingTalkHelper.RobotCallbackVO;
 import com.xwbing.service.domain.entity.model.NullModel;
 import com.xwbing.service.domain.entity.rest.FilesUpload;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
@@ -409,5 +412,12 @@ public class MockControl {
         });
         log.info("readProductExcel allCount:{}", count.incrementAndGet(), allCount);
         return ApiResponseUtil.success();
+    }
+
+    @RequestMapping("/robots")
+    public void robots(@RequestBody(required = false) JSONObject msg) {
+        RobotCallbackVO callback = DingTalkHelper.robotCallback(msg);
+        DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getUserId()),
+                callback.getContent());
     }
 }
