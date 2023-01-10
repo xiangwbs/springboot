@@ -465,12 +465,15 @@ public class MockControl {
         if ("今天是什么日子".equals(content)) {
             DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
                     "我加老婆的生日呀");
-        } else if ("谁是世界上最漂亮的女人".equals(content)) {
+        } else if ("你老婆是谁".equals(content)) {
             DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
                     "彩彩呀");
-        } else if ("谁是世界上最好的老婆".equals(content)) {
+        } else if ("世界上最好的老婆是谁".equals(content)) {
             DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
                     "彩彩呀");
+        } else if ("那世界上最美的女人又是谁".equals(content)) {
+            DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
+                    "当然是彩彩呀");
         } else {
             DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
                     "本宝宝还在学习中");
