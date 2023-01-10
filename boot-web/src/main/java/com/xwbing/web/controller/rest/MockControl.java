@@ -454,4 +454,27 @@ public class MockControl {
         }
         return "success";
     }
+
+    @RequestMapping("/happyBirth")
+    public String happyBirth(@RequestBody(required = false) JSONObject msg) {
+        RobotCallbackVO callback = DingTalkHelper.robotCallback(msg);
+        if (callback == null) {
+            return null;
+        }
+        String content = callback.getContent();
+        if ("今天是什么日子".equals(content)) {
+            DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
+                    "我加老婆的生日呀");
+        } else if ("谁是世界上最漂亮的女人".equals(content)) {
+            DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
+                    "彩彩呀");
+        } else if ("谁是世界上最好的老婆".equals(content)) {
+            DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
+                    "彩彩呀");
+        } else {
+            DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
+                    "本宝宝还在学习中");
+        }
+        return "success";
+    }
 }
