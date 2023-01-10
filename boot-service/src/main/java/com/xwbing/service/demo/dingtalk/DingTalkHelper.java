@@ -3,6 +3,7 @@ package com.xwbing.service.demo.dingtalk;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -30,7 +31,7 @@ public class DingTalkHelper {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class RobotCallbackVO {
+    public static class RobotMsg {
         private DefaultDingTalkClient client;
         // 企业内部群中@该机器人的成员userId
         private String senderStaffId;
@@ -42,14 +43,14 @@ public class DingTalkHelper {
         // 1=单聊 2=群聊
         private Integer conversationType;
         private String msgId;
-        // 消息的时间戳，单位ms
+        // 消息的时间戳 单位ms
         private String createAt;
-        // 机器人应用的AppKey
+        // 机器人应用的appKey
         private String robotCode;
     }
 
-    public static RobotCallbackVO robotCallback(JSONObject msg) {
-        log.info("robotCallback msg:{}", msg);
+    public static RobotMsg receiveMsg(JSONObject msg) {
+        log.info("receiveMsg msg:{}", msg);
         if (msg == null) {
             return null;
         }
@@ -58,13 +59,14 @@ public class DingTalkHelper {
         String senderStaffId = msg.getString("senderStaffId");
         String senderId = msg.getString("senderId");
         String senderNick = msg.getString("senderNick");
-        String content = msg.getJSONObject("text").get("content").toString().replaceAll(" ", "");
+        String content = Optional.ofNullable(msg.getJSONObject("text"))
+                .map(text -> text.getString("content").replaceAll(" ", "")).orElse(null);
         Integer conversationType = msg.getInteger("conversationType");
         String msgId = msg.getString("msgId");
         String createAt = msg.getString("createAt");
         String robotCode = msg.getString("robotCode");
 
-        return RobotCallbackVO.builder().client(new DefaultDingTalkClient(sessionWebhook)).senderStaffId(senderStaffId)
+        return RobotMsg.builder().client(new DefaultDingTalkClient(sessionWebhook)).senderStaffId(senderStaffId)
                 .senderId(senderId).senderNick(senderNick).content(content).conversationType(conversationType)
                 .msgId(msgId).createAt(createAt).robotCode(robotCode).build();
     }
@@ -77,7 +79,7 @@ public class DingTalkHelper {
         request.setMsgtype("text");
         OapiRobotSendRequest.Text text = new OapiRobotSendRequest.Text();
         StringBuilder textBuilder = new StringBuilder();
-        // 消息内容content中要带上"@用户的userId"，跟atUserIds参数结合使用，才有@效果。
+        // 消息内容content中要带上"@用户的userId"，跟atUserIds参数结合使用，才有@效果
         if (atAll) {
             textBuilder.append("@所有人").append("\n");
         } else if (CollectionUtils.isNotEmpty(userIds)) {
