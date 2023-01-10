@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.demo.IODemo;
+import com.xwbing.service.demo.dingtalk.DingMarkdown;
 import com.xwbing.service.demo.dingtalk.DingTalkHelper;
 import com.xwbing.service.demo.dingtalk.DingTalkHelper.RobotCallbackVO;
 import com.xwbing.service.domain.entity.model.NullModel;
@@ -415,9 +416,42 @@ public class MockControl {
     }
 
     @RequestMapping("/robots")
-    public void robots(@RequestBody(required = false) JSONObject msg) {
+    public String robots(@RequestBody(required = false) JSONObject msg) {
         RobotCallbackVO callback = DingTalkHelper.robotCallback(msg);
-        DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getUserId()),
-                callback.getContent());
+        if (callback == null) {
+            return null;
+        }
+        // 单聊
+        if (callback.getConversationType() == 1) {
+            DingTalkHelper.sendText(callback.getClient(), false, null, callback.getContent());
+
+            List<String> orderedList = new ArrayList<>();
+            String l1 = DingMarkdown.build().appendLink("回复1", DingTalkHelper.dtmd("回复1")).toString();
+            String l2 = DingMarkdown.build().appendLink("回复2", DingTalkHelper.dtmd("回复2")).toString();
+            orderedList.add(l1);
+            orderedList.add(l2);
+            DingMarkdown dingMarkdown = DingMarkdown.build().appendOrderedList(orderedList);
+            DingTalkHelper.sendMarkdown(callback.getClient(), false, null, "markdown消息", dingMarkdown);
+        }
+        // 群聊
+        else {
+            DingTalkHelper.sendText(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
+                    callback.getContent());
+
+            DingTalkHelper
+                    .sendActionCard(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
+                            "actionCard消息", "这是一个整体跳转actionCard消息", "https://www.baidu.com");
+
+            List<String> orderedList = new ArrayList<>();
+            String l1 = DingMarkdown.build().appendLink("回复1", DingTalkHelper.dtmd("回复1")).toString();
+            String l2 = DingMarkdown.build().appendLink("回复2", DingTalkHelper.dtmd("回复2")).toString();
+            orderedList.add(l1);
+            orderedList.add(l2);
+            DingMarkdown dingMarkdown = DingMarkdown.build().appendOrderedList(orderedList);
+            DingTalkHelper
+                    .sendMarkdown(callback.getClient(), false, Collections.singletonList(callback.getSenderStaffId()),
+                            "markdown消息", dingMarkdown);
+        }
+        return "success";
     }
 }
