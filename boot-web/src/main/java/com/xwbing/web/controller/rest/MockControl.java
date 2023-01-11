@@ -32,8 +32,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.demo.IODemo;
 import com.xwbing.service.demo.dingtalk.DingMarkdown;
-import com.xwbing.service.demo.dingtalk.DingTalkHelper;
-import com.xwbing.service.demo.dingtalk.DingTalkHelper.RobotMsg;
+import com.xwbing.service.demo.dingtalk.DingtalkHelper;
+import com.xwbing.service.demo.dingtalk.DingtalkRobotMsg;
 import com.xwbing.service.domain.entity.model.NullModel;
 import com.xwbing.service.domain.entity.rest.FilesUpload;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
@@ -417,38 +417,38 @@ public class MockControl {
 
     @RequestMapping("/robots")
     public String robots(@RequestBody(required = false) JSONObject msg) {
-        RobotMsg robotMsg = DingTalkHelper.receiveMsg(msg);
+        DingtalkRobotMsg robotMsg = DingtalkHelper.receiveMsg(msg);
         if (robotMsg == null) {
             return null;
         }
         // 单聊
         if (robotMsg.getConversationType() == 1) {
-            DingTalkHelper.sendText(robotMsg.getClient(), false, null, robotMsg.getContent());
+            DingtalkHelper.sendText(robotMsg.getClient(), false, null, robotMsg.getContent());
 
             List<String> orderedList = new ArrayList<>();
-            String l1 = DingMarkdown.build().appendLink("回复1", DingTalkHelper.dtmd("回复1")).toString();
-            String l2 = DingMarkdown.build().appendLink("回复2", DingTalkHelper.dtmd("回复2")).toString();
+            String l1 = DingMarkdown.build().appendLink("回复1", DingtalkHelper.dtmd("回复1")).toString();
+            String l2 = DingMarkdown.build().appendLink("回复2", DingtalkHelper.dtmd("回复2")).toString();
             orderedList.add(l1);
             orderedList.add(l2);
             DingMarkdown dingMarkdown = DingMarkdown.build().appendOrderedList(orderedList);
-            DingTalkHelper.sendMarkdown(robotMsg.getClient(), false, null, "markdown消息", dingMarkdown);
+            DingtalkHelper.sendMarkdown(robotMsg.getClient(), false, null, "markdown消息", dingMarkdown);
         }
         // 群聊
         else {
-            DingTalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+            DingtalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
                     robotMsg.getContent());
 
-            DingTalkHelper
+            DingtalkHelper
                     .sendActionCard(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
                             "actionCard消息", "这是一个整体跳转actionCard消息", "https://www.baidu.com");
 
             List<String> orderedList = new ArrayList<>();
-            String l1 = DingMarkdown.build().appendLink("回复1", DingTalkHelper.dtmd("回复1")).toString();
-            String l2 = DingMarkdown.build().appendLink("回复2", DingTalkHelper.dtmd("回复2")).toString();
+            String l1 = DingMarkdown.build().appendLink("回复1", DingtalkHelper.dtmd("回复1")).toString();
+            String l2 = DingMarkdown.build().appendLink("回复2", DingtalkHelper.dtmd("回复2")).toString();
             orderedList.add(l1);
             orderedList.add(l2);
             DingMarkdown dingMarkdown = DingMarkdown.build().appendOrderedList(orderedList);
-            DingTalkHelper
+            DingtalkHelper
                     .sendMarkdown(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
                             "markdown消息", dingMarkdown);
         }
@@ -457,25 +457,25 @@ public class MockControl {
 
     @RequestMapping("/happyBirth")
     public String happyBirth(@RequestBody(required = false) JSONObject msg) {
-        RobotMsg robotMsg = DingTalkHelper.receiveMsg(msg);
+        DingtalkRobotMsg robotMsg = DingtalkHelper.receiveMsg(msg);
         if (robotMsg == null) {
             return null;
         }
         String content = robotMsg.getContent();
         if ("今天是什么日子".equals(content)) {
-            DingTalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+            DingtalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
                     "我加老婆的生日呀");
         } else if ("你老婆是谁".equals(content)) {
-            DingTalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+            DingtalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
                     "彩彩呀");
         } else if ("世界上最好的老婆是谁".equals(content)) {
-            DingTalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+            DingtalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
                     "彩彩呀");
         } else if ("那世界上最美的女人又是谁".equals(content)) {
-            DingTalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+            DingtalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
                     "当然是彩彩呀");
         } else {
-            DingTalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+            DingtalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
                     "本宝宝还在学习中");
         }
         return "success";

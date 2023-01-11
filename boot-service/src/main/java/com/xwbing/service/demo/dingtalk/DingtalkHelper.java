@@ -14,10 +14,6 @@ import com.dingtalk.api.request.OapiRobotSendRequest;
 import com.dingtalk.api.response.OapiRobotSendResponse;
 import com.taobao.api.ApiException;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -26,47 +22,25 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2023年01月09日 4:51 PM
  */
 @Slf4j
-public class DingTalkHelper {
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class RobotMsg {
-        private DefaultDingTalkClient client;
-        // 企业内部群中@该机器人的成员userId
-        private String senderStaffId;
-        // 加密的发送者ID
-        private String senderId;
-        // 发送者昵称
-        private String senderNick;
-        private String content;
-        // 1=单聊 2=群聊
-        private Integer conversationType;
-        private String msgId;
-        // 消息的时间戳 单位ms
-        private String createAt;
-        // 机器人应用的appKey
-        private String robotCode;
-    }
-
-    public static RobotMsg receiveMsg(JSONObject msg) {
+public class DingtalkHelper {
+    public static DingtalkRobotMsg receiveMsg(JSONObject msg) {
         log.info("receiveMsg msg:{}", msg);
         if (msg == null) {
             return null;
         }
 
+        String msgId = msg.getString("msgId");
         String sessionWebhook = msg.getString("sessionWebhook");
         String senderStaffId = msg.getString("senderStaffId");
         String senderId = msg.getString("senderId");
         String senderNick = msg.getString("senderNick");
-        String content = Optional.ofNullable(msg.getJSONObject("text"))
-                .map(text -> text.getString("content").replaceAll(" ", "")).orElse(null);
         Integer conversationType = msg.getInteger("conversationType");
-        String msgId = msg.getString("msgId");
         String createAt = msg.getString("createAt");
         String robotCode = msg.getString("robotCode");
+        String content = Optional.ofNullable(msg.getJSONObject("text"))
+                .map(text -> text.getString("content").replaceAll(" ", "")).orElse(null);
 
-        return RobotMsg.builder().client(new DefaultDingTalkClient(sessionWebhook)).senderStaffId(senderStaffId)
+        return DingtalkRobotMsg.builder().client(new DefaultDingTalkClient(sessionWebhook)).senderStaffId(senderStaffId)
                 .senderId(senderId).senderNick(senderNick).content(content).conversationType(conversationType)
                 .msgId(msgId).createAt(createAt).robotCode(robotCode).build();
     }
@@ -78,20 +52,9 @@ public class DingTalkHelper {
         OapiRobotSendRequest request = new OapiRobotSendRequest();
         request.setMsgtype("text");
         OapiRobotSendRequest.Text text = new OapiRobotSendRequest.Text();
-        StringBuilder textBuilder = new StringBuilder();
-        // 消息内容content中要带上"@用户的userId"，跟atUserIds参数结合使用，才有@效果
-        if (atAll) {
-            textBuilder.append("@所有人").append("\n");
-        } else if (CollectionUtils.isNotEmpty(userIds)) {
-            userIds.forEach(userId -> textBuilder.append("@").append(userId));
-            textBuilder.append("\n");
-        }
+        StringBuilder textBuilder = at(request, atAll, userIds, "\n");
         text.setContent(textBuilder.append(content).toString());
         request.setText(text);
-        OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
-        at.setAtUserIds(userIds);
-        at.setIsAtAll(atAll);
-        request.setAt(at);
         log.info("sendRobotText request:{}", JSONObject.toJSONString(request));
         try {
             OapiRobotSendResponse response = client.execute(request);
@@ -110,19 +73,9 @@ public class DingTalkHelper {
         request.setMsgtype("markdown");
         OapiRobotSendRequest.Markdown markdown = new OapiRobotSendRequest.Markdown();
         markdown.setTitle(title);
-        StringBuilder textBuilder = new StringBuilder();
-        if (atAll) {
-            textBuilder.append("@所有人").append("\n\n");
-        } else if (CollectionUtils.isNotEmpty(userIds)) {
-            userIds.forEach(userId -> textBuilder.append("@").append(userId));
-            textBuilder.append("\n\n");
-        }
+        StringBuilder textBuilder = at(request, atAll, userIds, "\n\n");
         markdown.setText(textBuilder.append(content).toString());
         request.setMarkdown(markdown);
-        OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
-        at.setAtUserIds(userIds);
-        at.setIsAtAll(atAll);
-        request.setAt(at);
         log.info("sendRobotMarkdown request:{}", JSONObject.toJSONString(request));
         try {
             OapiRobotSendResponse response = client.execute(request);
@@ -141,21 +94,11 @@ public class DingTalkHelper {
         request.setMsgtype("actionCard");
         OapiRobotSendRequest.Actioncard actionCard = new OapiRobotSendRequest.Actioncard();
         actionCard.setTitle(title);
-        StringBuilder textBuilder = new StringBuilder();
-        if (atAll) {
-            textBuilder.append("@所有人").append("\n\n");
-        } else if (CollectionUtils.isNotEmpty(userIds)) {
-            userIds.forEach(userId -> textBuilder.append("@").append(userId));
-            textBuilder.append("\n\n");
-        }
+        StringBuilder textBuilder = at(request, atAll, userIds, "\n\n");
         actionCard.setText(textBuilder.append(content).toString());
         actionCard.setSingleTitle("阅读全文");
         actionCard.setSingleURL(url);
         request.setActionCard(actionCard);
-        OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
-        at.setAtUserIds(userIds);
-        at.setIsAtAll(atAll);
-        request.setAt(at);
         try {
             log.info("sendActionCard request:{}", JSONObject.toJSONString(request));
             OapiRobotSendResponse response = client.execute(request);
@@ -166,18 +109,41 @@ public class DingTalkHelper {
     }
 
     /**
-     * 自动发送dtmd信息并@机器人
-     * dtmd协议只能在markdown、actioncard、feedcard 消息类型中使用
+     * 自动发送dtmd值并@机器人
+     * dtmd协议只能在markdown、actioncard、feedcard消息类型中使用
      * 参考 企业内部机器人实现在单聊会话发送互动卡片案例
      *
      * @return
      */
     public static String dtmd(String content) {
         try {
-            String encodeContent = URLEncoder.encode(content, "UTF-8");
-            return "dtmd://dingtalkclient/sendMessage?content=" + encodeContent;
+            return "dtmd://dingtalkclient/sendMessage?content=" + URLEncoder.encode(content, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             return null;
         }
+    }
+
+    /**
+     * 消息内容content中要带上"@用户的userId"，跟atUserIds参数结合使用，才有@效果
+     *
+     * @param atAll
+     * @param userIds
+     * @param wrap
+     *
+     * @return
+     */
+    private static StringBuilder at(OapiRobotSendRequest request, boolean atAll, List<String> userIds, String wrap) {
+        StringBuilder textBuilder = new StringBuilder();
+        if (atAll) {
+            textBuilder.append("@所有人").append(wrap);
+        } else if (CollectionUtils.isNotEmpty(userIds)) {
+            userIds.forEach(userId -> textBuilder.append("@").append(userId));
+            textBuilder.append(wrap);
+        }
+        OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
+        at.setAtUserIds(userIds);
+        at.setIsAtAll(atAll);
+        request.setAt(at);
+        return textBuilder;
     }
 }
