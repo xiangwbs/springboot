@@ -426,10 +426,8 @@ public class MockControl {
             DingtalkHelper.sendText(robotMsg.getClient(), false, null, robotMsg.getContent());
 
             List<String> orderedList = new ArrayList<>();
-            String l1 = DingMarkdown.build().appendLink("回复1", DingtalkHelper.dtmd("回复1")).toString();
-            String l2 = DingMarkdown.build().appendLink("回复2", DingtalkHelper.dtmd("回复2")).toString();
-            orderedList.add(l1);
-            orderedList.add(l2);
+            orderedList.add(DingtalkHelper.dtmdLink("回复1"));
+            orderedList.add(DingtalkHelper.dtmdLink("回复2"));
             DingMarkdown dingMarkdown = DingMarkdown.build().appendOrderedList(orderedList);
             DingtalkHelper.sendMarkdown(robotMsg.getClient(), false, null, "markdown消息", dingMarkdown);
         }
@@ -443,10 +441,8 @@ public class MockControl {
                             "actionCard消息", "这是一个整体跳转actionCard消息", "https://www.baidu.com");
 
             List<String> orderedList = new ArrayList<>();
-            String l1 = DingMarkdown.build().appendLink("回复1", DingtalkHelper.dtmd("回复1")).toString();
-            String l2 = DingMarkdown.build().appendLink("回复2", DingtalkHelper.dtmd("回复2")).toString();
-            orderedList.add(l1);
-            orderedList.add(l2);
+            orderedList.add(DingtalkHelper.dtmdLink("回复1"));
+            orderedList.add(DingtalkHelper.dtmdLink("回复2"));
             DingMarkdown dingMarkdown = DingMarkdown.build().appendOrderedList(orderedList);
             DingtalkHelper
                     .sendMarkdown(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),

@@ -85,6 +85,16 @@ public class DingtalkHelper {
         }
     }
 
+    /**
+     * 整体跳转
+     *
+     * @param client
+     * @param atAll
+     * @param userIds
+     * @param title
+     * @param content markdown格式的消息
+     * @param url
+     */
     public static void sendActionCard(DingTalkClient client, boolean atAll, List<String> userIds, String title,
             String content, String url) {
         if (client == null) {
@@ -115,9 +125,10 @@ public class DingtalkHelper {
      *
      * @return
      */
-    public static String dtmd(String content) {
+    public static String dtmdLink(String content) {
         try {
-            return "dtmd://dingtalkclient/sendMessage?content=" + URLEncoder.encode(content, "UTF-8");
+            return "[" + content + "](dtmd://dingtalkclient/sendMessage?content=" + URLEncoder.encode(content, "UTF-8")
+                    + ")";
         } catch (UnsupportedEncodingException e) {
             return null;
         }
