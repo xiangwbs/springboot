@@ -14,6 +14,7 @@ import com.dingtalk.api.request.OapiRobotSendRequest;
 import com.dingtalk.api.response.OapiRobotSendResponse;
 import com.taobao.api.ApiException;
 
+import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -24,25 +25,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DingtalkHelper {
     public static DingtalkRobotMsg receiveMsg(JSONObject msg) {
-        log.info("receiveMsg msg:{}", msg);
+        log.info("receiveRobotMsg msg:{}", msg);
         if (msg == null) {
             return null;
         }
-
-        String msgId = msg.getString("msgId");
+        DingtalkRobotMsg dingtalkRobotMsg = JSONUtil.toBean(msg.toJSONString(), DingtalkRobotMsg.class);
         String sessionWebhook = msg.getString("sessionWebhook");
-        String senderStaffId = msg.getString("senderStaffId");
-        String senderId = msg.getString("senderId");
-        String senderNick = msg.getString("senderNick");
-        Integer conversationType = msg.getInteger("conversationType");
-        String createAt = msg.getString("createAt");
-        String robotCode = msg.getString("robotCode");
         String content = Optional.ofNullable(msg.getJSONObject("text"))
                 .map(text -> text.getString("content").replaceAll(" ", "")).orElse(null);
-
-        return DingtalkRobotMsg.builder().client(new DefaultDingTalkClient(sessionWebhook)).senderStaffId(senderStaffId)
-                .senderId(senderId).senderNick(senderNick).content(content).conversationType(conversationType)
-                .msgId(msgId).createAt(createAt).robotCode(robotCode).build();
+        return dingtalkRobotMsg.toBuilder().client(new DefaultDingTalkClient(sessionWebhook)).content(content).build();
     }
 
     public static void sendText(DingTalkClient client, boolean atAll, List<String> userIds, String content) {

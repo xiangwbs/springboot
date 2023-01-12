@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
  * @since 2023年01月11日 9:29 AM
  */
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class DingtalkRobotMsg {
