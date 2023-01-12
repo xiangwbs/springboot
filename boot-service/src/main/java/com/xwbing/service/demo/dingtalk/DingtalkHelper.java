@@ -11,6 +11,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
 import com.dingtalk.api.request.OapiRobotSendRequest;
+import com.dingtalk.api.request.OapiRobotSendRequest.Btns;
+import com.dingtalk.api.request.OapiRobotSendRequest.Links;
 import com.dingtalk.api.response.OapiRobotSendResponse;
 import com.taobao.api.ApiException;
 
@@ -55,6 +57,34 @@ public class DingtalkHelper {
         }
     }
 
+    /**
+     * @param client
+     * @param title
+     * @param content 消息内容。如果太长只会部分展示
+     * @param messageUrl 点击消息跳转的URL
+     * @param picUrl
+     */
+    public static void sendLink(DingTalkClient client, String title, String content, String messageUrl, String picUrl) {
+        if (client == null) {
+            return;
+        }
+        OapiRobotSendRequest request = new OapiRobotSendRequest();
+        request.setMsgtype("link");
+        OapiRobotSendRequest.Link link = new OapiRobotSendRequest.Link();
+        link.setTitle(title);
+        link.setText(content);
+        link.setMessageUrl(messageUrl);
+        link.setPicUrl(picUrl);
+        request.setLink(link);
+        log.info("sendRobotLink request:{}", JSONObject.toJSONString(request));
+        try {
+            OapiRobotSendResponse response = client.execute(request);
+            log.info("sendRobotLink response:{}", response.getBody());
+        } catch (ApiException e) {
+            log.error("sendRobotLink error", e);
+        }
+    }
+
     public static void sendMarkdown(DingTalkClient client, boolean atAll, List<String> userIds, String title,
             DingMarkdown content) {
         if (client == null) {
@@ -77,7 +107,7 @@ public class DingtalkHelper {
     }
 
     /**
-     * 整体跳转
+     * 整体跳转action
      *
      * @param client
      * @param atAll
@@ -106,6 +136,58 @@ public class DingtalkHelper {
             log.info("sendActionCard response:{}", response.getBody());
         } catch (ApiException e) {
             log.error("sendActionCard error", e);
+        }
+    }
+
+    /**
+     * 独立跳转action
+     *
+     * @param client
+     * @param atAll
+     * @param userIds
+     * @param title
+     * @param content
+     * @param btnOrientation 0-按钮竖直排列，1-按钮横向排列
+     * @param btns
+     */
+    public static void sendActionCard(DingTalkClient client, boolean atAll, List<String> userIds, String title,
+            String content, String btnOrientation, List<Btns> btns) {
+        if (client == null) {
+            return;
+        }
+        OapiRobotSendRequest request = new OapiRobotSendRequest();
+        request.setMsgtype("actionCard");
+        OapiRobotSendRequest.Actioncard actionCard = new OapiRobotSendRequest.Actioncard();
+        actionCard.setTitle(title);
+        StringBuilder textBuilder = at(request, atAll, userIds, "\n\n");
+        actionCard.setText(textBuilder.append(content).toString());
+        actionCard.setBtnOrientation(btnOrientation);
+        actionCard.setBtns(btns);
+        request.setActionCard(actionCard);
+        try {
+            log.info("sendActionCard request:{}", JSONObject.toJSONString(request));
+            OapiRobotSendResponse response = client.execute(request);
+            log.info("sendActionCard response:{}", response.getBody());
+        } catch (ApiException e) {
+            log.error("sendActionCard error", e);
+        }
+    }
+
+    public static void sendFeedCard(DingTalkClient client, List<Links> links) {
+        if (client == null) {
+            return;
+        }
+        OapiRobotSendRequest request = new OapiRobotSendRequest();
+        request.setMsgtype("feedCard");
+        OapiRobotSendRequest.Feedcard feedCard = new OapiRobotSendRequest.Feedcard();
+        feedCard.setLinks(links);
+        request.setFeedCard(feedCard);
+        try {
+            log.info("sendFeedCard request:{}", JSONObject.toJSONString(request));
+            OapiRobotSendResponse response = client.execute(request);
+            log.info("sendFeedCard response:{}", response.getBody());
+        } catch (ApiException e) {
+            log.error("sendFeedCard error", e);
         }
     }
 
