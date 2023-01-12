@@ -23,21 +23,7 @@ public class DingMarkdown {
     }
 
     /**
-     * 追加普通文本
-     *
-     * @param text 标题内容
-     *
-     * @return 设置后的md文本
-     */
-    public DingMarkdown appendText(String text) {
-        this.content.append(text);
-        return this;
-    }
-
-    /**
      * 换行
-     *
-     * @return 设置后的md文本
      */
     public DingMarkdown newLine() {
         this.content.append("\n\n");
@@ -49,8 +35,6 @@ public class DingMarkdown {
      *
      * @param headerLevel 标题级别
      * @param headerText 标题内容
-     *
-     * @return 设置后的md文本
      */
     public DingMarkdown appendHeader(int headerLevel, String headerText) {
         // 标题级别范围
@@ -68,12 +52,22 @@ public class DingMarkdown {
     }
 
     /**
-     * 追加引用
+     * 追加普通文本
      *
      * @param text 文本内容
      */
-    public DingMarkdown appendReference(String text) {
-        this.content.append("> ").append(text);
+    public DingMarkdown appendText(String text) {
+        this.content.append(text);
+        return this;
+    }
+
+    /**
+     * 追加斜体字
+     *
+     * @param text 文本内容
+     */
+    public DingMarkdown appendItalicText(String text) {
+        this.content.append("*").append(text).append("*");
         return this;
     }
 
@@ -88,12 +82,12 @@ public class DingMarkdown {
     }
 
     /**
-     * 追加斜体字
+     * 追加引用
      *
      * @param text 文本内容
      */
-    public DingMarkdown appendItalicText(String text) {
-        this.content.append("*").append(text).append("*");
+    public DingMarkdown appendReference(String text) {
+        this.content.append("> ").append(text);
         return this;
     }
 
