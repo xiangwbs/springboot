@@ -1,17 +1,8 @@
 package com.xwbing.service.util.dingtalk;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -24,12 +15,15 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.xwbing.service.demo.dingtalk.DingtalkHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xiangwb
+ * @see DingtalkHelper
  */
+@Deprecated
 @Slf4j
 public class DingTalkUtil {
     private static final HttpClient HTTP_CLIENT = HttpClients.createDefault();
@@ -186,7 +180,7 @@ public class DingTalkUtil {
      */
     public static SendResult sendRobot(String webHook, String secret, Message message) throws IOException {
         if (StringUtils.isNotEmpty(secret)) {
-            webHook = secret(webHook, secret);
+            webHook = DingtalkHelper.secret(webHook, secret);
             if (webHook == null) {
                 return SendResult.builder().success(false).errorMsg("加签失败").build();
             }
@@ -224,39 +218,5 @@ public class DingTalkUtil {
             sendResult.setErrorMsg(result.getString("errmsg"));
         }
         return sendResult;
-    }
-
-    /**
-     * 钉钉安全设置:加签
-     *
-     * @return url
-     */
-    private static String secret(String webHook, String secret) {
-        try {
-            Long timestamp = System.currentTimeMillis();
-            String stringToSign = timestamp + "\n" + secret;
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
-            byte[] signData = mac.doFinal(stringToSign.getBytes(StandardCharsets.UTF_8));
-            String sign = URLEncoder.encode(Base64.getEncoder().encodeToString(signData), "UTF-8");
-            return String.format("%s&timestamp=%s&sign=%s", webHook, timestamp, sign);
-        } catch (NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException ex) {
-            return null;
-        }
-    }
-
-    /**
-     * pc端右边开启小窗
-     *
-     * @param linkUrl
-     *
-     * @return
-     */
-    public static String toPcSlide(String linkUrl) {
-        try {
-            return DingTalkConstant.PC_SLIDE_URL + URLEncoder.encode(linkUrl, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return linkUrl;
-        }
     }
 }

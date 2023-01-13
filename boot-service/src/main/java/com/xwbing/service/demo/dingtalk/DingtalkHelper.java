@@ -2,10 +2,18 @@ package com.xwbing.service.demo.dingtalk;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.collections4.CollectionUtils;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dingtalk.api.DefaultDingTalkClient;
@@ -15,6 +23,7 @@ import com.dingtalk.api.request.OapiRobotSendRequest.Btns;
 import com.dingtalk.api.request.OapiRobotSendRequest.Links;
 import com.dingtalk.api.response.OapiRobotSendResponse;
 import com.taobao.api.ApiException;
+import com.xwbing.service.util.dingtalk.DingTalkConstant;
 
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -38,16 +47,32 @@ public class DingtalkHelper {
         return dingtalkRobotMsg.toBuilder().client(new DefaultDingTalkClient(sessionWebhook)).content(content).build();
     }
 
-    public static void sendText(DingTalkClient client, boolean atAll, List<String> userIds, String content) {
+    /**
+     * 发送文本消息 @信息会自动拼接在最后面并高亮 @用户会换行 @所有人不会换行
+     *
+     * @param client
+     * @param atAll
+     * @param users userId/mobile
+     * @param content
+     */
+    public static void sendText(DingTalkClient client, boolean atAll, List<String> users, String content) {
         if (client == null) {
             return;
         }
         OapiRobotSendRequest request = new OapiRobotSendRequest();
         request.setMsgtype("text");
         OapiRobotSendRequest.Text text = new OapiRobotSendRequest.Text();
-        StringBuilder textBuilder = at(request, atAll, userIds, "\n");
-        text.setContent(textBuilder.append(content).toString());
+        // 跟@用户换行保持一致
+        if (atAll) {
+            content = content + "\n";
+        }
+        text.setContent(content);
         request.setText(text);
+        OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
+        at.setAtMobiles(users);
+        at.setAtUserIds(users);
+        at.setIsAtAll(atAll);
+        request.setAt(at);
         log.info("sendRobotText request:{}", JSONObject.toJSONString(request));
         try {
             OapiRobotSendResponse response = client.execute(request);
@@ -94,7 +119,7 @@ public class DingtalkHelper {
         request.setMsgtype("markdown");
         OapiRobotSendRequest.Markdown markdown = new OapiRobotSendRequest.Markdown();
         markdown.setTitle(title);
-        StringBuilder textBuilder = at(request, atAll, userIds, "\n\n");
+        StringBuilder textBuilder = markdownAt(request, atAll, userIds);
         markdown.setText(textBuilder.append(content).toString());
         request.setMarkdown(markdown);
         log.info("sendRobotMarkdown request:{}", JSONObject.toJSONString(request));
@@ -125,7 +150,7 @@ public class DingtalkHelper {
         request.setMsgtype("actionCard");
         OapiRobotSendRequest.Actioncard actionCard = new OapiRobotSendRequest.Actioncard();
         actionCard.setTitle(title);
-        StringBuilder textBuilder = at(request, atAll, userIds, "\n\n");
+        StringBuilder textBuilder = markdownAt(request, atAll, userIds);
         actionCard.setText(textBuilder.append(content).toString());
         actionCard.setSingleTitle("阅读全文");
         actionCard.setSingleURL(url);
@@ -159,7 +184,7 @@ public class DingtalkHelper {
         request.setMsgtype("actionCard");
         OapiRobotSendRequest.Actioncard actionCard = new OapiRobotSendRequest.Actioncard();
         actionCard.setTitle(title);
-        StringBuilder textBuilder = at(request, atAll, userIds, "\n\n");
+        StringBuilder textBuilder = markdownAt(request, atAll, userIds);
         actionCard.setText(textBuilder.append(content).toString());
         actionCard.setBtnOrientation(btnOrientation);
         actionCard.setBtns(btns);
@@ -211,23 +236,67 @@ public class DingtalkHelper {
      * 消息内容content中要带上"@用户的userId"，跟atUserIds参数结合使用，才有@效果
      *
      * @param atAll
-     * @param userIds
-     * @param wrap
+     * @param users userId/mobile
      *
      * @return
      */
-    private static StringBuilder at(OapiRobotSendRequest request, boolean atAll, List<String> userIds, String wrap) {
+    private static StringBuilder markdownAt(OapiRobotSendRequest request, boolean atAll, List<String> users) {
         StringBuilder textBuilder = new StringBuilder();
         if (atAll) {
-            textBuilder.append("@所有人").append(wrap);
-        } else if (CollectionUtils.isNotEmpty(userIds)) {
-            userIds.forEach(userId -> textBuilder.append("@").append(userId));
-            textBuilder.append(wrap);
+            textBuilder.append("@所有人").append("\n\n");
+        } else if (CollectionUtils.isNotEmpty(users)) {
+            users.forEach(userId -> textBuilder.append("@").append(userId));
+            textBuilder.append("\n\n");
         }
         OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
-        at.setAtUserIds(userIds);
+        at.setAtMobiles(users);
+        at.setAtUserIds(users);
         at.setIsAtAll(atAll);
         request.setAt(at);
         return textBuilder;
+    }
+
+    /**
+     * 钉钉安全设置:加签
+     *
+     * @return webHook
+     */
+    public static String secret(String webHook, String secret) {
+        try {
+            Long timestamp = System.currentTimeMillis();
+            String stringToSign = timestamp + "\n" + secret;
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+            byte[] signData = mac.doFinal(stringToSign.getBytes(StandardCharsets.UTF_8));
+            String sign = URLEncoder.encode(Base64.getEncoder().encodeToString(signData), "UTF-8");
+            return String.format("%s&timestamp=%s&sign=%s", webHook, timestamp, sign);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException ex) {
+            return null;
+        }
+    }
+
+    /**
+     * true：表示在PC客户端侧边栏打开
+     * false：表示在浏览器打开
+     *
+     * @param linkUrl
+     *
+     * @return
+     */
+    public static String pcSlide(String linkUrl, boolean pcSlide) {
+        try {
+            return "dingtalk://dingtalkclient/page/link?pc_slide=" + pcSlide + "&url=" + URLEncoder
+                    .encode(linkUrl, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return linkUrl;
+        }
+    }
+
+    public static void main(String[] args) {
+        DefaultDingTalkClient client = new DefaultDingTalkClient(
+                secret(DingTalkConstant.WEBHOK, DingTalkConstant.SECRET));
+        sendText(client, false, Collections.singletonList("13456854170"), "测试文本");
+        sendMarkdown(client, false, Collections.singletonList("13456854170"), "测试markdown文本",
+                DingMarkdown.build().appendText("测试markdown文本"));
     }
 }

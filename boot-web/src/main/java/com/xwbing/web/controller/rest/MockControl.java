@@ -180,7 +180,7 @@ public class MockControl {
     public void sendLinkMessage() {
         LinkMessage linkMessage = LinkMessage.builder().title("通知公告测试").text("查看详情")
                 .picUrl("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png")
-                .messageUrl(DingTalkUtil.toPcSlide("https://www.seniverse.com")).build();
+                .messageUrl(DingtalkHelper.pcSlide("https://www.seniverse.com", true)).build();
         DingTalkUtil.sendRobotMessage(linkMessage);
     }
 
@@ -204,7 +204,7 @@ public class MockControl {
         message.addItem(MarkdownMessage.getUnOrderListText(unOrderList));
         message.addItem(
                 MarkdownMessage.getImageText("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png"));
-        message.addItem(MarkdownMessage.getLinkText("天气", DingTalkUtil.toPcSlide("https://www.seniverse.com")));
+        message.addItem(MarkdownMessage.getLinkText("天气", DingtalkHelper.pcSlide("https://www.seniverse.com",true)));
         message.setAtAll(atAll);
         message.addAtMobiles(atMobiles);
         DingTalkUtil.sendRobotMessage(message);
