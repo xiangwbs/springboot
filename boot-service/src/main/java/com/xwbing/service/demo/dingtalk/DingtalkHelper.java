@@ -3,8 +3,9 @@ package com.xwbing.service.demo.dingtalk;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -35,11 +36,12 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class DingtalkHelper {
-    public static DingtalkRobotMsg receiveMsg(JSONObject msg) {
+    public static DingtalkRobotMsg receiveMsg(JSONObject msg, String timestamp, String sign) {
         log.info("receiveRobotMsg msg:{}", msg);
         if (msg == null) {
             return null;
         }
+        //TODO 签名校验
         DingtalkRobotMsg dingtalkRobotMsg = JSONUtil.toBean(msg.toJSONString(), DingtalkRobotMsg.class);
         String sessionWebhook = msg.getString("sessionWebhook");
         String content = Optional.ofNullable(msg.getJSONObject("text"))
@@ -257,21 +259,56 @@ public class DingtalkHelper {
     }
 
     /**
+     * 签名
+     *
+     * @param timestamp
+     * @param accessSecret
+     *
+     * @return
+     */
+    public static String sign(String timestamp, String accessSecret) {
+        try {
+            String stringToSign = timestamp + "\n" + accessSecret;
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(accessSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+            byte[] signData = mac.doFinal(stringToSign.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(signData);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /**
+     * 签名校验
+     *
+     * @param sign
+     * @param accessSecret
+     * @param timestamp
+     *
+     * @return
+     */
+    public static boolean checkSign(String sign, String accessSecret, String timestamp) {
+        String mySign = sign(timestamp, accessSecret);
+        if (!mySign.equals(sign)) {
+            return false;
+        }
+        Instant instant = Instant.ofEpochMilli(Long.valueOf(timestamp));
+        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+        return LocalDateTime.now().minusMonths(1).isBefore(dateTime);
+    }
+
+    /**
      * 钉钉安全设置:加签
      *
      * @return webHook
      */
-    public static String secret(String webHook, String secret) {
+    public static String secret(String webHook, String accessSecret) {
         try {
-            Long timestamp = System.currentTimeMillis();
-            String stringToSign = timestamp + "\n" + secret;
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
-            byte[] signData = mac.doFinal(stringToSign.getBytes(StandardCharsets.UTF_8));
-            String sign = URLEncoder.encode(Base64.getEncoder().encodeToString(signData), "UTF-8");
-            return String.format("%s&timestamp=%s&sign=%s", webHook, timestamp, sign);
-        } catch (NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException ex) {
-            return null;
+            String timestamp = String.valueOf(System.currentTimeMillis());
+            String sign = sign(timestamp, accessSecret);
+            return String.format("%s&timestamp=%s&sign=%s", webHook, timestamp, URLEncoder.encode(sign, "UTF-8"));
+        } catch (Exception e) {
+            return "";
         }
     }
 

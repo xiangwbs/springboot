@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -204,7 +205,7 @@ public class MockControl {
         message.addItem(MarkdownMessage.getUnOrderListText(unOrderList));
         message.addItem(
                 MarkdownMessage.getImageText("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png"));
-        message.addItem(MarkdownMessage.getLinkText("天气", DingtalkHelper.pcSlide("https://www.seniverse.com",true)));
+        message.addItem(MarkdownMessage.getLinkText("天气", DingtalkHelper.pcSlide("https://www.seniverse.com", true)));
         message.setAtAll(atAll);
         message.addAtMobiles(atMobiles);
         DingTalkUtil.sendRobotMessage(message);
@@ -416,8 +417,9 @@ public class MockControl {
     }
 
     @RequestMapping("/robots")
-    public String robots(@RequestBody(required = false) JSONObject msg) {
-        DingtalkRobotMsg robotMsg = DingtalkHelper.receiveMsg(msg);
+    public String robots(@RequestBody(required = false) JSONObject msg,
+            @RequestHeader(required = false) String timestamp, @RequestHeader(required = false) String sign) {
+        DingtalkRobotMsg robotMsg = DingtalkHelper.receiveMsg(msg, timestamp, sign);
         if (robotMsg == null) {
             return null;
         }
@@ -448,12 +450,13 @@ public class MockControl {
                     .sendMarkdown(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
                             "markdown消息", dingMarkdown);
         }
-        return "success";
+        return null;
     }
 
     @RequestMapping("/happyBirth")
-    public String happyBirth(@RequestBody(required = false) JSONObject msg) {
-        DingtalkRobotMsg robotMsg = DingtalkHelper.receiveMsg(msg);
+    public String happyBirth(@RequestBody(required = false) JSONObject msg,
+            @RequestHeader(required = false) String timestamp, @RequestHeader(required = false) String sign) {
+        DingtalkRobotMsg robotMsg = DingtalkHelper.receiveMsg(msg, timestamp, sign);
         if (robotMsg == null) {
             return null;
         }
@@ -474,6 +477,6 @@ public class MockControl {
             DingtalkHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
                     "本宝宝还在学习中");
         }
-        return "success";
+        return null;
     }
 }
