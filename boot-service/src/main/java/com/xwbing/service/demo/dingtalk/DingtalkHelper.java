@@ -85,8 +85,8 @@ public class DingtalkHelper {
     /**
      * @param client
      * @param title
-     * @param content 消息内容。如果太长只会部分展示
-     * @param messageUrl 点击消息跳转的URL
+     * @param content 消息内容 如果太长只会部分展示
+     * @param messageUrl 点击消息跳转的url
      * @param picUrl
      */
     public static void sendLink(DingTalkClient client, String title, String content, String messageUrl, String picUrl) {
@@ -217,22 +217,6 @@ public class DingtalkHelper {
     }
 
     /**
-     * 自动发送dtmd值并@机器人
-     * dtmd协议只能在markdown、actioncard、feedcard消息类型中使用
-     * 参考 企业内部机器人实现在单聊会话发送互动卡片案例
-     *
-     * @return
-     */
-    public static String dtmdLink(String content) {
-        try {
-            return "[" + content + "](dtmd://dingtalkclient/sendMessage?content=" + URLEncoder.encode(content, "UTF-8")
-                    + ")";
-        } catch (UnsupportedEncodingException e) {
-            return null;
-        }
-    }
-
-    /**
      * 消息内容content中要带上"@用户的userId"，跟atUserIds参数结合使用，才有@效果
      *
      * @param atAll
@@ -257,6 +241,22 @@ public class DingtalkHelper {
     }
 
     /**
+     * 自动发送dtmd值并@机器人
+     * dtmd协议只能在markdown、actioncard、feedcard消息类型中使用
+     * 参考 企业内部机器人实现在单聊会话发送互动卡片案例
+     *
+     * @return
+     */
+    public static String dtmdLink(String content) {
+        try {
+            return "[" + content + "](dtmd://dingtalkclient/sendMessage?content=" + URLEncoder.encode(content, "UTF-8")
+                    + ")";
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+    }
+
+    /**
      * 钉钉安全设置:加签
      *
      * @return webHook
@@ -276,6 +276,7 @@ public class DingtalkHelper {
     }
 
     /**
+     * pc端链接跳转
      * true：表示在PC客户端侧边栏打开
      * false：表示在浏览器打开
      *
