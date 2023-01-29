@@ -178,7 +178,7 @@ public class DingtalkHelper {
      * @param btns
      */
     public static void sendActionCard(DingTalkClient client, boolean atAll, List<String> userIds, String title,
-            String content, String btnOrientation, List<Btns> btns) {
+            String content, Integer btnOrientation, List<Btns> btns) {
         if (client == null) {
             return;
         }
@@ -188,7 +188,7 @@ public class DingtalkHelper {
         actionCard.setTitle(title);
         StringBuilder textBuilder = markdownAt(request, atAll, userIds);
         actionCard.setText(textBuilder.append(content).toString());
-        actionCard.setBtnOrientation(btnOrientation);
+        actionCard.setBtnOrientation(String.valueOf(btnOrientation));
         actionCard.setBtns(btns);
         request.setActionCard(actionCard);
         try {
