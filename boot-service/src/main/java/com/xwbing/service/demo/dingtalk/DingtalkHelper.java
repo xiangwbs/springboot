@@ -294,7 +294,7 @@ public class DingtalkHelper {
         }
         Instant instant = Instant.ofEpochMilli(Long.valueOf(timestamp));
         LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-        return LocalDateTime.now().minusMonths(1).isBefore(dateTime);
+        return LocalDateTime.now().minusHours(1).isBefore(dateTime);
     }
 
     /**
