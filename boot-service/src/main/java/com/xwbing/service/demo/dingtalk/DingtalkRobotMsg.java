@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 /**
  * @author daofeng
  * @version $Id$
+ * @see <a href="https://open.dingtalk.com/document/robots/receive-message">接收消息的消息协议</a>
  * @since 2023年01月11日 9:29 AM
  */
 @Data
@@ -17,8 +18,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DingtalkRobotMsg {
+    /**
+     * 加密的消息ID
+     */
     private String msgId;
-    private DefaultDingTalkClient client;
     /**
      * 企业内部群中@该机器人的成员userId
      */
@@ -36,6 +39,10 @@ public class DingtalkRobotMsg {
      */
     private Integer conversationType;
     /**
+     * 加密的会话ID
+     */
+    private String conversationId;
+    /**
      * 消息的时间戳 单位ms
      */
     private String createAt;
@@ -43,5 +50,7 @@ public class DingtalkRobotMsg {
      * 机器人应用的appKey
      */
     private String robotCode;
+
+    private DefaultDingTalkClient client;
     private String content;
 }
