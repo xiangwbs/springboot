@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DingtalkHelper {
     public static DingtalkRobotMsg receiveMsg(JSONObject msg, String timestamp, String sign) {
-        log.info("receiveRobotMsg msg:{}", msg);
+        log.info("dingtalkRobot receiveMsg:{}", msg);
         if (msg == null) {
             return null;
         }
@@ -75,12 +75,12 @@ public class DingtalkHelper {
         at.setAtUserIds(users);
         at.setIsAtAll(atAll);
         request.setAt(at);
-        log.info("sendRobotText request:{}", JSONObject.toJSONString(request));
+        log.info("dingtalkRobot sendText request:{}", JSONObject.toJSONString(request));
         try {
             OapiRobotSendResponse response = client.execute(request);
-            log.info("sendRobotText response:{}", response.getBody());
+            log.info("dingtalkRobot sendText response:{}", response.getBody());
         } catch (ApiException e) {
-            log.error("sendRobotText error", e);
+            log.error("dingtalkRobot sendText error", e);
         }
     }
 
@@ -103,12 +103,12 @@ public class DingtalkHelper {
         link.setMessageUrl(messageUrl);
         link.setPicUrl(picUrl);
         request.setLink(link);
-        log.info("sendRobotLink request:{}", JSONObject.toJSONString(request));
+        log.info("dingtalkRobot sendLink request:{}", JSONObject.toJSONString(request));
         try {
             OapiRobotSendResponse response = client.execute(request);
-            log.info("sendRobotLink response:{}", response.getBody());
+            log.info("dingtalkRobot sendLink response:{}", response.getBody());
         } catch (ApiException e) {
-            log.error("sendRobotLink error", e);
+            log.error("dingtalkRobot sendLink error", e);
         }
     }
 
@@ -124,12 +124,12 @@ public class DingtalkHelper {
         StringBuilder textBuilder = markdownAt(request, atAll, userIds);
         markdown.setText(textBuilder.append(content).toString());
         request.setMarkdown(markdown);
-        log.info("sendRobotMarkdown request:{}", JSONObject.toJSONString(request));
+        log.info("dingtalkRobot sendMarkdown request:{}", JSONObject.toJSONString(request));
         try {
             OapiRobotSendResponse response = client.execute(request);
-            log.info("sendRobotMarkdown response:{}", response.getBody());
+            log.info("dingtalkRobot sendMarkdown response:{}", response.getBody());
         } catch (ApiException e) {
-            log.error("sendRobotMarkdown error", e);
+            log.error("dingtalkRobot sendMarkdown error", e);
         }
     }
 
@@ -158,11 +158,11 @@ public class DingtalkHelper {
         actionCard.setSingleURL(url);
         request.setActionCard(actionCard);
         try {
-            log.info("sendActionCard request:{}", JSONObject.toJSONString(request));
+            log.info("dingtalkRobot sendActionCard request:{}", JSONObject.toJSONString(request));
             OapiRobotSendResponse response = client.execute(request);
-            log.info("sendActionCard response:{}", response.getBody());
+            log.info("dingtalkRobot sendActionCard response:{}", response.getBody());
         } catch (ApiException e) {
-            log.error("sendActionCard error", e);
+            log.error("dingtalkRobot sendActionCard error", e);
         }
     }
 
@@ -192,11 +192,11 @@ public class DingtalkHelper {
         actionCard.setBtns(btns);
         request.setActionCard(actionCard);
         try {
-            log.info("sendActionCard request:{}", JSONObject.toJSONString(request));
+            log.info("dingtalkRobot sendActionCard request:{}", JSONObject.toJSONString(request));
             OapiRobotSendResponse response = client.execute(request);
-            log.info("sendActionCard response:{}", response.getBody());
+            log.info("dingtalkRobot sendActionCard response:{}", response.getBody());
         } catch (ApiException e) {
-            log.error("sendActionCard error", e);
+            log.error("dingtalkRobot sendActionCard error", e);
         }
     }
 
@@ -210,11 +210,11 @@ public class DingtalkHelper {
         feedCard.setLinks(links);
         request.setFeedCard(feedCard);
         try {
-            log.info("sendFeedCard request:{}", JSONObject.toJSONString(request));
+            log.info("dingtalkRobot sendFeedCard request:{}", JSONObject.toJSONString(request));
             OapiRobotSendResponse response = client.execute(request);
-            log.info("sendFeedCard response:{}", response.getBody());
+            log.info("dingtalkRobot sendFeedCard response:{}", response.getBody());
         } catch (ApiException e) {
-            log.error("sendFeedCard error", e);
+            log.error("dingtalkRobot sendFeedCard error", e);
         }
     }
 
