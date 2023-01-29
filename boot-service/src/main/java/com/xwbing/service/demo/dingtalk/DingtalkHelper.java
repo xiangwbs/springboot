@@ -324,7 +324,7 @@ public class DingtalkHelper {
     public static String pcSlide(String linkUrl, boolean pcSlide) {
         try {
             return "dingtalk://dingtalkclient/page/link?pc_slide=" + pcSlide + "&url=" + URLEncoder
-                    .encode(linkUrl, "UTF-8");
+                    .encode(linkUrl, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             return linkUrl;
         }
