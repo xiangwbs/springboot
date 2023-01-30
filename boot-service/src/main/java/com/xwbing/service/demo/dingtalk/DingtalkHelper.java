@@ -15,6 +15,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dingtalk.api.DefaultDingTalkClient;
@@ -36,13 +37,18 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class DingtalkHelper {
-    public static DingtalkRobotMsg receiveMsg(JSONObject msg, String timestamp, String sign) {
+    public static DingtalkRobotMsg receiveMsg(JSONObject msg, String sign, String timestamp) {
         log.info("dingtalkRobot receiveMsg:{}", msg);
         if (msg == null) {
             return null;
         }
-        //TODO 签名校验
         DingtalkRobotMsg dingtalkRobotMsg = JSONUtil.toBean(msg.toJSONString(), DingtalkRobotMsg.class);
+        // 签名校验
+        // boolean checkSign = checkSign("", sign, timestamp);
+        // if (!checkSign) {
+        //     log.error("dingtalkRobot receiveMsg checkSign false");
+        //     return null;
+        // }
         String sessionWebhook = msg.getString("sessionWebhook");
         String content = Optional.ofNullable(msg.getJSONObject("text"))
                 .map(text -> text.getString("content").replaceAll(" ", "")).orElse(null);
@@ -266,7 +272,7 @@ public class DingtalkHelper {
      *
      * @return
      */
-    public static String sign(String timestamp, String accessSecret) {
+    public static String sign(String accessSecret, String timestamp) {
         try {
             String stringToSign = timestamp + "\n" + accessSecret;
             Mac mac = Mac.getInstance("HmacSHA256");
@@ -287,8 +293,11 @@ public class DingtalkHelper {
      *
      * @return
      */
-    public static boolean checkSign(String sign, String accessSecret, String timestamp) {
-        String mySign = sign(timestamp, accessSecret);
+    public static boolean checkSign(String accessSecret, String sign, String timestamp) {
+        if (StringUtils.isEmpty(accessSecret)) {
+            return false;
+        }
+        String mySign = sign(accessSecret, timestamp);
         if (!mySign.equals(sign)) {
             return false;
         }
@@ -305,7 +314,7 @@ public class DingtalkHelper {
     public static String secret(String webHook, String accessSecret) {
         try {
             String timestamp = String.valueOf(System.currentTimeMillis());
-            String sign = sign(timestamp, accessSecret);
+            String sign = sign(accessSecret, timestamp);
             return String.format("%s&timestamp=%s&sign=%s", webHook, timestamp, URLEncoder.encode(sign, "UTF-8"));
         } catch (Exception e) {
             return "";

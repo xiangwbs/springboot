@@ -417,9 +417,9 @@ public class MockControl {
     }
 
     @RequestMapping("/robots")
-    public String robots(@RequestBody(required = false) JSONObject msg,
-            @RequestHeader(required = false) String timestamp, @RequestHeader(required = false) String sign) {
-        DingtalkRobotMsg robotMsg = DingtalkHelper.receiveMsg(msg, timestamp, sign);
+    public String robots(@RequestBody(required = false) JSONObject msg, @RequestHeader(required = false) String sign,
+            @RequestHeader(required = false) String timestamp) {
+        DingtalkRobotMsg robotMsg = DingtalkHelper.receiveMsg(msg, sign, timestamp);
         if (robotMsg == null) {
             return null;
         }
@@ -455,8 +455,8 @@ public class MockControl {
 
     @RequestMapping("/happyBirth")
     public String happyBirth(@RequestBody(required = false) JSONObject msg,
-            @RequestHeader(required = false) String timestamp, @RequestHeader(required = false) String sign) {
-        DingtalkRobotMsg robotMsg = DingtalkHelper.receiveMsg(msg, timestamp, sign);
+            @RequestHeader(required = false) String sign, @RequestHeader(required = false) String timestamp) {
+        DingtalkRobotMsg robotMsg = DingtalkHelper.receiveMsg(msg, sign, timestamp);
         if (robotMsg == null) {
             return null;
         }
