@@ -118,6 +118,13 @@ public class DingtalkHelper {
         }
     }
 
+    /**
+     * @param client
+     * @param atAll
+     * @param userIds @效果不高亮
+     * @param title
+     * @param content
+     */
     public static void sendMarkdown(DingTalkClient client, boolean atAll, List<String> userIds, String title,
             DingMarkdown content) {
         if (client == null) {
@@ -144,7 +151,7 @@ public class DingtalkHelper {
      *
      * @param client
      * @param atAll
-     * @param userIds
+     * @param userIds @效果不高亮
      * @param title
      * @param content markdown格式的消息
      * @param url
@@ -177,7 +184,7 @@ public class DingtalkHelper {
      *
      * @param client
      * @param atAll
-     * @param userIds
+     * @param userIds @效果不高亮
      * @param title
      * @param content
      * @param btnOrientation 0-按钮竖直排列，1-按钮横向排列
@@ -225,7 +232,7 @@ public class DingtalkHelper {
     }
 
     /**
-     * 消息内容content中要带上"@用户的userId"，跟atUserIds参数结合使用，才有@效果
+     * 消息内容content中要带上"@用户的userId"，跟atUserIds参数结合使用，才有@效果，@信息不高亮
      *
      * @param atAll
      * @param users userId/mobile
