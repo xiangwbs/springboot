@@ -23,6 +23,18 @@ public class DingtalkRobotMsg {
      */
     private String msgId;
     /**
+     * 加密的机器人ID
+     */
+    private String chatbotUserId;
+    /**
+     * 加密的机器人所在的企业corpId
+     */
+    private String chatbotCorpId;
+    /**
+     * 企业内部群有的发送者当前群的企业corpId
+     */
+    private String senderCorpId;
+    /**
      * 企业内部群中@该机器人的成员userId
      */
     private String senderStaffId;

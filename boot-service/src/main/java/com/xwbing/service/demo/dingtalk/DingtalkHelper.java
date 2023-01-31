@@ -44,7 +44,7 @@ public class DingtalkHelper {
         }
         DingtalkRobotMsg dingtalkRobotMsg = JSONUtil.toBean(msg.toJSONString(), DingtalkRobotMsg.class);
         // 签名校验
-        // boolean checkSign = checkSign("", sign, timestamp);
+        // boolean checkSign = checkSign("accessSecret", sign, timestamp);
         // if (!checkSign) {
         //     log.error("dingtalkRobot receiveMsg checkSign false");
         //     return null;
