@@ -15,13 +15,13 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.service.demo.dingtalk.DingtalkHelper;
+import com.xwbing.service.demo.dingtalk.DingtalkRobotHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author xiangwb
- * @see DingtalkHelper
+ * @see DingtalkRobotHelper
  */
 @Deprecated
 @Slf4j
@@ -180,7 +180,7 @@ public class DingTalkUtil {
      */
     public static SendResult sendRobot(String webHook, String secret, Message message) throws IOException {
         if (StringUtils.isNotEmpty(secret)) {
-            webHook = DingtalkHelper.secret(webHook, secret);
+            webHook = DingtalkRobotHelper.secret(webHook, secret);
             if (webHook == null) {
                 return SendResult.builder().success(false).errorMsg("加签失败").build();
             }
