@@ -17,7 +17,6 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StopWatch;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
@@ -123,28 +122,32 @@ public class WebLogAspect {
      *
      * @return
      */
-    //    @Around(value = "pointCutWithMsg(logInfo)", argNames = "pjp,logInfo")
-    public Object around(ProceedingJoinPoint pjp, LogInfo logInfo) throws Throwable {
+    // @Around(value = "pointCutWithMsg(apiOperation)", argNames = "pjp,apiOperation")
+    public Object around(ProceedingJoinPoint pjp, LogInfo logInfo) {
         //前置通知
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        String info = logInfo.value();
-        log.info("记录日志:{}", info);
-        String requestUri = getRequestUri();
+        long start = System.currentTimeMillis();
+        String type = logInfo.type();
         Object[] args = pjp.getArgs();
-        Long totalTimeMillis = 0L;
         Object result = null;
+        Boolean status = true;
+        String errorMsg=null;
+        Throwable error=null;
         try {
             result = pjp.proceed();
-            stopWatch.stop();
-            totalTimeMillis = stopWatch.getTotalTimeMillis();
-        } catch (Exception e) {
-            log.error("requestUri:{} args:{} result:{} cost:{} status:{}", requestUri, args, result, totalTimeMillis,
-                    0);
-            throw e;
+        } catch (Throwable e) {
+            error = e;
+            errorMsg = e.toString();
+            status = false;
+        }finally {
+            //后置通知
+            long end = System.currentTimeMillis();
+            long cost = end-start;
+            //TODO 记录日志信息到数据库 type,args,result,status,start,end,cost,errorMsg
+            if (error!=null) {
+                log.error("...",error);
+                throw new RuntimeException(errorMsg);
+            }
         }
-        //后置通知
-        log.error("requestUri:{} args:{} result:{} cost:{} status:{}", requestUri, args, result, totalTimeMillis, 1);
         return result;
     }
 
@@ -165,7 +168,7 @@ public class WebLogAspect {
         Class targetClass = Class.forName(targetName);
         Method[] methods = targetClass.getMethods();
         Method method = methodSignature.getMethod();
-        String value = method.getAnnotation(LogInfo.class).value();
+        String type = method.getAnnotation(LogInfo.class).type();
     }
 
     private String getRequestUri() {

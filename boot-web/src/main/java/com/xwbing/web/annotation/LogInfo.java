@@ -13,5 +13,5 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Documented
 public @interface LogInfo {
-    String value() default "";
+    String type() default "";
 }
