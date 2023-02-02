@@ -27,7 +27,6 @@ import com.xwbing.service.service.sys.SysAuthorityService;
 import com.xwbing.service.service.sys.SysUserService;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.ThreadLocalUtil;
-import com.xwbing.starter.util.CommonDataUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -87,8 +86,7 @@ public class UrlPermissionsInterceptor extends HandlerInterceptorAdapter {
      * @return
      */
     private List<String> permissionList() {
-        String token = ThreadLocalUtil.getToken();
-        String userName = (String)CommonDataUtil.getData(token);
+        String userName = ThreadLocalUtil.getUser();
         SysUser user = sysUserService.getByUserName(userName);
         List<SysAuthority> sysAuthorities;
         if (CommonConstant.IS_ENABLE.equalsIgnoreCase(user.getIsAdmin())) {

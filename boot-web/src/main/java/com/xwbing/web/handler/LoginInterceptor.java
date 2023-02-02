@@ -55,8 +55,10 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
                 getOutputStream(response, "请先登录");
                 return false;
             } else {
-                if (CommonDataUtil.getData(token) != null) {
+                Object user = CommonDataUtil.getData(token);
+                if (user != null) {
                     ThreadLocalUtil.setToken(token);
+                    ThreadLocalUtil.setUser(String.valueOf(user));
                     return true;
                 } else {
                     getOutputStream(response, "登录超时，请重新登录");
@@ -67,6 +69,13 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             }
         }
         return true;
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
+            throws Exception {
+        ThreadLocalUtil.clearToken();
+        ThreadLocalUtil.clearUser();
     }
 
     private void getOutputStream(HttpServletResponse response, String msg) {

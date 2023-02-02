@@ -118,8 +118,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         if (old == null) {
             throw new BusinessException("该用户不存在");
         }
-        String token = ThreadLocalUtil.getToken();
-        String userName = (String)CommonDataUtil.getData(token);
+        String userName = ThreadLocalUtil.getUser();
         if (old.getUserName().equals(userName)) {
             throw new BusinessException("不能删除当前登录用户");
         }
@@ -150,8 +149,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         if (old == null) {
             throw new BusinessException("该用户不存在");
         }
-        String token = ThreadLocalUtil.getToken();
-        String userName = (String)CommonDataUtil.getData(token);
+        String userName = ThreadLocalUtil.getUser();
         if (old.getUserName().equals(userName)) {
             throw new BusinessException("不能修改当前登录用户");
         }
@@ -215,8 +213,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         if (old == null) {
             throw new BusinessException("未查询到用户信息");
         }
-        String token = ThreadLocalUtil.getToken();
-        String userName = (String)CommonDataUtil.getData(token);
+        String userName = ThreadLocalUtil.getUser();
         if (old.getUserName().equals(userName)) {
             throw new BusinessException("不能重置当前登录用户");
         }
@@ -315,11 +312,11 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      */
     public RestMessage logout(HttpServletRequest request) {
         RestMessage restMessage = new RestMessage();
-        String token = ThreadLocalUtil.getToken();
-        String userName = (String)CommonDataUtil.getData(token);
+        String userName = ThreadLocalUtil.getUser();
         SysUser user = getByUserName(userName);
         if (user != null) {
             //清空缓存数据
+            String token = ThreadLocalUtil.getToken();
             CommonDataUtil.clearData(token);
             //保存登出信息
             SysUserLoginInOut loginInOut = new SysUserLoginInOut();

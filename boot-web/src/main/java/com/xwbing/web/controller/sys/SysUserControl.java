@@ -21,8 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.starter.aspect.annotation.ReqIdempotent;
-import com.xwbing.starter.aspect.annotation.Lock;
 import com.xwbing.service.domain.entity.sys.SysAuthority;
 import com.xwbing.service.domain.entity.sys.SysRole;
 import com.xwbing.service.domain.entity.sys.SysUser;
@@ -38,11 +36,12 @@ import com.xwbing.service.service.sys.SysAuthorityService;
 import com.xwbing.service.service.sys.SysRoleService;
 import com.xwbing.service.service.sys.SysUserRoleService;
 import com.xwbing.service.service.sys.SysUserService;
-import com.xwbing.starter.util.CommonDataUtil;
 import com.xwbing.service.util.JsonResult;
 import com.xwbing.service.util.Pagination;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.ThreadLocalUtil;
+import com.xwbing.starter.aspect.annotation.Lock;
+import com.xwbing.starter.aspect.annotation.ReqIdempotent;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -169,8 +168,7 @@ public class SysUserControl {
     @ApiOperation(value = "获取当前登录用户信息")
     @GetMapping("getLoginUserInfo")
     public JSONObject getLoginUserInfo() {
-        String token = ThreadLocalUtil.getToken();
-        String userName = (String) CommonDataUtil.getData(token);
+        String userName = ThreadLocalUtil.getUser();
         SysUser sysUser = sysUserService.getByUserName(userName);
         if (sysUser == null) {
             return JsonResult.toJSONObj("未获取到当前登录用户信息");
