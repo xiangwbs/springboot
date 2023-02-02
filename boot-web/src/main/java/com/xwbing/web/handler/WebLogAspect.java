@@ -123,7 +123,7 @@ public class WebLogAspect {
      * @return
      */
     // @Around(value = "pointCutWithMsg(apiOperation)", argNames = "pjp,apiOperation")
-    public Object around(ProceedingJoinPoint pjp, LogInfo logInfo) {
+    public Object around(ProceedingJoinPoint pjp, LogInfo logInfo) throws Throwable {
         //前置通知
         long start = System.currentTimeMillis();
         String type = logInfo.type();
@@ -145,7 +145,7 @@ public class WebLogAspect {
             //TODO 记录日志信息到数据库 type,args,result,status,start,end,cost,errorMsg
             if (error!=null) {
                 log.error("...",error);
-                throw new RuntimeException(errorMsg);
+                throw error;
             }
         }
         return result;
