@@ -270,7 +270,9 @@ public class EsHelper {
             log.info("elasticsearch search response:{}", response.toString());
             log.info("elasticsearch search took {}ms", response.getTook().getMillis());
             SearchHits hits = response.getHits();
-            List<T> collect = Arrays.stream(hits.getHits()).map(searchHit -> {
+            List<T> collect = Arrays.stream(hits.getHits())
+                    // .map(i -> Jackson.build().readValue(i.getSourceAsString(), clazz)
+                    .map(searchHit -> {
                 Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
                 if (highlight != null) {
                     Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();

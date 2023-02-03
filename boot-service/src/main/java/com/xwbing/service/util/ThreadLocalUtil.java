@@ -36,4 +36,16 @@ public class ThreadLocalUtil {
     public static void clearUser() {
         MDC.remove("user");
     }
+
+    public static String getTraceId() {
+        return MDC.get("traceId");
+    }
+
+    public static void setTraceId(String tokenVal) {
+        MDC.put("traceId", tokenVal);
+    }
+
+    public static void clearTraceId() {
+        MDC.remove("traceId");
+    }
 }

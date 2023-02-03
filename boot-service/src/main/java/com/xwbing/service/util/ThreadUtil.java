@@ -17,9 +17,9 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  */
 public class ThreadUtil {
     private static volatile ThreadUtil threadUtil;
-    private ThreadPoolExecutor singleThreadPool = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MICROSECONDS,
+    private ThreadPoolExecutor singleThreadPool = new MdcThreadPoolExecutor(1, 1, 0L, TimeUnit.MICROSECONDS,
             new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("singlePool").build());
-    private ThreadPoolExecutor excelThreadPool = new ThreadPoolExecutor(5, 5, 600L, TimeUnit.SECONDS,
+    private ThreadPoolExecutor excelThreadPool = new MdcThreadPoolExecutor(5, 5, 600L, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("excel").build());
 
     private ThreadUtil() {

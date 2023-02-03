@@ -20,6 +20,7 @@ import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.ThreadLocalUtil;
 import com.xwbing.starter.util.CommonDataUtil;
 
+import cn.hutool.core.util.IdUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -47,6 +48,12 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
     //@formatter:on
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        String traceId = request.getHeader("traceId");
+        if (traceId == null) {
+            traceId = IdUtil.simpleUUID();
+        }
+        ThreadLocalUtil.setTraceId(traceId);
+
         String path = request.getRequestURI().substring(request.getContextPath().length()).replaceAll("[/]+$", "");
         boolean anyMatch = ALLOWED_PATH.stream().anyMatch(s -> MATCHER.match(s, path));
         if (!anyMatch) {
@@ -74,6 +81,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
             throws Exception {
+        ThreadLocalUtil.clearTraceId();
         ThreadLocalUtil.clearToken();
         ThreadLocalUtil.clearUser();
     }
