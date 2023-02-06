@@ -82,6 +82,6 @@ public class OperateLogAspect {
             //p0,p1......
             context.setVariable(String.format("%s%s", "p", i), paramValueList.get(i));
         }
-        return String.valueOf(expressionParser.parseExpression(description).getValue(context));
+        return expressionParser.parseExpression(description).getValue(context, String.class);
     }
 }
