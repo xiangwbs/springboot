@@ -87,7 +87,7 @@ public class SysUserControl {
         return JsonResult.toJSONObj(result);
     }
 
-    @Lock(value = "#p0.getId()", remark = "用户信息修改中，请稍后", timeout = 60)
+    @Lock(value = "#p0.id", remark = "用户信息修改中，请稍后", timeout = 60)
     @ApiOperation(value = "修改用户信息", response = RestMessageVo.class)
     @PutMapping("update")
     public JSONObject update(@RequestBody @Valid SysUser sysUser) {

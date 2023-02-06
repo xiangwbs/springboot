@@ -1,6 +1,7 @@
 package com.xwbing.starter.aspect;
 
-import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -9,8 +10,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
-import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -35,6 +34,10 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class ReqLimitAspect {
     private static final String LIMIT_KEY_PREFIX = "boot:reqLimit_";
+    /**
+     * SpEL表达式解析器
+     */
+    private final ExpressionParser expressionParser = new SpelExpressionParser();
     private final RedisService redisService;
 
     @Pointcut("@annotation(reqLimit)")
@@ -74,7 +77,7 @@ public class ReqLimitAspect {
 
     /**
      * 获取key
-     * 获取注解value值 #p0 | #p0.getXxx() | #paramName
+     * 获取注解value值 #p0 | #p0.field | #paramName |
      *
      * @param joinPoint
      * @param reqLimit
@@ -82,27 +85,22 @@ public class ReqLimitAspect {
      * @return
      */
     private String getKey(JoinPoint joinPoint, ReqLimit reqLimit) {
-        String targetName = joinPoint.getTarget().getClass().getSimpleName();
-        String methodName = joinPoint.getSignature().getName();
+        String className = joinPoint.getTarget().getClass().getSimpleName();
+        MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
+        String methodName = methodSignature.getName();
+        List<String> paramNameList = Arrays.asList(methodSignature.getParameterNames());
+        List<Object> paramValueList = Arrays.asList(joinPoint.getArgs());
         String key = reqLimit.value();
-        //创建SpEL表达式解析器
-        ExpressionParser expressionParser = new SpelExpressionParser();
         //创建解析表达式上下文
         EvaluationContext context = new StandardEvaluationContext();
         //上下文中设置变量
-        Object[] params = joinPoint.getArgs();
-        for (int i = 0; i < params.length; i++) {
-            //p0,p1......
-            context.setVariable(String.format("%s%s", "p", i), params[i]);
-        }
-        Method method = ((MethodSignature)joinPoint.getSignature()).getMethod();
-        ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
-        String[] parameterNames = parameterNameDiscoverer.getParameterNames(method);
-        for (int i = 0; i < params.length; i++) {
+        for (int i = 0; i < paramNameList.size(); i++) {
             //paramName1,paraName2......
-            context.setVariable(parameterNames[i], params[i]);
+            context.setVariable(paramNameList.get(i), paramValueList.get(i));
+            //p0,p1......
+            context.setVariable(String.format("%s%s", "p", i), paramValueList.get(i));
         }
-        return LIMIT_KEY_PREFIX + targetName + "_" + methodName + "_" + String
+        return LIMIT_KEY_PREFIX + className + "_" + methodName + "_" + String
                 .valueOf(expressionParser.parseExpression(key).getValue(context));
     }
 

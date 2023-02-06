@@ -99,6 +99,12 @@ public class AspectAutoConfiguration {
         return new ReqLimitAspect(redisService);
     }
 
+    @Bean
+    @ConditionalOnMissingBean(OperateLogAspect.class)
+    public OperateLogAspect operateLogAspect() {
+        return new OperateLogAspect();
+    }
+
     /**
      * 验签
      *
