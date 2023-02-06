@@ -37,7 +37,7 @@ public class OperateLogAspect {
         String operator = "系统";
         LocalDateTime operateDate = LocalDateTime.now();
         String name = operateLog.name();
-        String description = parseDesc(pjp, operateLog.description());
+        String description = parseDescription(pjp, operateLog.description());
         Object[] args = pjp.getArgs();
         Object result = null;
         Boolean status = true;
@@ -69,7 +69,7 @@ public class OperateLogAspect {
         return result;
     }
 
-    private String parseDesc(ProceedingJoinPoint joinPoint, String description) {
+    private String parseDescription(ProceedingJoinPoint joinPoint, String description) {
         MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
         List<String> paramNameList = Arrays.asList(methodSignature.getParameterNames());
         List<Object> paramValueList = Arrays.asList(joinPoint.getArgs());
