@@ -39,9 +39,9 @@ import com.xwbing.service.service.sys.SysUserService;
 import com.xwbing.service.util.JsonResult;
 import com.xwbing.service.util.Pagination;
 import com.xwbing.service.util.RestMessage;
-import com.xwbing.service.util.ThreadLocalUtil;
 import com.xwbing.starter.aspect.annotation.Lock;
 import com.xwbing.starter.aspect.annotation.ReqIdempotent;
+import com.xwbing.starter.util.UserContext;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -168,7 +168,7 @@ public class SysUserControl {
     @ApiOperation(value = "获取当前登录用户信息")
     @GetMapping("getLoginUserInfo")
     public JSONObject getLoginUserInfo() {
-        String userName = ThreadLocalUtil.getUser();
+        String userName = UserContext.getUser();
         SysUser sysUser = sysUserService.getByUserName(userName);
         if (sysUser == null) {
             return JsonResult.toJSONObj("未获取到当前登录用户信息");

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,6 +16,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
 import com.xwbing.starter.aspect.annotation.OperateLog;
+import com.xwbing.starter.util.UserContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,7 +36,7 @@ public class OperateLogAspect {
 
     @Around("@annotation(operateLog)")
     public Object log(ProceedingJoinPoint pjp, OperateLog operateLog) throws Throwable {
-        String operator = "系统";
+        String operator = UserContext.getUser();
         LocalDateTime operateDate = LocalDateTime.now();
         String name = operateLog.name();
         String description = parseDescription(pjp, operateLog.description());
@@ -50,6 +52,10 @@ public class OperateLogAspect {
             errorMsg = e.getMessage();
             status = false;
         } finally {
+            // 解决登录接口登录时无用户信息问题
+            if (StringUtils.isEmpty(operator)) {
+                operator = UserContext.getUser();
+            }
             // 存储日志
             // EsOperateLog dto = EsOperateLog.builder()
             //         .operator(operator)
@@ -73,14 +79,14 @@ public class OperateLogAspect {
         MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
         List<String> paramNameList = Arrays.asList(methodSignature.getParameterNames());
         List<Object> paramValueList = Arrays.asList(joinPoint.getArgs());
-        //创建解析表达式上下文
+        // 创建解析表达式上下文
         EvaluationContext context = new StandardEvaluationContext();
-        //上下文中设置变量
+        // 上下文中设置变量
         for (int i = 0; i < paramNameList.size(); i++) {
-            //paramName1,paraName2......
+            // paramName1,paraName2......
             context.setVariable(paramNameList.get(i), paramValueList.get(i));
-            //p0,p1......
-            context.setVariable(String.format("%s%s", "p", i), paramValueList.get(i));
+            // p0,p1......
+            context.setVariable(String.format("p%s", i), paramValueList.get(i));
         }
         return expressionParser.parseExpression(description).getValue(context, String.class);
     }

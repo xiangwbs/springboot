@@ -26,7 +26,7 @@ import com.xwbing.service.enums.YesOrNoEnum;
 import com.xwbing.service.service.sys.SysAuthorityService;
 import com.xwbing.service.service.sys.SysUserService;
 import com.xwbing.service.util.RestMessage;
-import com.xwbing.service.util.ThreadLocalUtil;
+import com.xwbing.starter.util.UserContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -86,7 +86,7 @@ public class UrlPermissionsInterceptor extends HandlerInterceptorAdapter {
      * @return
      */
     private List<String> permissionList() {
-        String userName = ThreadLocalUtil.getUser();
+        String userName = UserContext.getUser();
         SysUser user = sysUserService.getByUserName(userName);
         List<SysAuthority> sysAuthorities;
         if (CommonConstant.IS_ENABLE.equalsIgnoreCase(user.getIsAdmin())) {

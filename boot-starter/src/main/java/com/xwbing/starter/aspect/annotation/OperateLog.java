@@ -16,7 +16,7 @@ public @interface OperateLog {
     String name();
 
     /**
-     * SpEL表达式:#p0|#p0.field|#paramName|paramName.field
+     * SpEL表达式: #p0 | #p0.field | #paramName | paramName.field
      */
     String description();
 

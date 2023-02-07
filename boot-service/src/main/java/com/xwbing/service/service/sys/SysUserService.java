@@ -48,6 +48,7 @@ import com.xwbing.service.util.RSAUtil;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.ThreadLocalUtil;
 import com.xwbing.starter.util.CommonDataUtil;
+import com.xwbing.starter.util.UserContext;
 
 /**
  * 说明: 用户服务层
@@ -118,7 +119,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         if (old == null) {
             throw new BusinessException("该用户不存在");
         }
-        String userName = ThreadLocalUtil.getUser();
+        String userName = UserContext.getUser();
         if (old.getUserName().equals(userName)) {
             throw new BusinessException("不能删除当前登录用户");
         }
@@ -149,7 +150,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         if (old == null) {
             throw new BusinessException("该用户不存在");
         }
-        String userName = ThreadLocalUtil.getUser();
+        String userName = UserContext.getUser();
         if (old.getUserName().equals(userName)) {
             throw new BusinessException("不能修改当前登录用户");
         }
@@ -213,7 +214,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         if (old == null) {
             throw new BusinessException("未查询到用户信息");
         }
-        String userName = ThreadLocalUtil.getUser();
+        String userName = UserContext.getUser();
         if (old.getUserName().equals(userName)) {
             throw new BusinessException("不能重置当前登录用户");
         }
@@ -297,6 +298,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
         //保存登录数据
         String token = EncodeUtil.urlEncode(RSAUtil.encrypt(userName + "_" + ip));//rsa加密后密文是多行的,所以再次url编码
         CommonDataUtil.setData(token, userName, CommonDataUtil.DAY);
+        UserContext.setUser(userName);
         restMessage.setSuccess(true);
         restMessage.setData(token);
         restMessage.setMessage("登录成功");
@@ -312,7 +314,7 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
      */
     public RestMessage logout(HttpServletRequest request) {
         RestMessage restMessage = new RestMessage();
-        String userName = ThreadLocalUtil.getUser();
+        String userName = UserContext.getUser();
         SysUser user = getByUserName(userName);
         if (user != null) {
             //清空缓存数据

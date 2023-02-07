@@ -19,6 +19,7 @@ import com.xwbing.service.util.HeaderUtil;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.ThreadLocalUtil;
 import com.xwbing.starter.util.CommonDataUtil;
+import com.xwbing.starter.util.UserContext;
 
 import cn.hutool.core.util.IdUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -64,8 +65,8 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             } else {
                 Object user = CommonDataUtil.getData(token);
                 if (user != null) {
+                    UserContext.setUser(String.valueOf(user));
                     ThreadLocalUtil.setToken(token);
-                    ThreadLocalUtil.setUser(String.valueOf(user));
                     return true;
                 } else {
                     getOutputStream(response, "登录超时，请重新登录");
@@ -81,9 +82,9 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
             throws Exception {
+        UserContext.clearUser();
         ThreadLocalUtil.clearTraceId();
         ThreadLocalUtil.clearToken();
-        ThreadLocalUtil.clearUser();
     }
 
     private void getOutputStream(HttpServletResponse response, String msg) {

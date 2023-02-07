@@ -25,18 +25,6 @@ public class ThreadLocalUtil {
         MDC.remove("token");
     }
 
-    public static String getUser() {
-        return MDC.get("user");
-    }
-
-    public static void setUser(String tokenVal) {
-        MDC.put("user", tokenVal);
-    }
-
-    public static void clearUser() {
-        MDC.remove("user");
-    }
-
     public static String getTraceId() {
         return MDC.get("traceId");
     }

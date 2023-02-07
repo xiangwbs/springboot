@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 @AllArgsConstructor
 public class ReqLimitAspect {
-    private static final String LIMIT_KEY_PREFIX = "boot:reqLimit_";
+    private static final String LIMIT_KEY_PREFIX = "boot:reqLimit_%s_%s_%s";
     /**
      * SpEL表达式解析器
      */
@@ -76,8 +76,7 @@ public class ReqLimitAspect {
     }
 
     /**
-     * 获取key
-     * 获取注解value值 #p0 | #p0.field | #paramName |
+     * 获取注解value值 #p0 | #p0.field | #paramName | #paramName.field
      *
      * @param joinPoint
      * @param reqLimit
@@ -90,18 +89,17 @@ public class ReqLimitAspect {
         String methodName = methodSignature.getName();
         List<String> paramNameList = Arrays.asList(methodSignature.getParameterNames());
         List<Object> paramValueList = Arrays.asList(joinPoint.getArgs());
-        String key = reqLimit.value();
-        //创建解析表达式上下文
+        // 创建解析表达式上下文
         EvaluationContext context = new StandardEvaluationContext();
-        //上下文中设置变量
+        // 上下文中设置变量
         for (int i = 0; i < paramNameList.size(); i++) {
-            //paramName1,paraName2......
+            // paramName1,paraName2......
             context.setVariable(paramNameList.get(i), paramValueList.get(i));
-            //p0,p1......
-            context.setVariable(String.format("%s%s", "p", i), paramValueList.get(i));
+            // p0,p1......
+            context.setVariable(String.format("p%s", i), paramValueList.get(i));
         }
-        return LIMIT_KEY_PREFIX + className + "_" + methodName + "_" + String
-                .valueOf(expressionParser.parseExpression(key).getValue(context));
+        return String.format(LIMIT_KEY_PREFIX, className, methodName,
+                expressionParser.parseExpression(reqLimit.value()).getValue(context, String.class));
     }
 
     // public static void main(String[] args) {
