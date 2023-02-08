@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.web.annotation.LogInfo;
 
+import cn.hutool.json.JSONUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
@@ -127,7 +128,7 @@ public class WebLogAspect {
         //前置通知
         long start = System.currentTimeMillis();
         String type = logInfo.type();
-        Object[] args = pjp.getArgs();
+        String args = JSONUtil.toJsonStr(pjp.getArgs());
         Object result = null;
         Boolean status = true;
         String errorMsg=null;

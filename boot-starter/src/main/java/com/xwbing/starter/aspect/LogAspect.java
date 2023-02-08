@@ -17,6 +17,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import com.xwbing.starter.aspect.annotation.EasyOperateLog;
 import com.xwbing.starter.util.UserContext;
 
+import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -37,7 +38,7 @@ public class LogAspect {
         String operator = UserContext.getUser();
         LocalDateTime operateDate = LocalDateTime.now();
         String tag = operateLog.tag();
-        Object[] args = pjp.getArgs();
+        String args = JSONUtil.toJsonStr(pjp.getArgs());
         String content = parseContent(pjp, operateLog.content());
         Object result = null;
         Boolean status = true;
@@ -60,7 +61,7 @@ public class LogAspect {
             //         .operateDate(operateDate)
             //         .tag(tag)
             //         .content(content)
-            //         .args(JSONUtil.toJsonStr(args))
+            //         .args(args)
             //         .result(operateLog.saveResult() ? JSONUtil.toJsonPrettyStr(result) : null)
             //         .status(status)
             //         .errorMsg(errorMsg)
