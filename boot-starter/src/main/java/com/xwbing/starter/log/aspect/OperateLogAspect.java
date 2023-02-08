@@ -114,6 +114,7 @@ public class OperateLogAspect {
         while (matcher.find()) {
             String functionName = matcher.group(1);
             String functionParam = matcher.group(2);
+            // 执行结果和异常信息后置解析
             if (functionParam.contains(SPEL_START + RESULT) || functionParam.contains(SPEL_START + ERR_MSG)) {
                 continue;
             }
@@ -133,8 +134,13 @@ public class OperateLogAspect {
             while (matcher.find()) {
                 String functionName = matcher.group(1);
                 String functionParam = matcher.group(2);
-                String functionResult = getFunctionResult(context, functionName, functionParam);
-                matcher.appendReplacement(parsedStr, functionResult);
+                // 防止方法执行报错时，获取执行结果属性时npe
+                if (StringUtils.isNotEmpty(errorMsg) && functionParam.contains(SPEL_START + RESULT + ".")) {
+                    matcher.appendReplacement(parsedStr, "");
+                } else {
+                    String functionResult = getFunctionResult(context, functionName, functionParam);
+                    matcher.appendReplacement(parsedStr, functionResult);
+                }
             }
             matcher.appendTail(parsedStr);
             content = parsedStr.toString();
