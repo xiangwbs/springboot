@@ -1,14 +1,14 @@
-package com.xwbing.starter.log.configuration;
+package com.xwbing.starter.operatelog.configuration;
 
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.xwbing.starter.log.aspect.OperateLogAspect;
-import com.xwbing.starter.log.function.CustomFunctionFactory;
-import com.xwbing.starter.log.function.ExampleCustomerFunction;
-import com.xwbing.starter.log.function.ICustomFunction;
+import com.xwbing.starter.operatelog.aspect.OperateLogAspect;
+import com.xwbing.starter.operatelog.function.CustomFunctionFactory;
+import com.xwbing.starter.operatelog.function.ExampleCustomerFunction;
+import com.xwbing.starter.operatelog.function.ICustomFunction;
 
 /**
  * @author daofeng

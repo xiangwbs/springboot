@@ -1,4 +1,4 @@
-package com.xwbing.starter.log.function;
+package com.xwbing.starter.operatelog.function;
 
 /**
  * 自定义函数接口

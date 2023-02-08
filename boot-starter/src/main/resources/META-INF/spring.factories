@@ -8,4 +8,4 @@ com.xwbing.starter.wx.open.app.WxOpenAppAutoConfiguration,\
 com.xwbing.starter.wx.ma.WxMaAutoConfiguration,\
 com.xwbing.starter.elasticsearch.EsRestClientAutoConfiguration,\
 com.xwbing.starter.spring.ApplicationContextHelper,\
-com.xwbing.starter.log.configuration.OperateLogAutoConfiguration
+com.xwbing.starter.operatelog.configuration.OperateLogAutoConfiguration

@@ -1,4 +1,4 @@
-package com.xwbing.starter.log.aspect;
+package com.xwbing.starter.operatelog.aspect;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -16,8 +16,8 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.xwbing.starter.log.annotation.OperateLog;
-import com.xwbing.starter.log.function.CustomFunctionFactory;
+import com.xwbing.starter.operatelog.annotation.OperateLog;
+import com.xwbing.starter.operatelog.function.CustomFunctionFactory;
 import com.xwbing.starter.util.UserContext;
 
 import lombok.RequiredArgsConstructor;

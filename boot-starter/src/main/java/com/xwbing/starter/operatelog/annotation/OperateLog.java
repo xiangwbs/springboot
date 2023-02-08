@@ -1,12 +1,12 @@
-package com.xwbing.starter.log.annotation;
+package com.xwbing.starter.operatelog.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.xwbing.starter.log.function.ExampleCustomerFunction;
-import com.xwbing.starter.log.function.ICustomFunction;
+import com.xwbing.starter.operatelog.function.ExampleCustomerFunction;
+import com.xwbing.starter.operatelog.function.ICustomFunction;
 
 /**
  * @author daofeng

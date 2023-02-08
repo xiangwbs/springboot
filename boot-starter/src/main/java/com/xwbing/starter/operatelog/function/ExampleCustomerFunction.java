@@ -1,4 +1,4 @@
-package com.xwbing.starter.log.function;
+package com.xwbing.starter.operatelog.function;
 
 /**
  * 后置自定义函数示例

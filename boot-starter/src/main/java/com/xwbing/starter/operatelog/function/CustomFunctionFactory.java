@@ -1,4 +1,4 @@
-package com.xwbing.starter.log.function;
+package com.xwbing.starter.operatelog.function;
 
 import java.util.List;
 import java.util.Map;
