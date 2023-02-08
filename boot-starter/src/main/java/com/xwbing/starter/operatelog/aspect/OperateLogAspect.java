@@ -45,6 +45,10 @@ public class OperateLogAspect {
      */
     private static final String SPEL_START = "#";
     /**
+     * 操作人key
+     */
+    private static final String OPERATOR = "_operator";
+    /**
      * 方法返回结果key
      */
     private static final String RESULT = "_result";
@@ -52,10 +56,6 @@ public class OperateLogAspect {
      * 方法错误信息key
      */
     private static final String ERR_MSG = "_errMsg";
-    /**
-     * 操作人key
-     */
-    private static final String OPERATOR = "_operator";
     /**
      * SpEL解析器
      */
@@ -109,6 +109,15 @@ public class OperateLogAspect {
         return result;
     }
 
+    /**
+     * 前置处理
+     * 解析自定义语法参数
+     *
+     * @param context
+     * @param content
+     *
+     * @return
+     */
     private String processBefore(EvaluationContext context, String content) {
         if (!content.contains(FUNCTION_START)) {
             return content;
@@ -129,6 +138,18 @@ public class OperateLogAspect {
         return parsedContent.toString();
     }
 
+    /**
+     * 后置处理
+     * 解析特殊参数(操作人 方法返回结果 方法错误信息)或原生SpEL参数
+     *
+     * @param context
+     * @param operator
+     * @param result
+     * @param errorMsg
+     * @param content
+     *
+     * @return
+     */
     private String processAfter(EvaluationContext context, String operator, Object result, String errorMsg,
             String content) {
         context.setVariable(OPERATOR, operator);
