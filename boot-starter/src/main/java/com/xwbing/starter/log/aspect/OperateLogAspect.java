@@ -59,10 +59,10 @@ public class OperateLogAspect {
         Boolean status = true;
         String errorMsg = null;
         Throwable error = null;
-        // 创建解析表达式上下文
+        // 获取解析表达式上下文
         EvaluationContext context = getEvaluationContext(pjp);
         // 前置自定义函数解析
-        content = processBefore(content, context);
+        content = processBefore(context, content);
         try {
             result = pjp.proceed();
         } catch (Throwable e) {
@@ -75,7 +75,7 @@ public class OperateLogAspect {
                 operator = UserContext.getUser();
             }
             // 后置自定义函数解析
-            content = processAfter(content, result, errorMsg, context);
+            content = processAfter(context, result, errorMsg, content);
             // 存储日志
             // EsOperateLog dto = EsOperateLog.builder()
             //         .operator(operator)
@@ -93,7 +93,7 @@ public class OperateLogAspect {
         return result;
     }
 
-    private String processBefore(String content, EvaluationContext context) {
+    private String processBefore(EvaluationContext context, String content) {
         if (content.contains(FUNCTION_START)) {
             Matcher matcher = FUNCTION_PATTERN.matcher(content);
             StringBuffer parsedStr = new StringBuffer();
@@ -103,7 +103,7 @@ public class OperateLogAspect {
                 if (functionParam.contains(SPEL_KEY + RESULT) || functionParam.contains(SPEL_KEY + ERR_MSG)) {
                     continue;
                 }
-                String functionResult = getFunctionResult(functionName, functionParam, context);
+                String functionResult = getFunctionResult(context, functionName, functionParam);
                 matcher.appendReplacement(parsedStr, functionResult);
             }
             // 将从匹配的最后字符到整个字符串最后之间的字符串，追加到parsedStr中
@@ -113,7 +113,7 @@ public class OperateLogAspect {
         return content;
     }
 
-    private String processAfter(String content, Object result, String errorMsg, EvaluationContext context) {
+    private String processAfter(EvaluationContext context, Object result, String errorMsg, String content) {
         context.setVariable(RESULT, result);
         context.setVariable(ERR_MSG, errorMsg);
         if (content.contains(FUNCTION_START)) {
@@ -122,7 +122,7 @@ public class OperateLogAspect {
             while (matcher.find()) {
                 String functionName = matcher.group(1);
                 String functionParam = matcher.group(2);
-                String functionResult = getFunctionResult(functionName, functionParam, context);
+                String functionResult = getFunctionResult(context, functionName, functionParam);
                 matcher.appendReplacement(parsedStr, functionResult);
             }
             matcher.appendTail(parsedStr);
@@ -133,7 +133,7 @@ public class OperateLogAspect {
         return content;
     }
 
-    private String getFunctionResult(String functionName, String functionParam, EvaluationContext context) {
+    private String getFunctionResult(EvaluationContext context, String functionName, String functionParam) {
         Object value = expressionParser.parseExpression(functionParam).getValue(context);
         String valueStr = value == null ? "" : value.toString();
         return StringUtils.isNotEmpty(functionName) ? customFunctionFactory.apply(functionName, value) : valueStr;
