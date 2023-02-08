@@ -16,12 +16,11 @@ public class CustomFunctionFactory {
     private final Map<String, ICustomFunction> customFunctionMap;
 
     public CustomFunctionFactory(List<ICustomFunction> functions) {
-        customFunctionMap = functions.stream()
-                .collect(Collectors.toMap(ICustomFunction::functionName, Function.identity()));
+        customFunctionMap = functions.stream().collect(Collectors.toMap(ICustomFunction::name, Function.identity()));
     }
 
-    public String apply(String functionName, Object value) {
-        ICustomFunction function = getFunction(functionName);
+    public String apply(String name, Object value) {
+        ICustomFunction function = customFunctionMap.get(name);
         if (function == null) {
             return "";
         }
@@ -29,9 +28,5 @@ public class CustomFunctionFactory {
             return "";
         }
         return function.apply(value);
-    }
-
-    private ICustomFunction getFunction(String functionName) {
-        return customFunctionMap.get(functionName);
     }
 }

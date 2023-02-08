@@ -10,10 +10,8 @@ package com.xwbing.starter.log.function;
 public interface ICustomFunction {
     /**
      * 自定义函数名
-     *
-     * @return 自定义函数名
      */
-    String functionName();
+    String name();
 
     /**
      * 自定义函数

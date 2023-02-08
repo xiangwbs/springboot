@@ -10,7 +10,7 @@ package com.xwbing.starter.log.function;
 @Deprecated
 public class ExampleCustomerFunction implements ICustomFunction {
     @Override
-    public String functionName() {
+    public String name() {
         return "exampleFunction";
     }
 

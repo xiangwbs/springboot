@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 public class OperateLogAspect {
     /**
-     * 自定义函数正则 {function{SpEL}}|{{SpEL}}
+     * 自定义函数正则 {functionName{SpEL}}|{{SpEL}}
      */
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\{\\s*(\\w*)\\s*\\{(.*?)}}");
     /**
