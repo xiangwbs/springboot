@@ -17,7 +17,7 @@ public @interface OperateLog {
 
     /**
      * SpEL表达式: #p0 | #p0.field | #paramName | paramName.field
-     * 语法:{function{#SpEL}}|{{SpEL}}|SpEL
+     * 语法:{function{SpEL}}|{{SpEL}}|SpEL
      */
     String content();
 }

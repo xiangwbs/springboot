@@ -33,38 +33,50 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 public class OperateLogAspect {
     /**
-     * 自定义函数正则 {function{#param}}|{{#param}}
+     * 自定义函数正则 {function{SpEL}}|{{SpEL}}
      */
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\{\\s*(\\w*)\\s*\\{(.*?)}}");
-    public static final String FUNCTION_START = "{";
+    /**
+     * 自定义函数语法前缀
+     */
+    private static final String FUNCTION_START = "{";
     /**
      * SpEL表达式语法前缀
      */
-    public static final String SPEL_KEY = "#";
-    public static final String RESULT = "_result";
-    public static final String ERR_MSG = "_errMsg";
+    private static final String SPEL_START = "#";
+    /**
+     * 方法返回结果key
+     */
+    private static final String RESULT = "_result";
+    /**
+     * 方法错误信息key
+     */
+    private static final String ERR_MSG = "_errMsg";
     /**
      * SpEL表达式解析器
      */
     private final ExpressionParser expressionParser = new SpelExpressionParser();
+    /**
+     * 自定义函数工厂
+     */
     private final CustomFunctionFactory customFunctionFactory;
 
     @Around("@annotation(operateLog)")
-    public Object log(ProceedingJoinPoint pjp, OperateLog operateLog) throws Throwable {
+    public Object log(ProceedingJoinPoint joinPoint, OperateLog operateLog) throws Throwable {
         String operator = UserContext.getUser();
         LocalDateTime operateDate = LocalDateTime.now();
-        String content = operateLog.content();
         String tag = operateLog.tag();
+        String content = operateLog.content();
         Object result = null;
         Boolean status = true;
         String errorMsg = null;
         Throwable error = null;
         // 获取解析表达式上下文
-        EvaluationContext context = getEvaluationContext(pjp);
+        EvaluationContext context = getEvaluationContext(joinPoint);
         // 前置自定义函数解析
         content = processBefore(context, content);
         try {
-            result = pjp.proceed();
+            result = joinPoint.proceed();
         } catch (Throwable e) {
             error = e;
             errorMsg = e.getMessage();
@@ -94,23 +106,22 @@ public class OperateLogAspect {
     }
 
     private String processBefore(EvaluationContext context, String content) {
-        if (content.contains(FUNCTION_START)) {
-            Matcher matcher = FUNCTION_PATTERN.matcher(content);
-            StringBuffer parsedStr = new StringBuffer();
-            while (matcher.find()) {
-                String functionName = matcher.group(1);
-                String functionParam = matcher.group(2);
-                if (functionParam.contains(SPEL_KEY + RESULT) || functionParam.contains(SPEL_KEY + ERR_MSG)) {
-                    continue;
-                }
-                String functionResult = getFunctionResult(context, functionName, functionParam);
-                matcher.appendReplacement(parsedStr, functionResult);
-            }
-            // 将从匹配的最后字符到整个字符串最后之间的字符串，追加到parsedStr中
-            matcher.appendTail(parsedStr);
-            content = parsedStr.toString();
+        if (!content.contains(FUNCTION_START)) {
+            return content;
         }
-        return content;
+        Matcher matcher = FUNCTION_PATTERN.matcher(content);
+        StringBuffer parsedContent = new StringBuffer();
+        while (matcher.find()) {
+            String functionName = matcher.group(1);
+            String functionParam = matcher.group(2);
+            if (functionParam.contains(SPEL_START + RESULT) || functionParam.contains(SPEL_START + ERR_MSG)) {
+                continue;
+            }
+            String functionResult = getFunctionResult(context, functionName, functionParam);
+            matcher.appendReplacement(parsedContent, functionResult);
+        }
+        matcher.appendTail(parsedContent);
+        return parsedContent.toString();
     }
 
     private String processAfter(EvaluationContext context, Object result, String errorMsg, String content) {
@@ -127,7 +138,7 @@ public class OperateLogAspect {
             }
             matcher.appendTail(parsedStr);
             content = parsedStr.toString();
-        } else if (content.contains(SPEL_KEY)) {
+        } else if (content.contains(SPEL_START)) {
             content = expressionParser.parseExpression(content).getValue(context, String.class);
         }
         return content;

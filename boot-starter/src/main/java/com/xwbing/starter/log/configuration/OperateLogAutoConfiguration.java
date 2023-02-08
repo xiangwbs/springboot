@@ -2,7 +2,6 @@ package com.xwbing.starter.log.configuration;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,7 +23,7 @@ public class OperateLogAutoConfiguration {
     }
 
     @Bean
-    public CustomFunctionFactory customFunctionFactory(@Autowired List<ICustomFunction> iCustomFunctionList) {
+    public CustomFunctionFactory customFunctionFactory(List<ICustomFunction> iCustomFunctionList) {
         return new CustomFunctionFactory(iCustomFunctionList);
     }
 
