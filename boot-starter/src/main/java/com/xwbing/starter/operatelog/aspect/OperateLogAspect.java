@@ -182,8 +182,13 @@ public class OperateLogAspect {
 
     private String parse(EvaluationContext context, String functionName, String functionParam) {
         Object value = expressionParser.parseExpression(functionParam).getValue(context);
-        String valueStr = value == null ? "" : value.toString();
-        return StringUtils.isNotEmpty(functionName) ? customFunctionFactory.apply(functionName, value) : valueStr;
+        String parseContent;
+        if (StringUtils.isNotEmpty(functionName)) {
+            parseContent = customFunctionFactory.apply(functionName, value);
+        } else {
+            parseContent = value == null ? "" : value.toString();
+        }
+        return parseContent;
     }
 
     private EvaluationContext geContext(ProceedingJoinPoint joinPoint) {
