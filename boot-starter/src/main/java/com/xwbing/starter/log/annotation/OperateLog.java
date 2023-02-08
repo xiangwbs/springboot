@@ -22,10 +22,11 @@ public @interface OperateLog {
     String tag();
 
     /**
-     * SpEL表达式: #p0 | #p0.field | #paramName | paramName.field
-     * 语法:{functionName{SpEL}}|{{SpEL}}|SpEL
-     * 自定义函数需继承{@link ICustomFunction} 示例查看{@link ExampleCustomerFunction}
+     * SpEL语法: #p0 | #p0.field | #paramName | #paramName.field
+     * 自定义语法: {functionName{SpEL}}|{{SpEL}} 函数需继承{@link ICustomFunction} 示例查看{@link ExampleCustomerFunction}
      * 特殊参数:操作人{{_operator}} 执行结果:{{#_result}} 错误信息{{_errMsg}}
+     *
+     * 请使用纯SpEL语法或自定义语法
      */
     String content();
 }

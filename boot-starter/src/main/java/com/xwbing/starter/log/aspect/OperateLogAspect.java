@@ -33,15 +33,15 @@ import lombok.extern.slf4j.Slf4j;
 @Aspect
 public class OperateLogAspect {
     /**
-     * 自定义函数正则 {functionName{SpEL}}|{{SpEL}}
+     * 自定义语法正则 {functionName{SpEL}}|{{SpEL}}
      */
     private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\{\\s*(\\w*)\\s*\\{(.*?)}}");
     /**
-     * 自定义函数语法前缀
+     * 自定义语法前缀
      */
     private static final String FUNCTION_START = "{";
     /**
-     * SpEL表达式语法前缀
+     * SpEL语法前缀
      */
     private static final String SPEL_START = "#";
     /**
@@ -57,7 +57,7 @@ public class OperateLogAspect {
      */
     private static final String OPERATOR = "_operator";
     /**
-     * SpEL表达式解析器
+     * SpEL解析器
      */
     private final ExpressionParser expressionParser = new SpelExpressionParser();
     /**
@@ -77,7 +77,7 @@ public class OperateLogAspect {
         Throwable error = null;
         // 获取解析表达式上下文
         EvaluationContext context = getEvaluationContext(joinPoint);
-        // 前置自定义函数解析
+        // 前置解析
         content = processBefore(context, content);
         try {
             result = joinPoint.proceed();
@@ -90,7 +90,7 @@ public class OperateLogAspect {
             if (StringUtils.isEmpty(operator)) {
                 operator = UserContext.getUser();
             }
-            // 后置自定义函数解析
+            // 后置解析
             content = processAfter(context, operator, result, errorMsg, content);
             // 存储日志
             // EsOperateLog dto = EsOperateLog.builder()
