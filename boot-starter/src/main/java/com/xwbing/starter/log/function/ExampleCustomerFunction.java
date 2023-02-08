@@ -16,6 +16,6 @@ public class ExampleCustomerFunction implements ICustomFunction {
 
     @Override
     public String apply(Object value) {
-        return value.toString() + "exampleFunction";
+        return "我不是" + value;
     }
 }
