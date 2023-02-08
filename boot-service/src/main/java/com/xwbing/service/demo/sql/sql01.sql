@@ -24,12 +24,11 @@ ADD COLUMN `col3` tinyint(4)  NOT NULL DEFAULT '1' COMMENT 'xxx' AFTER `col2`,
 ADD COLUMN `col4` varchar(32) DEFAULT NULL COMMENT 'xxx' AFTER `col3`,
 ADD COLUMN `col5` decimal(11,2) DEFAULT NULL COMMENT 'xxx' AFTER `col4`;
 
-ALTER TABLE `table` MODIFY COLUMN `col`varchar(10) not null COMMENT 'xxx';
-
-ALTER TABLE `table` drop COLUMN `col`;
-
-ALTER TABLE `table` CHANGE COLUMN `oldColumnName` `newColumnName` varchar(32) DEFAULT NULL COMMENT 'xxx';
-
+ALTER TABLE `table`
+MODIFY COLUMN `col`varchar(10) not null COMMENT 'xxx',
+DROP COLUMN `col`,
+CHANGE COLUMN `oldColumnName` `newColumnName` varchar(32) DEFAULT NULL COMMENT 'xxx',
+ADD INDEX IDX_CREATION_DATE (`CREATION_DATE`);
 
 
 
