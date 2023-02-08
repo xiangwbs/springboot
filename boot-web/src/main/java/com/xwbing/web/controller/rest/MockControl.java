@@ -421,7 +421,7 @@ public class MockControl {
     // @OperateLog(tag = "测试日志", content = "自定义函数1:{exampleFunction{#name}} 自定义函数2:{exampleFunction{#password}} {{#log}}")
     // @OperateLog(tag = "测试日志", content = "'官方SpEL取值:'+#log")
     // @OperateLog(tag = "测试日志", content = "自定义SpEL取值:{{#log}}")
-    @OperateLog(tag = "测试日志", content = "执行结果:{{#_result.name}} 错误结果:{{#_errMsg}}")
+    @OperateLog(tag = "测试日志", content = "执行结果:{{#_result.name}} 错误结果:{{#_errMsg}} 操作人:{{#_errMsg}}")
     @GetMapping("/testLog")
     public SysUser testLog(@RequestParam String name, @RequestParam String password, @RequestParam String log) {
         SysUser user = new SysUser();

@@ -53,6 +53,10 @@ public class OperateLogAspect {
      */
     private static final String ERR_MSG = "_errMsg";
     /**
+     * 操作人key
+     */
+    private static final String OPERATOR = "_operator";
+    /**
      * SpEL表达式解析器
      */
     private final ExpressionParser expressionParser = new SpelExpressionParser();
@@ -87,7 +91,7 @@ public class OperateLogAspect {
                 operator = UserContext.getUser();
             }
             // 后置自定义函数解析
-            content = processAfter(context, result, errorMsg, content);
+            content = processAfter(context, operator, result, errorMsg, content);
             // 存储日志
             // EsOperateLog dto = EsOperateLog.builder()
             //         .operator(operator)
@@ -125,7 +129,9 @@ public class OperateLogAspect {
         return parsedContent.toString();
     }
 
-    private String processAfter(EvaluationContext context, Object result, String errorMsg, String content) {
+    private String processAfter(EvaluationContext context, String operator, Object result, String errorMsg,
+            String content) {
+        context.setVariable(OPERATOR, operator);
         context.setVariable(RESULT, result);
         context.setVariable(ERR_MSG, errorMsg);
         if (content.contains(FUNCTION_START)) {
