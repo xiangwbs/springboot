@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Aspect
-public class EasyOperateLogAspect {
+public class LogAspect {
     /**
      * SpEL表达式解析器
      */

@@ -100,9 +100,9 @@ public class AspectAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean(EasyOperateLogAspect.class)
-    public EasyOperateLogAspect easyOperateLogAspect() {
-        return new EasyOperateLogAspect();
+    @ConditionalOnMissingBean(LogAspect.class)
+    public LogAspect easyOperateLogAspect() {
+        return new LogAspect();
     }
 
     /**
