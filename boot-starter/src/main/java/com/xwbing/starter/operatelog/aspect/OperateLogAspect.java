@@ -67,8 +67,8 @@ public class OperateLogAspect {
 
     @Around("@annotation(operateLog)")
     public Object log(ProceedingJoinPoint joinPoint, OperateLog operateLog) throws Throwable {
-        String operator = UserContext.getUser();
         LocalDateTime operateDate = LocalDateTime.now();
+        String operator = UserContext.getUser();
         String tag = operateLog.tag();
         String content = operateLog.content();
         Object result = null;
@@ -76,9 +76,9 @@ public class OperateLogAspect {
         String errorMsg = null;
         Throwable error = null;
         // 获取解析表达式上下文
-        EvaluationContext context = getEvaluationContext(joinPoint);
-        // 前置解析
-        content = processBefore(context, content);
+        EvaluationContext context = geContext(joinPoint);
+        // 前置处理
+        content = preHandle(context, content);
         try {
             result = joinPoint.proceed();
         } catch (Throwable e) {
@@ -90,8 +90,8 @@ public class OperateLogAspect {
             if (StringUtils.isEmpty(operator)) {
                 operator = UserContext.getUser();
             }
-            // 后置解析
-            content = processAfter(context, operator, result, errorMsg, content);
+            // 后置处理
+            content = postHandle(context, operator, result, errorMsg, content);
             // 存储日志
             // EsOperateLog dto = EsOperateLog.builder()
             //         .operator(operator)
@@ -118,24 +118,24 @@ public class OperateLogAspect {
      *
      * @return
      */
-    private String processBefore(EvaluationContext context, String content) {
+    private String preHandle(EvaluationContext context, String content) {
         if (!content.contains(FUNCTION_START)) {
             return content;
         }
         Matcher matcher = FUNCTION_PATTERN.matcher(content);
-        StringBuffer parsedContent = new StringBuffer();
+        StringBuffer parseContent = new StringBuffer();
         while (matcher.find()) {
             String functionName = matcher.group(1);
             String functionParam = matcher.group(2);
-            // 执行结果和异常信息后置解析
+            // 方法返回结果和方法异常信息后置处理
             if (functionParam.contains(SPEL_START + RESULT) || functionParam.contains(SPEL_START + ERR_MSG)) {
                 continue;
             }
-            String functionResult = getFunctionResult(context, functionName, functionParam);
-            matcher.appendReplacement(parsedContent, functionResult);
+            String parseResult = parse(context, functionName, functionParam);
+            matcher.appendReplacement(parseContent, parseResult);
         }
-        matcher.appendTail(parsedContent);
-        return parsedContent.toString();
+        matcher.appendTail(parseContent);
+        return parseContent.toString();
     }
 
     /**
@@ -150,40 +150,43 @@ public class OperateLogAspect {
      *
      * @return
      */
-    private String processAfter(EvaluationContext context, String operator, Object result, String errorMsg,
+    private String postHandle(EvaluationContext context, String operator, Object result, String errorMsg,
             String content) {
         context.setVariable(OPERATOR, operator);
         context.setVariable(RESULT, result);
         context.setVariable(ERR_MSG, errorMsg);
+        // 自定义语法
         if (content.contains(FUNCTION_START)) {
             Matcher matcher = FUNCTION_PATTERN.matcher(content);
-            StringBuffer parsedStr = new StringBuffer();
+            StringBuffer parseContent = new StringBuffer();
             while (matcher.find()) {
                 String functionName = matcher.group(1);
                 String functionParam = matcher.group(2);
                 // 防止方法执行报错时，获取执行结果属性时npe
                 if (StringUtils.isNotEmpty(errorMsg) && functionParam.contains(SPEL_START + RESULT + ".")) {
-                    matcher.appendReplacement(parsedStr, "");
+                    matcher.appendReplacement(parseContent, "");
                 } else {
-                    String functionResult = getFunctionResult(context, functionName, functionParam);
-                    matcher.appendReplacement(parsedStr, functionResult);
+                    String parseResult = parse(context, functionName, functionParam);
+                    matcher.appendReplacement(parseContent, parseResult);
                 }
             }
-            matcher.appendTail(parsedStr);
-            content = parsedStr.toString();
-        } else if (content.contains(SPEL_START)) {
+            matcher.appendTail(parseContent);
+            content = parseContent.toString();
+        }
+        // 原生SpEL语法
+        else if (content.contains(SPEL_START)) {
             content = expressionParser.parseExpression(content).getValue(context, String.class);
         }
         return content;
     }
 
-    private String getFunctionResult(EvaluationContext context, String functionName, String functionParam) {
+    private String parse(EvaluationContext context, String functionName, String functionParam) {
         Object value = expressionParser.parseExpression(functionParam).getValue(context);
         String valueStr = value == null ? "" : value.toString();
         return StringUtils.isNotEmpty(functionName) ? customFunctionFactory.apply(functionName, value) : valueStr;
     }
 
-    private EvaluationContext getEvaluationContext(ProceedingJoinPoint joinPoint) {
+    private EvaluationContext geContext(ProceedingJoinPoint joinPoint) {
         MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
         List<String> paramNameList = Arrays.asList(methodSignature.getParameterNames());
         List<Object> paramValueList = Arrays.asList(joinPoint.getArgs());
