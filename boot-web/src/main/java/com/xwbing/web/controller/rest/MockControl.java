@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.service.demo.IODemo;
 import com.xwbing.service.demo.dingtalk.DingMarkdown;
 import com.xwbing.service.demo.dingtalk.DingtalkRobotHelper;
 import com.xwbing.service.demo.dingtalk.DingtalkRobotMsg;
@@ -46,6 +45,7 @@ import com.xwbing.service.service.rest.CookieSessionService;
 import com.xwbing.service.service.rest.EasyExcelDealService;
 import com.xwbing.service.service.rest.QRCodeZipService;
 import com.xwbing.service.service.rest.UploadService;
+import com.xwbing.service.util.EasyExcelUtil;
 import com.xwbing.service.util.EncodeUtil;
 import com.xwbing.service.util.FileUtil;
 import com.xwbing.service.util.JsonResult;
@@ -408,7 +408,7 @@ public class MockControl {
     @PostMapping("dealExcel")
     public ApiResponse dealExcel(@RequestParam MultipartFile file) throws IOException {
         AtomicInteger count = new AtomicInteger();
-        Integer allCount = IODemo.dealExcel(file.getInputStream(), ExcelHeaderDemoVo.class, 0, 1, 10, data -> {
+        Integer allCount = EasyExcelUtil.dealExcel(file.getInputStream(), ExcelHeaderDemoVo.class, 0, 1, 10, data -> {
             log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
             data.forEach(d -> {
                 log.info("dealExcel head:{}", d);
