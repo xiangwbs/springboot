@@ -14,7 +14,7 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.xwbing.starter.aspect.annotation.EasyOperateLog;
+import com.xwbing.starter.aspect.annotation.Log;
 import com.xwbing.starter.util.UserContext;
 
 import cn.hutool.json.JSONUtil;
@@ -34,7 +34,7 @@ public class LogAspect {
     private final ExpressionParser expressionParser = new SpelExpressionParser();
 
     @Around("@annotation(operateLog)")
-    public Object log(ProceedingJoinPoint pjp, EasyOperateLog operateLog) throws Throwable {
+    public Object log(ProceedingJoinPoint pjp, Log operateLog) throws Throwable {
         String operator = UserContext.getUser();
         LocalDateTime operateDate = LocalDateTime.now();
         String tag = operateLog.tag();

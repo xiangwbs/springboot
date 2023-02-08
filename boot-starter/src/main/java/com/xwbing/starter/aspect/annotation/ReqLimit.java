@@ -29,7 +29,7 @@ public @interface ReqLimit {
 
     /**
      * 限制标识
-     * SpEL表达式:#p0|#p0.field|#paramName|paramName.field
+     * SpEL表达式:#p0|#p0.field|#paramName|#paramName.field
      *
      * @return
      */

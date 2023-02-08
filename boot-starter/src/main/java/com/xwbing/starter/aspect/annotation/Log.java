@@ -12,11 +12,11 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface EasyOperateLog {
+public @interface Log {
     String tag();
 
     /**
-     * SpEL表达式: #p0 | #p0.field | #paramName | paramName.field
+     * SpEL表达式: #p0 | #p0.field | #paramName | #paramName.field
      */
     String content();
 

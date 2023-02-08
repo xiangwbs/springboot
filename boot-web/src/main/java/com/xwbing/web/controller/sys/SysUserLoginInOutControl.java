@@ -22,7 +22,7 @@ import com.xwbing.service.domain.entity.vo.InAndOutCountByDateVo;
 import com.xwbing.service.domain.entity.vo.InAndOutCountByUserVo;
 import com.xwbing.service.service.sys.SysUserLoginInOutService;
 import com.xwbing.service.util.PageVO;
-import com.xwbing.starter.aspect.annotation.EasyOperateLog;
+import com.xwbing.starter.aspect.annotation.Log;
 import com.xwbing.web.response.ApiResponse;
 import com.xwbing.web.response.ApiResponseUtil;
 
@@ -43,7 +43,7 @@ public class SysUserLoginInOutControl {
     @Resource
     private SysUserLoginInOutService inOutService;
 
-    @EasyOperateLog(tag = "查询列表", content = "'查询登录类型为:'+#pageDto.inout")
+    @Log(tag = "查询列表", content = "'查询登录类型为:'+#pageDto.inout")
     @ApiOperation("获取登录或登出信息")
     @PostMapping("page")
     public ApiResponse<PageVO<SysUserLoginInOut>> page(@RequestBody @Validated InAndOutPageDto pageDto) {
