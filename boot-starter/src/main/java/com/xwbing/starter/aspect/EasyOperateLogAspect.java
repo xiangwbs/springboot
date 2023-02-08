@@ -13,9 +13,8 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.stereotype.Component;
 
-import com.xwbing.starter.aspect.annotation.OperateLog;
+import com.xwbing.starter.aspect.annotation.EasyOperateLog;
 import com.xwbing.starter.util.UserContext;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,20 +26,19 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Aspect
-@Component
-public class OperateLogAspect {
+public class EasyOperateLogAspect {
     /**
      * SpEL表达式解析器
      */
     private final ExpressionParser expressionParser = new SpelExpressionParser();
 
     @Around("@annotation(operateLog)")
-    public Object log(ProceedingJoinPoint pjp, OperateLog operateLog) throws Throwable {
+    public Object log(ProceedingJoinPoint pjp, EasyOperateLog operateLog) throws Throwable {
         String operator = UserContext.getUser();
         LocalDateTime operateDate = LocalDateTime.now();
-        String name = operateLog.name();
-        String description = parseDescription(pjp, operateLog.description());
+        String tag = operateLog.tag();
         Object[] args = pjp.getArgs();
+        String content = parseContent(pjp, operateLog.content());
         Object result = null;
         Boolean status = true;
         String errorMsg = null;
@@ -60,8 +58,8 @@ public class OperateLogAspect {
             // EsOperateLog dto = EsOperateLog.builder()
             //         .operator(operator)
             //         .operateDate(operateDate)
-            //         .name(name)
-            //         .description(description)
+            //         .tag(tag)
+            //         .content(content)
             //         .args(JSONUtil.toJsonStr(args))
             //         .result(operateLog.saveResult() ? JSONUtil.toJsonPrettyStr(result) : null)
             //         .status(status)
@@ -75,7 +73,7 @@ public class OperateLogAspect {
         return result;
     }
 
-    private String parseDescription(ProceedingJoinPoint joinPoint, String description) {
+    private String parseContent(ProceedingJoinPoint joinPoint, String content) {
         MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
         List<String> paramNameList = Arrays.asList(methodSignature.getParameterNames());
         List<Object> paramValueList = Arrays.asList(joinPoint.getArgs());
@@ -88,6 +86,6 @@ public class OperateLogAspect {
             // p0,p1......
             context.setVariable(String.format("p%s", i), paramValueList.get(i));
         }
-        return expressionParser.parseExpression(description).getValue(context, String.class);
+        return expressionParser.parseExpression(content).getValue(context, String.class);
     }
 }

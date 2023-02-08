@@ -14,15 +14,15 @@ public class ThreadLocalUtil {
     }
 
     public static String getToken() {
-        return MDC.get("token");
+        return threadLocal.get();
     }
 
     public static void setToken(String tokenVal) {
-        MDC.put("token", tokenVal);
+        threadLocal.set(tokenVal);
     }
 
     public static void clearToken() {
-        MDC.remove("token");
+        threadLocal.remove();
     }
 
     public static String getTraceId() {

@@ -37,6 +37,7 @@ import com.xwbing.service.demo.dingtalk.DingtalkRobotHelper;
 import com.xwbing.service.demo.dingtalk.DingtalkRobotMsg;
 import com.xwbing.service.domain.entity.model.NullModel;
 import com.xwbing.service.domain.entity.rest.FilesUpload;
+import com.xwbing.service.domain.entity.sys.SysUser;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 import com.xwbing.service.enums.SexEnum;
@@ -55,6 +56,7 @@ import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.service.util.dingtalk.LinkMessage;
 import com.xwbing.service.util.dingtalk.MarkdownMessage;
 import com.xwbing.starter.aspect.annotation.ReqLimit;
+import com.xwbing.starter.log.annotation.OperateLog;
 import com.xwbing.starter.spring.ApplicationContextHelper;
 import com.xwbing.web.response.ApiResponse;
 import com.xwbing.web.response.ApiResponseUtil;
@@ -414,6 +416,18 @@ public class MockControl {
         });
         log.info("readProductExcel allCount:{}", count.incrementAndGet(), allCount);
         return ApiResponseUtil.success();
+    }
+
+    // @OperateLog(tag = "测试日志", content = "自定义函数1:{exampleFunction{#name}} 自定义函数2:{exampleFunction{#password}} {{#log}}")
+    // @OperateLog(tag = "测试日志", content = "'官方SpEL取值:'+#log")
+    // @OperateLog(tag = "测试日志", content = "自定义SpEL取值:{{#log}}")
+    @OperateLog(tag = "测试日志", content = "执行结果:{{#_result.name}}")
+    @GetMapping("/testLog")
+    public SysUser testLog(@RequestParam String name, @RequestParam String password, @RequestParam String log) {
+        SysUser user = new SysUser();
+        user.setName( name);
+        user.setPassword(password);
+        return user;
     }
 
     @RequestMapping("/robots")

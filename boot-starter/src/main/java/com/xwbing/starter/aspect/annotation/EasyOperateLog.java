@@ -12,13 +12,13 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface OperateLog {
-    String name();
+public @interface EasyOperateLog {
+    String tag();
 
     /**
      * SpEL表达式: #p0 | #p0.field | #paramName | paramName.field
      */
-    String description();
+    String content();
 
     // 是否保存运行结果
     boolean saveResult() default false;
