@@ -207,7 +207,8 @@ public class MockControl {
         message.addItem(MarkdownMessage.getUnOrderListText(unOrderList));
         message.addItem(
                 MarkdownMessage.getImageText("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png"));
-        message.addItem(MarkdownMessage.getLinkText("天气", DingtalkRobotHelper.pcSlide("https://www.seniverse.com", true)));
+        message.addItem(
+                MarkdownMessage.getLinkText("天气", DingtalkRobotHelper.pcSlide("https://www.seniverse.com", true)));
         message.setAtAll(atAll);
         message.addAtMobiles(atMobiles);
         DingTalkUtil.sendRobotMessage(message);
@@ -418,17 +419,17 @@ public class MockControl {
         return ApiResponseUtil.success();
     }
 
-    // @OperateLog(tag = "测试日志", content = "自定义函数1:{exampleFunction{#name}} 自定义函数2:{exampleFunction{#password}} {{#log}}")
-    // @OperateLog(tag = "测试日志", content = "'官方SpEL取值:'+#log")
-    // @OperateLog(tag = "测试日志", content = "自定义SpEL取值:{{#log}}")
+    // @OperateLog(tag = "测试日志", content = "自定义函数1:{exampleFunction{#name}} 自定义函数2:{exampleFunction{#password}} {{#sex}}")
+    // @OperateLog(tag = "测试日志", content = "'官方SpEL取值:'+#sex")
+    // @OperateLog(tag = "测试日志", content = "自定义SpEL取值:{{#sex}}")
     @OperateLog(tag = "测试日志", content = "执行结果:{{#_result.name}} 错误结果:{{#_errMsg}} 操作人:{{#_operator}}")
     @GetMapping("/testLog")
-    public SysUser testLog(@RequestParam String name, @RequestParam String password, @RequestParam String log) {
+    public SysUser testLog(@RequestParam String name, @RequestParam String password, @RequestParam String sex) {
         SysUser user = new SysUser();
-        user.setName( name);
+        user.setName(name);
         user.setPassword(password);
-        if (1 == 1) {
-            throw new RuntimeException("111");
+        if ("1".equals(sex)) {
+            throw new RuntimeException("error");
         }
         return user;
     }
@@ -452,8 +453,9 @@ public class MockControl {
         }
         // 群聊
         else {
-            DingtalkRobotHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                    robotMsg.getContent());
+            DingtalkRobotHelper
+                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+                            robotMsg.getContent());
 
             DingtalkRobotHelper
                     .sendActionCard(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
@@ -479,20 +481,25 @@ public class MockControl {
         }
         String content = robotMsg.getContent();
         if ("今天是什么日子".equals(content)) {
-            DingtalkRobotHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                    "我加老婆的生日呀");
+            DingtalkRobotHelper
+                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+                            "我加老婆的生日呀");
         } else if ("你老婆是谁".equals(content)) {
-            DingtalkRobotHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                    "彩彩呀");
+            DingtalkRobotHelper
+                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+                            "彩彩呀");
         } else if ("世界上最好的老婆是谁".equals(content)) {
-            DingtalkRobotHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                    "彩彩呀");
+            DingtalkRobotHelper
+                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+                            "彩彩呀");
         } else if ("那世界上最美的女人又是谁".equals(content)) {
-            DingtalkRobotHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                    "当然是彩彩呀");
+            DingtalkRobotHelper
+                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+                            "当然是彩彩呀");
         } else {
-            DingtalkRobotHelper.sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                    "本宝宝还在学习中");
+            DingtalkRobotHelper
+                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
+                            "本宝宝还在学习中");
         }
         return null;
     }
