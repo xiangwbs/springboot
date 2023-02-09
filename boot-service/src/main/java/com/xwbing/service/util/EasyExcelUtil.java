@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.cache.MapCache;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
@@ -41,13 +42,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EasyExcelUtil {
     /**
-     * @param inputStream 文件流
-     * @param fullPath 带后缀全路径
-     * @param head 表头
+     * @param inputStream 文件流 2选1
+     * @param fullPath 带后缀全路径 2选1
+     * @param head 表头 {@link ExcelProperty}
      * @param sheetNo Start form 0
      * @param headRowNum 表头行数
      * @param exampleNum 示例数据行数
-     * @param batchDealNum 批处理数量
+     * @param batchDealNum 批处理数量(分配处理 防止oom)
      * @param consumer 数据消费逻辑
      */
     public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> head, int sheetNo, int headRowNum,
@@ -69,7 +70,7 @@ public class EasyExcelUtil {
                     return;
                 }
                 list.add(data);
-                //达到batchDealNum，需要去处理一次数据，防止数据几万条数据在内存，容易oom
+                //达到批处理数量，需要处理一次数据，防止数据几万条数据在内存，容易oom
                 if (list.size() >= batchDealNum) {
                     dealData();
                 }
@@ -169,7 +170,7 @@ public class EasyExcelUtil {
 
     /**
      * @param response
-     * @param head 表头类
+     * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
      * @param password 为null不加密
      * @param dataFunction pageNum -> {分页数据组装逻辑} Start form 1
@@ -207,7 +208,7 @@ public class EasyExcelUtil {
     }
 
     /**
-     * @param head 表头
+     * @param head 表头 {@link ExcelProperty}
      * @param basedir 文件夹路径
      * @param fileName 不带文件后缀
      * @param password 为null不加密
@@ -221,7 +222,7 @@ public class EasyExcelUtil {
     }
 
     /**
-     * @param head 表头
+     * @param head 表头 {@link ExcelProperty}
      * @param basedir 文件夹路径
      * @param fileName 不带文件后缀
      * @param password 为null不加密
