@@ -145,7 +145,6 @@ public class WebLogAspect {
             long cost = end-start;
             //TODO 记录日志信息到数据库 type,args,result,status,start,end,cost,errorMsg
             if (error!=null) {
-                log.error("...",error);
                 throw error;
             }
         }

@@ -102,7 +102,6 @@ public class OperateLogAspect {
             //         .errorMsg(errorMsg)
             //         .build();
             if (error != null) {
-                log.error("operateLog error", error);
                 throw error;
             }
         }
