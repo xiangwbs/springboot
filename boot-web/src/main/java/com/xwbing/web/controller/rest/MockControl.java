@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -333,34 +332,34 @@ public class MockControl {
         excelData.add(data1);
         excelData.add(data2);
         excelData.add(data3);
-        EasyExcelUtil.writeToLocal(ExcelHeaderVo.class,"/Users/xwbing/Documents", "人员名单统计", "人员名单", null, excelData);
+        EasyExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", "人员名单", null, excelData);
     }
 
     @ApiOperation("生成excel到本地")
     @GetMapping("writeToLocalByPage")
-    public void writeToLocalByPage(HttpServletResponse response) {
-        Function<Integer, List<ExcelHeaderVo>> dataFunction = pageNumber -> {
-            if (pageNumber == 2) {
-                return Collections.emptyList();
-            }
-            //模拟分页
-            // PageHelper.startPage(pageNumber, 500);
-            List<ExcelHeaderVo> excelData = new ArrayList<>();
-            ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
-                    .build();
-            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
-                    .build();
-            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功")
-                    .build();
-            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功")
-                    .build();
-            excelData.add(data);
-            excelData.add(data1);
-            excelData.add(data2);
-            excelData.add(data3);
-            return excelData;
-        };
-        EasyExcelUtil.writeToLocalByPage(ExcelHeaderVo.class,"/Users/xwbing/Documents", "人员名单统计", "人员名单", null, dataFunction);
+    public void writeToLocalByPage() {
+        EasyExcelUtil.writeToLocalByPage(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", "人员名单", null,
+                pageNumber -> {
+                    if (pageNumber == 2) {
+                        return Collections.emptyList();
+                    }
+                    //模拟分页
+                    // PageHelper.startPage(pageNumber, 500);
+                    List<ExcelHeaderVo> excelData = new ArrayList<>();
+                    ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888")
+                            .introduction("这是一条简介").build();
+                    ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888")
+                            .introduction("这是一条简介").build();
+                    ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888")
+                            .introduction("法轮功").build();
+                    ExcelHeaderVo data3 = ExcelHeaderVo.builder().name(null).age(18).tel("13488888888")
+                            .introduction("法轮功").build();
+                    excelData.add(data);
+                    excelData.add(data1);
+                    excelData.add(data2);
+                    excelData.add(data3);
+                    return excelData;
+                });
     }
 
     @ApiOperation("生成多个sheet到本地")
@@ -409,7 +408,7 @@ public class MockControl {
     @PostMapping("dealExcel")
     public ApiResponse dealExcel(@RequestParam MultipartFile file) throws IOException {
         AtomicInteger count = new AtomicInteger();
-        Integer allCount = EasyExcelUtil.read(file.getInputStream(), null,ExcelHeaderDemoVo.class, 0, 1, 10, data -> {
+        Integer allCount = EasyExcelUtil.read(file.getInputStream(), null, ExcelHeaderDemoVo.class, 0, 1, 10, data -> {
             log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
             data.forEach(d -> {
                 log.info("dealExcel head:{}", d);

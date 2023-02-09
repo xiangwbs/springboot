@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -23,33 +24,40 @@ import com.alibaba.excel.cache.MapCache;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
+import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.exception.ExcelException;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author daofeng
  * @version $Id$
  * @since 2023年02月08日 7:06 PM
  */
+@Slf4j
 public class EasyExcelUtil {
     /**
      * @param inputStream
      * @param fullPath
      * @param headClass
      * @param sheetNo
-     * @param headRowNumber 表头行数
-     * @param batchNumber 批量处理数
+     * @param headRowNum 表头行数
+     * @param sampleNum 示例数据行数
+     * @param batchNum 一次批量处理数量
      * @param dealMethod 数据处理方法
      */
     public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> headClass, Integer sheetNo,
-            Integer headRowNumber, Integer batchNumber, Consumer<List<T>> dealMethod) {
+            Integer headRowNum, Integer sampleNum, Integer batchNum, Consumer<List<T>> dealMethod) {
         String type = fullPath.substring(fullPath.lastIndexOf("."));
         if (!(ExcelTypeEnum.XLSX.getValue().equals(type) || ExcelTypeEnum.XLS.getValue().equals(type))) {
             throw new ExcelException("文件格式不正确");
         }
-        AtomicInteger count = new AtomicInteger();
+        AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<T> eventListener = new AnalysisEventListener<T>() {
             private List<T> list = new ArrayList<>();
 
@@ -57,13 +65,23 @@ public class EasyExcelUtil {
              * 这个每一条数据解析都会来调用
              */
             @Override
-            public void invoke(T e, AnalysisContext analysisContext) {
-                count.incrementAndGet();
+            public void invoke(T e, AnalysisContext context) {
+                Integer currentRowNum = context.readRowHolder().getRowIndex();
+                log.info("readExcel invoke rowNum:{} data:{}", currentRowNum, JSON.toJSONString(e));
+                //不处理示例数据
+                if (currentRowNum < sampleNum) {
+                    return;
+                }
                 list.add(e);
                 //达到batchNumber，需要去处理一次数据，防止数据几万条数据在内存，容易OOM
-                if (list.size() >= batchNumber) {
+                if (list.size() >= batchNum) {
                     dealData();
                 }
+            }
+
+            @Override
+            public void onException(Exception exception, AnalysisContext context) {
+                log.error("readExcel onException error", exception);
             }
 
             /**
@@ -73,6 +91,24 @@ public class EasyExcelUtil {
             public void doAfterAllAnalysed(AnalysisContext analysisContext) {
                 //处理剩余数据
                 dealData();
+            }
+
+            /**
+             * 表头数据处理
+             * headMap.get(i)
+             *
+             * @param headMap
+             * @param context
+             */
+            @Override
+            public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
+                log.info("readExcel head:{}", JSONObject.toJSONString(headMap));
+                //获取总条数
+                ReadSheetHolder readSheetHolder = context.readSheetHolder();
+                Integer totalRowNumber = readSheetHolder.getApproximateTotalRowNumber();
+                totalRowNumber = totalRowNumber <= sampleNum ? 0 : totalRowNumber - sampleNum;
+                totalCount.set(totalRowNumber);
+                log.info("readExcel totalCount:{}", totalCount.intValue());
             }
 
             /**
@@ -92,9 +128,8 @@ public class EasyExcelUtil {
         } else {
             throw new RuntimeException("excel不能为空");
         }
-        read.readCache(new MapCache()).ignoreEmptyRow(Boolean.TRUE).headRowNumber(headRowNumber).sheet(sheetNo)
-                .doRead();
-        return count.get();
+        read.readCache(new MapCache()).ignoreEmptyRow(Boolean.TRUE).headRowNumber(headRowNum).sheet(sheetNo).doRead();
+        return totalCount.get();
     }
 
     /**
@@ -140,6 +175,14 @@ public class EasyExcelUtil {
         }
     }
 
+    /**
+     * @param response
+     * @param headClass 表头类
+     * @param fileName 文件名
+     * @param sheetName
+     * @param password 密码
+     * @param dataFunction pageNumber -> {分页和数据组装逻辑}
+     */
     public static <T> void writeToBrowserByPage(HttpServletResponse response, Class<T> headClass, String fileName,
             String sheetName, String password, Function<Integer, List<T>> dataFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
@@ -180,6 +223,15 @@ public class EasyExcelUtil {
                 .autoTrim(Boolean.TRUE).doWrite(excelData);
     }
 
+    /**
+     * @param headClass
+     * @param basedir
+     * @param fileName
+     * @param sheetName
+     * @param password
+     * @param dataFunction pageNumber -> {分页和数据组装逻辑}
+     * @param <T>
+     */
     public static <T> void writeToLocalByPage(Class<T> headClass, String basedir, String fileName, String sheetName,
             String password, Function<Integer, List<T>> dataFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
