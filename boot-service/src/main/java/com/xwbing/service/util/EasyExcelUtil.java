@@ -43,31 +43,31 @@ public class EasyExcelUtil {
     /**
      * @param inputStream
      * @param fullPath
-     * @param headClass
+     * @param head
      * @param sheetNo 0-n
      * @param headRowNum 表头行数
      * @param sampleNum 示例数据行数
-     * @param batchNum 批量处理数量
+     * @param batchNum 批处理数量
      * @param consumer 数据消费逻辑
      */
-    public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> headClass, Integer sheetNo,
-            Integer headRowNum, Integer sampleNum, Integer batchNum, Consumer<List<T>> consumer) {
+    public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> head, int sheetNo, int headRowNum,
+            int sampleNum, int batchNum, Consumer<List<T>> consumer) {
         AtomicInteger totalCount = new AtomicInteger();
-        AnalysisEventListener<T> eventListener = new AnalysisEventListener<T>() {
+        AnalysisEventListener<T> readListener = new AnalysisEventListener<T>() {
             private List<T> list = new ArrayList<>();
 
             /**
              * 这个每一条数据解析都会来调用
              */
             @Override
-            public void invoke(T e, AnalysisContext context) {
+            public void invoke(T data, AnalysisContext context) {
                 Integer currentRowNum = context.readRowHolder().getRowIndex();
-                log.info("readExcel invoke rowNum:{} data:{}", currentRowNum, JSON.toJSONString(e));
+                log.info("readExcel invoke rowNum:{} data:{}", currentRowNum, JSON.toJSONString(data));
                 //不处理示例数据
                 if (currentRowNum < sampleNum) {
                     return;
                 }
-                list.add(e);
+                list.add(data);
                 //达到batchNumber，需要去处理一次数据，防止数据几万条数据在内存，容易OOM
                 if (list.size() >= batchNum) {
                     dealData();
@@ -83,7 +83,7 @@ public class EasyExcelUtil {
              * 所有数据解析完成后调用
              */
             @Override
-            public void doAfterAllAnalysed(AnalysisContext analysisContext) {
+            public void doAfterAllAnalysed(AnalysisContext context) {
                 //处理剩余数据
                 dealData();
             }
@@ -117,9 +117,9 @@ public class EasyExcelUtil {
         };
         ExcelReaderBuilder read;
         if (inputStream != null) {
-            read = EasyExcel.read(inputStream, headClass, eventListener);
+            read = EasyExcel.read(inputStream, head, readListener);
         } else if (StringUtils.isNotEmpty(fullPath)) {
-            read = EasyExcel.read(fullPath, headClass, eventListener);
+            read = EasyExcel.read(fullPath, head, readListener);
         } else {
             throw new RuntimeException("excel不能为空");
         }
@@ -129,8 +129,7 @@ public class EasyExcelUtil {
 
     /**
      * 文件下载到浏览器
-     * 动态头
-     * 自动列宽
+     * 动态头 自动列宽
      * 默认关闭流,如果错误信息以流的形式呈现，不能关闭流 .autoCloseStream(Boolean.FALSE)
      * password为null不加密
      * cell最大长度为32767
@@ -147,7 +146,6 @@ public class EasyExcelUtil {
             List<String> heads, List<List<Object>> excelData) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
-            // response.setContentType("application/vnd.ms-excel;charset=utf-8");
             response.setContentType("application/octet-stream");
             //防止中文乱码
             fileName = URLEncoder.encode(fileName, "UTF-8");
@@ -172,13 +170,13 @@ public class EasyExcelUtil {
 
     /**
      * @param response
-     * @param headClass 表头类
+     * @param head 表头类
      * @param fileName 文件名
      * @param sheetName
      * @param password 密码
      * @param dataFunction pageNumber -> {分页和数据组装逻辑}
      */
-    public static <T> void writeToBrowserByPage(HttpServletResponse response, Class<T> headClass, String fileName,
+    public static <T> void writeToBrowserByPage(HttpServletResponse response, Class<T> head, String fileName,
             String sheetName, String password, Function<Integer, List<T>> dataFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
@@ -191,7 +189,7 @@ public class EasyExcelUtil {
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
 
-            ExcelWriter excelWriter = EasyExcel.write(outputStream, headClass)
+            ExcelWriter excelWriter = EasyExcel.write(outputStream, head)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
             WriteSheet writeSheet = EasyExcel.writerSheet(sheetName).autoTrim(Boolean.TRUE).build();
 
@@ -206,20 +204,19 @@ public class EasyExcelUtil {
             }
             excelWriter.finish();
         } catch (Exception e) {
-            e.getStackTrace();
+            throw new RuntimeException("下载文件失败");
         }
     }
 
-    public static <T> void writeToLocal(Class<T> headClass, String basedir, String fileName, String sheetName,
+    public static <T> void writeToLocal(Class<T> head, String basedir, String fileName, String sheetName,
             String password, List<T> excelData) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
-        EasyExcel.write(path.toString()).head(headClass)
-                .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).sheet(sheetName)
-                .autoTrim(Boolean.TRUE).doWrite(excelData);
+        EasyExcel.write(path.toString()).head(head).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                .password(password).sheet(sheetName).autoTrim(Boolean.TRUE).doWrite(excelData);
     }
 
     /**
-     * @param headClass
+     * @param head
      * @param basedir
      * @param fileName
      * @param sheetName
@@ -227,12 +224,12 @@ public class EasyExcelUtil {
      * @param dataFunction pageNumber -> {分页和数据组装逻辑}
      * @param <T>
      */
-    public static <T> void writeToLocalByPage(Class<T> headClass, String basedir, String fileName, String sheetName,
+    public static <T> void writeToLocalByPage(Class<T> head, String basedir, String fileName, String sheetName,
             String password, Function<Integer, List<T>> dataFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
         ExcelWriter excelWriter = null;
         try {
-            excelWriter = EasyExcel.write(path.toString()).head(headClass)
+            excelWriter = EasyExcel.write(path.toString()).head(head)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
             WriteSheet writeSheet = EasyExcel.writerSheet(sheetName).autoTrim(Boolean.TRUE).build();
             int pageNumber = 1;
