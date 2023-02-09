@@ -30,7 +30,6 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.service.exception.ExcelException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -53,10 +52,6 @@ public class EasyExcelUtil {
      */
     public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> headClass, Integer sheetNo,
             Integer headRowNum, Integer sampleNum, Integer batchNum, Consumer<List<T>> dealMethod) {
-        String type = fullPath.substring(fullPath.lastIndexOf("."));
-        if (!(ExcelTypeEnum.XLSX.getValue().equals(type) || ExcelTypeEnum.XLS.getValue().equals(type))) {
-            throw new ExcelException("文件格式不正确");
-        }
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<T> eventListener = new AnalysisEventListener<T>() {
             private List<T> list = new ArrayList<>();
