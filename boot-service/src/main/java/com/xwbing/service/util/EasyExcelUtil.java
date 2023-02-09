@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.cache.MapCache;
@@ -34,70 +36,25 @@ import com.xwbing.service.exception.ExcelException;
 public class EasyExcelUtil {
     /**
      * @param inputStream
+     * @param fullPath
      * @param headClass
      * @param sheetNo
      * @param headRowNumber 表头行数
      * @param batchNumber 批量处理数
      * @param dealMethod 数据处理方法
      */
-    public static <T> Integer read(InputStream inputStream, Class<T> headClass, Integer sheetNo, Integer headRowNumber,
-            Integer batchNumber, Consumer<List<T>> dealMethod) {
-        List<T> list = new ArrayList<>();
-        AtomicInteger count = new AtomicInteger();
-
-        ExcelReaderBuilder read = EasyExcel.read(inputStream, headClass, new AnalysisEventListener<T>() {
-            /**
-             * 这个每一条数据解析都会来调用
-             * @param e
-             * @param analysisContext
-             */
-            @Override
-            public void invoke(T e, AnalysisContext analysisContext) {
-                count.incrementAndGet();
-                list.add(e);
-                //达到batchNumber，需要去处理一次数据，防止数据几万条数据在内存，容易OOM
-                if (list.size() >= batchNumber) {
-                    dealData();
-                }
-            }
-
-            /**
-             * 所有数据解析完成后调用
-             * @param analysisContext
-             */
-            @Override
-            public void doAfterAllAnalysed(AnalysisContext analysisContext) {
-                //处理剩余数据
-                dealData();
-            }
-
-            /**
-             * 处理数据
-             */
-            private void dealData() {
-                List<T> data = new ArrayList<>(list);
-                list.clear();
-                dealMethod.accept(data);
-            }
-        });
-        read.readCache(new MapCache()).ignoreEmptyRow(Boolean.TRUE).headRowNumber(headRowNumber).sheet(sheetNo)
-                .doRead();
-        return count.get();
-    }
-
-    public static <T> Integer readByLocal(String fullPath, Class<T> headClass, Integer sheetNo, Integer headRowNumber,
-            Integer batchNumber, Consumer<List<T>> dealMethod) {
+    public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> headClass, Integer sheetNo,
+            Integer headRowNumber, Integer batchNumber, Consumer<List<T>> dealMethod) {
         String type = fullPath.substring(fullPath.lastIndexOf("."));
         if (!(ExcelTypeEnum.XLSX.getValue().equals(type) || ExcelTypeEnum.XLS.getValue().equals(type))) {
             throw new ExcelException("文件格式不正确");
         }
-        List<T> list = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
-        ExcelReaderBuilder read = EasyExcel.read(fullPath, headClass, new AnalysisEventListener<T>() {
+        AnalysisEventListener<T> eventListener = new AnalysisEventListener<T>() {
+            private List<T> list = new ArrayList<>();
+
             /**
              * 这个每一条数据解析都会来调用
-             * @param e
-             * @param analysisContext
              */
             @Override
             public void invoke(T e, AnalysisContext analysisContext) {
@@ -111,7 +68,6 @@ public class EasyExcelUtil {
 
             /**
              * 所有数据解析完成后调用
-             * @param analysisContext
              */
             @Override
             public void doAfterAllAnalysed(AnalysisContext analysisContext) {
@@ -127,7 +83,15 @@ public class EasyExcelUtil {
                 list.clear();
                 dealMethod.accept(data);
             }
-        });
+        };
+        ExcelReaderBuilder read;
+        if (inputStream != null) {
+            read = EasyExcel.read(inputStream, headClass, eventListener);
+        } else if (StringUtils.isNotEmpty(fullPath)) {
+            read = EasyExcel.read(fullPath, headClass, eventListener);
+        } else {
+            throw new RuntimeException("excel不能为空");
+        }
         read.readCache(new MapCache()).ignoreEmptyRow(Boolean.TRUE).headRowNumber(headRowNumber).sheet(sheetNo)
                 .doRead();
         return count.get();
