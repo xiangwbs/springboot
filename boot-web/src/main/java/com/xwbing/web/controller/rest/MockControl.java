@@ -315,7 +315,7 @@ public class MockControl {
         data.add("项伟兵");
         data.add("18");
         List<List<Object>> excelData = Collections.singletonList(data);
-        EasyExcelUtil.writeToBrowser(response, "人员名单统计", "人员名单", null, titles, excelData);
+        EasyExcelUtil.writeToBrowser(response, "人员名单统计", null, titles, excelData);
     }
 
     @ApiOperation("生成excel到本地")
@@ -332,34 +332,33 @@ public class MockControl {
         excelData.add(data1);
         excelData.add(data2);
         excelData.add(data3);
-        EasyExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", "人员名单", null, excelData);
+        EasyExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, excelData);
     }
 
     @ApiOperation("生成excel到本地")
     @GetMapping("writeToLocalByPage")
     public void writeToLocalByPage() {
-        EasyExcelUtil.writeToLocalByPage(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", "人员名单", null,
-                pageNumber -> {
-                    if (pageNumber == 2) {
-                        return Collections.emptyList();
-                    }
-                    //模拟分页
-                    // PageHelper.startPage(pageNumber, 500);
-                    List<ExcelHeaderVo> excelData = new ArrayList<>();
-                    ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888")
-                            .introduction("这是一条简介").build();
-                    ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888")
-                            .introduction("这是一条简介").build();
-                    ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888")
-                            .introduction("法轮功").build();
-                    ExcelHeaderVo data3 = ExcelHeaderVo.builder().name(null).age(18).tel("13488888888")
-                            .introduction("法轮功").build();
-                    excelData.add(data);
-                    excelData.add(data1);
-                    excelData.add(data2);
-                    excelData.add(data3);
-                    return excelData;
-                });
+        EasyExcelUtil.writeToLocalByPage(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, pageNumber -> {
+            if (pageNumber == 2) {
+                return Collections.emptyList();
+            }
+            //模拟分页
+            // PageHelper.startPage(pageNumber, 500);
+            List<ExcelHeaderVo> excelData = new ArrayList<>();
+            ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
+                    .build();
+            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
+                    .build();
+            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功")
+                    .build();
+            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功")
+                    .build();
+            excelData.add(data);
+            excelData.add(data1);
+            excelData.add(data2);
+            excelData.add(data3);
+            return excelData;
+        });
     }
 
     @ApiOperation("生成多个sheet到本地")
