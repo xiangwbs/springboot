@@ -163,7 +163,7 @@ public class OperateLogAspect {
                 String functionParam = matcher.group(2);
                 // 防止方法执行报错时，获取执行结果属性时npe
                 if (StringUtils.isNotEmpty(errorMsg) && functionParam.contains(SPEL_START + RESULT + ".")) {
-                    matcher.appendReplacement(parseContent, "");
+                    matcher.appendReplacement(parseContent, "null");
                 } else {
                     String parseResult = parse(context, functionName, functionParam);
                     matcher.appendReplacement(parseContent, parseResult);
@@ -179,17 +179,33 @@ public class OperateLogAspect {
         return content;
     }
 
+    /**
+     * 解析自定义语法
+     *
+     * @param context
+     * @param functionName
+     * @param functionParam
+     *
+     * @return
+     */
     private String parse(EvaluationContext context, String functionName, String functionParam) {
         Object value = expressionParser.parseExpression(functionParam).getValue(context);
         String parseContent;
         if (StringUtils.isNotEmpty(functionName)) {
             parseContent = customFunctionFactory.apply(functionName, value);
         } else {
-            parseContent = value == null ? "" : value.toString();
+            parseContent = String.valueOf(value);
         }
         return parseContent;
     }
 
+    /**
+     * 获取解析表达式上下文
+     *
+     * @param joinPoint
+     *
+     * @return
+     */
     private EvaluationContext geContext(ProceedingJoinPoint joinPoint) {
         MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
         List<String> paramNameList = Arrays.asList(methodSignature.getParameterNames());
