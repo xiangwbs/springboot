@@ -316,7 +316,7 @@ public class MockControl {
         data.add("项伟兵");
         data.add("18");
         List<List<Object>> excelData = Collections.singletonList(data);
-        easyExcelDealService.writeToBrowser(response, "人员名单统计", "人员名单", null, titles, excelData);
+        EasyExcelUtil.writeToBrowser(response, "人员名单统计", "人员名单", null, titles, excelData);
     }
 
     @ApiOperation("生成excel到本地")
@@ -333,12 +333,12 @@ public class MockControl {
         excelData.add(data1);
         excelData.add(data2);
         excelData.add(data3);
-        easyExcelDealService.writeToLocal("/Users/xwbing/Documents", "人员名单统计", "人员名单", null, excelData);
+        EasyExcelUtil.writeToLocal(ExcelHeaderVo.class,"/Users/xwbing/Documents", "人员名单统计", "人员名单", null, excelData);
     }
 
     @ApiOperation("生成excel到本地")
     @GetMapping("writeToLocalByPage")
-    public void writeToLocalByPage() {
+    public void writeToLocalByPage(HttpServletResponse response) {
         Function<Integer, List<ExcelHeaderVo>> dataFunction = pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
@@ -360,7 +360,7 @@ public class MockControl {
             excelData.add(data3);
             return excelData;
         };
-        easyExcelDealService.writeToLocalByPage("/Users/xwbing/Documents", "人员名单统计", "人员名单", null, dataFunction);
+        EasyExcelUtil.writeToLocalByPage(ExcelHeaderVo.class,"/Users/xwbing/Documents", "人员名单统计", "人员名单", null, dataFunction);
     }
 
     @ApiOperation("生成多个sheet到本地")
@@ -409,7 +409,7 @@ public class MockControl {
     @PostMapping("dealExcel")
     public ApiResponse dealExcel(@RequestParam MultipartFile file) throws IOException {
         AtomicInteger count = new AtomicInteger();
-        Integer allCount = EasyExcelUtil.dealExcel(file.getInputStream(), ExcelHeaderDemoVo.class, 0, 1, 10, data -> {
+        Integer allCount = EasyExcelUtil.read(file.getInputStream(), ExcelHeaderDemoVo.class, 0, 1, 10, data -> {
             log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
             data.forEach(d -> {
                 log.info("dealExcel head:{}", d);

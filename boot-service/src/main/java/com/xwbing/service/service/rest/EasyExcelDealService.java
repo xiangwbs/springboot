@@ -5,12 +5,10 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -30,20 +28,19 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSONObject;
-import com.xwbing.starter.redis.RedisService;
-import com.xwbing.service.enums.ImportStatusEnum;
 import com.xwbing.service.domain.entity.rest.ImportFailLog;
 import com.xwbing.service.domain.entity.rest.ImportTask;
 import com.xwbing.service.domain.entity.vo.ExcelFailHeadVo;
-import com.xwbing.service.domain.entity.vo.ExcelProcessVo;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
+import com.xwbing.service.domain.entity.vo.ExcelProcessVo;
+import com.xwbing.service.enums.ImportStatusEnum;
 import com.xwbing.service.exception.BusinessException;
 import com.xwbing.service.exception.ExcelException;
-import com.xwbing.service.exception.UtilException;
 import com.xwbing.service.util.PassWordUtil;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.SensitiveWordEngine;
 import com.xwbing.service.util.ThreadUtil;
+import com.xwbing.starter.redis.RedisService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -230,90 +227,6 @@ public class EasyExcelDealService {
     // ---------------------- 示例 ----------------------
 
     /**
-     * 文件下载到浏览器
-     * 动态头
-     * 自动列宽
-     * 默认关闭流,如果错误信息以流的形式呈现，不能关闭流 .autoCloseStream(Boolean.FALSE)
-     * password为null不加密
-     * cell最大长度为32767
-     * 数据量大时，可能会oom，建议分页查询，写入到本地，再上传到oss
-     *
-     * @param response
-     * @param fileName
-     * @param sheetName
-     * @param password
-     * @param heads
-     * @param excelData
-     */
-    public void writeToBrowser(HttpServletResponse response, String fileName, String sheetName, String password,
-            List<String> heads, List<List<Object>> excelData) {
-        try (ServletOutputStream outputStream = response.getOutputStream()) {
-            response.setCharacterEncoding("UTF-8");
-            // response.setContentType("application/vnd.ms-excel;charset=utf-8");
-            response.setContentType("application/octet-stream");
-            //防止中文乱码
-            fileName = URLEncoder.encode(fileName, "UTF-8");
-            response.setHeader("Content-Disposition",
-                    "attachment; filename=" + fileName + ExcelTypeEnum.XLSX.getValue());
-            response.setHeader("Pragma", "No-cache");
-            response.setHeader("Cache-Control", "no-cache");
-            response.setDateHeader("Expires", 0);
-            //自动列宽
-            EasyExcel.write(outputStream).head(getHead(heads))
-                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password)
-                    .sheet(sheetName).autoTrim(Boolean.TRUE).doWrite(excelData);
-        } catch (Exception e) {
-            log.error("writeToBrowser error", e);
-            throw new UtilException("下载文件失败");
-            // response.reset();
-            // response.setContentType("application/json");
-            // response.setCharacterEncoding("utf-8");
-            // response.getWriter().println("下载文件失败");
-        }
-    }
-
-    /**
-     * 生成excel到本地
-     *
-     * @param basedir
-     * @param fileName
-     * @param sheetName
-     * @param password
-     * @param excelData
-     */
-    public void writeToLocal(String basedir, String fileName, String sheetName, String password,
-            List<ExcelHeaderVo> excelData) {
-        Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
-        EasyExcel.write(path.toString()).head(ExcelHeaderVo.class)
-                .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).sheet(sheetName)
-                .autoTrim(Boolean.TRUE).doWrite(excelData);
-    }
-
-    public void writeToLocalByPage(String basedir, String fileName, String sheetName, String password,
-            Function<Integer, List<ExcelHeaderVo>> dataFunction) {
-        Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
-        ExcelWriter excelWriter = null;
-        try {
-            excelWriter = EasyExcel.write(path.toString()).head(ExcelHeaderVo.class)
-                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
-            WriteSheet writeSheet = EasyExcel.writerSheet(sheetName).autoTrim(Boolean.TRUE).build();
-            int pageNumber = 1;
-            while (true) {
-                List<ExcelHeaderVo> data = dataFunction.apply(pageNumber);
-                if (data.isEmpty()) {
-                    break;
-                }
-                excelWriter.write(data, writeSheet);
-                pageNumber++;
-            }
-        } finally {
-            if (excelWriter != null) {
-                excelWriter.finish();
-            }
-        }
-    }
-
-    /**
      * 生成多个sheet的excel到本地
      *
      * @param basedir
@@ -326,50 +239,12 @@ public class EasyExcelDealService {
         for (int i = 0; i < 2; i++) {
             writeSheet = EasyExcel.writerSheet(i, "sheet" + i)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).head(ExcelHeaderVo.class).build();
-            ExcelHeaderVo java = ExcelHeaderVo
-                    .builder().name("java").age(18).tel("1348888888" + i).introduction("这是sheet" + i)
-                    .build();
+            ExcelHeaderVo java = ExcelHeaderVo.builder().name("java").age(18).tel("1348888888" + i)
+                    .introduction("这是sheet" + i).build();
             excelWriter.write(Collections.singletonList(java), writeSheet);
         }
         excelWriter.finish();
     }
-
-    // /**
-    //  * 生成加密excel
-    //  *
-    //  * @param basedir
-    //  * @param fileName
-    //  * @param sheetName
-    //  * @param password
-    //  * @param heads
-    //  * @param excelData
-    //  */
-    // public static void encryptWrite(String basedir, String fileName, String sheetName, String password,
-    //         List<String> heads, List<List<Object>> excelData) throws IOException {
-    //     Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
-    //     OPCPackage opc = null;
-    //     try (OutputStream out = Files.newOutputStream(path);
-    //             OutputStream encryptOut = Files.newOutputStream(path);
-    //             POIFSFileSystem fs = new POIFSFileSystem()) {
-    //         //自动列宽,自动关闭流
-    //         EasyExcel.write(out).head(getHead(heads)).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
-    //                 .sheet(sheetName).doWrite(excelData);
-    //         //添加密码保护
-    //         EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
-    //         Encryptor enc = info.getEncryptor();
-    //         enc.confirmPassword(password);
-    //         //加密文件
-    //         opc = OPCPackage.open(path.toFile(), PackageAccess.READ_WRITE);
-    //         opc.save(enc.getDataStream(fs));
-    //         fs.writeFilesystem(encryptOut);
-    //     } catch (Exception e) {
-    //         log.error("excel write error:{}", e.getMessage());
-    //     } finally {
-    //         if (opc != null) {
-    //             opc.close();
-    //         }
-    //     }
-    // }
 
     /**
      * @param fullPath
@@ -386,21 +261,8 @@ public class EasyExcelDealService {
         String importId = PassWordUtil.createUuId();
         CompletableFuture.runAsync(() -> EasyExcel.read(fullPath,
                 new EasyExcelReadListener(importId, null, this, importTaskService, importFailLogService))
-                .head(ExcelHeaderVo.class).readCache(new MapCache()).headRowNumber(headRowNum).ignoreEmptyRow(Boolean.FALSE)
-                .sheet(sheetNo).doRead());
+                .head(ExcelHeaderVo.class).readCache(new MapCache()).headRowNumber(headRowNum)
+                .ignoreEmptyRow(Boolean.FALSE).sheet(sheetNo).doRead());
         return importId;
-    }
-
-    /**
-     * 获取表头
-     *
-     * @param heads
-     *
-     * @return
-     */
-    private List<List<String>> getHead(List<String> heads) {
-        List<List<String>> list = new ArrayList<>();
-        heads.forEach(title -> list.add(Collections.singletonList(title)));
-        return list;
     }
 }
