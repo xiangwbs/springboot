@@ -44,14 +44,14 @@ public class EasyExcelUtil {
      * @param inputStream
      * @param fullPath
      * @param headClass
-     * @param sheetNo
+     * @param sheetNo 0-n
      * @param headRowNum 表头行数
      * @param sampleNum 示例数据行数
-     * @param batchNum 一次批量处理数量
-     * @param dealMethod 数据处理方法
+     * @param batchNum 批量处理数量
+     * @param consumer 数据消费逻辑
      */
     public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> headClass, Integer sheetNo,
-            Integer headRowNum, Integer sampleNum, Integer batchNum, Consumer<List<T>> dealMethod) {
+            Integer headRowNum, Integer sampleNum, Integer batchNum, Consumer<List<T>> consumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<T> eventListener = new AnalysisEventListener<T>() {
             private List<T> list = new ArrayList<>();
@@ -112,7 +112,7 @@ public class EasyExcelUtil {
             private void dealData() {
                 List<T> data = new ArrayList<>(list);
                 list.clear();
-                dealMethod.accept(data);
+                consumer.accept(data);
             }
         };
         ExcelReaderBuilder read;

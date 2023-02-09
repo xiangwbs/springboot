@@ -408,12 +408,13 @@ public class MockControl {
     @PostMapping("dealExcel")
     public ApiResponse dealExcel(@RequestParam MultipartFile file) throws IOException {
         AtomicInteger count = new AtomicInteger();
-        Integer allCount = EasyExcelUtil.read(file.getInputStream(), null, ExcelHeaderDemoVo.class, 0, 1, 10, data -> {
-            log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
-            data.forEach(d -> {
-                log.info("dealExcel head:{}", d);
-            });
-        });
+        Integer allCount = EasyExcelUtil
+                .read(file.getInputStream(), null, ExcelHeaderDemoVo.class, 0, 1, 0, 10, data -> {
+                    log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
+                    data.forEach(d -> {
+                        log.info("dealExcel head:{}", d);
+                    });
+                });
         log.info("readProductExcel allCount:{}", count.incrementAndGet(), allCount);
         return ApiResponseUtil.success();
     }
