@@ -31,7 +31,13 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 
+import cn.hutool.json.JSONUtil;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -41,18 +47,19 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class EasyExcelUtil {
+
     /**
      * @param inputStream 文件流 2选1
      * @param fullPath 带后缀全路径 2选1
      * @param head 表头 {@link ExcelProperty}
-     * @param sheetNo Start form 0
+     * @param sheetNo start form 0
      * @param headRowNum 表头行数
      * @param exampleNum 示例数据行数
      * @param batchDealNum 批处理数量(分配处理 防止oom)
-     * @param consumer 数据消费逻辑
+     * @param consumer 自定义数据消费逻辑
      */
     public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> head, int sheetNo, int headRowNum,
-            int exampleNum, int batchDealNum, Consumer<List<T>> consumer) {
+            int exampleNum, int batchDealNum, Consumer<List<T>> consumer, Consumer<Error<T>> errorConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<T> readListener = new AnalysisEventListener<T>() {
             private List<T> list = new ArrayList<>();
@@ -62,11 +69,11 @@ public class EasyExcelUtil {
              */
             @Override
             public void invoke(T data, AnalysisContext context) {
-                // Start form 0
+                // start form 0
                 Integer rowIndex = context.readRowHolder().getRowIndex();
                 log.info("readExcel invoke rowIndex:{} data:{}", rowIndex, JSON.toJSONString(data));
                 //不处理示例数据
-                if (rowIndex < exampleNum) {
+                if (rowIndex < exampleNum + headRowNum) {
                     return;
                 }
                 list.add(data);
@@ -78,7 +85,14 @@ public class EasyExcelUtil {
 
             @Override
             public void onException(Exception exception, AnalysisContext context) {
-                log.error("readExcel onException error", exception);
+                ReadSheetHolder readSheetHolder = context.readSheetHolder();
+                Integer rowIndex = readSheetHolder.getRowIndex();
+                Object data = context.getCurrentRowAnalysisResult();
+                log.error("readExcel onException rowIndex:{} data:{} error:{}", rowIndex, JSONUtil.toJsonStr(data),
+                        exception.getMessage());
+                Error error = Error.builder().rowIndex(rowIndex).exception(exception)
+                        .data(JSONUtil.toBean(JSONUtil.toJsonStr(data), head)).build();
+                errorConsumer.accept(error);
             }
 
             /**
@@ -92,17 +106,18 @@ public class EasyExcelUtil {
 
             /**
              * 表头数据处理
-             * headMap.get(i)
              *
-             * @param headMap
-             * @param context
+             * @param headMap key start form 0
              */
             @Override
             public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
                 log.info("readExcel head:{}", JSONObject.toJSONString(headMap));
+                if (totalCount.get() != 0) {
+                    return;
+                }
                 //获取总条数
                 ReadSheetHolder readSheetHolder = context.readSheetHolder();
-                Integer totalRowNumber = readSheetHolder.getApproximateTotalRowNumber();
+                Integer totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
                 totalRowNumber = totalRowNumber <= exampleNum ? 0 : totalRowNumber - exampleNum;
                 totalCount.set(totalRowNumber);
                 log.info("readExcel totalCount:{}", totalCount.intValue());
@@ -250,5 +265,37 @@ public class EasyExcelUtil {
                 excelWriter.finish();
             }
         }
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Error<T> {
+        private Exception exception;
+        private Integer rowIndex;
+        private T data;
+    }
+
+    // ---------------------- 示例 ----------------------
+
+    /**
+     * 生成多个sheet的excel到本地
+     *
+     * @param basedir
+     * @param fileName
+     */
+    public static void repeatedWriteToLocal(String basedir, String fileName) {
+        Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
+        ExcelWriter excelWriter = EasyExcel.write(path.toString()).build();
+        WriteSheet writeSheet;
+        for (int i = 0; i < 2; i++) {
+            writeSheet = EasyExcel.writerSheet(i, "sheet" + i)
+                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).head(ExcelHeaderVo.class).build();
+            ExcelHeaderVo java = ExcelHeaderVo.builder().name("java").age(18).tel("1348888888" + i)
+                    .introduction("这是sheet" + i).build();
+            excelWriter.write(Collections.singletonList(java), writeSheet);
+        }
+        excelWriter.finish();
     }
 }

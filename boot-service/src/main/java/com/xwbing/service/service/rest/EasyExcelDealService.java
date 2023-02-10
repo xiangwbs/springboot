@@ -3,9 +3,6 @@ package com.xwbing.service.service.rest;
 import java.io.File;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -22,11 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.cache.MapCache;
 import com.alibaba.excel.support.ExcelTypeEnum;
-import com.alibaba.excel.write.metadata.WriteSheet;
-import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.domain.entity.rest.ImportFailLog;
 import com.xwbing.service.domain.entity.rest.ImportTask;
@@ -36,7 +30,6 @@ import com.xwbing.service.domain.entity.vo.ExcelProcessVo;
 import com.xwbing.service.enums.ImportStatusEnum;
 import com.xwbing.service.exception.BusinessException;
 import com.xwbing.service.exception.ExcelException;
-import com.xwbing.service.util.PassWordUtil;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.SensitiveWordEngine;
 import com.xwbing.service.util.ThreadUtil;
@@ -222,47 +215,5 @@ public class EasyExcelDealService {
             redisService.incrBy(EXCEL_DEAL_COUNT_PREFIX + importId, size);
             redisService.expire(EXCEL_DEAL_COUNT_PREFIX + importId, 60 * 30);
         }
-    }
-
-    // ---------------------- 示例 ----------------------
-
-    /**
-     * 生成多个sheet的excel到本地
-     *
-     * @param basedir
-     * @param fileName
-     */
-    public void repeatedWriteToLocal(String basedir, String fileName) {
-        Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
-        ExcelWriter excelWriter = EasyExcel.write(path.toString()).build();
-        WriteSheet writeSheet;
-        for (int i = 0; i < 2; i++) {
-            writeSheet = EasyExcel.writerSheet(i, "sheet" + i)
-                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).head(ExcelHeaderVo.class).build();
-            ExcelHeaderVo java = ExcelHeaderVo.builder().name("java").age(18).tel("1348888888" + i)
-                    .introduction("这是sheet" + i).build();
-            excelWriter.write(Collections.singletonList(java), writeSheet);
-        }
-        excelWriter.finish();
-    }
-
-    /**
-     * @param fullPath
-     * @param sheetNo
-     * @param headRowNum
-     *
-     * @return
-     */
-    public String readByLocal(String fullPath, int sheetNo, int headRowNum) {
-        String type = fullPath.substring(fullPath.lastIndexOf("."));
-        if (!(ExcelTypeEnum.XLSX.getValue().equals(type) || ExcelTypeEnum.XLS.getValue().equals(type))) {
-            throw new ExcelException("文件格式不正确");
-        }
-        String importId = PassWordUtil.createUuId();
-        CompletableFuture.runAsync(() -> EasyExcel.read(fullPath,
-                new EasyExcelReadListener(importId, null, this, importTaskService, importFailLogService))
-                .head(ExcelHeaderVo.class).readCache(new MapCache()).headRowNumber(headRowNum)
-                .ignoreEmptyRow(Boolean.FALSE).sheet(sheetNo).doRead());
-        return importId;
     }
 }

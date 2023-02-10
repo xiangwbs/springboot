@@ -364,14 +364,7 @@ public class MockControl {
     @ApiOperation("生成多个sheet到本地")
     @GetMapping("repeatedWriteToLocal")
     public void repeatedWriteToLocal() {
-        easyExcelDealService.repeatedWriteToLocal("/Users/xwbing/Documents", "人员名单统计");
-    }
-
-    @ApiOperation("从本地读取excel")
-    @GetMapping("readByLocal")
-    public JSONObject readByLocal() {
-        String importId = easyExcelDealService.readByLocal("/Users/xwbing/Documents/导入模板.xlsx", 0, 1);
-        return JsonResult.toJSONObj(importId, "");
+        EasyExcelUtil.repeatedWriteToLocal("/Users/xwbing/Documents", "人员名单统计");
     }
 
     @GetMapping("nullModel")
@@ -411,10 +404,13 @@ public class MockControl {
                 .read(file.getInputStream(), null, ExcelHeaderDemoVo.class, 0, 1, 0, 10, data -> {
                     log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
                     data.forEach(d -> {
-                        log.info("dealExcel head:{}", d);
+                        log.info("dealExcel row:{}", d);
                     });
+                },error -> {
+                    ExcelHeaderDemoVo data = error.getData();
+                    throw new RuntimeException("11");
                 });
-        log.info("readProductExcel allCount:{}", count.incrementAndGet(), allCount);
+        log.info("readProductExcel allCount:{}", allCount);
         return ApiResponseUtil.success();
     }
 
