@@ -406,9 +406,9 @@ public class MockControl {
                     data.forEach(d -> {
                         log.info("dealExcel row:{}", d);
                     });
-                },error -> {
+                }, head -> log.info("dealExcel head ",head), error -> {
                     ExcelHeaderDemoVo data = error.getData();
-                    throw new RuntimeException("11");
+                    throw new RuntimeException("读取excel异常");
                 });
         log.info("readProductExcel allCount:{}", allCount);
         return ApiResponseUtil.success();

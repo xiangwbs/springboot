@@ -25,6 +25,7 @@ import com.alibaba.excel.cache.MapCache;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
+import com.alibaba.excel.read.metadata.holder.ReadRowHolder;
 import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
@@ -56,10 +57,13 @@ public class EasyExcelUtil {
      * @param headRowNum 表头行数
      * @param exampleNum 示例数据行数
      * @param batchDealNum 批处理数量(分配处理 防止oom)
-     * @param consumer 数据消费逻辑
+     * @param dataConsumer 数据消费逻辑
+     * @param headConsumer 表头消费逻辑
+     * @param errorConsumer 异常消费逻辑
      */
     public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> head, int sheetNo, int headRowNum,
-            int exampleNum, int batchDealNum, Consumer<List<T>> consumer, Consumer<Error<T>> errorConsumer) {
+            int exampleNum, int batchDealNum, Consumer<List<T>> dataConsumer,
+            Consumer<Map<Integer, String>> headConsumer, Consumer<Error<T>> errorConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<T> readListener = new AnalysisEventListener<T>() {
             private List<T> list = new ArrayList<>();
@@ -87,11 +91,13 @@ public class EasyExcelUtil {
             public void onException(Exception exception, AnalysisContext context) {
                 ReadSheetHolder readSheetHolder = context.readSheetHolder();
                 Integer rowIndex = readSheetHolder.getRowIndex();
-                Object data = context.getCurrentRowAnalysisResult();
+                ReadRowHolder readRowHolder = context.readRowHolder();
+                Object data = readRowHolder.getCurrentRowAnalysisResult();
                 log.error("readExcel onException rowIndex:{} data:{} error:{}", rowIndex, JSONUtil.toJsonStr(data),
                         exception.getMessage());
                 Error<T> error = Error.<T>builder().rowIndex(rowIndex).exception(exception)
                         .data(JSONUtil.toBean(JSONUtil.toJsonStr(data), head)).build();
+                // 异常自定义处理逻辑
                 errorConsumer.accept(error);
             }
 
@@ -115,12 +121,14 @@ public class EasyExcelUtil {
                 if (totalCount.get() != 0) {
                     return;
                 }
-                //获取总条数
+                // 获取总条数
                 ReadSheetHolder readSheetHolder = context.readSheetHolder();
                 Integer totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
                 totalRowNumber = totalRowNumber <= exampleNum ? 0 : totalRowNumber - exampleNum;
                 totalCount.set(totalRowNumber);
                 log.info("readExcel totalCount:{}", totalCount.intValue());
+                // 表头自定义处理逻辑
+                headConsumer.accept(headMap);
             }
 
             /**
@@ -129,7 +137,8 @@ public class EasyExcelUtil {
             private void dealData() {
                 List<T> data = new ArrayList<>(list);
                 list.clear();
-                consumer.accept(data);
+                // 数据自定义处理逻辑
+                dataConsumer.accept(data);
             }
         };
         ExcelReaderBuilder read;

@@ -21,7 +21,6 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -281,28 +280,28 @@ public class ExcelUtil {
                 // 经过公式解析，最后只存在Boolean、Numeric和String三种数据类型，此外就是Error了
                 // 其余数据类型，根据官方文档，完全可以忽略http://poi.apache.org/spreadsheet/eval.html
                 switch (cellValue.getCellType()) {
-                    case Cell.CELL_TYPE_BOOLEAN:
-                        sb.append(SEPARATOR + cellValue.getBooleanValue());
-                        break;
-                    case Cell.CELL_TYPE_NUMERIC:
-                        // 这里的日期类型会被转换为数字类型，需要判别后区分处理
-                        if (DateUtil.isCellDateFormatted(cell)) {
-                            sb.append(SEPARATOR + cell.getDateCellValue());
-                        } else {
-                            sb.append(SEPARATOR + cellValue.getNumberValue());
-                        }
-                        break;
-                    case Cell.CELL_TYPE_STRING:
-                        sb.append(SEPARATOR + cellValue.getStringValue());
-                        break;
-                    case Cell.CELL_TYPE_FORMULA:
-                        break;
-                    case Cell.CELL_TYPE_BLANK:
-                        break;
-                    case Cell.CELL_TYPE_ERROR:
-                        break;
-                    default:
-                        break;
+                    // case CellType.BOOLEAN:
+                    //     sb.append(SEPARATOR + cellValue.getBooleanValue());
+                    //     break;
+                    // case CellType.NUMERIC:
+                    //     // 这里的日期类型会被转换为数字类型，需要判别后区分处理
+                    //     if (DateUtil.isCellDateFormatted(cell)) {
+                    //         sb.append(SEPARATOR + cell.getDateCellValue());
+                    //     } else {
+                    //         sb.append(SEPARATOR + cellValue.getNumberValue());
+                    //     }
+                    //     break;
+                    // case CellType.STRING:
+                    //     sb.append(SEPARATOR + cellValue.getStringValue());
+                    //     break;
+                    // case CellType.FORMULA:
+                    //     break;
+                    // case CellType.BLANK:
+                    //     break;
+                    // case CellType.ERROR:
+                    //     break;
+                    // default:
+                    //     break;
                 }
             }
             list.add(sb.substring(1, sb.length()));
