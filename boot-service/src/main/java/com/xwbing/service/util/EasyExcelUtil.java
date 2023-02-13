@@ -50,6 +50,8 @@ import lombok.extern.slf4j.Slf4j;
 public class EasyExcelUtil {
 
     /**
+     * 读取excel
+     *
      * @param inputStream 文件流 2选1
      * @param fullPath 带后缀全路径 2选1
      * @param head 表头 {@link ExcelProperty}
@@ -76,12 +78,12 @@ public class EasyExcelUtil {
                 // start form 0
                 Integer rowIndex = context.readRowHolder().getRowIndex();
                 log.info("readExcel invoke rowIndex:{} data:{}", rowIndex, JSON.toJSONString(data));
-                //不处理示例数据
+                // 不处理示例数据
                 if (rowIndex < exampleNum + headRowNum) {
                     return;
                 }
                 list.add(data);
-                //达到批处理数量，需要处理一次数据，防止数据几万条数据在内存，容易oom
+                // 达到批处理数量，需要处理一次数据，防止数据几万条数据在内存，容易oom
                 if (list.size() >= batchDealNum) {
                     dealData();
                 }
@@ -106,7 +108,7 @@ public class EasyExcelUtil {
              */
             @Override
             public void doAfterAllAnalysed(AnalysisContext context) {
-                //处理剩余数据
+                // 处理剩余数据
                 dealData();
             }
 
@@ -155,7 +157,7 @@ public class EasyExcelUtil {
 
     /**
      * 文件下载到浏览器
-     * 动态头 自动列宽
+     *
      * 默认关闭流,如果错误信息以流的形式呈现，不能关闭流 .autoCloseStream(Boolean.FALSE)
      * cell最大长度为32767
      * 数据量大时，可能会oom，建议分页查询，写入到本地，再上传到oss
@@ -171,14 +173,14 @@ public class EasyExcelUtil {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/octet-stream");
-            //防止中文乱码
+            // 防止中文乱码
             fileName = URLEncoder.encode(fileName, "UTF-8");
             response.setHeader("Content-Disposition",
                     "attachment; filename=" + fileName + ExcelTypeEnum.XLSX.getValue());
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
-            // 获取表头
+            // 获取动态表头
             List<List<String>> head = heads.stream().map(Collections::singletonList).collect(Collectors.toList());
             // 写数据
             EasyExcel.write(outputStream).head(head).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
@@ -193,6 +195,8 @@ public class EasyExcelUtil {
     }
 
     /**
+     * 文件下载到浏览器
+     *
      * @param response
      * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
@@ -232,6 +236,8 @@ public class EasyExcelUtil {
     }
 
     /**
+     * 文件下载到本地
+     *
      * @param head 表头 {@link ExcelProperty}
      * @param basedir 文件夹路径
      * @param fileName 不带文件后缀
@@ -246,6 +252,8 @@ public class EasyExcelUtil {
     }
 
     /**
+     * 文件下载到本地
+     *
      * @param head 表头 {@link ExcelProperty}
      * @param basedir 文件夹路径
      * @param fileName 不带文件后缀
