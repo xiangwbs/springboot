@@ -44,8 +44,8 @@ import com.xwbing.service.service.rest.CookieSessionService;
 import com.xwbing.service.service.rest.EasyExcelDealService;
 import com.xwbing.service.service.rest.QRCodeZipService;
 import com.xwbing.service.service.rest.UploadService;
-import com.xwbing.service.util.ExcelUtil;
 import com.xwbing.service.util.EncodeUtil;
+import com.xwbing.service.util.ExcelUtil;
 import com.xwbing.service.util.FileUtil;
 import com.xwbing.service.util.JsonResult;
 import com.xwbing.service.util.PdfUtil;
@@ -303,19 +303,6 @@ public class MockControl {
                 e.printStackTrace();
             }
         }
-    }
-
-    @ApiOperation("下载excel文件")
-    @GetMapping("writeToBrowser")
-    public void writeToBrowser(HttpServletResponse response) {
-        List<String> titles = new ArrayList<>();
-        titles.add("姓名");
-        titles.add("年龄");
-        List<Object> data = new ArrayList<>();
-        data.add("项伟兵");
-        data.add("18");
-        List<List<Object>> excelData = Collections.singletonList(data);
-        ExcelUtil.writeToBrowser(response, "人员名单统计", null, titles, excelData);
     }
 
     @ApiOperation("生成excel到本地")

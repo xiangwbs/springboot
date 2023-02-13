@@ -5,13 +5,11 @@ import java.net.URLEncoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -52,8 +50,8 @@ public class ExcelUtil {
     /**
      * 读取excel
      *
-     * @param inputStream 文件流 2选1
-     * @param fullPath 带后缀全路径 2选1
+     * @param inputStream 2选1 文件流
+     * @param fullPath 2选1 带后缀全路径
      * @param head 表头 {@link ExcelProperty}
      * @param sheetNo start form 0
      * @param headRowNum 表头行数
@@ -163,45 +161,17 @@ public class ExcelUtil {
      * 文件下载到浏览器
      *
      * @param response
-     * @param fileName 不带文件后缀
-     * @param password 为null不加密
-     * @param heads 动态表头数据
-     * @param excelData excel数据 数据量大时，可能会oom，建议分页查询，写入到本地，再上传到oss
-     */
-    public static void writeToBrowser(HttpServletResponse response, String fileName, String password,
-            List<String> heads, List<List<Object>> excelData) {
-        try (ServletOutputStream outputStream = response.getOutputStream()) {
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType("application/octet-stream");
-            // 防止中文乱码
-            fileName = URLEncoder.encode(fileName, "UTF-8");
-            response.setHeader("Content-Disposition",
-                    "attachment; filename=" + fileName + ExcelTypeEnum.XLSX.getValue());
-            response.setHeader("Pragma", "No-cache");
-            response.setHeader("Cache-Control", "no-cache");
-            response.setDateHeader("Expires", 0);
-            // 获取动态表头
-            List<List<String>> head = heads.stream().map(Collections::singletonList).collect(Collectors.toList());
-            // 写数据
-            EasyExcel.write(outputStream).head(head).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
-                    .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(excelData);
-        } catch (Exception e) {
-            log.error("writeToBrowser error", e);
-            throw new RuntimeException("文件下载失败");
-        }
-    }
-
-    /**
-     * 文件下载到浏览器
-     *
-     * @param response
      * @param head 表头 {@link ExcelProperty}
+     *         动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList());
      * @param fileName 不带文件后缀
      * @param password 为null不加密
-     * @param dataFunction pageNum -> {分页数据组装逻辑} start form 1
+     * @param excelData 2选1 excel数据 数据量大时，可能会oom，建议分页查询，写入到本地，再上传到oss
+     *         动态数据  List<List<Object>> excelData
+     * @param dataFunction 2选1 pageNum -> {分页数据组装逻辑} start form 1
+     * @param <T>
      */
     public static <T> void writeToBrowser(HttpServletResponse response, Class<T> head, String fileName, String password,
-            Function<Integer, List<T>> dataFunction) {
+            List<T> excelData, Function<Integer, List<T>> dataFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/octet-stream");
@@ -212,21 +182,27 @@ public class ExcelUtil {
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
-
-            ExcelWriter excelWriter = EasyExcel.write(outputStream, head)
-                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
-            WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
-
-            int pageNumber = 1;
-            while (true) {
-                List<T> data = dataFunction.apply(pageNumber);
-                if (data.isEmpty()) {
-                    break;
+            if (CollectionUtils.isNotEmpty(excelData)) {
+                EasyExcel.write(outputStream).head(head)
+                        .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password)
+                        .sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(excelData);
+            } else if (dataFunction != null) {
+                ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head)
+                        .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
+                WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
+                int pageNumber = 1;
+                while (true) {
+                    List<T> data = dataFunction.apply(pageNumber);
+                    if (data.isEmpty()) {
+                        break;
+                    }
+                    excelWriter.write(data, writeSheet);
+                    pageNumber++;
                 }
-                excelWriter.write(data, writeSheet);
-                pageNumber++;
+                excelWriter.finish();
+            } else {
+                throw new RuntimeException("生成excel数据不能为空");
             }
-            excelWriter.finish();
         } catch (Exception e) {
             log.error("writeToBrowser error", e);
             throw new RuntimeException("文件下载失败");
