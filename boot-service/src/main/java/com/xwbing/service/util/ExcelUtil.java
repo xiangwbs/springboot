@@ -56,7 +56,7 @@ public class ExcelUtil {
      * @param sheetNo start form 0
      * @param headRowNum 表头行数
      * @param exampleNum 示例数据行数
-     * @param batchDealNum 批处理数量(分配处理 防止oom)
+     * @param batchDealNum 批处理数量(分批处理 防止oom)
      * @param headConsumer 表头消费逻辑
      * @param dataConsumer 数据消费逻辑
      * @param errorConsumer 异常消费逻辑
