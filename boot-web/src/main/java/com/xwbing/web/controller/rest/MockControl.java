@@ -332,13 +332,13 @@ public class MockControl {
         excelData.add(data1);
         excelData.add(data2);
         excelData.add(data3);
-        EasyExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, excelData);
+        EasyExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, excelData, null);
     }
 
     @ApiOperation("生成excel到本地")
     @GetMapping("writeToLocalByPage")
     public void writeToLocalByPage() {
-        EasyExcelUtil.writeToLocalByPage(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, pageNumber -> {
+        EasyExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, null, pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
             }
@@ -359,12 +359,6 @@ public class MockControl {
             excelData.add(data3);
             return excelData;
         });
-    }
-
-    @ApiOperation("生成多个sheet到本地")
-    @GetMapping("repeatedWriteToLocal")
-    public void repeatedWriteToLocal() {
-        EasyExcelUtil.repeatedWriteToLocal("/Users/xwbing/Documents", "人员名单统计");
     }
 
     @GetMapping("nullModel")
@@ -400,13 +394,13 @@ public class MockControl {
     @PostMapping("dealExcel")
     public ApiResponse dealExcel(@RequestParam MultipartFile file) throws IOException {
         AtomicInteger count = new AtomicInteger();
-        Integer allCount = EasyExcelUtil
-                .read(file.getInputStream(), null, ExcelHeaderDemoVo.class, 0, 1, 0, 10, data -> {
+        Integer allCount = EasyExcelUtil.read(file.getInputStream(), null, ExcelHeaderDemoVo.class, 0, 1, 0, 10,
+                head -> log.info("dealExcel head ", head), data -> {
                     log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
                     data.forEach(d -> {
                         log.info("dealExcel row:{}", d);
                     });
-                }, head -> log.info("dealExcel head ",head), error -> {
+                }, error -> {
                     ExcelHeaderDemoVo data = error.getData();
                     throw new RuntimeException("读取excel异常");
                 });
