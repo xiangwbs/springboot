@@ -44,7 +44,7 @@ import com.xwbing.service.service.rest.CookieSessionService;
 import com.xwbing.service.service.rest.EasyExcelDealService;
 import com.xwbing.service.service.rest.QRCodeZipService;
 import com.xwbing.service.service.rest.UploadService;
-import com.xwbing.service.util.EasyExcelUtil;
+import com.xwbing.service.util.ExcelUtil;
 import com.xwbing.service.util.EncodeUtil;
 import com.xwbing.service.util.FileUtil;
 import com.xwbing.service.util.JsonResult;
@@ -315,7 +315,7 @@ public class MockControl {
         data.add("项伟兵");
         data.add("18");
         List<List<Object>> excelData = Collections.singletonList(data);
-        EasyExcelUtil.writeToBrowser(response, "人员名单统计", null, titles, excelData);
+        ExcelUtil.writeToBrowser(response, "人员名单统计", null, titles, excelData);
     }
 
     @ApiOperation("生成excel到本地")
@@ -332,13 +332,13 @@ public class MockControl {
         excelData.add(data1);
         excelData.add(data2);
         excelData.add(data3);
-        EasyExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, excelData, null);
+        ExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, excelData, null);
     }
 
     @ApiOperation("生成excel到本地")
     @GetMapping("writeToLocalByPage")
     public void writeToLocalByPage() {
-        EasyExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, null, pageNumber -> {
+        ExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, null, pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
             }
@@ -394,7 +394,7 @@ public class MockControl {
     @PostMapping("dealExcel")
     public ApiResponse dealExcel(@RequestParam MultipartFile file) throws IOException {
         AtomicInteger count = new AtomicInteger();
-        Integer allCount = EasyExcelUtil.read(file.getInputStream(), null, ExcelHeaderDemoVo.class, 0, 1, 0, 10,
+        Integer allCount = ExcelUtil.read(file.getInputStream(), null, ExcelHeaderDemoVo.class, 0, 1, 0, 10,
                 head -> log.info("dealExcel head ", head), data -> {
                     log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
                     data.forEach(d -> {

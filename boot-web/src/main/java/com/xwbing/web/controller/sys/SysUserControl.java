@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -114,17 +113,18 @@ public class SysUserControl {
     @ApiOperation(value = "查询所有用户", response = PageSysUserVo.class)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "currentPage", value = "当前页", defaultValue = "1", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "pageSize", value = "每页显示的条数", defaultValue = "10", paramType = "query", dataType = "int")
-    })
+            @ApiImplicitParam(name = "pageSize", value = "每页显示的条数", defaultValue = "10", paramType = "query", dataType = "int") })
     @GetMapping("page")
-    public JSONObject page(@RequestParam(required = false) String name, @RequestParam(required = false) String sex, @ApiIgnore Pagination page) {
+    public JSONObject page(@RequestParam(required = false) String name, @RequestParam(required = false) String sex,
+            @ApiIgnore Pagination page) {
         Pagination pagination = sysUserService.page(name, sex, page);
         return JsonResult.toJSONObj(pagination, "");
     }
 
     @ApiOperation(value = "登录", response = RestMessageVo.class)
     @PostMapping("login")
-    public JSONObject login(HttpServletRequest request, @RequestParam String userName, @RequestParam String passWord, @RequestParam String checkCode) {
+    public JSONObject login(HttpServletRequest request, @RequestParam String userName, @RequestParam String passWord,
+            @RequestParam String checkCode) {
         if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(passWord)) {
             return JsonResult.toJSONObj("用户名或密码不能为空");
         }
@@ -144,7 +144,8 @@ public class SysUserControl {
 
     @ApiOperation(value = "修改密码", response = RestMessageVo.class)
     @PostMapping("updatePassWord")
-    public JSONObject updatePassWord(@RequestParam String newPassWord, @RequestParam String oldPassWord, @RequestParam String id) {
+    public JSONObject updatePassWord(@RequestParam String newPassWord, @RequestParam String oldPassWord,
+            @RequestParam String id) {
         if (StringUtils.isEmpty(id)) {
             return JsonResult.toJSONObj("主键不能为空");
         }
@@ -236,17 +237,12 @@ public class SysUserControl {
 
     @ApiOperation(value = "根据用户主键查找所拥有的权限", response = ListSysAuthorityVo.class)
     @GetMapping("listAuthorityByUserId")
-    public JSONObject listAuthorityByUserId(@RequestParam String userId, @RequestParam(required = false) String enable) {
+    public JSONObject listAuthorityByUserId(@RequestParam String userId,
+            @RequestParam(required = false) String enable) {
         if (StringUtils.isEmpty(userId)) {
             return JsonResult.toJSONObj("用户主键不能为空");
         }
         List<SysAuthority> list = sysUserService.listAuthorityByIdAndEnable(userId, enable);
         return JsonResult.toJSONObj(list, "");
-    }
-
-    @ApiOperation(value = "导出用户excel表")
-    @GetMapping("exportReport")
-    public void exportReport(HttpServletResponse response) {
-        sysUserService.exportReport(response);
     }
 }

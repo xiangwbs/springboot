@@ -1,311 +1,280 @@
 package com.xwbing.service.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.net.URLEncoder;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellValue;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.commons.lang3.StringUtils;
 
-import com.xwbing.service.exception.UtilException;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.cache.MapCache;
+import com.alibaba.excel.context.AnalysisContext;
+import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.excel.read.builder.ExcelReaderBuilder;
+import com.alibaba.excel.read.metadata.holder.ReadRowHolder;
+import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
+import com.alibaba.excel.support.ExcelTypeEnum;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
+import cn.hutool.json.JSONUtil;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * excel导出工具类
- *
- * @author xiangwb
+ * @author daofeng
+ * @version $Id$
+ * @since 2023年02月08日 7:06 PM
  */
 @Slf4j
 public class ExcelUtil {
-    /**
-     * Excel 2003
-     */
-    public final static String XLS = "xls";
-    /**
-     * Excel 2007
-     */
-    public final static String XLSX = "xlsx";
-    /**
-     * 分隔符
-     */
-    public final static String SEPARATOR = ";";
 
     /**
-     * 获取工作簿
+     * 读取excel
      *
-     * @param title
-     * @param columns
-     * @param list
-     * @return
+     * @param inputStream 文件流 2选1
+     * @param fullPath 带后缀全路径 2选1
+     * @param head 表头 {@link ExcelProperty}
+     * @param sheetNo start form 0
+     * @param headRowNum 表头行数
+     * @param exampleNum 示例数据行数
+     * @param batchDealNum 批处理数量(分配处理 防止oom)
+     * @param headConsumer 表头消费逻辑
+     * @param dataConsumer 数据消费逻辑
+     * @param errorConsumer 异常消费逻辑
      */
-    public static HSSFWorkbook Export(String title, String[] columns, List<String[]> list) {
-        // 声明一个工作薄
-        HSSFWorkbook wb = new HSSFWorkbook();
-        // 声明一个单子并命名
-        HSSFSheet sheet = wb.createSheet(title);
-        // 给单子名称一个长度
-        sheet.setDefaultColumnWidth((short) 15);
-        // 生成一个样式
-        HSSFCellStyle style = wb.createCellStyle();
-        // 创建第一行（也可以称为表头）
-        HSSFRow row = sheet.createRow(0);
-        // 样式字体居中
-        style.setAlignment(HorizontalAlignment.CENTER);
-        //设置字体
-//        HSSFFont font = wb.createFont();
-//        font.setFontName("仿宋_GB2312");
-//        font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);//粗体显示
-//        font.setFontHeightInPoints((short) 12);
-//        style.setFont(font);//选择需要用到的字体格式
-        // 给表头第一行一次创建单元格
-        if (null != columns && columns.length > 0) {
-            for (int i = 0; i < columns.length; i++) {
-                HSSFCell cell = row.createCell(i);
-                cell.setCellValue(columns[i]);
-                cell.setCellStyle(style);
-            }
-        }
-        if (CollectionUtils.isNotEmpty(list)) {
-            // 向单元格里填充数据
-            for (int i = 0; i < list.size(); i++) {
-                row = sheet.createRow(i + 1);
-                assert columns != null;
-                for (int j = 0; j < columns.length; j++) {
-                    row.createCell(j).setCellValue(list.get(i)[j]);
-                    row.setRowStyle(style);//没有效果。。。。
+    public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> head, int sheetNo, int headRowNum,
+            int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
+            Consumer<List<T>> dataConsumer, Consumer<Error<T>> errorConsumer) {
+        AtomicInteger totalCount = new AtomicInteger();
+        AnalysisEventListener<T> readListener = new AnalysisEventListener<T>() {
+            private List<T> list = new ArrayList<>();
+
+            /**
+             * 非表头数据处理
+             */
+            @Override
+            public void invoke(T data, AnalysisContext context) {
+                // start form 0
+                Integer rowIndex = context.readRowHolder().getRowIndex();
+                log.info("readExcel invoke rowIndex:{} data:{}", rowIndex, JSON.toJSONString(data));
+                // 不处理示例数据
+                if (rowIndex < exampleNum + headRowNum) {
+                    return;
+                }
+                list.add(data);
+                // 达到批处理数量，需要处理一次数据，防止数据几万条数据在内存，容易oom
+                if (list.size() >= batchDealNum) {
+                    dealData();
                 }
             }
+
+            /**
+             * 异常处理
+             */
+            @Override
+            public void onException(Exception exception, AnalysisContext context) {
+                ReadSheetHolder readSheetHolder = context.readSheetHolder();
+                Integer rowIndex = readSheetHolder.getRowIndex();
+                ReadRowHolder readRowHolder = context.readRowHolder();
+                Object data = readRowHolder.getCurrentRowAnalysisResult();
+                log.error("readExcel onException rowIndex:{} data:{} error:{}", rowIndex, JSONUtil.toJsonStr(data),
+                        exception.getMessage());
+                Error<T> error = Error.<T>builder().rowIndex(rowIndex)
+                        .data(JSONUtil.toBean(JSONUtil.toJsonStr(data), head)).exception(exception).build();
+                // 自定义异常处理逻辑
+                errorConsumer.accept(error);
+            }
+
+            /**
+             * 所有数据解析完成后调用
+             */
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext context) {
+                // 处理剩余数据
+                dealData();
+            }
+
+            /**
+             * 表头数据处理
+             *
+             * @param headMap key start form 0
+             */
+            @Override
+            public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
+                log.info("readExcel head:{}", JSONObject.toJSONString(headMap));
+                if (totalCount.get() != 0) {
+                    return;
+                }
+                // 获取总条数
+                ReadSheetHolder readSheetHolder = context.readSheetHolder();
+                Integer totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
+                totalRowNumber = totalRowNumber <= exampleNum ? 0 : totalRowNumber - exampleNum;
+                totalCount.set(totalRowNumber);
+                log.info("readExcel totalCount:{}", totalCount.intValue());
+                // 自定义表头处理逻辑 可处理校验表头之类的逻辑
+                headConsumer.accept(headMap);
+            }
+
+            /**
+             * 批量处理数据
+             */
+            private void dealData() {
+                List<T> data = new ArrayList<>(list);
+                list.clear();
+                // 自定义数据处理逻辑
+                dataConsumer.accept(data);
+            }
+        };
+        ExcelReaderBuilder read;
+        if (inputStream != null) {
+            read = EasyExcel.read(inputStream, head, readListener);
+        } else if (StringUtils.isNotEmpty(fullPath)) {
+            read = EasyExcel.read(fullPath, head, readListener);
+        } else {
+            throw new RuntimeException("excel不能为空");
         }
-        return wb;
+        read.readCache(new MapCache()).ignoreEmptyRow(Boolean.TRUE).headRowNumber(headRowNum).sheet(sheetNo).doRead();
+        return totalCount.get();
     }
 
     /**
-     * 将数据list转换成excel导出的形式
+     * 文件下载到浏览器
      *
-     * @param list
-     * @return
+     * @param response
+     * @param fileName 不带文件后缀
+     * @param password 为null不加密
+     * @param heads 动态表头数据
+     * @param excelData excel数据 数据量大时，可能会oom，建议分页查询，写入到本地，再上传到oss
      */
-    public static <T> List<String[]> convert2List(List<T> list) {
-        List<String[]> result = new ArrayList<>(list.size());
-        T obj4Class = list.get(0);
-        Class<?> classOfT = obj4Class.getClass();
-        Field[] declaredFields = classOfT.getDeclaredFields();
-        String[] temp;
-        for (T obj : list) {
-            temp = new String[declaredFields.length];
-            for (int i = 0; i < declaredFields.length; i++) {
-                String fieldName = declaredFields[i].getName();
-                StringBuffer getMethodStr;
-                // 拼接get方法
-                getMethodStr = new StringBuffer();
-                getMethodStr.append("get");
-                getMethodStr.append(fieldName.substring(0, 1).toUpperCase());
-                getMethodStr.append(fieldName.substring(1));
-                String value = "";
-                Method getMethod;
-                try {
-                    getMethod = classOfT.getMethod(getMethodStr.toString());
-                } catch (NoSuchMethodException e1) {
-                    log.error(e1.getMessage());
-                    continue;
-                } catch (SecurityException e1) {
-                    log.error(e1.getMessage());
-                    continue;
-                }
-                // 执行get方法
-                try {
-                    value = String.valueOf(getMethod.invoke(obj, new Object[0]));
-                    value = Objects.equals("null", value) ? null : value;
-                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    // TODO Auto-generated catch block
-                    log.error(e.getMessage());
-                }
-                temp[i] = value;
-            }
-            result.add(temp);
-        }
-        return result;
-    }
-
-    /**
-     * 将导入的excel文件生成类
-     *
-     * @param file     excel文件
-     * @param sheetNum excel页签
-     * @param classVO  要导出的类型
-     * @return
-     */
-    public static <T> List<T> getObjectFromExcel(File file, int sheetNum, Class<T> classVO) {
-        List<T> resultList = new ArrayList<>();
-        T obj;
-        try {
-            // 获取解析结果：每行是一个String
-            // 格式：[Name;Sex;Email;NeedRePswd;Status;UserName;NickName;UnitId;Rank;Office,
-            // INPUT111;1.0;INPUT111@sss.com;0.0;1.0;INPUT111;INPUT111;asdfasdfasdfasdf;1.0,
-            // INPUT222;1.0;INPUT111@sss.com;0.0;1.0;INPUT111;INPUT111;asdfasdfasdfasdf;1.0]
-            List<String> importObjects = exportListFromExcel(file, sheetNum);
-            if (CollectionUtils.isNotEmpty(importObjects)) {
-                // Class<? extends Object> classVO = obj.getClass();
-                Constructor<?> cons[] = classVO.getConstructors();
-                // 取出列名称用来设置set方法
-                String colNames = importObjects.get(0);
-                // 解析列名
-                String[] colName = colNames.split(";");
-                String setMethodStr;
-                for (int i = 1; i < importObjects.size(); i++) {
-                    // 解析数据
-                    String[] values = importObjects.get(i).split(SEPARATOR);
-                    // 初始化对象
-                    try {
-                        obj = (T) cons[0].newInstance();
-                    } catch (Exception e3) {
-                        e3.printStackTrace();
-                        return null;
-                    }
-                    for (int j = 0; j < values.length; j++) {
-                        // set方法名
-                        setMethodStr = "set" + colName[j];
-                        Method setMethod;
-                        // 尝试调用set方法，因无法确定参数,尝试参数类型，目前只有String和Integer两种
-                        try {
-                            setMethod = classVO.getMethod(setMethodStr, String.class);
-                            setMethod.invoke(obj, String.valueOf(values[j]));
-                        } catch (Exception e) {
-                            try {
-                                setMethod = classVO.getMethod(setMethodStr, Integer.class);
-                                setMethod.invoke(obj, Double.valueOf(values[j]).intValue());
-                            } catch (Exception e1) {
-                                // 目前没有bool值参数暂不添加
-                                // try
-                                // {
-                                // setMethod =
-                                // classVO.getMethod(setMethodStr,Boolean.class);
-                                // setMethod.invoke(obj,
-                                // Boolean.valueOf(values[j]));
-                                // }
-                                // catch (Exception e3)
-                                // {
-                                // }
-                                System.out.println("Exception" + e);
-                                continue;
-                            }
-                        }
-                    }
-                    resultList.add(obj);
-                }
-            }
-            return resultList;
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            throw new UtilException("excel文件生成类失败");
+    public static void writeToBrowser(HttpServletResponse response, String fileName, String password,
+            List<String> heads, List<List<Object>> excelData) {
+        try (ServletOutputStream outputStream = response.getOutputStream()) {
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/octet-stream");
+            // 防止中文乱码
+            fileName = URLEncoder.encode(fileName, "UTF-8");
+            response.setHeader("Content-Disposition",
+                    "attachment; filename=" + fileName + ExcelTypeEnum.XLSX.getValue());
+            response.setHeader("Pragma", "No-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires", 0);
+            // 获取动态表头
+            List<List<String>> head = heads.stream().map(Collections::singletonList).collect(Collectors.toList());
+            // 写数据
+            EasyExcel.write(outputStream).head(head).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                    .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(excelData);
+        } catch (Exception e) {
+            log.error("writeToBrowser error", e);
+            throw new RuntimeException("文件下载失败");
         }
     }
 
     /**
-     * 由Excel文件的Sheet导出至List
+     * 文件下载到浏览器
      *
-     * @param file
-     * @param sheetNum
-     * @return
+     * @param response
+     * @param head 表头 {@link ExcelProperty}
+     * @param fileName 不带文件后缀
+     * @param password 为null不加密
+     * @param dataFunction pageNum -> {分页数据组装逻辑} start form 1
      */
-    private static List<String> exportListFromExcel(File file, int sheetNum) throws IOException {
-        return exportListFromExcel(new FileInputStream(file), FilenameUtils.getExtension(file.getName()), sheetNum);
-    }
+    public static <T> void writeToBrowser(HttpServletResponse response, Class<T> head, String fileName, String password,
+            Function<Integer, List<T>> dataFunction) {
+        try (ServletOutputStream outputStream = response.getOutputStream()) {
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/octet-stream");
+            // 防止中文乱码
+            fileName = URLEncoder.encode(fileName, "UTF-8");
+            response.setHeader("Content-Disposition",
+                    "attachment; filename=" + fileName + ExcelTypeEnum.XLSX.getValue());
+            response.setHeader("Pragma", "No-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires", 0);
 
-    /**
-     * 由Excel流的Sheet导出至List
-     *
-     * @param is
-     * @param extensionName
-     * @param sheetNum
-     * @return
-     * @throws IOException
-     */
-    private static List<String> exportListFromExcel(InputStream is, String extensionName, int sheetNum) throws IOException {
-        Workbook workbook = null;
-        if (extensionName.toLowerCase().equals(XLS)) {
-            workbook = new HSSFWorkbook(is);
-        } else if (extensionName.toLowerCase().equals(XLSX)) {
-            workbook = new XSSFWorkbook(is);
-        }
-        return exportListFromExcel(workbook, sheetNum);
-    }
+            ExcelWriter excelWriter = EasyExcel.write(outputStream, head)
+                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
+            WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
 
-    /**
-     * 由指定的Sheet导出至List
-     *
-     * @param workbook
-     * @param sheetNum
-     * @return
-     */
-    private static List<String> exportListFromExcel(Workbook workbook, int sheetNum) {
-        Sheet sheet = workbook.getSheetAt(sheetNum);
-        // 解析公式结果
-        FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
-        List<String> list = new ArrayList<>();
-        int minRowIx = sheet.getFirstRowNum();
-        int maxRowIx = sheet.getLastRowNum();
-        for (int rowIx = minRowIx; rowIx <= maxRowIx; rowIx++) {
-            org.apache.poi.ss.usermodel.Row row = sheet.getRow(rowIx);
-            StringBuilder sb = new StringBuilder();
-            short minColIx = row.getFirstCellNum();
-            short maxColIx = row.getLastCellNum();
-            for (short colIx = minColIx; colIx <= maxColIx; colIx++) {
-                Cell cell = row.getCell((int) colIx);
-                CellValue cellValue = evaluator.evaluate(cell);
-                if (cellValue == null) {
-                    continue;
+            int pageNumber = 1;
+            while (true) {
+                List<T> data = dataFunction.apply(pageNumber);
+                if (data.isEmpty()) {
+                    break;
                 }
-                // 经过公式解析，最后只存在Boolean、Numeric和String三种数据类型，此外就是Error了
-                // 其余数据类型，根据官方文档，完全可以忽略http://poi.apache.org/spreadsheet/eval.html
-                switch (cellValue.getCellType()) {
-                    // case CellType.BOOLEAN:
-                    //     sb.append(SEPARATOR + cellValue.getBooleanValue());
-                    //     break;
-                    // case CellType.NUMERIC:
-                    //     // 这里的日期类型会被转换为数字类型，需要判别后区分处理
-                    //     if (DateUtil.isCellDateFormatted(cell)) {
-                    //         sb.append(SEPARATOR + cell.getDateCellValue());
-                    //     } else {
-                    //         sb.append(SEPARATOR + cellValue.getNumberValue());
-                    //     }
-                    //     break;
-                    // case CellType.STRING:
-                    //     sb.append(SEPARATOR + cellValue.getStringValue());
-                    //     break;
-                    // case CellType.FORMULA:
-                    //     break;
-                    // case CellType.BLANK:
-                    //     break;
-                    // case CellType.ERROR:
-                    //     break;
-                    // default:
-                    //     break;
-                }
+                excelWriter.write(data, writeSheet);
+                pageNumber++;
             }
-            list.add(sb.substring(1, sb.length()));
+            excelWriter.finish();
+        } catch (Exception e) {
+            log.error("writeToBrowser error", e);
+            throw new RuntimeException("文件下载失败");
         }
-        return list;
+    }
+
+    /**
+     * 文件下载到本地
+     *
+     * @param head 表头 {@link ExcelProperty}
+     * @param basedir 文件夹路径
+     * @param fileName 不带文件后缀
+     * @param password 为null不加密
+     * @param excelData excel数据
+     * @param dataFunction pageNum -> {分页数据组装逻辑} start form 1
+     * @param <T>
+     */
+    public static <T> void writeToLocal(Class<T> head, String basedir, String fileName, String password,
+            List<T> excelData, Function<Integer, List<T>> dataFunction) {
+        Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
+        if (CollectionUtils.isNotEmpty(excelData)) {
+            EasyExcel.write(path.toString()).head(head).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                    .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(excelData);
+        } else if (dataFunction != null) {
+            ExcelWriter excelWriter = EasyExcel.write(path.toString()).head(head)
+                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
+            WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
+            int pageNumber = 1;
+            while (true) {
+                List<T> data = dataFunction.apply(pageNumber);
+                if (data.isEmpty()) {
+                    break;
+                }
+                excelWriter.write(data, writeSheet);
+                pageNumber++;
+            }
+            excelWriter.finish();
+        } else {
+            throw new RuntimeException("生成excel数据不能为空");
+        }
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Error<T> {
+        private Integer rowIndex;
+        private T data;
+        private Exception exception;
     }
 }

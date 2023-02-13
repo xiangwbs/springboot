@@ -1,6 +1,5 @@
 package com.xwbing.service.service.sys;
 
-import java.io.BufferedOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,14 +7,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +36,6 @@ import com.xwbing.service.service.BaseService;
 import com.xwbing.service.util.DigestsUtil;
 import com.xwbing.service.util.EmailUtil;
 import com.xwbing.service.util.EncodeUtil;
-import com.xwbing.service.util.ExcelUtil;
 import com.xwbing.service.util.IpUtil;
 import com.xwbing.service.util.Pagination;
 import com.xwbing.service.util.PassWordUtil;
@@ -366,37 +361,6 @@ public class SysUserService extends BaseService<SysUserMapper, SysUser> {
             }
         }
         return list;
-    }
-
-    /**
-     * 导出用户信息Excel
-     */
-    public void exportReport(HttpServletResponse response) {
-        String fileName = CommonConstant.USER_REPORT_FILE_NAME;//文件名
-        try {
-            ServletOutputStream outputStream = response.getOutputStream();
-            BufferedOutputStream bufferedOutPut = new BufferedOutputStream(outputStream);
-            fileName = new String(fileName.getBytes("GBK"), "ISO8859-1");
-            response.reset();
-            response.setHeader("Content-Disposition", "attachment;filename=" + fileName);// 指定下载的文件名
-            response.setContentType("application/vnd.ms-excel");
-            response.setHeader("Pragma", "no-cache");
-            response.setHeader("Cache-Control", "no-cache");
-            response.setDateHeader("Expires", 0);
-            List<UserDto> listDto = listReport();//内容list
-            if (CollectionUtils.isEmpty(listDto)) {
-                return;
-            }
-            List<String[]> list = ExcelUtil.convert2List(listDto);
-            String title = CommonConstant.USER_REPORT_FILE_NAME;
-            String[] columns = CommonConstant.USER_REPORT_COLUMNS;
-            bufferedOutPut.flush();
-            HSSFWorkbook wb = ExcelUtil.Export(title, columns, list);
-            wb.write(bufferedOutPut);
-            bufferedOutPut.close();
-        } catch (Exception e) {
-            throw new BusinessException("导出excel错误");
-        }
     }
 
     /**
