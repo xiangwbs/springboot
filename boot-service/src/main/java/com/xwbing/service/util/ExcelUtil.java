@@ -154,7 +154,8 @@ public class ExcelUtil {
         } else {
             throw new RuntimeException("excel不能为空");
         }
-        read.readCache(new MapCache()).ignoreEmptyRow(Boolean.TRUE).headRowNumber(headRowNum).sheet(sheetNo).doRead();
+        // 需要统计数据，不能排除空行
+        read.readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum).sheet(sheetNo).doRead();
         return totalCount.get();
     }
 
