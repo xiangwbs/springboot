@@ -319,13 +319,13 @@ public class MockControl {
         excelData.add(data1);
         excelData.add(data2);
         excelData.add(data3);
-        ExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, excelData, null);
+        ExcelUtil.write(null, "/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计", null, excelData, null);
     }
 
     @ApiOperation("生成excel到本地")
     @GetMapping("writeToLocalByPage")
     public void writeToLocalByPage() {
-        ExcelUtil.writeToLocal(ExcelHeaderVo.class, "/Users/xwbing/Documents", "人员名单统计", null, null, pageNumber -> {
+        ExcelUtil.write(null, "/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计", null, null, pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
             }

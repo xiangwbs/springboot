@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ExcelUtil {
 
     /**
-     * 读取excel
+     * 读excel
      *
      * @param inputStream 2选1 文件流
      * @param fullPath 2选1 带后缀全路径
@@ -101,7 +101,9 @@ public class ExcelUtil {
                 Error<T> error = Error.<T>builder().rowIndex(rowIndex)
                         .data(JSONUtil.toBean(JSONUtil.toJsonStr(data), head)).exception(exception).build();
                 // 自定义异常处理逻辑
-                errorConsumer.accept(error);
+                if (errorConsumer != null) {
+                    errorConsumer.accept(error);
+                }
             }
 
             /**
@@ -131,7 +133,9 @@ public class ExcelUtil {
                 totalCount.set(totalRowNumber);
                 log.info("readExcel totalCount:{}", totalCount.intValue());
                 // 自定义表头处理逻辑 可处理校验表头之类的逻辑
-                headConsumer.accept(headMap);
+                if (headConsumer != null) {
+                    headConsumer.accept(headMap);
+                }
             }
 
             /**
@@ -141,7 +145,9 @@ public class ExcelUtil {
                 List<T> data = new ArrayList<>(list);
                 list.clear();
                 // 自定义数据处理逻辑
-                dataConsumer.accept(data);
+                if (dataConsumer != null) {
+                    dataConsumer.accept(data);
+                }
             }
         };
         ExcelReaderBuilder read;
@@ -158,6 +164,28 @@ public class ExcelUtil {
     }
 
     /**
+     * 写excel
+     *
+     * @param response 2选1
+     * @param basedir 2选1 文件夹路径
+     * @param head 表头 {@link ExcelProperty}
+     * @param fileName 不带文件后缀
+     * @param password 为null不加密
+     * @param excelData 2选1 excel数据 数据量大时，可能会oom，建议分页查询，写入到本地，再上传到oss
+     * @param dataFunction 2选1 pageNum -> {分页数据组装逻辑} start form 1
+     */
+    public static <T> void write(HttpServletResponse response, String basedir, Class<T> head, String fileName,
+            String password, List<T> excelData, Function<Integer, List<T>> dataFunction) {
+        if (StringUtils.isNotEmpty(basedir)) {
+            writeToLocal(basedir, head, fileName, password, excelData, dataFunction);
+        } else if (response != null) {
+            writeToBrowser(response, head, fileName, password, excelData, dataFunction);
+        } else {
+            throw new RuntimeException("生成excel数据不能为空");
+        }
+    }
+
+    /**
      * 文件下载到浏览器
      *
      * @param response
@@ -168,10 +196,9 @@ public class ExcelUtil {
      * @param excelData 2选1 excel数据 数据量大时，可能会oom，建议分页查询，写入到本地，再上传到oss
      *         动态数据  List<List<Object>> excelData
      * @param dataFunction 2选1 pageNum -> {分页数据组装逻辑} start form 1
-     * @param <T>
      */
-    public static <T> void writeToBrowser(HttpServletResponse response, Class<T> head, String fileName, String password,
-            List<T> excelData, Function<Integer, List<T>> dataFunction) {
+    private static <T> void writeToBrowser(HttpServletResponse response, Class<T> head, String fileName,
+            String password, List<T> excelData, Function<Integer, List<T>> dataFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/octet-stream");
@@ -212,15 +239,14 @@ public class ExcelUtil {
     /**
      * 文件下载到本地
      *
-     * @param head 表头 {@link ExcelProperty}
      * @param basedir 文件夹路径
+     * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
      * @param password 为null不加密
      * @param excelData excel数据
      * @param dataFunction pageNum -> {分页数据组装逻辑} start form 1
-     * @param <T>
      */
-    public static <T> void writeToLocal(Class<T> head, String basedir, String fileName, String password,
+    private static <T> void writeToLocal(String basedir, Class<T> head, String fileName, String password,
             List<T> excelData, Function<Integer, List<T>> dataFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
         if (CollectionUtils.isNotEmpty(excelData)) {
