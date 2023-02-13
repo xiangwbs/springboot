@@ -56,7 +56,7 @@ public class EasyExcelUtil {
      * @param headRowNum 表头行数
      * @param exampleNum 示例数据行数
      * @param batchDealNum 批处理数量(分配处理 防止oom)
-     * @param consumer 自定义数据消费逻辑
+     * @param consumer 数据消费逻辑
      */
     public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> head, int sheetNo, int headRowNum,
             int exampleNum, int batchDealNum, Consumer<List<T>> consumer, Consumer<Error<T>> errorConsumer) {
@@ -90,7 +90,7 @@ public class EasyExcelUtil {
                 Object data = context.getCurrentRowAnalysisResult();
                 log.error("readExcel onException rowIndex:{} data:{} error:{}", rowIndex, JSONUtil.toJsonStr(data),
                         exception.getMessage());
-                Error error = Error.builder().rowIndex(rowIndex).exception(exception)
+                Error<T> error = Error.<T>builder().rowIndex(rowIndex).exception(exception)
                         .data(JSONUtil.toBean(JSONUtil.toJsonStr(data), head)).build();
                 errorConsumer.accept(error);
             }
