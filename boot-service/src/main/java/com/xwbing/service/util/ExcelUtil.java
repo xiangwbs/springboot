@@ -46,6 +46,15 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ExcelUtil {
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ReadError<T> {
+        private Integer rowIndex;
+        private T data;
+        private Exception exception;
+    }
 
     /**
      * 读excel
@@ -63,7 +72,7 @@ public class ExcelUtil {
      */
     public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> head, int sheetNo, int headRowNum,
             int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
-            Consumer<List<T>> dataConsumer, Consumer<Error<T>> errorConsumer) {
+            Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<T> readListener = new AnalysisEventListener<T>() {
             private List<T> list = new ArrayList<>();
@@ -98,7 +107,7 @@ public class ExcelUtil {
                 Object data = readRowHolder.getCurrentRowAnalysisResult();
                 log.error("readExcel onException rowIndex:{} data:{} error:{}", rowIndex, JSONUtil.toJsonStr(data),
                         exception.getMessage());
-                Error<T> error = Error.<T>builder().rowIndex(rowIndex)
+                ReadError<T> error = ReadError.<T>builder().rowIndex(rowIndex)
                         .data(JSONUtil.toBean(JSONUtil.toJsonStr(data), head)).exception(exception).build();
                 // 自定义异常处理逻辑
                 if (errorConsumer != null) {
@@ -151,10 +160,10 @@ public class ExcelUtil {
             }
         };
         ExcelReaderBuilder read;
-        if (inputStream != null) {
-            read = EasyExcel.read(inputStream, head, readListener);
-        } else if (StringUtils.isNotEmpty(fullPath)) {
+        if (StringUtils.isNotEmpty(fullPath)) {
             read = EasyExcel.read(fullPath, head, readListener);
+        } else if (inputStream != null) {
+            read = EasyExcel.read(inputStream, head, readListener);
         } else {
             throw new RuntimeException("excel不能为空");
         }
@@ -181,7 +190,7 @@ public class ExcelUtil {
         } else if (response != null) {
             writeToBrowser(response, head, fileName, password, excelData, dataFunction);
         } else {
-            throw new RuntimeException("生成excel数据不能为空");
+            throw new RuntimeException("excel不能为空");
         }
     }
 
@@ -201,7 +210,7 @@ public class ExcelUtil {
             String password, List<T> excelData, Function<Integer, List<T>> dataFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
-            response.setContentType("application/octet-stream");
+            response.setContentType("application/vnd.ms-excel;charset=utf-8");
             // 防止中文乱码
             fileName = URLEncoder.encode(fileName, "UTF-8");
             response.setHeader("Content-Disposition",
@@ -269,15 +278,5 @@ public class ExcelUtil {
         } else {
             throw new RuntimeException("生成excel数据不能为空");
         }
-    }
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class Error<T> {
-        private Integer rowIndex;
-        private T data;
-        private Exception exception;
     }
 }

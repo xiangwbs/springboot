@@ -78,8 +78,7 @@ public class EasyExcelDealService {
         if (CollectionUtils.isNotEmpty(excelData)) {
             try (ServletOutputStream outputStream = response.getOutputStream()) {
                 response.setCharacterEncoding("UTF-8");
-                // response.setContentType("application/vnd.ms-excel;charset=utf-8");
-                response.setContentType("application/octet-stream");
+                response.setContentType("application/vnd.ms-excel;charset=utf-8");
                 //防止中文乱码
                 String fileName = URLEncoder.encode(importTask.getFileName(), "UTF-8");
                 response.setHeader("Content-Disposition", "attachment; filename=" + fileName);

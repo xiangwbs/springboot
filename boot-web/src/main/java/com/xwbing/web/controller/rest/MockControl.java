@@ -305,26 +305,26 @@ public class MockControl {
         }
     }
 
-    @ApiOperation("生成excel到本地")
-    @GetMapping("writeToLocal")
-    public void writeToLocal() {
+    @ApiOperation("下载excel到浏览器")
+    @GetMapping("writeToBrowser")
+    public void writeToBrowser(HttpServletResponse response) {
         List<ExcelHeaderVo> excelData = new ArrayList<>();
-        ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
+        ExcelHeaderVo data = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介")
                 .build();
         ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
                 .build();
         ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功").build();
-        ExcelHeaderVo data3 = ExcelHeaderVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功").build();
+        ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("小夏").age(18).tel("13488888888").introduction("法轮功").build();
         excelData.add(data);
         excelData.add(data1);
         excelData.add(data2);
         excelData.add(data3);
-        ExcelUtil.write(null, "/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计", null, excelData, null);
+        ExcelUtil.write(response, null, ExcelHeaderVo.class, "人员名单统计", null, excelData, null);
     }
 
-    @ApiOperation("生成excel到本地")
-    @GetMapping("writeToLocalByPage")
-    public void writeToLocalByPage() {
+    @ApiOperation("下载excel到本地")
+    @GetMapping("writeToLocal")
+    public void writeToLocal() {
         ExcelUtil.write(null, "/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计", null, null, pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
