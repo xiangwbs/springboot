@@ -435,7 +435,7 @@ public class MockControl {
 
             DingtalkRobotHelper
                     .sendActionCard(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                            "actionCard消息", "这是一个整体跳转actionCard消息", "https://www.baidu.com");
+                            "actionCard消息", DingMarkdown.build().appendText("这是一个整体跳转actionCard消息"), "https://www.baidu.com");
 
             List<String> orderedList = new ArrayList<>();
             orderedList.add(DingtalkRobotHelper.dtmdLink("回复1"));

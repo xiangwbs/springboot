@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * @author daofeng
  * @version $Id$
+ * @see <a href="https://open.dingtalk.com/document/orgapp/robot-overview">机器人</a>
  * @since 2023年01月09日 4:51 PM
  */
 @Slf4j
@@ -157,7 +158,7 @@ public class DingtalkRobotHelper {
      * @param url
      */
     public static void sendActionCard(DingTalkClient client, boolean atAll, List<String> userIds, String title,
-            String content, String url) {
+            DingMarkdown content, String url) {
         if (client == null) {
             return;
         }
@@ -191,7 +192,7 @@ public class DingtalkRobotHelper {
      * @param btns
      */
     public static void sendActionCard(DingTalkClient client, boolean atAll, List<String> userIds, String title,
-            String content, Integer btnOrientation, List<Btns> btns) {
+            DingMarkdown content, Integer btnOrientation, List<Btns> btns) {
         if (client == null) {
             return;
         }
