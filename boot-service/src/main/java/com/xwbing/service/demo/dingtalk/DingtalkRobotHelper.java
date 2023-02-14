@@ -154,7 +154,7 @@ public class DingtalkRobotHelper {
      * @param atAll
      * @param userIds @效果不高亮
      * @param title
-     * @param content markdown格式的消息
+     * @param content
      * @param url
      */
     public static void sendActionCard(DingTalkClient client, boolean atAll, List<String> userIds, String title,
