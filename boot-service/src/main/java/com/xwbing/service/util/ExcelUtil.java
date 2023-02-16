@@ -180,7 +180,7 @@ public class ExcelUtil {
      * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
      * @param password 为null不加密
-     * @param allData 2选1 excel数据 数据量大时 可能会oom 建议分页查询
+     * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 start form 1
      */
     public static <T> void write(HttpServletResponse response, String basedir, Class<T> head, String fileName,
