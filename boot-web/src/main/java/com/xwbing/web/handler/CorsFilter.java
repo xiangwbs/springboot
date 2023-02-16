@@ -7,7 +7,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,7 +20,7 @@ import org.springframework.http.HttpStatus;
  * @version $Id$
  * @since 2021年10月07日 8:56 PM
  */
-@WebFilter(filterName = "corsFilter", urlPatterns = "/*")
+// @WebFilter(filterName = "corsFilter", urlPatterns = "/*")
 @Order(1)
 public class CorsFilter implements Filter {
     private static final String[] ALLOW_HEADERS = { HttpHeaders.CONTENT_TYPE, HttpHeaders.ACCEPT, "token" };
