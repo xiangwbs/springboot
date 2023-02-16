@@ -180,15 +180,15 @@ public class ExcelUtil {
      * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
      * @param password 为null不加密
-     * @param excelData 2选1 excel数据 数据量大时，可能会oom，建议分页查询，写入到本地，再上传到oss
+     * @param allData 2选1 excel数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 start form 1
      */
     public static <T> void write(HttpServletResponse response, String basedir, Class<T> head, String fileName,
-            String password, List<T> excelData, Function<Integer, List<T>> pageFunction) {
+            String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         if (StringUtils.isNotEmpty(basedir)) {
-            writeToLocal(basedir, head, fileName, password, excelData, pageFunction);
+            writeToLocal(basedir, head, fileName, password, allData, pageFunction);
         } else if (response != null) {
-            writeToBrowser(response, head, fileName, password, excelData, pageFunction);
+            writeToBrowser(response, head, fileName, password, allData, pageFunction);
         } else {
             throw new RuntimeException("excel不能为空");
         }
@@ -202,12 +202,12 @@ public class ExcelUtil {
      *         动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList());
      * @param fileName 不带文件后缀
      * @param password 为null不加密
-     * @param excelData 2选1 excel数据 数据量大时，可能会oom，建议分页查询，写入到本地，再上传到oss
+     * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      *         动态数据  List<List<Object>> excelData
      * @param pageFunction 2选1 分页数据组装逻辑 start form 1
      */
     private static <T> void writeToBrowser(HttpServletResponse response, Class<T> head, String fileName,
-            String password, List<T> excelData, Function<Integer, List<T>> pageFunction) {
+            String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
@@ -218,10 +218,10 @@ public class ExcelUtil {
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
-            if (CollectionUtils.isNotEmpty(excelData)) {
+            if (CollectionUtils.isNotEmpty(allData)) {
                 EasyExcel.write(outputStream).head(head)
                         .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password)
-                        .sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(excelData);
+                        .sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
             } else if (pageFunction != null) {
                 ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head)
                         .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
@@ -252,15 +252,15 @@ public class ExcelUtil {
      * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
      * @param password 为null不加密
-     * @param excelData 2选1 excel数据
+     * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 start form 1
      */
     private static <T> void writeToLocal(String basedir, Class<T> head, String fileName, String password,
-            List<T> excelData, Function<Integer, List<T>> pageFunction) {
+            List<T> allData, Function<Integer, List<T>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
-        if (CollectionUtils.isNotEmpty(excelData)) {
+        if (CollectionUtils.isNotEmpty(allData)) {
             EasyExcel.write(path.toString()).head(head).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
-                    .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(excelData);
+                    .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
         } else if (pageFunction != null) {
             ExcelWriter excelWriter = EasyExcel.write(path.toString()).head(head)
                     .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
