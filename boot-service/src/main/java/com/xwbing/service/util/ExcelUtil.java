@@ -58,16 +58,99 @@ public class ExcelUtil {
     }
 
     /**
-     * @param inputStream 2选1 文件流
-     * @param fullPath 2选1 带后缀全路径
+     * 读excel
+     *
+     * @param inputStream 文件流
      * @param head 表头 {@link ExcelProperty}
      * @param sheetNo start form 0
      * @param batchDealNum 批处理数量(分批处理 防止oom)
      * @param dataConsumer 数据消费 数据存储等处理逻辑
      */
-    public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> head, int sheetNo,
-            int batchDealNum, Consumer<List<T>> dataConsumer) {
-        return read(inputStream, fullPath, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
+    public static <T> Integer read(InputStream inputStream, Class<T> head, int sheetNo, int batchDealNum,
+            Consumer<List<T>> dataConsumer) {
+        return read(inputStream, null, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
+    }
+
+    /**
+     * @param inputStream 文件流
+     * @param password 为null无密码
+     * @param head 表头 {@link ExcelProperty}
+     * @param sheetNo start form 0
+     * @param headRowNum 表头行数
+     * @param exampleNum 示例数据行数
+     * @param batchDealNum 批处理数量(分批处理 防止oom)
+     * @param headConsumer 表头消费 校验表头是否正确等处理逻辑
+     * @param dataConsumer 数据消费 数据存储等处理逻辑
+     * @param errorConsumer 异常消费 读取数据异常处理逻辑
+     */
+    public static <T> Integer read(InputStream inputStream, String password, Class<T> head, int sheetNo, int headRowNum,
+            int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
+            Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
+        return read(inputStream, null, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer,
+                dataConsumer, errorConsumer);
+    }
+
+    /**
+     * 读excel
+     *
+     * @param fullPath 带后缀全路径
+     * @param head 表头 {@link ExcelProperty}
+     * @param sheetNo start form 0
+     * @param batchDealNum 批处理数量(分批处理 防止oom)
+     * @param dataConsumer 数据消费 数据存储等处理逻辑
+     */
+    public static <T> Integer read(String fullPath, Class<T> head, int sheetNo, int batchDealNum,
+            Consumer<List<T>> dataConsumer) {
+        return read(null, fullPath, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
+    }
+
+    /**
+     * @param fullPath 带后缀全路径
+     * @param password 为null无密码
+     * @param head 表头 {@link ExcelProperty}
+     * @param sheetNo start form 0
+     * @param headRowNum 表头行数
+     * @param exampleNum 示例数据行数
+     * @param batchDealNum 批处理数量(分批处理 防止oom)
+     * @param headConsumer 表头消费 校验表头是否正确等处理逻辑
+     * @param dataConsumer 数据消费 数据存储等处理逻辑
+     * @param errorConsumer 异常消费 读取数据异常处理逻辑
+     */
+    public static <T> Integer read(String fullPath, String password, Class<T> head, int sheetNo, int headRowNum,
+            int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
+            Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
+        return read(null, fullPath, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer,
+                dataConsumer, errorConsumer);
+    }
+
+    /**
+     * 写excel
+     *
+     * @param response
+     * @param head 表头 {@link ExcelProperty}
+     * @param fileName 不带文件后缀
+     * @param password 为null不加密
+     * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
+     */
+    public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password,
+            List<T> allData, Function<Integer, List<T>> pageFunction) {
+        write(response, null, head, fileName, password, allData, pageFunction);
+    }
+
+    /**
+     * 写excel
+     *
+     * @param basedir 文件夹路径
+     * @param head 表头 {@link ExcelProperty}
+     * @param fileName 不带文件后缀
+     * @param password 为null不加密
+     * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
+     */
+    public static <T> void write(String basedir, Class<T> head, String fileName, String password, List<T> allData,
+            Function<Integer, List<T>> pageFunction) {
+        write(null, basedir, head, fileName, password, allData, pageFunction);
     }
 
     /**
@@ -85,7 +168,7 @@ public class ExcelUtil {
      * @param dataConsumer 数据消费 数据存储等处理逻辑
      * @param errorConsumer 异常消费 读取数据异常处理逻辑
      */
-    public static <T> Integer read(InputStream inputStream, String fullPath, String password, Class<T> head,
+    private static <T> Integer read(InputStream inputStream, String fullPath, String password, Class<T> head,
             int sheetNo, int headRowNum, int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
             Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
@@ -198,7 +281,7 @@ public class ExcelUtil {
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
-    public static <T> void write(HttpServletResponse response, String basedir, Class<T> head, String fileName,
+    private static <T> void write(HttpServletResponse response, String basedir, Class<T> head, String fileName,
             String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         if (StringUtils.isNotEmpty(basedir)) {
             writeToLocal(basedir, head, fileName, password, allData, pageFunction);

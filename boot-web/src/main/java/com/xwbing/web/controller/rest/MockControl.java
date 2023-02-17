@@ -321,13 +321,13 @@ public class MockControl {
         excelData.add(data1);
         excelData.add(data2);
         excelData.add(data3);
-        ExcelUtil.write(response, null, ExcelHeaderVo.class, "人员名单统计", "123456", excelData, null);
+        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计", "123456", excelData, null);
     }
 
     @ApiOperation("下载excel到本地")
     @GetMapping("writeToLocal")
     public void writeToLocal() {
-        ExcelUtil.write(null, "/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计", "123456", null, pageNumber -> {
+        ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计", "123456", null, pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
             }
@@ -383,7 +383,7 @@ public class MockControl {
     @PostMapping("readExcel")
     public ApiResponse readExcel(@RequestParam MultipartFile file) throws IOException {
         AtomicInteger count = new AtomicInteger();
-        Integer allCount = ExcelUtil.read(file.getInputStream(), null, ExcelHeaderDemoVo.class, 0, 10, data -> {
+        Integer allCount = ExcelUtil.read(file.getInputStream(), ExcelHeaderDemoVo.class, 0, 10, data -> {
             log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
             data.forEach(d -> log.info("dealExcel row:{}", d));
         });
