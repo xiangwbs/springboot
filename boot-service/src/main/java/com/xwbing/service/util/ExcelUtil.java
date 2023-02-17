@@ -58,8 +58,6 @@ public class ExcelUtil {
     }
 
     /**
-     * 读excel
-     *
      * @param inputStream 文件流
      * @param head 表头 {@link ExcelProperty}
      * @param sheetNo start form 0
@@ -91,8 +89,6 @@ public class ExcelUtil {
     }
 
     /**
-     * 读excel
-     *
      * @param fullPath 带后缀全路径
      * @param head 表头 {@link ExcelProperty}
      * @param sheetNo start form 0
@@ -124,8 +120,6 @@ public class ExcelUtil {
     }
 
     /**
-     * 写excel
-     *
      * @param response
      * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
@@ -139,8 +133,6 @@ public class ExcelUtil {
     }
 
     /**
-     * 写excel
-     *
      * @param basedir 文件夹路径
      * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
@@ -154,8 +146,6 @@ public class ExcelUtil {
     }
 
     /**
-     * 读excel
-     *
      * @param inputStream 2选1 文件流
      * @param fullPath 2选1 带后缀全路径
      * @param password 为null无密码
@@ -271,8 +261,6 @@ public class ExcelUtil {
     }
 
     /**
-     * 写excel
-     *
      * @param response 2选1
      * @param basedir 2选1 文件夹路径
      * @param head 表头 {@link ExcelProperty}
@@ -293,8 +281,6 @@ public class ExcelUtil {
     }
 
     /**
-     * 文件下载到浏览器
-     *
      * @param response
      * @param head 表头 {@link ExcelProperty}
      *         动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList());
@@ -344,8 +330,6 @@ public class ExcelUtil {
     }
 
     /**
-     * 文件下载到本地
-     *
      * @param basedir 文件夹路径
      * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
