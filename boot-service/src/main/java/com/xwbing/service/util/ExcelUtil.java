@@ -64,8 +64,6 @@ public class ExcelUtil {
      * @param sheetNo start form 0
      * @param batchDealNum 批处理数量(分批处理 防止oom)
      * @param dataConsumer 数据消费 数据存储等处理逻辑
-     *
-     * @return
      */
     public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> head, int sheetNo,
             int batchDealNum, Consumer<List<T>> dataConsumer) {
