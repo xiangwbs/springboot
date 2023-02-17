@@ -46,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ExcelUtil {
+
     @Data
     @Builder
     @AllArgsConstructor
@@ -57,21 +58,37 @@ public class ExcelUtil {
     }
 
     /**
+     * @param inputStream 2选1 文件流
+     * @param fullPath 2选1 带后缀全路径
+     * @param head 表头 {@link ExcelProperty}
+     * @param sheetNo start form 0
+     * @param batchDealNum 批处理数量(分批处理 防止oom)
+     * @param dataConsumer 数据消费 数据存储等处理逻辑
+     *
+     * @return
+     */
+    public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> head, int sheetNo,
+            int batchDealNum, Consumer<List<T>> dataConsumer) {
+        return read(inputStream, fullPath, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
+    }
+
+    /**
      * 读excel
      *
      * @param inputStream 2选1 文件流
      * @param fullPath 2选1 带后缀全路径
+     * @param password 为null无密码
      * @param head 表头 {@link ExcelProperty}
      * @param sheetNo start form 0
      * @param headRowNum 表头行数
      * @param exampleNum 示例数据行数
      * @param batchDealNum 批处理数量(分批处理 防止oom)
-     * @param headConsumer 表头消费逻辑
-     * @param dataConsumer 数据消费逻辑
-     * @param errorConsumer 异常消费逻辑
+     * @param headConsumer 表头消费 校验表头是否正确等处理逻辑
+     * @param dataConsumer 数据消费 数据存储等处理逻辑
+     * @param errorConsumer 异常消费 读取数据异常处理逻辑
      */
-    public static <T> Integer read(InputStream inputStream, String fullPath, Class<T> head, int sheetNo, int headRowNum,
-            int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
+    public static <T> Integer read(InputStream inputStream, String fullPath, String password, Class<T> head,
+            int sheetNo, int headRowNum, int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
             Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<T> readListener = new AnalysisEventListener<T>() {
@@ -141,7 +158,7 @@ public class ExcelUtil {
                 totalRowNumber = totalRowNumber <= exampleNum ? 0 : totalRowNumber - exampleNum;
                 totalCount.set(totalRowNumber);
                 log.info("readExcel totalCount:{}", totalCount.intValue());
-                // 自定义表头处理逻辑 可处理校验表头之类的逻辑
+                // 自定义表头处理逻辑
                 if (headConsumer != null) {
                     headConsumer.accept(headMap);
                 }
@@ -167,8 +184,8 @@ public class ExcelUtil {
         } else {
             throw new RuntimeException("excel不能为空");
         }
-        // 需要统计数据，不能排除空行
-        read.readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum).sheet(sheetNo).doRead();
+        read.readCache(new MapCache()).password(password).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum)
+                .sheet(sheetNo).doRead();
         return totalCount.get();
     }
 
@@ -181,7 +198,7 @@ public class ExcelUtil {
      * @param fileName 不带文件后缀
      * @param password 为null不加密
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
-     * @param pageFunction 2选1 分页数据组装逻辑 start form 1
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
     public static <T> void write(HttpServletResponse response, String basedir, Class<T> head, String fileName,
             String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
@@ -204,7 +221,7 @@ public class ExcelUtil {
      * @param password 为null不加密
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      *         动态数据  List<List<Object>> excelData
-     * @param pageFunction 2选1 分页数据组装逻辑 start form 1
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
     private static <T> void writeToBrowser(HttpServletResponse response, Class<T> head, String fileName,
             String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
@@ -224,7 +241,7 @@ public class ExcelUtil {
                         .sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
             } else if (pageFunction != null) {
                 ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head)
-                        .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
+                        .registerWriteHandler(new CustomColumnWidthStyleStrategy()).password(password).build();
                 WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
                 int pageNumber = 1;
                 while (true) {
@@ -237,10 +254,10 @@ public class ExcelUtil {
                 }
                 excelWriter.finish();
             } else {
-                throw new RuntimeException("生成excel数据不能为空");
+                throw new RuntimeException("excel数据不能为空");
             }
         } catch (Exception e) {
-            log.error("writeToBrowser error", e);
+            log.error("writeExcelToBrowser error", e);
             throw new RuntimeException("文件下载失败");
         }
     }
@@ -253,17 +270,17 @@ public class ExcelUtil {
      * @param fileName 不带文件后缀
      * @param password 为null不加密
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
-     * @param pageFunction 2选1 分页数据组装逻辑 start form 1
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
     private static <T> void writeToLocal(String basedir, Class<T> head, String fileName, String password,
             List<T> allData, Function<Integer, List<T>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
         if (CollectionUtils.isNotEmpty(allData)) {
-            EasyExcel.write(path.toString()).head(head).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+            EasyExcel.write(path.toString()).head(head).registerWriteHandler(new CustomColumnWidthStyleStrategy())
                     .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
         } else if (pageFunction != null) {
             ExcelWriter excelWriter = EasyExcel.write(path.toString()).head(head)
-                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
+                    .registerWriteHandler(new CustomColumnWidthStyleStrategy()).password(password).build();
             WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
             int pageNumber = 1;
             while (true) {
@@ -276,7 +293,7 @@ public class ExcelUtil {
             }
             excelWriter.finish();
         } else {
-            throw new RuntimeException("生成excel数据不能为空");
+            throw new RuntimeException("excel数据不能为空");
         }
     }
 }

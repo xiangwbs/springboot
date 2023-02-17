@@ -309,36 +309,38 @@ public class MockControl {
     @GetMapping("writeToBrowser")
     public void writeToBrowser(HttpServletResponse response) {
         List<ExcelHeaderVo> excelData = new ArrayList<>();
-        ExcelHeaderVo data = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介")
+        ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介")
                 .build();
-        ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
+        ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介")
                 .build();
-        ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功").build();
-        ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("小夏").age(18).tel("13488888888").introduction("法轮功").build();
+        ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888").introduction("这是一条简介")
+                .build();
+        ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888").introduction("这是一条简介")
+                .build();
         excelData.add(data);
         excelData.add(data1);
         excelData.add(data2);
         excelData.add(data3);
-        ExcelUtil.write(response, null, ExcelHeaderVo.class, "人员名单统计", null, excelData, null);
+        ExcelUtil.write(response, null, ExcelHeaderVo.class, "人员名单统计", "123456", excelData, null);
     }
 
     @ApiOperation("下载excel到本地")
     @GetMapping("writeToLocal")
     public void writeToLocal() {
-        ExcelUtil.write(null, "/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计", null, null, pageNumber -> {
+        ExcelUtil.write(null, "/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计", "123456", null, pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
             }
             //模拟分页
             // PageHelper.startPage(pageNumber, 500);
             List<ExcelHeaderVo> excelData = new ArrayList<>();
-            ExcelHeaderVo data = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
+            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介")
                     .build();
-            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("项伟兵").age(18).tel("13488888888").introduction("这是一条简介")
+            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介")
                     .build();
-            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("李四").age(18).tel("13488888888").introduction("法轮功")
+            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888").introduction("这是一条简介")
                     .build();
-            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name(null).age(18).tel("13488888888").introduction("法轮功")
+            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888").introduction("这是一条简介")
                     .build();
             excelData.add(data);
             excelData.add(data1);
@@ -378,19 +380,13 @@ public class MockControl {
         return JsonResult.toJSONObj("异步正常", "");
     }
 
-    @PostMapping("dealExcel")
-    public ApiResponse dealExcel(@RequestParam MultipartFile file) throws IOException {
+    @PostMapping("readExcel")
+    public ApiResponse readExcel(@RequestParam MultipartFile file) throws IOException {
         AtomicInteger count = new AtomicInteger();
-        Integer allCount = ExcelUtil.read(file.getInputStream(), null, ExcelHeaderDemoVo.class, 0, 1, 0, 10,
-                head -> log.info("dealExcel head ", head), data -> {
-                    log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
-                    data.forEach(d -> {
-                        log.info("dealExcel row:{}", d);
-                    });
-                }, error -> {
-                    ExcelHeaderDemoVo data = error.getData();
-                    throw new RuntimeException("读取excel异常");
-                });
+        Integer allCount = ExcelUtil.read(file.getInputStream(), null, ExcelHeaderDemoVo.class, 0, 10, data -> {
+            log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
+            data.forEach(d -> log.info("dealExcel row:{}", d));
+        });
         log.info("readProductExcel allCount:{}", allCount);
         return ApiResponseUtil.success();
     }
@@ -435,7 +431,8 @@ public class MockControl {
 
             DingtalkRobotHelper
                     .sendActionCard(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                            "actionCard消息", DingMarkdown.build().appendText("这是一个整体跳转actionCard消息"), "https://www.baidu.com");
+                            "actionCard消息", DingMarkdown.build().appendText("这是一个整体跳转actionCard消息"),
+                            "https://www.baidu.com");
 
             List<String> orderedList = new ArrayList<>();
             orderedList.add(DingtalkRobotHelper.dtmdLink("回复1"));
