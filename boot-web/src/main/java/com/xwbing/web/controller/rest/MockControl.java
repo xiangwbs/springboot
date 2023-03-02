@@ -321,13 +321,13 @@ public class MockControl {
         excelData.add(data1);
         excelData.add(data2);
         excelData.add(data3);
-        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计", "123456", excelData, null);
+        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计", "123456", excelData);
     }
 
     @ApiOperation("下载excel到本地")
     @GetMapping("writeToLocal")
     public void writeToLocal() {
-        ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计", "123456", null, pageNumber -> {
+        ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计", "123456",  pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
             }

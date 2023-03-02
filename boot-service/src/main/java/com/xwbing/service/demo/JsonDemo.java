@@ -28,6 +28,7 @@ import com.xwbing.service.enums.ImportStatusEnum;
 import com.xwbing.service.util.Jackson;
 import com.xwbing.service.util.RestMessage;
 
+import cn.hutool.core.date.DatePattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,7 +46,7 @@ public class JsonDemo {
     /**
      * jackSon注解
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DatePattern.NORM_DATETIME_PATTERN, timezone = "GMT+8")
     private LocalDateTime dateTime;
     @JsonIgnore
     private String ignore;
