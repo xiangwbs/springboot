@@ -1,5 +1,6 @@
 package com.xwbing.service.util;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.file.FileSystems;
@@ -46,17 +47,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ExcelUtil {
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ReadError<T> {
-        private Integer rowIndex;
-        private T data;
-        private Exception exception;
-    }
-
     /**
      * @param inputStream 文件流
      * @param head 表头 {@link ExcelProperty}
@@ -328,12 +318,12 @@ public class ExcelUtil {
                         .sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
             } else if (pageFunction != null) {
                 ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head)
-                        .registerWriteHandler(new CustomColumnWidthStyleStrategy()).password(password).build();
+                        .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
                 WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
                 int pageNumber = 1;
                 while (true) {
                     List<T> data = pageFunction.apply(pageNumber);
-                    if (data.isEmpty()) {
+                    if (CollectionUtils.isEmpty(data)) {
                         break;
                     }
                     excelWriter.write(data, writeSheet);
@@ -343,9 +333,8 @@ public class ExcelUtil {
             } else {
                 throw new RuntimeException("excel数据不能为空");
             }
-        } catch (Exception e) {
-            log.error("writeExcelToBrowser error", e);
-            throw new RuntimeException("文件下载失败");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -361,16 +350,16 @@ public class ExcelUtil {
             List<T> allData, Function<Integer, List<T>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
         if (CollectionUtils.isNotEmpty(allData)) {
-            EasyExcel.write(path.toString()).head(head).registerWriteHandler(new CustomColumnWidthStyleStrategy())
+            EasyExcel.write(path.toString()).head(head).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
                     .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
         } else if (pageFunction != null) {
             ExcelWriter excelWriter = EasyExcel.write(path.toString()).head(head)
-                    .registerWriteHandler(new CustomColumnWidthStyleStrategy()).password(password).build();
+                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
             WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
             int pageNumber = 1;
             while (true) {
                 List<T> data = pageFunction.apply(pageNumber);
-                if (data.isEmpty()) {
+                if (CollectionUtils.isEmpty(data)) {
                     break;
                 }
                 excelWriter.write(data, writeSheet);
@@ -380,5 +369,15 @@ public class ExcelUtil {
         } else {
             throw new RuntimeException("excel数据不能为空");
         }
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ReadError<T> {
+        private Integer rowIndex;
+        private T data;
+        private Exception exception;
     }
 }
