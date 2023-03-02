@@ -308,27 +308,34 @@ public class MockControl {
     @ApiOperation("下载excel到浏览器")
     @GetMapping("writeToBrowser")
     public void writeToBrowser(HttpServletResponse response) {
-        List<ExcelHeaderVo> excelData = new ArrayList<>();
-        ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介")
-                .build();
-        ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介")
-                .build();
-        ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888").introduction("这是一条简介")
-                .build();
-        ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888").introduction("这是一条简介")
-                .build();
-        excelData.add(data);
-        excelData.add(data1);
-        excelData.add(data2);
-        excelData.add(data3);
-        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计", "123456", excelData);
+        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计", "123456",  pageNumber -> {
+            if (pageNumber == 5) {
+                return Collections.emptyList();
+            }
+            //模拟分页
+            // PageHelper.startPage(pageNumber, 500);
+            List<ExcelHeaderVo> excelData = new ArrayList<>();
+            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介")
+                    .build();
+            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介")
+                    .build();
+            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888").introduction("这是一条简介")
+                    .build();
+            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888").introduction("这是一条简介")
+                    .build();
+            excelData.add(data);
+            excelData.add(data1);
+            excelData.add(data2);
+            excelData.add(data3);
+            return excelData;
+        });
     }
 
     @ApiOperation("下载excel到本地")
     @GetMapping("writeToLocal")
     public void writeToLocal() {
         ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计", "123456",  pageNumber -> {
-            if (pageNumber == 2) {
+            if (pageNumber == 5) {
                 return Collections.emptyList();
             }
             //模拟分页

@@ -70,6 +70,18 @@ public class ExcelUtil {
     }
 
     /**
+     * @param fullPath 带后缀全路径
+     * @param head 表头 {@link ExcelProperty}
+     * @param sheetNo start form 0
+     * @param batchDealNum 批处理数量(分批处理 防止oom)
+     * @param dataConsumer 数据消费 数据存储等处理逻辑
+     */
+    public static <T> Integer read(String fullPath, Class<T> head, int sheetNo, int batchDealNum,
+            Consumer<List<T>> dataConsumer) {
+        return read(null, fullPath, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
+    }
+
+    /**
      * @param inputStream 文件流
      * @param password 为null无密码
      * @param head 表头 {@link ExcelProperty}
@@ -86,18 +98,6 @@ public class ExcelUtil {
             Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         return read(inputStream, null, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer,
                 dataConsumer, errorConsumer);
-    }
-
-    /**
-     * @param fullPath 带后缀全路径
-     * @param head 表头 {@link ExcelProperty}
-     * @param sheetNo start form 0
-     * @param batchDealNum 批处理数量(分批处理 防止oom)
-     * @param dataConsumer 数据消费 数据存储等处理逻辑
-     */
-    public static <T> Integer read(String fullPath, Class<T> head, int sheetNo, int batchDealNum,
-            Consumer<List<T>> dataConsumer) {
-        return read(null, fullPath, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
     }
 
     /**
@@ -132,17 +132,6 @@ public class ExcelUtil {
     }
 
     /**
-     * @param response * @param head 表头 {@link ExcelProperty}
-     * @param fileName 不带文件后缀
-     * @param password 为null不加密
-     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
-     */
-    public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password,
-            Function<Integer, List<T>> pageFunction) {
-        write(response, null, head, fileName, password, null, pageFunction);
-    }
-
-    /**
      * @param basedir 文件夹路径
      * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
@@ -151,6 +140,17 @@ public class ExcelUtil {
      */
     public static <T> void write(String basedir, Class<T> head, String fileName, String password, List<T> allData) {
         write(null, basedir, head, fileName, password, allData, null);
+    }
+
+    /**
+     * @param response * @param head 表头 {@link ExcelProperty}
+     * @param fileName 不带文件后缀
+     * @param password 为null不加密
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
+     */
+    public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password,
+            Function<Integer, List<T>> pageFunction) {
+        write(response, null, head, fileName, password, null, pageFunction);
     }
 
     /**
