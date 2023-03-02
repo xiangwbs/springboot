@@ -125,11 +125,21 @@ public class ExcelUtil {
      * @param fileName 不带文件后缀
      * @param password 为null不加密
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
+     */
+    public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password,
+            List<T> allData) {
+        write(response, null, head, fileName, password, allData, null);
+    }
+
+    /**
+     * @param response * @param head 表头 {@link ExcelProperty}
+     * @param fileName 不带文件后缀
+     * @param password 为null不加密
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
     public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password,
-            List<T> allData, Function<Integer, List<T>> pageFunction) {
-        write(response, null, head, fileName, password, allData, pageFunction);
+            Function<Integer, List<T>> pageFunction) {
+        write(response, null, head, fileName, password, null, pageFunction);
     }
 
     /**
@@ -138,11 +148,21 @@ public class ExcelUtil {
      * @param fileName 不带文件后缀
      * @param password 为null不加密
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
+     */
+    public static <T> void write(String basedir, Class<T> head, String fileName, String password, List<T> allData) {
+        write(null, basedir, head, fileName, password, allData, null);
+    }
+
+    /**
+     * @param basedir 文件夹路径
+     * @param head 表头 {@link ExcelProperty}
+     * @param fileName 不带文件后缀
+     * @param password 为null不加密
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
-    public static <T> void write(String basedir, Class<T> head, String fileName, String password, List<T> allData,
+    public static <T> void write(String basedir, Class<T> head, String fileName, String password,
             Function<Integer, List<T>> pageFunction) {
-        write(null, basedir, head, fileName, password, allData, pageFunction);
+        write(null, basedir, head, fileName, password, null, pageFunction);
     }
 
     /**
