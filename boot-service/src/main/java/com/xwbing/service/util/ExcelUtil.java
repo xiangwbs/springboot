@@ -124,7 +124,7 @@ public class ExcelUtil {
      * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
      * @param password 为null不加密
-     * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
+     * @param allData excel全量数据 数据量大时 可能会oom 建议分页查询
      */
     public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password,
             List<T> allData) {
@@ -136,7 +136,7 @@ public class ExcelUtil {
      * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
      * @param password 为null不加密
-     * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
+     * @param allData excel全量数据 数据量大时 可能会oom 建议分页查询
      */
     public static <T> void write(String basedir, Class<T> head, String fileName, String password, List<T> allData) {
         write(null, basedir, head, fileName, password, allData, null);
@@ -146,7 +146,7 @@ public class ExcelUtil {
      * @param response * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
      * @param password 为null不加密
-     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
+     * @param pageFunction 分页数据组装逻辑 pageNo start form 1
      */
     public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password,
             Function<Integer, List<T>> pageFunction) {
@@ -158,7 +158,7 @@ public class ExcelUtil {
      * @param head 表头 {@link ExcelProperty}
      * @param fileName 不带文件后缀
      * @param password 为null不加密
-     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
+     * @param pageFunction 分页数据组装逻辑 pageNo start form 1
      */
     public static <T> void write(String basedir, Class<T> head, String fileName, String password,
             Function<Integer, List<T>> pageFunction) {
