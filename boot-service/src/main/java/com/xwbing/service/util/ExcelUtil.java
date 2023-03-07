@@ -29,7 +29,6 @@ import com.alibaba.excel.read.metadata.holder.ReadRowHolder;
 import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
-import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
@@ -314,11 +313,11 @@ public class ExcelUtil {
             response.setDateHeader("Expires", 0);
             if (CollectionUtils.isNotEmpty(allData)) {
                 EasyExcel.write(outputStream).head(head)
-                        .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password)
+                        .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password)
                         .sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
             } else if (pageFunction != null) {
                 ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head)
-                        .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
+                        .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
                 WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
                 int pageNumber = 1;
                 while (true) {
@@ -350,11 +349,11 @@ public class ExcelUtil {
             List<T> allData, Function<Integer, List<T>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
         if (CollectionUtils.isNotEmpty(allData)) {
-            EasyExcel.write(path.toString()).head(head).registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+            EasyExcel.write(path.toString()).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy())
                     .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
         } else if (pageFunction != null) {
             ExcelWriter excelWriter = EasyExcel.write(path.toString()).head(head)
-                    .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).password(password).build();
+                    .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
             WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
             int pageNumber = 1;
             while (true) {

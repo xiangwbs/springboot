@@ -21,8 +21,8 @@ import com.alibaba.excel.write.style.column.AbstractColumnWidthStyleStrategy;
  * @version $Id$
  * @since 2023年02月08日 7:06 PM
  */
-public class CustomColumnWidthStyleStrategy extends AbstractColumnWidthStyleStrategy {
-    private static final int MAX_COLUMN_WIDTH = 255;
+public class ExcelColumnWidthStyleStrategy extends AbstractColumnWidthStyleStrategy {
+    private static final int MAX_COLUMN_WIDTH = 100;
     private final Map<Integer, Map<Integer, Integer>> cache = MapUtils.newHashMapWithExpectedSize(8);
 
     @Override
