@@ -114,7 +114,7 @@ public class ArticleEsService {
             BoolQueryBuilder keyBuilder = QueryBuilders.boolQuery();
             if (dto.isWasMatchSearch()) {
                 // 模糊匹配 分词 分为多个term
-                //（where term=term0 or term=term1）/（where term=term0 and term=term1）
+                //（where term=term0 or term=term1）默认/（where term=term0 and term=term1）
                 keyBuilder.should(QueryBuilders.matchQuery("title", searchKey).operator(Operator.AND)).boost(100);
                 keyBuilder.should(QueryBuilders.matchQuery("content", searchKey).operator(Operator.AND)).boost(5);
             } else {
