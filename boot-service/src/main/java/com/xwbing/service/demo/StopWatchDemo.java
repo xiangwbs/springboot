@@ -19,8 +19,7 @@ public class StopWatchDemo {
         // do something
         Thread.sleep(200);
         sw.stop();
-        // System.out.println(sw.getTotalTimeMillis());
-        System.out.println(sw.prettyPrint());
-        log.info("StopWatchDemo {}", sw.prettyPrint());
+        System.out.println("StopWatchDemo cost:{}s"+sw.getTotalTimeSeconds());
+        System.out.println("StopWatchDemo end {}"+ sw.prettyPrint());
     }
 }
