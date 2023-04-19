@@ -53,13 +53,6 @@ public class CompletableFutureDemo {
         }).join();
     }
 
-    public static void main(String[] args) {
-        long l = System.currentTimeMillis();
-        thenCombine();
-        long l1 = System.currentTimeMillis();
-        System.out.println(l1 - l);
-    }
-
     /**
      * 结合两个CompletionStage的结果，进行消耗
      *
@@ -86,6 +79,54 @@ public class CompletableFutureDemo {
             jsonObject.put("s2", s2);
         }).join();
         return jsonObject;
+    }
+
+    /**
+     * 两个CompletionStage，谁计算的快，我就用那个CompletionStage的结果进行消耗，无返回值。
+     *
+     * @return void
+     */
+    public static JSONObject acceptEither() {
+        JSONObject object = new JSONObject();
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return "hello";
+        }).acceptEither(CompletableFuture.supplyAsync(() -> {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return "world";
+        }), s -> object.put("s", s)).join();
+        return object;
+    }
+
+    /**
+     * 两个CompletionStage，谁计算的快，我就用那个CompletionStage的结果,有返回值。
+     *
+     * @return
+     */
+    public static String applyToEither() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return "hello";
+        }).applyToEither(CompletableFuture.supplyAsync(() -> {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return "world";
+        }), s -> s).join();
     }
 
     /**
@@ -127,28 +168,10 @@ public class CompletableFutureDemo {
         return allResult;
     }
 
-    /**
-     * 两个CompletionStage，谁计算的快，我就用那个CompletionStage的结果进行消耗。
-     *
-     * @return void
-     */
-    public static JSONObject acceptEither() {
-        JSONObject object = new JSONObject();
-        CompletableFuture.supplyAsync(() -> {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return "hello";
-        }).acceptEither(CompletableFuture.supplyAsync(() -> {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return "world";
-        }), s -> object.put("s", s)).join();
-        return object;
+    public static void main(String[] args) {
+        long l = System.currentTimeMillis();
+        thenCombine();
+        long l1 = System.currentTimeMillis();
+        System.out.println(l1 - l);
     }
 }
