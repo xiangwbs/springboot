@@ -2,6 +2,9 @@ package com.xwbing.service.demo;
 
 import java.util.Arrays;
 
+import cn.hutool.core.util.ReUtil;
+import cn.hutool.core.util.StrUtil;
+
 /**
  * 项目名称: boot-module-pro
  * 创建时间: 2018/7/11 下午8:59
@@ -35,5 +38,6 @@ public class RegexDemo {
         System.out.println("13488888888".matches("1[3578]\\d{9}"));
         System.out.println(Arrays.toString(("aa.bb").split("\\.")));
         System.out.println("xiangggweiiii".replaceAll("(.)\\1+","$1"));
+        String code = StrUtil.subBetween(ReUtil.getGroup0("\\$\\{\\w+}", "123${code}456"), "${", "}");
     }
 }
