@@ -309,10 +309,7 @@ public class ExcelUtil {
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
-            if (CollectionUtils.isNotEmpty(allData)) {
-                EasyExcel.write(outputStream).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy())
-                        .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
-            } else if (pageFunction != null) {
+            if (pageFunction != null) {
                 ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head)
                         .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
                 WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
@@ -327,7 +324,8 @@ public class ExcelUtil {
                 }
                 excelWriter.finish();
             } else {
-                throw new RuntimeException("excel数据不能为空");
+                EasyExcel.write(outputStream).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy())
+                        .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -345,10 +343,7 @@ public class ExcelUtil {
     private static <T> void writeToLocal(String basedir, Class<T> head, String fileName, String password,
             List<T> allData, Function<Integer, List<T>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName);
-        if (CollectionUtils.isNotEmpty(allData)) {
-            EasyExcel.write(path.toString()).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy())
-                    .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
-        } else if (pageFunction != null) {
+        if (pageFunction != null) {
             ExcelWriter excelWriter = EasyExcel.write(path.toString()).head(head)
                     .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
             WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
@@ -363,7 +358,8 @@ public class ExcelUtil {
             }
             excelWriter.finish();
         } else {
-            throw new RuntimeException("excel数据不能为空");
+            EasyExcel.write(path.toString()).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy())
+                    .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
         }
     }
 
