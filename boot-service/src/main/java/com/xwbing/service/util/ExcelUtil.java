@@ -27,7 +27,6 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.read.metadata.holder.ReadRowHolder;
 import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
-import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -111,7 +110,7 @@ public class ExcelUtil {
     /**
      * @param response
      * @param head 表头 {@link ExcelProperty}
-     * @param fileName 不带文件后缀
+     * @param fileName 带文件后缀
      * @param password 为null不加密
      * @param allData excel全量数据 数据量大时 可能会oom 建议分页查询
      */
@@ -123,7 +122,7 @@ public class ExcelUtil {
     /**
      * @param basedir 文件夹路径
      * @param head 表头 {@link ExcelProperty}
-     * @param fileName 不带文件后缀
+     * @param fileName 带文件后缀
      * @param password 为null不加密
      * @param allData excel全量数据 数据量大时 可能会oom 建议分页查询
      */
@@ -133,7 +132,7 @@ public class ExcelUtil {
 
     /**
      * @param response * @param head 表头 {@link ExcelProperty}
-     * @param fileName 不带文件后缀
+     * @param fileName 带文件后缀
      * @param password 为null不加密
      * @param pageFunction 分页数据组装逻辑 pageNo start form 1
      */
@@ -145,7 +144,7 @@ public class ExcelUtil {
     /**
      * @param basedir 文件夹路径
      * @param head 表头 {@link ExcelProperty}
-     * @param fileName 不带文件后缀
+     * @param fileName 带文件后缀
      * @param password 为null不加密
      * @param pageFunction 分页数据组装逻辑 pageNo start form 1
      */
@@ -273,7 +272,7 @@ public class ExcelUtil {
      * @param response 2选1
      * @param basedir 2选1 文件夹路径
      * @param head 表头 {@link ExcelProperty}
-     * @param fileName 不带文件后缀
+     * @param fileName 带文件后缀
      * @param password 为null不加密
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
@@ -293,7 +292,7 @@ public class ExcelUtil {
      * @param response
      * @param head 表头 {@link ExcelProperty}
      *         动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList());
-     * @param fileName 不带文件后缀
+     * @param fileName 带文件后缀
      * @param password 为null不加密
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      *         动态数据  List<List<Object>> excelData
@@ -306,15 +305,13 @@ public class ExcelUtil {
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
             // 防止中文乱码
             fileName = URLEncoder.encode(fileName, "UTF-8");
-            response.setHeader("Content-Disposition",
-                    "attachment; filename=" + fileName + ExcelTypeEnum.XLSX.getValue());
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
             if (CollectionUtils.isNotEmpty(allData)) {
-                EasyExcel.write(outputStream).head(head)
-                        .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password)
-                        .sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
+                EasyExcel.write(outputStream).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy())
+                        .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
             } else if (pageFunction != null) {
                 ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head)
                         .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
@@ -340,14 +337,14 @@ public class ExcelUtil {
     /**
      * @param basedir 文件夹路径
      * @param head 表头 {@link ExcelProperty}
-     * @param fileName 不带文件后缀
+     * @param fileName 带文件后缀
      * @param password 为null不加密
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
     private static <T> void writeToLocal(String basedir, Class<T> head, String fileName, String password,
             List<T> allData, Function<Integer, List<T>> pageFunction) {
-        Path path = FileSystems.getDefault().getPath(basedir, fileName + ExcelTypeEnum.XLSX.getValue());
+        Path path = FileSystems.getDefault().getPath(basedir, fileName);
         if (CollectionUtils.isNotEmpty(allData)) {
             EasyExcel.write(path.toString()).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy())
                     .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
