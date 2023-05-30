@@ -319,10 +319,10 @@ public class ExcelUtil {
                 int pageNumber = 1;
                 while (true) {
                     List<T> data = pageFunction.apply(pageNumber);
+                    excelWriter.write(data, writeSheet);
                     if (CollectionUtils.isEmpty(data)) {
                         break;
                     }
-                    excelWriter.write(data, writeSheet);
                     pageNumber++;
                 }
                 excelWriter.finish();
@@ -355,10 +355,10 @@ public class ExcelUtil {
             int pageNumber = 1;
             while (true) {
                 List<T> data = pageFunction.apply(pageNumber);
+                excelWriter.write(data, writeSheet);
                 if (CollectionUtils.isEmpty(data)) {
                     break;
                 }
-                excelWriter.write(data, writeSheet);
                 pageNumber++;
             }
             excelWriter.finish();

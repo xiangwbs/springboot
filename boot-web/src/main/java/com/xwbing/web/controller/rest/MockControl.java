@@ -314,8 +314,8 @@ public class MockControl {
     @ApiOperation("下载excel到浏览器")
     @GetMapping("writeToBrowser")
     public void writeToBrowser(HttpServletResponse response) {
-        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计.xlsx", "123456", pageNumber -> {
-            if (pageNumber == 5) {
+        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计.xlsx", null, pageNumber -> {
+            if (pageNumber == 1) {
                 return Collections.emptyList();
             }
             //模拟分页
@@ -340,7 +340,7 @@ public class MockControl {
     @ApiOperation("下载excel到本地")
     @GetMapping("writeToLocal")
     public void writeToLocal() {
-        ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计.xlsx", "123456", pageNumber -> {
+        ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计.xlsx", null, pageNumber -> {
             if (pageNumber == 5) {
                 return Collections.emptyList();
             }
