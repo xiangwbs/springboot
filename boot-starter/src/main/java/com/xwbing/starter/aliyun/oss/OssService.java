@@ -315,7 +315,7 @@ public class OssService {
         return object.getObjectContent();
     }
 
-    private String generateObjectKey(ContentTypeEnum contentType) {
+    public String generateObjectKey(ContentTypeEnum contentType) {
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
         String prefixDate = sdf.format(date);

@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.demo.dingtalk.DingMarkdown;
 import com.xwbing.service.demo.dingtalk.DingtalkRobotHelper;
@@ -54,12 +55,15 @@ import com.xwbing.service.util.ZipUtil;
 import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.service.util.dingtalk.LinkMessage;
 import com.xwbing.service.util.dingtalk.MarkdownMessage;
+import com.xwbing.starter.aliyun.oss.OssService;
+import com.xwbing.starter.aliyun.oss.enums.ContentTypeEnum;
 import com.xwbing.starter.aspect.annotation.ReqLimit;
 import com.xwbing.starter.operatelog.annotation.OperateLog;
 import com.xwbing.starter.spring.ApplicationContextHelper;
 import com.xwbing.web.response.ApiResponse;
 import com.xwbing.web.response.ApiResponseUtil;
 
+import cn.hutool.core.io.IoUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -83,6 +87,8 @@ public class MockControl {
     private UploadService uploadService;
     @Resource
     private EasyExcelDealService easyExcelDealService;
+    @Resource
+    private OssService ossService;
     private List<byte[]> memoryBytes = new ArrayList<>();
 
     @ApiOperation("导出zip")
@@ -308,7 +314,7 @@ public class MockControl {
     @ApiOperation("下载excel到浏览器")
     @GetMapping("writeToBrowser")
     public void writeToBrowser(HttpServletResponse response) {
-        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计.xlsx", "123456",  pageNumber -> {
+        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计.xlsx", "123456", pageNumber -> {
             if (pageNumber == 5) {
                 return Collections.emptyList();
             }
@@ -334,7 +340,7 @@ public class MockControl {
     @ApiOperation("下载excel到本地")
     @GetMapping("writeToLocal")
     public void writeToLocal() {
-        ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计.xlsx", "123456",  pageNumber -> {
+        ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计.xlsx", "123456", pageNumber -> {
             if (pageNumber == 5) {
                 return Collections.emptyList();
             }
@@ -355,6 +361,41 @@ public class MockControl {
             excelData.add(data3);
             return excelData;
         });
+    }
+
+    @ApiOperation("下载excel到oss")
+    @GetMapping("writeToOss")
+    public String writeToOss() {
+        String objectKey = ossService.generateObjectKey(ContentTypeEnum.FILE);
+        CompletableFuture.runAsync(() -> {
+            try {
+                log.info("writeToOss");
+                File tmpFile = File.createTempFile("writeToOss", ExcelTypeEnum.XLSX.getValue());
+                String fileName = cn.hutool.core.io.FileUtil.getName(tmpFile);
+                ExcelUtil.write(cn.hutool.core.io.FileUtil.getTmpDirPath(), ExcelHeaderVo.class, fileName, null,
+                        pageNo -> {
+                            log.info("writeToOss pageNo:{}", pageNo);
+                            if (pageNo == 2) {
+                                return Collections.emptyList();
+                            }
+                            List<ExcelHeaderVo> excelData = new ArrayList<>();
+                            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888")
+                                    .introduction("这是一条简介").build();
+                            excelData.add(data);
+                            return excelData;
+                        });
+                log.info("writeToOss putOss");
+                ossService.putFile(IoUtil.toStream(tmpFile), ContentTypeEnum.FILE.getCode(),
+                        ExcelTypeEnum.XLSX.getValue());
+                if (tmpFile.exists()) {
+                    boolean delete = tmpFile.delete();
+                    log.info("writeToOss delete tmpFile:{}", delete);
+                }
+            } catch (Exception e) {
+                log.error("writeToOss error", e);
+            }
+        });
+        return ossService.getUrl(objectKey);
     }
 
     @GetMapping("nullModel")
