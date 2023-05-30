@@ -110,7 +110,7 @@ public class ExcelUtil {
     /**
      * @param response
      * @param head 表头 {@link ExcelProperty}
-     * @param fileName 带文件后缀
+     * @param fileName xxx.xlsx
      * @param password 为null不加密
      * @param allData excel全量数据 数据量大时 可能会oom 建议分页查询
      */
@@ -122,7 +122,7 @@ public class ExcelUtil {
     /**
      * @param basedir 文件夹路径
      * @param head 表头 {@link ExcelProperty}
-     * @param fileName 带文件后缀
+     * @param fileName xxx.xlsx
      * @param password 为null不加密
      * @param allData excel全量数据 数据量大时 可能会oom 建议分页查询
      */
@@ -132,7 +132,7 @@ public class ExcelUtil {
 
     /**
      * @param response * @param head 表头 {@link ExcelProperty}
-     * @param fileName 带文件后缀
+     * @param fileName xxx.xlsx
      * @param password 为null不加密
      * @param pageFunction 分页数据组装逻辑 pageNo start form 1
      */
@@ -144,7 +144,7 @@ public class ExcelUtil {
     /**
      * @param basedir 文件夹路径
      * @param head 表头 {@link ExcelProperty}
-     * @param fileName 带文件后缀
+     * @param fileName xxx.xlsx
      * @param password 为null不加密
      * @param pageFunction 分页数据组装逻辑 pageNo start form 1
      */
@@ -272,7 +272,7 @@ public class ExcelUtil {
      * @param response 2选1
      * @param basedir 2选1 文件夹路径
      * @param head 表头 {@link ExcelProperty}
-     * @param fileName 带文件后缀
+     * @param fileName xxx.xlsx
      * @param password 为null不加密
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
@@ -292,7 +292,7 @@ public class ExcelUtil {
      * @param response
      * @param head 表头 {@link ExcelProperty}
      *         动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList());
-     * @param fileName 带文件后缀
+     * @param fileName xxx.xlsx
      * @param password 为null不加密
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      *         动态数据  List<List<Object>> excelData
@@ -337,7 +337,7 @@ public class ExcelUtil {
     /**
      * @param basedir 文件夹路径
      * @param head 表头 {@link ExcelProperty}
-     * @param fileName 带文件后缀
+     * @param fileName xxx.xlsx
      * @param password 为null不加密
      * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
