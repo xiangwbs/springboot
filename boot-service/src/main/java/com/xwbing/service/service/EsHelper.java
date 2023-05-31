@@ -273,21 +273,21 @@ public class EsHelper {
             List<T> collect = Arrays.stream(hits.getHits())
                     // .map(i -> Jackson.build().readValue(i.getSourceAsString(), clazz)
                     .map(searchHit -> {
-                Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
-                if (highlight != null) {
-                    Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
-                    if (MapUtils.isNotEmpty(highlightFields)) {
-                        highlightFields.forEach((field, highlightField) -> {
-                            StringBuilder sb = new StringBuilder();
-                            for (Text text : highlightField.getFragments()) {
-                                sb.append(text);
+                        Map<String, Object> sourceAsMap = searchHit.getSourceAsMap();
+                        if (highlight != null) {
+                            Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
+                            if (MapUtils.isNotEmpty(highlightFields)) {
+                                highlightFields.forEach((field, highlightField) -> {
+                                    StringBuilder sb = new StringBuilder();
+                                    for (Text text : highlightField.getFragments()) {
+                                        sb.append(text);
+                                    }
+                                    sourceAsMap.put(field, sb.toString());
+                                });
                             }
-                            sourceAsMap.put(field, sb.toString());
-                        });
-                    }
-                }
-                return Jackson.build().convertToValue(sourceAsMap, clazz);
-            }).collect(Collectors.toList());
+                        }
+                        return Jackson.build().convertToValue(sourceAsMap, clazz);
+                    }).collect(Collectors.toList());
             return PageVO.<T>builder().total(hits.getTotalHits().value).data(collect).build();
         } catch (Exception e) {
             log.error("elasticsearch search error", e);

@@ -60,6 +60,29 @@ public class ArticleEsService {
         esHelper.bulkUpsert(docs, INDEX);
     }
 
+    // public long update(Long id, String title, String content) {
+    //     UpdateByQueryRequest request = new UpdateByQueryRequest(INDEX);
+    //     request.setRefresh(true);
+    //     request.setBatchSize(500);
+    //     request.setQuery(QueryBuilders.termQuery("id", id));
+    //     Map<String, Object> params = Maps.newHashMap();
+    //     params.put("title", title);
+    //     params.put("content", content);
+    //     Script script = new Script(ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG,
+    //             "ctx._source.title=params.title;ctx._source.content=content",
+    //             params);
+    //     request.setScript(script);
+    //     try {
+    //         log.info("update script:{}", script.toString());
+    //         BulkByScrollResponse response = restHighLevelClient.updateByQuery(request, RequestOptions.DEFAULT);
+    //         log.info("update res:{}", response.toString());
+    //         return response.getTotal();
+    //     } catch (IOException e) {
+    //         log.error("update error", e);
+    //         return 0;
+    //     }
+    // }
+
     public Integer count(String issueDeptCode) {
         TermQueryBuilder query = QueryBuilders.termQuery("issueDeptCode", issueDeptCode);
         return esHelper.count(query, INDEX);
