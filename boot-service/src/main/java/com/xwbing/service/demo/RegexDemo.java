@@ -1,7 +1,5 @@
 package com.xwbing.service.demo;
 
-import java.util.Arrays;
-
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 
@@ -36,8 +34,9 @@ public class RegexDemo {
         String a9 = "[\\u4e00-\\u9fa5]";//汉字
 
         System.out.println("13488888888".matches("1[3578]\\d{9}"));
-        System.out.println(Arrays.toString(("aa.bb").split("\\.")));
-        System.out.println("xiangggweiiii".replaceAll("(.)\\1+","$1"));
-        String code = StrUtil.subBetween(ReUtil.getGroup0("\\$\\{\\w+}", "123${code}456"), "${", "}");
+        System.out.println(ReUtil.getGroup0("\\d+", "1235qwer5678"));
+        System.out.println(ReUtil.findAllGroup0("\\d+", "1235qwer5678"));
+        System.out.println(StrUtil.subBetween(ReUtil.getGroup0("\\$\\{\\w+}", "123${code}456"), "${", "}"));
+        System.out.println("xiangggweiiii".replaceAll("(.)\\1+", "$1"));
     }
 }
