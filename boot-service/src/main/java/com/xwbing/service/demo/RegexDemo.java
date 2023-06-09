@@ -33,7 +33,14 @@ public class RegexDemo {
 
         String a9 = "[\\u4e00-\\u9fa5]";//汉字
 
-        System.out.println("13488888888".matches("1[3578]\\d{9}"));
+        System.out.println("13488888888".matches("^1[3456789]\\d{9}$"));
+        // 用户名部分：由字母（大小写不限）、数字、下划线、点、百分号、加号或减号组成。
+        // @ 符号：作为用户名部分和域名部分之间的分隔符。
+        // 域名部分：由字母（大小写不限）、数字、点或减号组成。
+        // 顶级域名：由两个或更多字母组成
+        System.out.println("xiangwb@163.com".matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"));
+        // 以"http://"、"https://"或"ftp://"开头的网址。假设网址中不包含空格、斜杠、问号或井号，并且不以这些字符结尾
+        System.out.println("https://www.baidu.com".matches("^(?:https?|ftp)://[^\\s/$.?#].[^\\s]*$"));
         System.out.println(ReUtil.getGroup0("\\d+", "qaz1235qwer5678"));
         System.out.println(ReUtil.findAllGroup0("\\d+", "qaz1235qwer5678"));
         System.out.println(StrUtil.subBetween(ReUtil.getGroup0("\\$\\{\\w+}", "123${code}456"), "${", "}"));
