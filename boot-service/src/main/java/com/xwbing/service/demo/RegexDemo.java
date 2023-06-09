@@ -40,7 +40,9 @@ public class RegexDemo {
         // 顶级域名：由两个或更多字母组成
         System.out.println("xiangwb@163.com".matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"));
         // 以"http://"、"https://"或"ftp://"开头的网址。假设网址中不包含空格、斜杠、问号或井号，并且不以空格结尾
-        System.out.println("https://www.baidu.com".matches("^(https?|ftp)://[^\\s/$.?#].[^\\s]*$"));
+        System.out.println("https://www.baidu.com".matches("^(?:https?|ftp)://[^\\s/$.?#].[^\\s]*$"));
+        // IPv4地址
+        System.out.println("127.0.0.1".matches("(?:\\d{1,3}\\.){3}\\d{1,3}"));
         System.out.println(ReUtil.getGroup0("\\d+", "qaz1235qwer5678"));
         System.out.println(ReUtil.findAllGroup0("\\d+", "qaz1235qwer5678"));
         System.out.println(StrUtil.subBetween(ReUtil.getGroup0("\\$\\{\\w+}", "123${code}456"), "${", "}"));
