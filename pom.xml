@@ -86,7 +86,7 @@
         <dom4j.version>1.6.1</dom4j.version>
         <zip4j.version>2.6.1</zip4j.version>
         <zxing.version>3.4.0</zxing.version>
-        <guava.verison>29.0-jre</guava.verison>
+        <guava.verison>32.0.0-jre</guava.verison>
         <hutool.version>5.3.8</hutool.version>
         <rsa.version>1.46</rsa.version>
         <shedlock.version>4.7.1</shedlock.version>
