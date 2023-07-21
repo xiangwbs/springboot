@@ -1,17 +1,17 @@
 package com.xwbing.service.util;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 
 /**
+ * 雪花算法
  * traceId生成服务, 参考snowflake算法
  * SnowFlake的结构如下(每部分用-分开):
  * 0 - 0000000000 0000000000 0000000000 0000000000 0 - 00000 - 00000 - 000000000000
