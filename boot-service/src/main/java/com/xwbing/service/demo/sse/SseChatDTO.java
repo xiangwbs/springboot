@@ -14,7 +14,7 @@ public class SseChatDTO {
     private Long sessionId;
     private String question;
 
-    private Object chatResult;
     private Long requestId;
     private Date responseDate;
+    private Object chatResult;
 }

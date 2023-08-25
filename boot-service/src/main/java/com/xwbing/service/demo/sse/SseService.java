@@ -8,6 +8,7 @@ import okhttp3.internal.platform.Platform;
 import okhttp3.internal.sse.RealEventSource;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -28,6 +29,20 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 public class SseService {
+    public SseEmitter chat(SseChatDTO dto) {
+        if (dto.getSessionId() == null) {
+            Long sessionId = this.saveSession(dto.getQuestion());
+            dto.setSessionId(sessionId);
+        } else {
+            String title = this.getBySessionId(dto.getSessionId());
+            if (StringUtils.isEmpty(title)) {
+                this.updateSessionTitle(dto.getSessionId(), dto.getQuestion());
+            }
+        }
+        this.saveRequest(dto);
+        return this.event(dto);
+    }
+
     public SseEmitter event(SseChatDTO dto) {
         Long requestId = dto.getRequestId();
         SseEmitter sseEmitter = new SseEmitter(0L);
@@ -114,10 +129,30 @@ public class SseService {
     }
 
     private void saveResponse(SseChatDTO dto) {
-        log.info("saveResponse dto:{}", JSONUtil.toJsonStr(dto));
         if (dto.getChatResult() != null) {
             // 保存数据
         }
+    }
+
+    private void saveRequest(SseChatDTO dto) {
+        dto.setRequestId(0L);
+    }
+
+    private Long saveSession(String title) {
+        if (StringUtils.isNotEmpty(title) && title.length() > 20) {
+            title = title.substring(0, 20);
+        }
+        return 0L;
+    }
+
+    private void updateSessionTitle(Long sessionId, String title) {
+        if (title.length() > 20) {
+            title = title.substring(0, 20);
+        }
+    }
+
+    public String getBySessionId(Long sessionId) {
+        return null;
     }
 
     private SSLSocketFactory sslSocketFactory() {

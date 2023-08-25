@@ -1,4 +1,4 @@
-package com.xwbing.web.controller.rest;
+package com.xwbing.web.controller.demo;
 
 import com.xwbing.service.demo.sse.SseChatDTO;
 import com.xwbing.service.demo.sse.SseService;
@@ -24,7 +24,7 @@ public class SseController {
 
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter chat(@RequestBody SseChatDTO dto) {
-        return sseService.event(dto);
+        return sseService.chat(dto);
     }
 
 
