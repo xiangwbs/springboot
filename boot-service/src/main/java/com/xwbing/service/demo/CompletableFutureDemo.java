@@ -1,12 +1,12 @@
 package com.xwbing.service.demo;
 
+import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-import com.alibaba.fastjson.JSONObject;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 项目名称: boot-module-pro
@@ -48,7 +48,7 @@ public class CompletableFutureDemo {
             object.put("s2", s2);
             return object;
         }).exceptionally(e -> {//捕获CompletionException，如有全局异常处理，可省略
-            log.error(e.getMessage());
+            log.error(ExceptionUtils.getStackTrace(e));
             return null;
         }).join();
     }
