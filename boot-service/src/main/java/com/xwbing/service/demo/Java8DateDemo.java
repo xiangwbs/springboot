@@ -1,5 +1,7 @@
 package com.xwbing.service.demo;
 
+import org.springframework.scheduling.support.CronSequenceGenerator;
+
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -84,5 +86,11 @@ public class Java8DateDemo {
         LocalDateTime af = LocalDateTime.of(2016, 3, 11, 10, 30);
         Duration duration = Duration.between(be, af);
         System.out.println(duration.toDays() + duration.toHours());
+
+        /*
+         * 获取cron下次执行时间
+         */
+        CronSequenceGenerator cron = new CronSequenceGenerator("0 0/5 * * * ?");
+        Date next = cron.next(new Date());
     }
 }
