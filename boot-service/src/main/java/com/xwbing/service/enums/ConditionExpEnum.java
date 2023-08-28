@@ -1,18 +1,13 @@
 package com.xwbing.service.enums;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -28,8 +23,8 @@ public enum ConditionExpEnum {
     BE_EQUAL_TO("等于"),
     NOT_BE_EQUAL_TO("不等于"),
     GREATER_THAN("大于"),
-    LESS_THAN("小于"),
     GREATER_THAN_OR_EQUAL_TO("大于等于"),
+    LESS_THAN("小于"),
     LESS_THAN_OR_EQUAL_TO("小于等于"),
     CONTAIN("包含"),
     DOES_NOT_CONTAIN("不包含"),
@@ -38,24 +33,34 @@ public enum ConditionExpEnum {
 
     private final String name;
 
-    public static List<Rule> doMatch(List<List<Rule>> ruleGroups, Map<String, String> dataMap) {
+    public static List<String> listConditionExp() {
+        return Arrays.stream(ConditionExpEnum.values()).map(ConditionExpEnum::getName).collect(Collectors.toList());
+    }
+
+    /**
+     * @param ruleGroups dataMap里的数据 一组规则可以包含多个条件
+     * @param dataMap
+     * @return
+     */
+    public static List<Condition> match(List<List<Condition>> ruleGroups, Map<String, String> dataMap) {
+        // 是否匹配成功标记
+        boolean matched = false;
         // 匹配成功的数据，用于记录
-        List<Rule> matchRuleList = new ArrayList<>();
+        List<Condition> matchList = new ArrayList<>();
         // 这一层为【或】，任意组匹配就算匹配成功
-        for (List<Rule> ruleGroup : ruleGroups) {
-            if (CollUtil.isEmpty(ruleGroup)) {
+        for (List<Condition> ruleGroup : ruleGroups) {
+            if (CollectionUtils.isEmpty(ruleGroup)) {
                 break;
             }
-            matchRuleList.clear();
-            boolean matched = false;
+            matchList.clear();
             // 条件组内为【且】
-            for (Rule rule : ruleGroup) {
+            for (Condition condition : ruleGroup) {
                 // 获取数据
-                String data = dataMap.get(rule.getName());
+                String data = dataMap.get(condition.getName());
                 // 获取不到匹配项视作匹配失败
-                matched = StringUtils.isNotEmpty(data) && match(rule, data);
+                matched = StringUtils.isNotEmpty(data) && rule(condition, data);
                 if (matched) {
-                    matchRuleList.add(rule);
+                    matchList.add(condition);
                 } else {
                     // 任意匹配失败则退出当前循环，开始匹配下个组
                     break;
@@ -66,13 +71,17 @@ public enum ConditionExpEnum {
                 break;
             }
         }
-        return matchRuleList;
+        if (matched) {
+            return matchList;
+        } else {
+            return Collections.emptyList();
+        }
     }
 
-    public static boolean match(Rule rule, String data) {
+    public static boolean rule(Condition condition, String data) {
         return StrUtil.isNumeric(data) ?
-                ConditionExpEnum.numberRule(Long.parseLong(data), rule.getConditionValue(), rule.getConditionExp().getName()) :
-                ConditionExpEnum.stringRule(data, rule.getConditionValue(), rule.getConditionExp().getName());
+                ConditionExpEnum.numberRule(Long.parseLong(data), condition.getConditionValue(), condition.getConditionExp().getName()) :
+                ConditionExpEnum.stringRule(data, condition.getConditionValue(), condition.getConditionExp().getName());
     }
 
     private static boolean numberRule(long value, String conditionValue, String conditionExp) {
@@ -137,17 +146,29 @@ public enum ConditionExpEnum {
         return false;
     }
 
-    public static List<String> listConditionExp() {
-        return Arrays.stream(ConditionExpEnum.values()).map(ConditionExpEnum::getName).collect(Collectors.toList());
-    }
-
     public static void main(String[] args) {
-        boolean b = numberRule(100, "[\"50\",\"100\"]", "包含");
-        System.out.println(b);
+        List<List<Condition>> ruleGroups = new ArrayList<>();
+        ruleGroups.add(ListUtil.toList(Condition.builder().name("在线数").conditionValue("10").conditionExp(ConditionExpEnum.GREATER_THAN).build()));
+        ruleGroups.add(ListUtil.toList(Condition.builder().name("排队数").conditionValue("10").conditionExp(ConditionExpEnum.GREATER_THAN).build(), Condition.builder().name("小休数").conditionValue("10").conditionExp(ConditionExpEnum.GREATER_THAN).build()));
+        Map<String, String> dataMap = new HashMap<>();
+        dataMap.put("排队数", "15");
+        dataMap.put("小休数", "20");
+        dataMap.put("在线数", "5");
+        List<Condition> matchList = match(ruleGroups, dataMap);
+        if (CollectionUtils.isNotEmpty(matchList)) {
+            String reason = matchList
+                    .stream()
+                    .map(condition -> condition.getName() + condition.getConditionExp().getName() + "设定值" + condition.getConditionValue())
+                    .collect(Collectors.joining(","));
+            System.out.println(reason);
+        }
     }
 
     @Data
-    public static class Rule {
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Condition {
         private String name;
         private String conditionValue;
         private ConditionExpEnum conditionExp;
