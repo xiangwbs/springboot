@@ -30,8 +30,8 @@ public enum ConditionExpEnum {
     DOES_NOT_CONTAIN("不包含"),
     IS_NULL("为空"),
     IS_NOT_NULL("不为空");
-    private final String name;
 
+    private final String name;
 
     public static boolean numberRule(long value, String conditionValue, String conditionExp) {
         List<Long> numbers;
