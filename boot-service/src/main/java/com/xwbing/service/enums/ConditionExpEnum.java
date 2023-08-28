@@ -98,4 +98,9 @@ public enum ConditionExpEnum {
     public static List<String> listConditionExp() {
         return Arrays.stream(ConditionExpEnum.values()).map(ConditionExpEnum::getName).collect(Collectors.toList());
     }
+
+    public static void main(String[] args) {
+        boolean b = numberRule(100, "[\"50\",\"100\"]", "包含");
+        System.out.println(b);
+    }
 }
