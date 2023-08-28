@@ -1,13 +1,18 @@
 package com.xwbing.service.enums;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -33,7 +38,44 @@ public enum ConditionExpEnum {
 
     private final String name;
 
-    public static boolean numberRule(long value, String conditionValue, String conditionExp) {
+    public static List<Rule> doMatch(List<List<Rule>> ruleGroups, Map<String, String> dataMap) {
+        // 匹配成功的数据，用于记录
+        List<Rule> matchRuleList = new ArrayList<>();
+        // 这一层为【或】，任意组匹配就算匹配成功
+        for (List<Rule> ruleGroup : ruleGroups) {
+            if (CollUtil.isEmpty(ruleGroup)) {
+                break;
+            }
+            matchRuleList.clear();
+            boolean matched = false;
+            // 条件组内为【且】
+            for (Rule rule : ruleGroup) {
+                // 获取数据
+                String data = dataMap.get(rule.getName());
+                // 获取不到匹配项视作匹配失败
+                matched = StringUtils.isNotEmpty(data) && match(rule, data);
+                if (matched) {
+                    matchRuleList.add(rule);
+                } else {
+                    // 任意匹配失败则退出当前循环，开始匹配下个组
+                    break;
+                }
+            }
+            // 如果当前组匹配成功则退出
+            if (matched) {
+                break;
+            }
+        }
+        return matchRuleList;
+    }
+
+    public static boolean match(Rule rule, String data) {
+        return StrUtil.isNumeric(data) ?
+                ConditionExpEnum.numberRule(Long.parseLong(data), rule.getConditionValue(), rule.getConditionExp().getName()) :
+                ConditionExpEnum.stringRule(data, rule.getConditionValue(), rule.getConditionExp().getName());
+    }
+
+    private static boolean numberRule(long value, String conditionValue, String conditionExp) {
         List<Long> numbers;
         if (JSONUtil.isTypeJSONArray(conditionValue)) {
             numbers = JSONUtil.toList(conditionValue, Long.class);
@@ -64,7 +106,7 @@ public enum ConditionExpEnum {
         return false;
     }
 
-    public static boolean stringRule(String value, String conditionValue, String conditionExp) {
+    private static boolean stringRule(String value, String conditionValue, String conditionExp) {
         List<String> strings;
         if (JSONUtil.isTypeJSONArray(conditionValue)) {
             strings = JSONUtil.toList(conditionValue, String.class);
@@ -102,5 +144,12 @@ public enum ConditionExpEnum {
     public static void main(String[] args) {
         boolean b = numberRule(100, "[\"50\",\"100\"]", "包含");
         System.out.println(b);
+    }
+
+    @Data
+    public static class Rule {
+        private String name;
+        private String conditionValue;
+        private ConditionExpEnum conditionExp;
     }
 }
