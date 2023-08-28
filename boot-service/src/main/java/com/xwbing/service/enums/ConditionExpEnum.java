@@ -20,14 +20,14 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 public enum ConditionExpEnum {
-    BE_EQUAL_TO("等于"),
-    NOT_BE_EQUAL_TO("不等于"),
-    GREATER_THAN("大于"),
-    GREATER_THAN_OR_EQUAL_TO("大于等于"),
-    LESS_THAN("小于"),
-    LESS_THAN_OR_EQUAL_TO("小于等于"),
-    CONTAIN("包含"),
-    DOES_NOT_CONTAIN("不包含"),
+    EQ("等于"),
+    NE("不等于"),
+    GT("大于"),
+    GE("大于等于"),
+    LT("小于"),
+    LE("小于等于"),
+    IN("包含"),
+    NOT_IN("不包含"),
     IS_NULL("为空"),
     IS_NOT_NULL("不为空");
 
@@ -92,23 +92,23 @@ public enum ConditionExpEnum {
             numbers = ListUtil.toList(Long.valueOf(conditionValue));
         }
         if (numbers.size() == 1) {
-            if (BE_EQUAL_TO.getName().equals(conditionExp)) {
+            if (EQ.getName().equals(conditionExp)) {
                 return value == numbers.get(0);
-            } else if (NOT_BE_EQUAL_TO.getName().equals(conditionExp)) {
+            } else if (NE.getName().equals(conditionExp)) {
                 return value != numbers.get(0);
-            } else if (GREATER_THAN.getName().equals(conditionExp)) {
+            } else if (GT.getName().equals(conditionExp)) {
                 return value > numbers.get(0);
-            } else if (LESS_THAN.getName().equals(conditionExp)) {
-                return value < numbers.get(0);
-            } else if (GREATER_THAN_OR_EQUAL_TO.getName().equals(conditionExp)) {
+            } else if (GE.getName().equals(conditionExp)) {
                 return value >= numbers.get(0);
-            } else if (LESS_THAN_OR_EQUAL_TO.getName().equals(conditionExp)) {
+            } else if (LT.getName().equals(conditionExp)) {
+                return value < numbers.get(0);
+            } else if (LE.getName().equals(conditionExp)) {
                 return value <= numbers.get(0);
             }
         } else {
-            if (CONTAIN.getName().equals(conditionExp)) {
+            if (IN.getName().equals(conditionExp)) {
                 return numbers.contains(value);
-            } else if (DOES_NOT_CONTAIN.getName().equals(conditionExp)) {
+            } else if (NOT_IN.getName().equals(conditionExp)) {
                 return !numbers.contains(value);
             }
         }
@@ -123,23 +123,23 @@ public enum ConditionExpEnum {
             strings = ListUtil.toList(conditionValue);
         }
         if (strings.size() == 1) {
-            if (BE_EQUAL_TO.getName().equals(conditionExp)) {
+            if (EQ.getName().equals(conditionExp)) {
                 return value.equals(strings.get(0));
-            } else if (NOT_BE_EQUAL_TO.getName().equals(conditionExp)) {
+            } else if (NE.getName().equals(conditionExp)) {
                 return !value.equals(strings.get(0));
             } else if (IS_NULL.getName().equals(conditionExp)) {
                 return StringUtils.isEmpty(value);
             } else if (IS_NOT_NULL.getName().equals(conditionExp)) {
                 return StringUtils.isNotEmpty(value);
-            } else if (CONTAIN.getName().equals(conditionExp)) {
+            } else if (IN.getName().equals(conditionExp)) {
                 return conditionValue.contains(value);
-            } else if (DOES_NOT_CONTAIN.getName().equals(conditionExp)) {
+            } else if (NOT_IN.getName().equals(conditionExp)) {
                 return !conditionValue.contains(value);
             }
         } else {
-            if (CONTAIN.getName().equals(conditionExp)) {
+            if (IN.getName().equals(conditionExp)) {
                 return conditionValue.contains(value);
-            } else if (DOES_NOT_CONTAIN.getName().equals(conditionExp)) {
+            } else if (NOT_IN.getName().equals(conditionExp)) {
                 return !conditionValue.contains(value);
             }
         }
@@ -148,8 +148,8 @@ public enum ConditionExpEnum {
 
     public static void main(String[] args) {
         List<List<Condition>> ruleGroups = new ArrayList<>();
-        ruleGroups.add(ListUtil.toList(Condition.builder().name("在线数").conditionValue("10").conditionExp(ConditionExpEnum.GREATER_THAN).build()));
-        ruleGroups.add(ListUtil.toList(Condition.builder().name("排队数").conditionValue("10").conditionExp(ConditionExpEnum.GREATER_THAN).build(), Condition.builder().name("小休数").conditionValue("10").conditionExp(ConditionExpEnum.GREATER_THAN).build()));
+        ruleGroups.add(ListUtil.toList(Condition.builder().name("在线数").conditionValue("10").conditionExp(ConditionExpEnum.GT).build()));
+        ruleGroups.add(ListUtil.toList(Condition.builder().name("排队数").conditionValue("10").conditionExp(ConditionExpEnum.GT).build(), Condition.builder().name("小休数").conditionValue("10").conditionExp(ConditionExpEnum.GT).build()));
         Map<String, String> dataMap = new HashMap<>();
         dataMap.put("排队数", "15");
         dataMap.put("小休数", "20");
