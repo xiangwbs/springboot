@@ -124,23 +124,23 @@ public enum ConditionExpEnum {
         }
         if (strings.size() == 1) {
             if (EQ.getName().equals(conditionExp)) {
-                return value.equals(strings.get(0));
+                return value.equals(conditionValue);
             } else if (NE.getName().equals(conditionExp)) {
-                return !value.equals(strings.get(0));
+                return !value.equals(conditionValue);
             } else if (IS_NULL.getName().equals(conditionExp)) {
                 return StringUtils.isEmpty(value);
             } else if (IS_NOT_NULL.getName().equals(conditionExp)) {
                 return StringUtils.isNotEmpty(value);
             } else if (IN.getName().equals(conditionExp)) {
-                return conditionValue.contains(value);
+                return value.contains(conditionValue);
             } else if (NOT_IN.getName().equals(conditionExp)) {
-                return !conditionValue.contains(value);
+                return !value.contains(conditionValue);
             }
         } else {
             if (IN.getName().equals(conditionExp)) {
-                return conditionValue.contains(value);
+                return strings.stream().anyMatch(value::contains);
             } else if (NOT_IN.getName().equals(conditionExp)) {
-                return !conditionValue.contains(value);
+                return strings.stream().noneMatch(value::contains);
             }
         }
         return false;
@@ -148,12 +148,12 @@ public enum ConditionExpEnum {
 
     public static void main(String[] args) {
         List<List<Condition>> ruleGroups = new ArrayList<>();
-        ruleGroups.add(ListUtil.toList(Condition.builder().name("在线数").conditionValue("10").conditionExp(ConditionExpEnum.GT).build()));
+        ruleGroups.add(ListUtil.toList(Condition.builder().name("城市").conditionValue("[\"杭州\",\"上海\"]").conditionExp(ConditionExpEnum.IN).build()));
         ruleGroups.add(ListUtil.toList(Condition.builder().name("排队数").conditionValue("10").conditionExp(ConditionExpEnum.GT).build(), Condition.builder().name("小休数").conditionValue("10").conditionExp(ConditionExpEnum.GT).build()));
         Map<String, String> dataMap = new HashMap<>();
         dataMap.put("排队数", "15");
         dataMap.put("小休数", "20");
-        dataMap.put("在线数", "5");
+        dataMap.put("城市", "杭州城市");
         List<Condition> matchList = match(ruleGroups, dataMap);
         if (CollectionUtils.isNotEmpty(matchList)) {
             String reason = matchList
