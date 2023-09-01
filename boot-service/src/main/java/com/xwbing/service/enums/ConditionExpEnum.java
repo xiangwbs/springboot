@@ -56,7 +56,7 @@ public enum ConditionExpEnum {
             // 条件组内为【且】
             for (Condition condition : ruleGroup) {
                 // 获取数据
-                String data = dataMap.get(condition.getName());
+                String data = dataMap.get(condition.getKey());
                 // 获取不到匹配项视作匹配失败
                 matched = StringUtils.isNotEmpty(data) && rule(condition, data);
                 if (matched) {
@@ -80,8 +80,8 @@ public enum ConditionExpEnum {
 
     public static boolean rule(Condition condition, String data) {
         return StrUtil.isNumeric(data) ?
-                ConditionExpEnum.numberRule(Long.parseLong(data), condition.getConditionValue(), condition.getConditionExp().getName()) :
-                ConditionExpEnum.stringRule(data, condition.getConditionValue(), condition.getConditionExp().getName());
+                ConditionExpEnum.numberRule(Long.parseLong(data), condition.getValue(), condition.getExpression().getName()) :
+                ConditionExpEnum.stringRule(data, condition.getValue(), condition.getExpression().getName());
     }
 
     private static boolean numberRule(long value, String conditionValue, String conditionExp) {
@@ -148,17 +148,17 @@ public enum ConditionExpEnum {
 
     public static void main(String[] args) {
         List<List<Condition>> ruleGroups = new ArrayList<>();
-        ruleGroups.add(ListUtil.toList(Condition.builder().name("地址").conditionValue("[\"杭州\",\"上海\"]").conditionExp(ConditionExpEnum.IN).build()));
-        ruleGroups.add(ListUtil.toList(Condition.builder().name("排队数").conditionValue("10").conditionExp(ConditionExpEnum.GT).build(), Condition.builder().name("小休数").conditionValue("10").conditionExp(ConditionExpEnum.GT).build()));
+        ruleGroups.add(ListUtil.toList(Condition.builder().name("地址").key("address").value("[\"杭州\",\"上海\"]").expression(ConditionExpEnum.IN).build()));
+        ruleGroups.add(ListUtil.toList(Condition.builder().name("排队数").key("wait").value("10").expression(ConditionExpEnum.GT).build(), Condition.builder().name("小休数").key("rest").value("10").expression(ConditionExpEnum.GT).build()));
         Map<String, String> dataMap = new HashMap<>();
-        dataMap.put("排队数", "15");
-        dataMap.put("小休数", "20");
-        dataMap.put("地址", "大杭州");
+        dataMap.put("wait", "15");
+        dataMap.put("rest", "20");
+        dataMap.put("address", "大杭州");
         List<Condition> matchList = match(ruleGroups, dataMap);
         if (CollectionUtils.isNotEmpty(matchList)) {
             String reason = matchList
                     .stream()
-                    .map(condition -> condition.getName() + condition.getConditionExp().getName() + "设定值" + condition.getConditionValue())
+                    .map(condition -> condition.getName() + condition.getExpression().getName() + "设定值" + condition.getValue())
                     .collect(Collectors.joining(","));
             System.out.println(reason);
         }
@@ -170,7 +170,8 @@ public enum ConditionExpEnum {
     @NoArgsConstructor
     public static class Condition {
         private String name;
-        private String conditionValue;
-        private ConditionExpEnum conditionExp;
+        private String key;
+        private String value;
+        private ConditionExpEnum expression;
     }
 }
