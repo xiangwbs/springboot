@@ -148,12 +148,12 @@ public enum ConditionExpEnum {
 
     public static void main(String[] args) {
         List<List<Condition>> ruleGroups = new ArrayList<>();
-        ruleGroups.add(ListUtil.toList(Condition.builder().name("城市").conditionValue("[\"杭州\",\"上海\"]").conditionExp(ConditionExpEnum.IN).build()));
+        ruleGroups.add(ListUtil.toList(Condition.builder().name("地址").conditionValue("[\"杭州\",\"上海\"]").conditionExp(ConditionExpEnum.IN).build()));
         ruleGroups.add(ListUtil.toList(Condition.builder().name("排队数").conditionValue("10").conditionExp(ConditionExpEnum.GT).build(), Condition.builder().name("小休数").conditionValue("10").conditionExp(ConditionExpEnum.GT).build()));
         Map<String, String> dataMap = new HashMap<>();
         dataMap.put("排队数", "15");
         dataMap.put("小休数", "20");
-        dataMap.put("城市", "杭州城市");
+        dataMap.put("地址", "大杭州");
         List<Condition> matchList = match(ruleGroups, dataMap);
         if (CollectionUtils.isNotEmpty(matchList)) {
             String reason = matchList
