@@ -43,9 +43,12 @@ public class SseService {
         return this.event(dto);
     }
 
-    public SseEmitter event(SseChatDTO dto) {
+    private SseEmitter event(SseChatDTO dto) {
         Long requestId = dto.getRequestId();
         SseEmitter sseEmitter = new SseEmitter(0L);
+        sseEmitter.onError(throwable -> log.error("sseEvent sseEmitter requestId:{} error", requestId, throwable));
+        sseEmitter.onTimeout(() -> log.info("sseEvent sseEmitter requestId:{} timeout", requestId));
+        sseEmitter.onCompletion(() -> log.info("sseEvent sseEmitter requestId:{} complete", requestId));
         Request request = new Request.Builder()
                 .addHeader("content-type", "application/json")
                 .url("xxx")
@@ -84,7 +87,7 @@ public class SseService {
             @Override
             public void onFailure(EventSource eventSource, Throwable t, Response response) {
                 log.info("sseEvent onFailure requestId:{} error", requestId, t);
-                // 保存响应数据
+                // 数据传输过程失败(中断等) 也要保存响应数据
                 saveResponse(dto);
                 // 关闭sseEmitter
                 sseEmitter.complete();
@@ -98,20 +101,10 @@ public class SseService {
                 .sslSocketFactory(this.sslSocketFactory(), Platform.get().platformTrustManager())
                 .build();
         eventSource.connect(client);
-
-        sseEmitter.onError(throwable -> {
-            log.error("sseEvent sseEmitter requestId:{} error", requestId, throwable);
-        });
-        sseEmitter.onTimeout(() -> {
-            log.info("sseEvent sseEmitter requestId:{} timeout", requestId);
-        });
-        sseEmitter.onCompletion(() -> {
-            log.info("sseEvent sseEmitter requestId:{} complete", requestId);
-        });
         return sseEmitter;
     }
 
-    public SseEmitter sendMsg(String msg) {
+    private SseEmitter sendMsg(String msg) {
         log.info("sendSseMsg msg:{}", msg);
         SseEmitter sseEmitter = new SseEmitter(0L);
         CompletableFuture.runAsync(() -> {
