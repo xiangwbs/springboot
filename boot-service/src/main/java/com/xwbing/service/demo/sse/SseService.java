@@ -40,7 +40,12 @@ public class SseService {
             }
         }
         this.saveRequest(dto);
-        return this.event(dto);
+        if (dto.isDirect()) {
+            String direct = this.getDirect(dto.getQuestion());
+            return this.sendMsg(direct);
+        } else {
+            return this.event(dto);
+        }
     }
 
     private SseEmitter event(SseChatDTO dto) {
@@ -128,6 +133,7 @@ public class SseService {
     }
 
     private void saveRequest(SseChatDTO dto) {
+        // 保存数据
         dto.setRequestId(0L);
     }
 
@@ -135,6 +141,7 @@ public class SseService {
         if (StringUtils.isNotEmpty(title) && title.length() > 20) {
             title = title.substring(0, 20);
         }
+        // 修改数据
         return 0L;
     }
 
@@ -142,9 +149,16 @@ public class SseService {
         if (title.length() > 20) {
             title = title.substring(0, 20);
         }
+        // 修改数据
     }
 
-    public String getBySessionId(Long sessionId) {
+    private String getBySessionId(Long sessionId) {
+        // 获取数据
+        return null;
+    }
+
+    private String getDirect(String question) {
+        // 获取数据
         return null;
     }
 

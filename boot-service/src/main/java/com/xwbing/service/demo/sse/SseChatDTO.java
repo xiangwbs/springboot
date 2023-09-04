@@ -13,6 +13,7 @@ import java.util.Date;
 public class SseChatDTO {
     private Long sessionId;
     private String question;
+    private boolean isDirect;
 
     private Long requestId;
     private Date responseDate;
