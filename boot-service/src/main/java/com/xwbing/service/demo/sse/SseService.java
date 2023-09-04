@@ -42,6 +42,7 @@ public class SseService {
         this.saveRequest(dto);
         if (dto.isDirect()) {
             String direct = this.getDirect(dto.getQuestion());
+            this.saveResponse(dto);
             return this.sendMsg(direct);
         } else {
             return this.event(dto);
