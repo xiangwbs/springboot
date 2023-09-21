@@ -20,37 +20,46 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <!-- 建议在settings.xml->mirror配镜像 settings.xml->profile配公司私服地址-->
-    <!--
+    <!-- 建议在settings.xml->mirror配镜像 -->
+
+    <!-- 建议在settings.xml->profile配公司私服地址
     <repositories>
         <repository>
             <id>nexus</id>
-            <name>aliyun nexus</name>
-            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+            <name>nexus repository</name>
+            <url>https://nexus2.xxx.com/nexus/repository/maven-public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
             <snapshots>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </snapshots>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>nexus</id>
-            <name>aliyun nexus</name>
-            <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+            <name>nexus plugin repository</name>
+            <url>https://nexus2.xxx.com/nexus/repository/maven-public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </pluginRepository>
     </pluginRepositories>
     -->
+
     <!-- maven打包上传私服地址。id要跟maven->settings->server->id匹配 -->
     <distributionManagement>
         <repository>
-            <id>private-release</id>
-            <name>private-release</name>
-            <url>https://xxx/nexus/content/repositories/private-release/</url>
+            <id>nexus</id>
+            <url>https://nexus2.xxx.com/nexus/repository/maven-snapshots/</url>
         </repository>
         <snapshotRepository>
-            <id>private-snapshot</id>
-            <name>private-snapshot</name>
-            <url>https://xxx/nexus/content/repositories/private-snapshot/</url>
+            <id>nexus</id>
+            <url>https://nexus2.xxx.com/nexus/repository/maven-releases/</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -211,7 +220,6 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
     </dependencies>
 
     <build>

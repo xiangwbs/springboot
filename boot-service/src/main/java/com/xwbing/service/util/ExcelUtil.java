@@ -1,23 +1,6 @@
 package com.xwbing.service.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
+import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.annotation.ExcelProperty;
@@ -30,13 +13,27 @@ import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-
-import cn.hutool.json.JSONUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author daofeng
@@ -45,6 +42,87 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ExcelUtil {
+    public static Integer read(InputStream inputStream, int sheetNo, int headRowNum, int batchDealNum,Consumer<Map<Integer, String>> headConsumer, Consumer<List<Map<Integer, String>>> dataConsumer) {
+        AtomicInteger totalCount = new AtomicInteger();
+        AnalysisEventListener<Map<Integer, String>> readListener = new AnalysisEventListener<Map<Integer, String>>() {
+            private List<Map<Integer, String>> list = new ArrayList<>();
+
+            /**
+             * 非表头数据处理
+             */
+            @Override
+            public void invoke(Map<Integer, String> data, AnalysisContext context) {
+                // start form 0
+                Integer rowIndex = context.readRowHolder().getRowIndex();
+                log.info("readExcel invoke rowIndex:{} data:{}", rowIndex, JSON.toJSONString(data));
+                list.add(data);
+                // 达到批处理数量，需要处理一次数据，防止数据几万条数据在内存，容易oom
+                if (list.size() >= batchDealNum) {
+                    dealData();
+                }
+            }
+
+            /**
+             * 异常处理
+             */
+            @Override
+            public void onException(Exception exception, AnalysisContext context) {
+                ReadSheetHolder readSheetHolder = context.readSheetHolder();
+                Integer rowIndex = readSheetHolder.getRowIndex();
+                ReadRowHolder readRowHolder = context.readRowHolder();
+                Object data = readRowHolder.getCurrentRowAnalysisResult();
+                log.error("readExcel onException rowIndex:{} data:{} error:{}", rowIndex, JSONUtil.toJsonStr(data),
+                        exception.getMessage());
+            }
+
+            /**
+             * 所有数据解析完成后调用
+             */
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext context) {
+                // 处理剩余数据
+                dealData();
+            }
+
+            /**
+             * 表头数据处理
+             *
+             * @param headMap key start form 0
+             */
+            @Override
+            public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
+                log.info("readExcel head:{}", JSONObject.toJSONString(headMap));
+                if (totalCount.get() != 0) {
+                    return;
+                }
+                // 获取总条数
+                ReadSheetHolder readSheetHolder = context.readSheetHolder();
+                Integer totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
+                totalCount.set(totalRowNumber);
+                log.info("readExcel totalCount:{}", totalCount.intValue());
+                // 自定义表头处理逻辑
+                if (headConsumer != null) {
+                    headConsumer.accept(headMap);
+                }
+            }
+
+            /**
+             * 批量处理数据
+             */
+            private void dealData() {
+                List<Map<Integer, String>> data = new ArrayList<>(list);
+                list.clear();
+                // 自定义数据处理逻辑
+                if (dataConsumer != null) {
+                    dataConsumer.accept(data);
+                }
+            }
+        };
+        EasyExcel.read(inputStream, readListener).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum)
+                .sheet(sheetNo).doRead();
+        return totalCount.get();
+    }
+
     /**
      * @param inputStream 文件流
      * @param head 表头 {@link ExcelProperty}
