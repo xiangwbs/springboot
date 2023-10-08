@@ -50,21 +50,6 @@ public class ExcelUtil {
             private final List<Map<Integer, String>> list = new ArrayList<>();
 
             /**
-             * 非表头数据处理
-             */
-            @Override
-            public void invoke(Map<Integer, String> data, AnalysisContext context) {
-                // start form 0
-                Integer rowIndex = context.readRowHolder().getRowIndex();
-                log.info("readExcel invoke rowIndex:{} data:{}", rowIndex, JSON.toJSONString(data));
-                list.add(data);
-                // 达到批处理数量，需要处理一次数据，防止数据几万条数据在内存，容易oom
-                if (list.size() >= batchDealNum) {
-                    dealData();
-                }
-            }
-
-            /**
              * 异常处理
              */
             @Override
@@ -75,15 +60,6 @@ public class ExcelUtil {
                 Object data = readRowHolder.getCurrentRowAnalysisResult();
                 log.error("readExcel onException rowIndex:{} data:{} error:{}", rowIndex, JSONUtil.toJsonStr(data),
                         exception.getMessage());
-            }
-
-            /**
-             * 所有数据解析完成后调用
-             */
-            @Override
-            public void doAfterAllAnalysed(AnalysisContext context) {
-                // 处理剩余数据
-                dealData();
             }
 
             /**
@@ -109,6 +85,30 @@ public class ExcelUtil {
             }
 
             /**
+             * 非表头数据处理
+             */
+            @Override
+            public void invoke(Map<Integer, String> data, AnalysisContext context) {
+                // start form 0
+                Integer rowIndex = context.readRowHolder().getRowIndex();
+                log.info("readExcel invoke rowIndex:{} data:{}", rowIndex, JSON.toJSONString(data));
+                list.add(data);
+                // 达到批处理数量，需要处理一次数据，防止数据几万条数据在内存，容易oom
+                if (list.size() >= batchDealNum) {
+                    dealData();
+                }
+            }
+
+            /**
+             * 所有数据解析完成后调用
+             */
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext context) {
+                // 处理剩余数据
+                dealData();
+            }
+
+            /**
              * 批量处理数据
              */
             private void dealData() {
@@ -120,15 +120,14 @@ public class ExcelUtil {
                 }
             }
         };
-        EasyExcel.read(inputStream, readListener).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum)
-                .sheet(sheetNo).doRead();
+        EasyExcel.read(inputStream, readListener).readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum).sheet(sheetNo).doRead();
         return totalCount.get();
     }
 
     /**
-     * @param inputStream 文件流
-     * @param head 表头 {@link ExcelProperty}
-     * @param sheetNo start form 0
+     * @param inputStream  文件流
+     * @param head         表头 {@link ExcelProperty}
+     * @param sheetNo      start form 0
      * @param batchDealNum 批处理数量(分批处理 防止oom)
      * @param dataConsumer 数据消费 数据存储等处理逻辑
      */
@@ -137,9 +136,9 @@ public class ExcelUtil {
     }
 
     /**
-     * @param fullPath 带后缀全路径
-     * @param head 表头 {@link ExcelProperty}
-     * @param sheetNo start form 0
+     * @param fullPath     带后缀全路径
+     * @param head         表头 {@link ExcelProperty}
+     * @param sheetNo      start form 0
      * @param batchDealNum 批处理数量(分批处理 防止oom)
      * @param dataConsumer 数据消费 数据存储等处理逻辑
      */
@@ -148,49 +147,47 @@ public class ExcelUtil {
     }
 
     /**
-     * @param inputStream 文件流
-     * @param password 为null无密码
-     * @param head 表头 {@link ExcelProperty}
-     * @param sheetNo start form 0
-     * @param headRowNum 表头行数
-     * @param exampleNum 示例数据行数
-     * @param batchDealNum 批处理数量(分批处理 防止oom)
-     * @param headConsumer 表头消费 校验表头是否正确等处理逻辑
-     * @param dataConsumer 数据消费 数据存储等处理逻辑
+     * @param inputStream   文件流
+     * @param password      为null无密码
+     * @param head          表头 {@link ExcelProperty}
+     * @param sheetNo       start form 0
+     * @param headRowNum    表头行数
+     * @param exampleNum    示例数据行数
+     * @param batchDealNum  批处理数量(分批处理 防止oom)
+     * @param headConsumer  表头消费 校验表头是否正确等处理逻辑
+     * @param dataConsumer  数据消费 数据存储等处理逻辑
      * @param errorConsumer 异常消费 读取数据异常处理逻辑
      */
     public static <T> Integer read(InputStream inputStream, String password, Class<T> head, int sheetNo, int headRowNum,
-            int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
-            Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
-        return read(inputStream, null, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer,
-                dataConsumer, errorConsumer);
+                                   int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
+                                   Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
+        return read(inputStream, null, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer, dataConsumer, errorConsumer);
     }
 
     /**
-     * @param fullPath 带后缀全路径
-     * @param password 为null无密码
-     * @param head 表头 {@link ExcelProperty}
-     * @param sheetNo start form 0
-     * @param headRowNum 表头行数
-     * @param exampleNum 示例数据行数
-     * @param batchDealNum 批处理数量(分批处理 防止oom)
-     * @param headConsumer 表头消费 校验表头是否正确等处理逻辑
-     * @param dataConsumer 数据消费 数据存储等处理逻辑
+     * @param fullPath      带后缀全路径
+     * @param password      为null无密码
+     * @param head          表头 {@link ExcelProperty}
+     * @param sheetNo       start form 0
+     * @param headRowNum    表头行数
+     * @param exampleNum    示例数据行数
+     * @param batchDealNum  批处理数量(分批处理 防止oom)
+     * @param headConsumer  表头消费 校验表头是否正确等处理逻辑
+     * @param dataConsumer  数据消费 数据存储等处理逻辑
      * @param errorConsumer 异常消费 读取数据异常处理逻辑
      */
     public static <T> Integer read(String fullPath, String password, Class<T> head, int sheetNo, int headRowNum,
-            int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
-            Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
-        return read(null, fullPath, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer,
-                dataConsumer, errorConsumer);
+                                   int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
+                                   Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
+        return read(null, fullPath, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer, dataConsumer, errorConsumer);
     }
 
     /**
      * @param response
-     * @param head 表头 {@link ExcelProperty}
+     * @param head     表头 {@link ExcelProperty}
      * @param fileName xxx.xlsx
      * @param password 为null不加密
-     * @param allData excel全量数据 数据量大时 可能会oom 建议分页查询
+     * @param allData  excel全量数据 数据量大时 可能会oom 建议分页查询
      */
     public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData) {
         write(response, null, head, fileName, password, allData, null);
@@ -202,11 +199,11 @@ public class ExcelUtil {
 
 
     /**
-     * @param basedir 文件夹路径
-     * @param head 表头 {@link ExcelProperty}
+     * @param basedir  文件夹路径
+     * @param head     表头 {@link ExcelProperty}
      * @param fileName xxx.xlsx
      * @param password 为null不加密
-     * @param allData excel全量数据 数据量大时 可能会oom 建议分页查询
+     * @param allData  excel全量数据 数据量大时 可能会oom 建议分页查询
      */
     public static <T> void write(String basedir, Class<T> head, String fileName, String password, List<T> allData) {
         write(null, basedir, head, fileName, password, allData, null);
@@ -217,9 +214,9 @@ public class ExcelUtil {
     }
 
     /**
-     * @param response * @param head 表头 {@link ExcelProperty}
-     * @param fileName xxx.xlsx
-     * @param password 为null不加密
+     * @param response     * @param head 表头 {@link ExcelProperty}
+     * @param fileName     xxx.xlsx
+     * @param password     为null不加密
      * @param pageFunction 分页数据组装逻辑 pageNo start form 1
      */
     public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
@@ -231,10 +228,10 @@ public class ExcelUtil {
     }
 
     /**
-     * @param basedir 文件夹路径
-     * @param head 表头 {@link ExcelProperty}
-     * @param fileName xxx.xlsx
-     * @param password 为null不加密
+     * @param basedir      文件夹路径
+     * @param head         表头 {@link ExcelProperty}
+     * @param fileName     xxx.xlsx
+     * @param password     为null不加密
      * @param pageFunction 分页数据组装逻辑 pageNo start form 1
      */
     public static <T> void write(String basedir, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
@@ -246,47 +243,25 @@ public class ExcelUtil {
     }
 
     /**
-     * @param inputStream 2选1 文件流
-     * @param fullPath 2选1 带后缀全路径
-     * @param password 为null无密码
-     * @param head 表头 {@link ExcelProperty}
-     * @param sheetNo start form 0
-     * @param headRowNum 表头行数
-     * @param exampleNum 示例数据行数
-     * @param batchDealNum 批处理数量(分批处理 防止oom)
-     * @param headConsumer 表头消费 校验表头是否正确等处理逻辑
-     * @param dataConsumer 数据消费 数据存储等处理逻辑
+     * @param inputStream   2选1 文件流
+     * @param fullPath      2选1 带后缀全路径
+     * @param password      为null无密码
+     * @param head          表头 {@link ExcelProperty}
+     * @param sheetNo       start form 0
+     * @param headRowNum    表头行数
+     * @param exampleNum    示例数据行数
+     * @param batchDealNum  批处理数量(分批处理 防止oom)
+     * @param headConsumer  表头消费 校验表头是否正确等处理逻辑
+     * @param dataConsumer  数据消费 数据存储等处理逻辑
      * @param errorConsumer 异常消费 读取数据异常处理逻辑
      */
     private static <T> Integer read(InputStream inputStream, String fullPath, String password, Class<T> head,
-            int sheetNo, int headRowNum, int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
-            Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
+                                    int sheetNo, int headRowNum, int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
+                                    Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<T> readListener = new AnalysisEventListener<T>() {
             private final List<T> list = new ArrayList<>();
 
-            /**
-             * 非表头数据处理
-             */
-            @Override
-            public void invoke(T data, AnalysisContext context) {
-                // start form 0
-                Integer rowIndex = context.readRowHolder().getRowIndex();
-                log.info("readExcel invoke rowIndex:{} data:{}", rowIndex, JSON.toJSONString(data));
-                // 不处理示例数据
-                if (rowIndex < exampleNum + headRowNum) {
-                    return;
-                }
-                list.add(data);
-                // 达到批处理数量，需要处理一次数据，防止数据几万条数据在内存，容易oom
-                if (list.size() >= batchDealNum) {
-                    dealData();
-                }
-            }
-
-            /**
-             * 异常处理
-             */
             @Override
             public void onException(Exception exception, AnalysisContext context) {
                 ReadSheetHolder readSheetHolder = context.readSheetHolder();
@@ -301,15 +276,6 @@ public class ExcelUtil {
                 if (errorConsumer != null) {
                     errorConsumer.accept(error);
                 }
-            }
-
-            /**
-             * 所有数据解析完成后调用
-             */
-            @Override
-            public void doAfterAllAnalysed(AnalysisContext context) {
-                // 处理剩余数据
-                dealData();
             }
 
             /**
@@ -336,6 +302,34 @@ public class ExcelUtil {
             }
 
             /**
+             * 非表头数据处理
+             */
+            @Override
+            public void invoke(T data, AnalysisContext context) {
+                // start form 0
+                Integer rowIndex = context.readRowHolder().getRowIndex();
+                log.info("readExcel invoke rowIndex:{} data:{}", rowIndex, JSON.toJSONString(data));
+                // 不处理示例数据
+                if (rowIndex < exampleNum + headRowNum) {
+                    return;
+                }
+                list.add(data);
+                // 达到批处理数量，需要处理一次数据，防止数据几万条数据在内存，容易oom
+                if (list.size() >= batchDealNum) {
+                    dealData();
+                }
+            }
+
+            /**
+             * 所有数据解析完成后调用
+             */
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext context) {
+                // 处理剩余数据
+                dealData();
+            }
+
+            /**
              * 批量处理数据
              */
             private void dealData() {
@@ -355,22 +349,20 @@ public class ExcelUtil {
         } else {
             throw new RuntimeException("excel不能为空");
         }
-        read.readCache(new MapCache()).password(password).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum)
-                .sheet(sheetNo).doRead();
+        read.readCache(new MapCache()).password(password).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum).sheet(sheetNo).doRead();
         return totalCount.get();
     }
 
     /**
-     * @param response 2选1
-     * @param basedir 2选1 文件夹路径
-     * @param head 表头 {@link ExcelProperty}
-     * @param fileName xxx.xlsx
-     * @param password 为null不加密
-     * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
+     * @param response     2选1
+     * @param basedir      2选1 文件夹路径
+     * @param head         表头 {@link ExcelProperty}
+     * @param fileName     xxx.xlsx
+     * @param password     为null不加密
+     * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
-    private static <T> void write(HttpServletResponse response, String basedir, Class<T> head, String fileName,
-                                  String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
+    private static <T> void write(HttpServletResponse response, String basedir, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         if (StringUtils.isNotEmpty(basedir)) {
             writeToLocal(basedir, head, fileName, password, allData, pageFunction);
         } else if (response != null) {
@@ -380,8 +372,7 @@ public class ExcelUtil {
         }
     }
 
-    private static void write(HttpServletResponse response, String basedir, List<String> heads, String fileName,
-                                  String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
+    private static void write(HttpServletResponse response, String basedir, List<String> heads, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         if (StringUtils.isNotEmpty(basedir)) {
             writeToLocal(basedir, heads, fileName, password, allData, pageFunction);
         } else if (response != null) {
@@ -393,12 +384,12 @@ public class ExcelUtil {
 
     /**
      * @param response
-     * @param head 表头 {@link ExcelProperty}
-     *         动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList());
-     * @param fileName xxx.xlsx
-     * @param password 为null不加密
-     * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
-     *         动态数据  List<List<Object>> excelData
+     * @param head         表头 {@link ExcelProperty}
+     *                     动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList());
+     * @param fileName     xxx.xlsx
+     * @param password     为null不加密
+     * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
+     *                     动态数据  List<List<Object>> excelData
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
     private static <T> void writeToBrowser(HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
@@ -412,8 +403,7 @@ public class ExcelUtil {
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
             if (pageFunction != null) {
-                ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head)
-                        .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
+                ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
                 WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
                 int pageNumber = 1;
                 while (true) {
@@ -446,8 +436,7 @@ public class ExcelUtil {
             response.setDateHeader("Expires", 0);
             List<List<String>> head = heads.stream().map(Collections::singletonList).collect(Collectors.toList());
             if (pageFunction != null) {
-                ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head)
-                        .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
+                ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
                 WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
                 int pageNumber = 1;
                 while (true) {
@@ -469,18 +458,17 @@ public class ExcelUtil {
     }
 
     /**
-     * @param basedir 文件夹路径
-     * @param head 表头 {@link ExcelProperty}
-     * @param fileName xxx.xlsx
-     * @param password 为null不加密
-     * @param allData 2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
+     * @param basedir      文件夹路径
+     * @param head         表头 {@link ExcelProperty}
+     * @param fileName     xxx.xlsx
+     * @param password     为null不加密
+     * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
     private static <T> void writeToLocal(String basedir, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName);
         if (pageFunction != null) {
-            ExcelWriter excelWriter = EasyExcel.write(path.toString()).head(head)
-                    .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
+            ExcelWriter excelWriter = EasyExcel.write(path.toString()).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
             WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
             int pageNumber = 1;
             while (true) {
