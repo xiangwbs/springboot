@@ -58,8 +58,7 @@ public class ExcelUtil {
                 Integer rowIndex = readSheetHolder.getRowIndex();
                 ReadRowHolder readRowHolder = context.readRowHolder();
                 Object data = readRowHolder.getCurrentRowAnalysisResult();
-                log.error("readExcel onException rowIndex:{} data:{} error:{}", rowIndex, JSONUtil.toJsonStr(data),
-                        exception.getMessage());
+                log.error("readExcel onException rowIndex:{} data:{} error:{}", rowIndex, JSONUtil.toJsonStr(data), exception.getMessage());
             }
 
             /**
@@ -255,8 +254,8 @@ public class ExcelUtil {
      * @param dataConsumer  数据消费 数据存储等处理逻辑
      * @param errorConsumer 异常消费 读取数据异常处理逻辑
      */
-    private static <T> Integer read(InputStream inputStream, String fullPath, String password, Class<T> head,
-                                    int sheetNo, int headRowNum, int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
+    private static <T> Integer read(InputStream inputStream, String fullPath, String password, Class<T> head, int sheetNo,
+                                    int headRowNum, int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
                                     Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<T> readListener = new AnalysisEventListener<T>() {
@@ -268,10 +267,8 @@ public class ExcelUtil {
                 Integer rowIndex = readSheetHolder.getRowIndex();
                 ReadRowHolder readRowHolder = context.readRowHolder();
                 Object data = readRowHolder.getCurrentRowAnalysisResult();
-                log.error("readExcel onException rowIndex:{} data:{} error:{}", rowIndex, JSONUtil.toJsonStr(data),
-                        exception.getMessage());
-                ReadError<T> error = ReadError.<T>builder().rowIndex(rowIndex)
-                        .data(JSONUtil.toBean(JSONUtil.toJsonStr(data), head)).exception(exception).build();
+                log.error("readExcel onException rowIndex:{} data:{} error:{}", rowIndex, JSONUtil.toJsonStr(data), exception.getMessage());
+                ReadError<T> error = ReadError.<T>builder().rowIndex(rowIndex).data(JSONUtil.toBean(JSONUtil.toJsonStr(data), head)).exception(exception).build();
                 // 自定义异常处理逻辑
                 if (errorConsumer != null) {
                     errorConsumer.accept(error);
