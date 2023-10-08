@@ -46,6 +46,7 @@ public class RegexDemo {
         System.out.println(ReUtil.getGroup0("\\d+", "qaz1235qwer5678"));
         System.out.println(ReUtil.findAllGroup0("\\d+", "qaz1235qwer5678"));
         System.out.println(StrUtil.subBetween(ReUtil.getGroup0("\\$\\{\\w+}", "123${code}456"), "${", "}"));
+        System.out.println(StrUtil.subBetween(ReUtil.getGroup0("(\\d+\\.?\\d*)", "(code)"), "(", ")"));
         System.out.println("xiangggweiiii".replaceAll("(.)\\1+", "$1"));
     }
 }
