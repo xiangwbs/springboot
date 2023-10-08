@@ -42,10 +42,10 @@ import java.util.function.Function;
  */
 @Slf4j
 public class ExcelUtil {
-    public static Integer read(InputStream inputStream, int sheetNo, int headRowNum, int batchDealNum,Consumer<Map<Integer, String>> headConsumer, Consumer<List<Map<Integer, String>>> dataConsumer) {
+    public static Integer read(InputStream inputStream, int sheetNo, int headRowNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer, Consumer<List<Map<Integer, String>>> dataConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<Map<Integer, String>> readListener = new AnalysisEventListener<Map<Integer, String>>() {
-            private List<Map<Integer, String>> list = new ArrayList<>();
+            private final List<Map<Integer, String>> list = new ArrayList<>();
 
             /**
              * 非表头数据处理
@@ -97,7 +97,7 @@ public class ExcelUtil {
                 }
                 // 获取总条数
                 ReadSheetHolder readSheetHolder = context.readSheetHolder();
-                Integer totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
+                int totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
                 totalCount.set(totalRowNumber);
                 log.info("readExcel totalCount:{}", totalCount.intValue());
                 // 自定义表头处理逻辑
@@ -249,7 +249,7 @@ public class ExcelUtil {
             Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<T> readListener = new AnalysisEventListener<T>() {
-            private List<T> list = new ArrayList<>();
+            private final List<T> list = new ArrayList<>();
 
             /**
              * 非表头数据处理
@@ -311,7 +311,7 @@ public class ExcelUtil {
                 }
                 // 获取总条数
                 ReadSheetHolder readSheetHolder = context.readSheetHolder();
-                Integer totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
+                int totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
                 totalRowNumber = totalRowNumber <= exampleNum ? 0 : totalRowNumber - exampleNum;
                 totalCount.set(totalRowNumber);
                 log.info("readExcel totalCount:{}", totalCount.intValue());
