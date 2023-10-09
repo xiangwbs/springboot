@@ -394,8 +394,8 @@ public class ExcelUtil {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
             // 防止中文乱码
-            fileName = URLEncoder.encode(fileName, "UTF-8");
-            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+            fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+            response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
@@ -426,8 +426,8 @@ public class ExcelUtil {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
             // 防止中文乱码
-            fileName = URLEncoder.encode(fileName, "UTF-8");
-            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+            fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+            response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
