@@ -1,19 +1,18 @@
 package com.xwbing.service.demo.es.article;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
+import com.google.common.collect.Maps;
+import com.xwbing.service.service.EsHelper;
+import com.xwbing.service.service.EsHelper.UpsertDoc;
+import com.xwbing.service.util.PageVO;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.common.lucene.search.function.FunctionScoreQuery.ScoreMode;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder.FilterFunctionBuilder;
 import org.elasticsearch.index.query.functionscore.GaussDecayFunctionBuilder;
@@ -27,15 +26,10 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Maps;
-import com.xwbing.service.service.EsHelper;
-import com.xwbing.service.service.EsHelper.UpsertDoc;
-import com.xwbing.service.util.PageVO;
-
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author daofeng
@@ -137,12 +131,12 @@ public class ArticleEsService {
             BoolQueryBuilder keyBuilder = QueryBuilders.boolQuery();
             if (dto.isWasMatchSearch()) {
                 // 模糊匹配 分词 分为多个term
-                //（where term=term0 or term=term1）默认/（where term=term0 and term=term1）
+                //（where token=term0 or token=term1）默认/（where token=term0 and token=term1）
                 keyBuilder.should(QueryBuilders.matchQuery("title", searchKey).operator(Operator.AND)).boost(100);
                 keyBuilder.should(QueryBuilders.matchQuery("content", searchKey).operator(Operator.AND)).boost(5);
             } else {
                 // 精准匹配 分词 term都包含且顺序一致 slop:term之间的position容错差值
-                //（where term=term0 and term0_position=0 and term=term1 and term1_position=1）
+                //（where token=term0 and term0_position=0 and token=term1 and term1_position=1）
                 keyBuilder.should(QueryBuilders.matchPhraseQuery("title", searchKey).slop(1)).boost(100);
                 keyBuilder.should(QueryBuilders.matchPhraseQuery("content", searchKey).slop(1)).boost(5);
             }
@@ -152,7 +146,7 @@ public class ArticleEsService {
             bool.must(QueryBuilders.matchPhraseQuery("issueDept", dto.getIssueDept()).slop(1));
         }
         // 与match_phrase查询一致，但是它将查询字符串的最后一个term作为前缀(prefix)使用
-        //（where term=term0 and term0_position=0 and term=term1 and term1_position=1 and term like t%）
+        //（where token=term0 and term0_position=0 and token=term1 and term1_position=1 and token like t%）
         // 使用场景：自动补全的即时搜索
         // if (StringUtils.isNotEmpty(dto.getXxx())) {
         //     bool.must(QueryBuilders.matchPhrasePrefixQuery("xxx", dto.getXxx()).maxExpansions(20));
