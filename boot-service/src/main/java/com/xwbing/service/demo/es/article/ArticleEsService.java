@@ -136,7 +136,7 @@ public class ArticleEsService {
                 keyBuilder.should(QueryBuilders.matchQuery("content", searchKey).operator(Operator.AND)).boost(5);
             } else {
                 // 精准匹配 分词 term都包含且顺序一致 slop:term之间的position容错差值
-                //（where token=term0 and term0_position=0 and token=term1 and term1_position=1）
+                //（where token=term0 and token=term1 and term1_position-term0_position<=1）
                 keyBuilder.should(QueryBuilders.matchPhraseQuery("title", searchKey).slop(1)).boost(100);
                 keyBuilder.should(QueryBuilders.matchPhraseQuery("content", searchKey).slop(1)).boost(5);
             }
@@ -145,8 +145,8 @@ public class ArticleEsService {
         if (StringUtils.isNotEmpty(dto.getIssueDept())) {
             bool.must(QueryBuilders.matchPhraseQuery("issueDept", dto.getIssueDept()).slop(1));
         }
-        // 与match_phrase查询一致，但是它将查询字符串的最后一个term作为前缀(prefix)使用
-        //（where token=term0 and term0_position=0 and token=term1 and term1_position=1 and token like t%）
+        // 与match_phrase查询一致，但是它将查询字符串的最后一个token作为前缀(prefix)使用
+        //（where token=term0 and token=term1 and term1_position-term0_position+term2_position-term1_position=0 and token like term2%）
         // 使用场景：自动补全的即时搜索
         // if (StringUtils.isNotEmpty(dto.getXxx())) {
         //     bool.must(QueryBuilders.matchPhrasePrefixQuery("xxx", dto.getXxx()).maxExpansions(20));
