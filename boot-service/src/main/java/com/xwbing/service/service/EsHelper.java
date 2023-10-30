@@ -159,10 +159,10 @@ public class EsHelper {
         }
     }
 
-    public List<String> analyze(String index, String analyzer, String text) {
+    public List<String> analyze(String analyzer, String text) {
         try {
             log.info("elasticsearch analyze analyzer:{} text:{}", analyzer, text);
-            AnalyzeRequest request = AnalyzeRequest.withIndexAnalyzer(index, analyzer, text);
+            AnalyzeRequest request = AnalyzeRequest.withGlobalAnalyzer(analyzer, text);
             AnalyzeResponse response = restHighLevelClient.indices().analyze(request, RequestOptions.DEFAULT);
             log.info("elasticsearch analyze response:{}", response.toString());
             if (CollectionUtils.isNotEmpty(response.getTokens())) {
