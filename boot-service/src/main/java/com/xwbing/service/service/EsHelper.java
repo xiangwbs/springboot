@@ -1,13 +1,9 @@
 package com.xwbing.service.service;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
+import com.xwbing.service.util.Jackson;
+import com.xwbing.service.util.PageVO;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -16,11 +12,7 @@ import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.get.MultiGetItemResponse;
-import org.elasticsearch.action.get.MultiGetRequest;
-import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.get.*;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.WriteRequest.RefreshPolicy;
@@ -32,6 +24,8 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
+import org.elasticsearch.client.indices.AnalyzeRequest;
+import org.elasticsearch.client.indices.AnalyzeResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.core.TimeValue;
@@ -45,15 +39,9 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.springframework.stereotype.Service;
 
-import com.xwbing.service.util.Jackson;
-import com.xwbing.service.util.PageVO;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author daofeng
@@ -168,6 +156,25 @@ public class EsHelper {
             }
         } catch (Exception e) {
             log.error("elasticsearch deleteByQuery error", e);
+        }
+    }
+
+    public List<String> analyze(String index, String analyzer, String text) {
+        try {
+            log.info("elasticsearch analyze analyzer:{} text:{}", analyzer, text);
+            AnalyzeRequest request = AnalyzeRequest.withIndexAnalyzer(index, analyzer, text);
+            AnalyzeResponse response = restHighLevelClient.indices().analyze(request, RequestOptions.DEFAULT);
+            log.info("elasticsearch analyze response:{}", response.toString());
+            if (CollectionUtils.isNotEmpty(response.getTokens())) {
+                return Collections.emptyList();
+            }
+            return response.getTokens()
+                    .stream()
+                    .map(AnalyzeResponse.AnalyzeToken::getTerm)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("elasticsearch analyze error", e);
+            return Collections.emptyList();
         }
     }
 
