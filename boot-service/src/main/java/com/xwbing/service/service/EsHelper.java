@@ -78,7 +78,9 @@ public class EsHelper {
             log.info("elasticsearch upsert id:{} response:{}", id, response.toString());
             ShardInfo shardInfo = response.getShardInfo();
             if (shardInfo.getFailed() > 0) {
-                List<String> failReasons = Arrays.stream(shardInfo.getFailures()).map(Failure::reason)
+                List<String> failReasons = Arrays
+                        .stream(shardInfo.getFailures())
+                        .map(Failure::reason)
                         .collect(Collectors.toList());
                 log.error("elasticsearch upsert id:{} failed reasons:{}", id, failReasons);
             }
@@ -115,7 +117,9 @@ public class EsHelper {
             log.info("elasticsearch delete id:{} response:{}", id, response.toString());
             ShardInfo shardInfo = response.getShardInfo();
             if (shardInfo.getFailed() > 0) {
-                List<String> failReasons = Arrays.stream(shardInfo.getFailures()).map(Failure::reason)
+                List<String> failReasons = Arrays
+                        .stream(shardInfo.getFailures())
+                        .map(Failure::reason)
                         .collect(Collectors.toList());
                 log.error("elasticsearch delete id:{} failed reasons:{}", id, failReasons);
             }
@@ -150,7 +154,9 @@ public class EsHelper {
             log.info("elasticsearch deleteByQuery response:{}", response.toString());
             List<BulkItemResponse.Failure> bulkFailures = response.getBulkFailures();
             if (bulkFailures.size() > 0) {
-                List<String> failReasons = bulkFailures.stream().map(BulkItemResponse.Failure::getMessage)
+                List<String> failReasons = bulkFailures
+                        .stream()
+                        .map(BulkItemResponse.Failure::getMessage)
                         .collect(Collectors.toList());
                 log.error("elasticsearch deleteByQuery failed reasons:{}", failReasons);
             }
