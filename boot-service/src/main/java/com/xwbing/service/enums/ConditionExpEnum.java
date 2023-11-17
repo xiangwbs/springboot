@@ -58,13 +58,13 @@ public enum ConditionExpEnum {
             }
             matchList.clear();
             // 条件组内为【且】
-            for (Condition condition : ruleGroup) {
+            for (Condition rule : ruleGroup) {
                 // 获取数据
-                String data = dataMap.get(condition.getKey());
+                String data = dataMap.get(rule.getKey());
                 // 获取不到匹配项视作匹配失败
-                matched = StringUtils.isNotEmpty(data) && rule(condition, data);
+                matched = StringUtils.isNotEmpty(data) && rule(rule, data);
                 if (matched) {
-                    matchList.add(condition);
+                    matchList.add(rule);
                 } else {
                     // 任意匹配失败则退出当前循环，开始匹配下个组
                     break;
@@ -82,7 +82,7 @@ public enum ConditionExpEnum {
         }
     }
 
-    public static boolean rule(Condition condition, String data) {
+    private static boolean rule(Condition condition, String data) {
         return StrUtil.isNumeric(data) ?
                 ConditionExpEnum.numberRule(Long.parseLong(data), condition.getValue(), condition.getExpression().getName()) :
                 ConditionExpEnum.stringRule(data, condition.getValue(), condition.getExpression().getName());
