@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import lombok.*;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -43,6 +44,9 @@ public enum ConditionExpEnum {
      * @return
      */
     public static List<Condition> match(List<List<Condition>> ruleGroups, Map<String, String> dataMap) {
+        if (CollectionUtils.isEmpty(ruleGroups) || MapUtils.isEmpty(dataMap)) {
+            return Collections.emptyList();
+        }
         // 是否匹配成功标记
         boolean matched = false;
         // 匹配成功的数据，用于记录
