@@ -47,39 +47,29 @@ public enum ConditionExpEnum {
         if (CollectionUtils.isEmpty(ruleGroups) || MapUtils.isEmpty(dataMap)) {
             return Collections.emptyList();
         }
-        // 是否匹配成功标记
         boolean matched = false;
-        // 匹配成功的数据，用于记录
-        List<Condition> matchList = new ArrayList<>();
         // 这一层为【或】，任意组匹配就算匹配成功
         for (List<Condition> ruleGroup : ruleGroups) {
             if (CollectionUtils.isEmpty(ruleGroup)) {
-                break;
+                continue;
             }
-            matchList.clear();
             // 条件组内为【且】
             for (Condition rule : ruleGroup) {
                 // 获取数据
                 String data = dataMap.get(rule.getKey());
                 // 获取不到匹配项视作匹配失败
                 matched = StringUtils.isNotEmpty(data) && rule(rule, data);
-                if (matched) {
-                    matchList.add(rule);
-                } else {
+                if (!matched) {
                     // 任意匹配失败则退出当前循环，开始匹配下个组
                     break;
                 }
             }
-            // 如果当前组匹配成功则退出
+            // 如果当前组匹配成功返回
             if (matched) {
-                break;
+                return ruleGroup;
             }
         }
-        if (matched) {
-            return matchList;
-        } else {
-            return Collections.emptyList();
-        }
+        return Collections.emptyList();
     }
 
     private static boolean rule(Condition condition, String data) {
