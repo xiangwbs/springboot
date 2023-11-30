@@ -33,6 +33,8 @@ public class RegexDemo {
 
         String a9 = "[\\u4e00-\\u9fa5]";//汉字
 
+        boolean numeric = StrUtil.isNumeric("12345");
+
         System.out.println("13488888888".matches("^1[3456789]\\d{9}$"));
         // 用户名部分：由字母（大小写不限）、数字、下划线、点、百分号、加号或减号组成。
         // @ 符号：作为用户名部分和域名部分之间的分隔符。
@@ -43,10 +45,14 @@ public class RegexDemo {
         System.out.println("https://www.baidu.com".matches("^(?:https?|ftp)://[^\\s/$.?#].[^\\s]*$"));
         // IPv4地址
         System.out.println("127.0.0.1".matches("(?:\\d{1,3}\\.){3}\\d{1,3}"));
+        // 获取第一组数字字符
         System.out.println(ReUtil.getGroup0("\\d+", "qaz1235qwer5678"));
+        // 获取所有数字字符
         System.out.println(ReUtil.findAllGroup0("\\d+", "qaz1235qwer5678"));
+        // 获取第一组数字
+        System.out.println(ReUtil.getGroup0("(\\d+\\.?\\d*)", "wed23sd2.4ssd"));
+        // 获取${}里的字符
         System.out.println(StrUtil.subBetween(ReUtil.getGroup0("\\$\\{\\w+}", "123${code}456"), "${", "}"));
-        System.out.println(StrUtil.subBetween(ReUtil.getGroup0("(\\d+\\.?\\d*)", "(code)"), "(", ")"));
         System.out.println("xiangggweiiii".replaceAll("(.)\\1+", "$1"));
     }
 }
