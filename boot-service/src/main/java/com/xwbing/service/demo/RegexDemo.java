@@ -1,5 +1,6 @@
 package com.xwbing.service.demo;
 
+import cn.hutool.core.lang.Validator;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 
@@ -33,7 +34,11 @@ public class RegexDemo {
 
         String a9 = "[\\u4e00-\\u9fa5]";//汉字
 
-        boolean numeric = StrUtil.isNumeric("12345");
+        boolean number = Validator.isNumber("12345");
+        boolean word = Validator.isWord("dsd");
+        boolean uel = Validator.isUrl("https://www.baidu.com");
+        boolean email = Validator.isEmail("xiangwb@163.com");
+        boolean mobile = Validator.isMobile("13122223333");
 
         System.out.println("13488888888".matches("^1[3456789]\\d{9}$"));
         // 用户名部分：由字母（大小写不限）、数字、下划线、点、百分号、加号或减号组成。
