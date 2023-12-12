@@ -36,9 +36,11 @@ public class RegexDemo {
 
         boolean number = Validator.isNumber("12345");
         boolean word = Validator.isWord("dsd");
-        boolean uel = Validator.isUrl("https://www.baidu.com");
+        boolean chinese = Validator.isChinese("汉字");
+        boolean url = Validator.isUrl("https://www.baidu.com");
         boolean email = Validator.isEmail("xiangwb@163.com");
         boolean mobile = Validator.isMobile("13122223333");
+        boolean upperCase = Validator.isUpperCase("UPPER");
 
         System.out.println("13488888888".matches("^1[3456789]\\d{9}$"));
         // 用户名部分：由字母（大小写不限）、数字、下划线、点、百分号、加号或减号组成。
