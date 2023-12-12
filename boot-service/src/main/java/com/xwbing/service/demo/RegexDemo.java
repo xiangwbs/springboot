@@ -39,7 +39,11 @@ public class RegexDemo {
         boolean chinese = Validator.isChinese("汉字");
         boolean url = Validator.isUrl("https://www.baidu.com");
         boolean email = Validator.isEmail("xiangwb@163.com");
+        boolean zipCode = Validator.isZipCode("310000");// 邮编
         boolean mobile = Validator.isMobile("13122223333");
+        boolean citizenId = Validator.isCitizenId("331082200000000000");// 身份证号码
+        boolean ipv4 = Validator.isIpv4("127.0.0.1");
+        boolean ipv6 = Validator.isIpv6("127.0.0.1");
         boolean upperCase = Validator.isUpperCase("UPPER");
 
         System.out.println("13488888888".matches("^1[3456789]\\d{9}$"));
