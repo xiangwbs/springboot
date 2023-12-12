@@ -42,6 +42,7 @@ public class RegexDemo {
         boolean email = Validator.isEmail("xiangwb@163.com");
         boolean zipCode = Validator.isZipCode("邮编");
         boolean phone = PhoneUtil.isPhone("电话号码");
+        boolean tel = PhoneUtil.isTel("座机号码");
         boolean citizenId = Validator.isCitizenId("身份证号码");
         boolean ipv4 = Validator.isIpv4("127.0.0.1");
         boolean ipv6 = Validator.isIpv6("127.0.0.1");
