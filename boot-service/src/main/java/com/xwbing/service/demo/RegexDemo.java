@@ -1,6 +1,7 @@
 package com.xwbing.service.demo;
 
 import cn.hutool.core.lang.Validator;
+import cn.hutool.core.util.PhoneUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 
@@ -35,16 +36,16 @@ public class RegexDemo {
         String a9 = "[\\u4e00-\\u9fa5]";//汉字
 
         boolean number = Validator.isNumber("12345");
-        boolean word = Validator.isWord("dsd");
+        boolean word = Validator.isWord("单词");
         boolean chinese = Validator.isChinese("汉字");
-        boolean url = Validator.isUrl("https://www.baidu.com");
+        boolean url = Validator.isUrl("网址");
         boolean email = Validator.isEmail("xiangwb@163.com");
-        boolean zipCode = Validator.isZipCode("310000");// 邮编
-        boolean mobile = Validator.isMobile("13122223333");
-        boolean citizenId = Validator.isCitizenId("331082200000000000");// 身份证号码
+        boolean zipCode = Validator.isZipCode("邮编");
+        boolean phone = PhoneUtil.isPhone("电话号码");
+        boolean citizenId = Validator.isCitizenId("身份证号码");
         boolean ipv4 = Validator.isIpv4("127.0.0.1");
         boolean ipv6 = Validator.isIpv6("127.0.0.1");
-        boolean upperCase = Validator.isUpperCase("UPPER");
+        boolean upperCase = Validator.isUpperCase("大写");
 
         System.out.println("13488888888".matches("^1[3456789]\\d{9}$"));
         // 用户名部分：由字母（大小写不限）、数字、下划线、点、百分号、加号或减号组成。
