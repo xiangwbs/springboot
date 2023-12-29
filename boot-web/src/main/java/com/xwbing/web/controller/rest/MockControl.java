@@ -222,8 +222,9 @@ public class MockControl {
     @ApiOperation("发送群消息")
     @GetMapping("sendChatLinkMessage")
     public void sendLinkMessage(@RequestParam String token) {
-        LinkMessage linkMessage = LinkMessage.builder().chatId("chat0f212fb4dc07478f0813eb98e9470ff6").title("link消息测试")
-                .text("消息内容消息内容测试").picUrl("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png")
+        LinkMessage linkMessage = LinkMessage.builder().chatId("chat0f212fb4dc07478f0813eb98e9470ff6")
+                .title("link消息测试").text("消息内容消息内容测试")
+                .picUrl("https://gw.alicdn.com/tfs/TB1ut3xxbsrBKNjSZFpXXcXhFXa-846-786.png")
                 .messageUrl("https://www.seniverse.com").build();
         DingTalkUtil.sendChatMessage(linkMessage, token);
     }
@@ -321,14 +322,14 @@ public class MockControl {
             //模拟分页
             // PageHelper.startPage(pageNumber, 500);
             List<ExcelHeaderVo> excelData = new ArrayList<>();
-            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介")
-                    .build();
-            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介")
-                    .build();
-            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888").introduction("这是一条简介")
-                    .build();
-            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888").introduction("这是一条简介")
-                    .build();
+            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888")
+                    .introduction("这是一条简介").build();
+            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888")
+                    .introduction("这是一条简介").build();
+            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888")
+                    .introduction("这是一条简介").build();
+            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888")
+                    .introduction("这是一条简介").build();
             excelData.add(data);
             excelData.add(data1);
             excelData.add(data2);
@@ -347,14 +348,14 @@ public class MockControl {
             //模拟分页
             // PageHelper.startPage(pageNumber, 500);
             List<ExcelHeaderVo> excelData = new ArrayList<>();
-            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介")
-                    .build();
-            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介")
-                    .build();
-            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888").introduction("这是一条简介")
-                    .build();
-            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888").introduction("这是一条简介")
-                    .build();
+            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888")
+                    .introduction("这是一条简介").build();
+            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888")
+                    .introduction("这是一条简介").build();
+            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888")
+                    .introduction("这是一条简介").build();
+            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888")
+                    .introduction("这是一条简介").build();
             excelData.add(data);
             excelData.add(data1);
             excelData.add(data2);
@@ -473,57 +474,20 @@ public class MockControl {
         }
         // 群聊
         else {
-            DingtalkRobotHelper
-                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                            robotMsg.getContent());
+            DingtalkRobotHelper.sendText(robotMsg.getClient(), false,
+                    Collections.singletonList(robotMsg.getSenderStaffId()), robotMsg.getContent());
 
-            DingtalkRobotHelper
-                    .sendActionCard(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                            "actionCard消息", DingMarkdown.build().appendText("这是一个整体跳转actionCard消息"),
-                            "https://www.baidu.com");
+            DingtalkRobotHelper.sendActionCard(robotMsg.getClient(), false,
+                    Collections.singletonList(robotMsg.getSenderStaffId()), "actionCard消息",
+                    DingMarkdown.build().appendText("这是一个整体跳转actionCard消息"), "https://www.baidu.com");
 
             List<String> orderedList = new ArrayList<>();
             orderedList.add(DingtalkRobotHelper.dtmdLink("回复1"));
             orderedList.add(DingtalkRobotHelper.dtmdLink("回复2"));
             DingMarkdown dingMarkdown = DingMarkdown.build().appendOrderedList(orderedList);
-            DingtalkRobotHelper
-                    .sendMarkdown(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                            "markdown消息", dingMarkdown);
+            DingtalkRobotHelper.sendMarkdown(robotMsg.getClient(), false,
+                    Collections.singletonList(robotMsg.getSenderStaffId()), "markdown消息", dingMarkdown);
         }
         return null;
     }
-
-    @RequestMapping("/happyBirth")
-    public String happyBirth(@RequestBody(required = false) JSONObject msg,
-            @RequestHeader(required = false) String sign, @RequestHeader(required = false) String timestamp) {
-        DingtalkRobotMsg robotMsg = DingtalkRobotHelper.receiveMsg(msg, sign, timestamp);
-        if (robotMsg == null) {
-            return null;
-        }
-        String content = robotMsg.getContent();
-        if ("今天是什么日子".equals(content)) {
-            DingtalkRobotHelper
-                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                            "我加老婆的生日呀");
-        } else if ("你老婆是谁".equals(content)) {
-            DingtalkRobotHelper
-                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                            "彩彩呀");
-        } else if ("世界上最好的老婆是谁".equals(content)) {
-            DingtalkRobotHelper
-                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                            "彩彩呀");
-        } else if ("那世界上最美的女人又是谁".equals(content)) {
-            DingtalkRobotHelper
-                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                            "当然是彩彩呀");
-        } else {
-            DingtalkRobotHelper
-                    .sendText(robotMsg.getClient(), false, Collections.singletonList(robotMsg.getSenderStaffId()),
-                            "本宝宝还在学习中");
-        }
-        return null;
-    }
-
-
 }
