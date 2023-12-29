@@ -35,19 +35,19 @@ public class DingRobotsController {
             return null;
         }
         String content = robotMsg.getContent();
-        if ("今天是什么日子".equals(content)) {
+        if (content.contains("日子")) {
             DingtalkRobotHelper.sendText(robotMsg.getClient(), false,
                     Collections.singletonList(robotMsg.getSenderStaffId()), "我家老婆的生日呀");
-        } else if ("你家老婆是谁".equals(content)) {
+        } else if (content.contains("你家老婆是谁")) {
             DingtalkRobotHelper.sendText(robotMsg.getClient(), false,
                     Collections.singletonList(robotMsg.getSenderStaffId()), "彩彩呀");
-        } else if ("世界上最好的老婆是谁".equals(content)) {
+        } else if (content.contains("世界上最好的老婆是谁")) {
             DingtalkRobotHelper.sendText(robotMsg.getClient(), false,
                     Collections.singletonList(robotMsg.getSenderStaffId()), "彩彩呀");
-        } else if ("那世界上最美的女人又是谁".equals(content)) {
+        } else if ("世界上最美的女人又是谁".contains(content)) {
             DingtalkRobotHelper.sendText(robotMsg.getClient(), false,
                     Collections.singletonList(robotMsg.getSenderStaffId()), "当然是彩彩呀");
-        } else if ("想不想看看你家老婆的绝世容颜".equals(content)) {
+        } else if ("芳容".equals(content)) {
             List<String> orderedList = new ArrayList<>();
             orderedList.add(DingtalkRobotHelper.dtmdLink("想"));
             orderedList.add(DingtalkRobotHelper.dtmdLink("不想"));
@@ -64,7 +64,7 @@ public class DingRobotsController {
                     "https://bot-oss-test.dingtax.cn/kbs-test/image/20231229/id00deb1bc18b340a3b255d3b56e5e2bdc.jpeg");
             DingtalkRobotHelper.sendMarkdown(robotMsg.getClient(), false,
                     Collections.singletonList(robotMsg.getSenderStaffId()), "markdown消息", dingMarkdown);
-        } else if ("想要什么生日礼物".equals(content)) {
+        } else if (content.contains("生日礼物")) {
             List<String> orderedList = new ArrayList<>();
             orderedList.add(DingtalkRobotHelper.dtmdLink("一首祝福诗"));
             orderedList.add(DingtalkRobotHelper.dtmdLink("老公的手工礼物"));
