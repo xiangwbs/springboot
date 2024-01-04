@@ -1,5 +1,21 @@
 package com.xwbing.service.demo.dingtalk;
 
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.dingtalk.api.DefaultDingTalkClient;
+import com.dingtalk.api.DingTalkClient;
+import com.dingtalk.api.request.OapiRobotSendRequest;
+import com.dingtalk.api.request.OapiRobotSendRequest.Btns;
+import com.dingtalk.api.request.OapiRobotSendRequest.Links;
+import com.dingtalk.api.response.OapiRobotSendResponse;
+import com.taobao.api.ApiException;
+import com.xwbing.service.util.dingtalk.DingTalkConstant;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -10,25 +26,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import com.alibaba.fastjson.JSONObject;
-import com.dingtalk.api.DefaultDingTalkClient;
-import com.dingtalk.api.DingTalkClient;
-import com.dingtalk.api.request.OapiRobotSendRequest;
-import com.dingtalk.api.request.OapiRobotSendRequest.Btns;
-import com.dingtalk.api.request.OapiRobotSendRequest.Links;
-import com.dingtalk.api.response.OapiRobotSendResponse;
-import com.taobao.api.ApiException;
-import com.xwbing.service.util.dingtalk.DingTalkConstant;
-
-import cn.hutool.json.JSONUtil;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author daofeng
@@ -309,7 +306,7 @@ public class DingtalkRobotHelper {
         if (!mySign.equals(sign)) {
             return false;
         }
-        Instant instant = Instant.ofEpochMilli(Long.valueOf(timestamp));
+        Instant instant = Instant.ofEpochMilli(Long.parseLong(timestamp));
         LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
         return LocalDateTime.now().minusHours(1).isBefore(dateTime);
     }

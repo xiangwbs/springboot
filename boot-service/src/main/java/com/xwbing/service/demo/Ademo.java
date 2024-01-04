@@ -1,5 +1,8 @@
 package com.xwbing.service.demo;
 
+import cn.hutool.crypto.SecureUtil;
+import cn.hutool.crypto.symmetric.AES;
+import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import lombok.extern.java.Log;
 
 /**
@@ -11,6 +14,12 @@ import lombok.extern.java.Log;
 @Log
 public class Ademo {
     public static void main(String[] args) {
+        byte[] key = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue(),"freeswitch_server_config".getBytes()).getEncoded();
+        AES aes = SecureUtil.aes(key);
+        String s = aes.encryptBase64("ClueCon");
+        String s1 = aes.decryptStr(s);
+        System.out.println("");
+
 
     }
 }

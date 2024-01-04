@@ -8,7 +8,7 @@ import java.util.List;
  * @since 2023年01月09日 4:51 PM
  */
 public class DingMarkdown {
-    private StringBuilder content = new StringBuilder();
+    private final StringBuilder content = new StringBuilder();
 
     @Override
     public String toString() {

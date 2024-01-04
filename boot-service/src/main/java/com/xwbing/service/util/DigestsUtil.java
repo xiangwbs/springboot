@@ -1,6 +1,9 @@
 
 package com.xwbing.service.util;
 
+import cn.hutool.crypto.SecureUtil;
+import cn.hutool.crypto.symmetric.AES;
+import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import com.xwbing.service.exception.UtilException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -108,5 +111,9 @@ public class DigestsUtil {
 
     public static void main(String[] args) {
         System.out.println(getSign());
+        byte[] key = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue(),"freeswitch_server_config".getBytes()).getEncoded();
+        AES aes = SecureUtil.aes(key);
+        String s = aes.encryptBase64("ClueCon");
+        String s1 = aes.decryptStr(s);
     }
 }
