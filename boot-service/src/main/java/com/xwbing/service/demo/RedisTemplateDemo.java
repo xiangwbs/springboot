@@ -30,7 +30,9 @@ public class RedisTemplateDemo {
         DataType type = redisTemplate.type("key");
     }
 
-    // ---------------------- string ----------------------
+    /**
+     * 热点数据缓存，计数场景(数据统计，全局序列，  频率控制)，分布式锁
+     */
     public void string() {
         redisTemplate.opsForValue().set("stringKey", "value");
         redisTemplate.opsForValue().set("stringKey", "value", 10, TimeUnit.SECONDS);
@@ -42,7 +44,9 @@ public class RedisTemplateDemo {
         redisTemplate.opsForValue().increment("stringKey");
     }
 
-    // ---------------------- hash ----------------------
+    /**
+     * 对象型数据，pu，uv
+     */
     public void hash() {
         redisTemplate.opsForHash().put("hkey", "hashKey", "value");
         redisTemplate.opsForHash().putIfAbsent("hkey", "hashKey", "value");
@@ -58,6 +62,10 @@ public class RedisTemplateDemo {
     }
 
     // ---------------------- list ----------------------
+
+    /**
+     * 队列
+     */
     public void list() {
         redisTemplate.opsForList().rightPush("listKey", "value");
         redisTemplate.opsForList().rightPushIfPresent("listKey", "value");
@@ -69,7 +77,9 @@ public class RedisTemplateDemo {
         redisTemplate.opsForList().size("listKey");
     }
 
-    // ---------------------- set ----------------------
+    /**
+     * 抽奖，点赞，签到，共同关注(交集)，可能认识的人(差集)
+     */
     public void set() {
         redisTemplate.opsForSet().add("setKey", "value");
         // 随机删除元素并返回
@@ -94,7 +104,10 @@ public class RedisTemplateDemo {
         redisTemplate.opsForSet().differenceAndStore("setKey", "otherSetKey", "newSetKey");
     }
 
-    // ---------------------- zset ----------------------
+
+    /**
+     * 排行榜
+     */
     public void zset() {
         redisTemplate.opsForZSet().add("zsetKey", "value", 60);
         redisTemplate.opsForZSet().incrementScore("zsetKey", "value", 5);
