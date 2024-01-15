@@ -61,10 +61,8 @@ public class RedisTemplateDemo {
         redisTemplate.opsForHash().increment("hkey", "hashKey", 1L);
     }
 
-    // ---------------------- list ----------------------
-
     /**
-     * 队列
+     * 时间线列表(朋友圈)，队列，商品秒杀
      */
     public void list() {
         redisTemplate.opsForList().rightPush("listKey", "value");
@@ -104,9 +102,8 @@ public class RedisTemplateDemo {
         redisTemplate.opsForSet().differenceAndStore("setKey", "otherSetKey", "newSetKey");
     }
 
-
     /**
-     * 排行榜
+     * 排行榜，定时任务
      */
     public void zset() {
         redisTemplate.opsForZSet().add("zsetKey", "value", 60);
