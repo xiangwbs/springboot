@@ -31,7 +31,7 @@ public class RedisTemplateDemo {
     }
 
     /**
-     * 热点数据缓存，计数场景(数据统计，全局序列，  频率控制)，分布式锁
+     * 热点数据缓存，计数场景(数据统计，全局序列，频率控制)，分布式锁
      */
     public void string() {
         redisTemplate.opsForValue().set("stringKey", "value");
