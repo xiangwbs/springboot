@@ -31,6 +31,7 @@ public class RedisTemplateDemo {
     }
 
     /**
+     * hashMap<string,object>
      * 热点数据缓存，计数场景(数据统计，全局序列，频率控制)，分布式锁
      */
     public void string() {
@@ -45,6 +46,7 @@ public class RedisTemplateDemo {
     }
 
     /**
+     * hashMap<string,hashMap<string,object>>
      * 对象型数据，pu，uv
      */
     public void hash() {
@@ -62,6 +64,7 @@ public class RedisTemplateDemo {
     }
 
     /**
+     * hashMap<string,linkedList<object>>
      * 时间线列表(朋友圈)，队列，商品秒杀
      */
     public void list() {
@@ -76,6 +79,7 @@ public class RedisTemplateDemo {
     }
 
     /**
+     * hashMap<string,hashSet>
      * 抽奖，点赞，签到，共同关注(交集)，可能认识的人(差集)
      */
     public void set() {
@@ -103,6 +107,7 @@ public class RedisTemplateDemo {
     }
 
     /**
+     * hashMap<string,sortedSet>
      * 排行榜，定时任务
      */
     public void zset() {
