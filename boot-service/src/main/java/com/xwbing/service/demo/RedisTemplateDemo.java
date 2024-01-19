@@ -1,6 +1,7 @@
 package com.xwbing.service.demo;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.core.RedisCallback;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -62,12 +64,10 @@ public class RedisTemplateDemo {
         // 所有访问用户
         redisTemplate.execute((RedisCallback<Long>) connection -> connection.bitOp(RedisStringCommands.BitOperation.OR, "visit_23_01_all".getBytes(), "visit_23_01_01".getBytes(), "visit_23_01_02".getBytes()));
 
-//        //连续签到
-//        redisTemplate.opsForValue().setBit("sign_23_user_1", 1, true);
-//        redisTemplate.opsForValue().setBit("sign_23_user_1", 2, true);
-//        redisTemplate.execute((RedisCallback<Long>) connection -> {
-//            connection.bitField("sign_23_user_1".getBytes(), BitFieldSubCommands.create().get(BitFieldSubCommands.BitFieldType.signed()).valueAt());
-//        })
+        //连续签到
+        redisTemplate.opsForValue().setBit("sign_23_user_1", 1, true);
+        redisTemplate.opsForValue().setBit("sign_23_user_1", 2, true);
+        List<Long> execute = redisTemplate.execute((RedisCallback<List<Long>>) connection -> connection.bitField("sign_23_user_1".getBytes(), BitFieldSubCommands.create().get(BitFieldSubCommands.BitFieldType.signed(10)).valueAt(0)));
     }
 
     /**
