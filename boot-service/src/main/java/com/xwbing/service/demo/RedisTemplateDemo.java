@@ -98,7 +98,7 @@ public class RedisTemplateDemo {
 
     /**
      * hashMap<string,hashSet>
-     * 抽奖，点赞|签到(数据量少的情况)，共同关注(交集)，可能认识的人(差集)
+     * 抽奖，点赞|签到，共同关注(交集)，可能认识的人(差集)
      */
     public void set() {
         redisTemplate.opsForSet().add("setKey", "value");
