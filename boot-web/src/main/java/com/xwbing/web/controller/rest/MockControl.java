@@ -1,36 +1,9 @@
 package com.xwbing.web.controller.rest;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
+import cn.hutool.core.io.IoUtil;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.fastjson.JSONObject;
+import com.xwbing.service.demo.RedisTemplateDemo;
 import com.xwbing.service.demo.dingtalk.DingMarkdown;
 import com.xwbing.service.demo.dingtalk.DingtalkRobotHelper;
 import com.xwbing.service.demo.dingtalk.DingtalkRobotMsg;
@@ -45,13 +18,7 @@ import com.xwbing.service.service.rest.CookieSessionService;
 import com.xwbing.service.service.rest.EasyExcelDealService;
 import com.xwbing.service.service.rest.QRCodeZipService;
 import com.xwbing.service.service.rest.UploadService;
-import com.xwbing.service.util.EncodeUtil;
-import com.xwbing.service.util.ExcelUtil;
-import com.xwbing.service.util.FileUtil;
-import com.xwbing.service.util.JsonResult;
-import com.xwbing.service.util.PdfUtil;
-import com.xwbing.service.util.RestMessage;
-import com.xwbing.service.util.ZipUtil;
+import com.xwbing.service.util.*;
 import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.service.util.dingtalk.LinkMessage;
 import com.xwbing.service.util.dingtalk.MarkdownMessage;
@@ -62,11 +29,30 @@ import com.xwbing.starter.operatelog.annotation.OperateLog;
 import com.xwbing.starter.spring.ApplicationContextHelper;
 import com.xwbing.web.response.ApiResponse;
 import com.xwbing.web.response.ApiResponseUtil;
-
-import cn.hutool.core.io.IoUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * 说明: mock控制层
@@ -89,6 +75,8 @@ public class MockControl {
     private EasyExcelDealService easyExcelDealService;
     @Resource
     private OssService ossService;
+    @Resource
+    private RedisTemplateDemo redisTemplateDemo;
     private List<byte[]> memoryBytes = new ArrayList<>();
 
     @ApiOperation("导出zip")
@@ -489,5 +477,10 @@ public class MockControl {
                     Collections.singletonList(robotMsg.getSenderStaffId()), "markdown消息", dingMarkdown);
         }
         return null;
+    }
+
+    @GetMapping("/redis/bit")
+    public void bit(){
+        redisTemplateDemo.bit();
     }
 }

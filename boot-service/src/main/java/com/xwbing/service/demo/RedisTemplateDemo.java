@@ -2,6 +2,8 @@ package com.xwbing.service.demo;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.connection.DataType;
+import org.springframework.data.redis.connection.RedisStringCommands;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +48,22 @@ public class RedisTemplateDemo {
     }
 
     /**
+     * 可以容纳最少2^32(4个字节) 。可以想象成一个数组，数组的下标即是offset，数组只能存储0|1
+     * 布隆过滤器，统计活跃用户，统计用户是否在线，单次签到
+     */
+    public void bit() {
+        redisTemplate.opsForValue().setBit("visit_23_01_01", 25255, true);
+        redisTemplate.opsForValue().setBit("visit_23_01_01", 25250, true);
+        redisTemplate.opsForValue().setBit("visit_23_01_02", 25255, true);
+        Boolean sign230101 = redisTemplate.opsForValue().getBit("visit_23_01_01", 25255);
+        Long count = redisTemplate.execute((RedisCallback<Long>) connection -> connection.bitCount("visit_23_01_01".getBytes()));
+        // 连续访问用户
+        redisTemplate.execute((RedisCallback<Long>) connection -> connection.bitOp(RedisStringCommands.BitOperation.AND, "visit_23_01_continue".getBytes(), "visit_23_01_01".getBytes(), "visit_23_01_02".getBytes()));
+        // 所有访问用户
+        redisTemplate.execute((RedisCallback<Long>) connection -> connection.bitOp(RedisStringCommands.BitOperation.OR, "visit_23_01_all".getBytes(), "visit_23_01_01".getBytes(), "visit_23_01_02".getBytes()));
+    }
+
+    /**
      * hashMap<string,hashMap<string,object>>
      * 对象型数据，pu，uv
      */
@@ -80,7 +98,7 @@ public class RedisTemplateDemo {
 
     /**
      * hashMap<string,hashSet>
-     * 抽奖，点赞，签到，共同关注(交集)，可能认识的人(差集)
+     * 抽奖，点赞|签到(数据量少的情况)，共同关注(交集)，可能认识的人(差集)
      */
     public void set() {
         redisTemplate.opsForSet().add("setKey", "value");
