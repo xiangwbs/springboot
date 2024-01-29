@@ -1,36 +1,29 @@
 package com.xwbing.web.configuration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.xwbing.service.enums.HttpCodeEnum;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.xwbing.service.enums.HttpCodeEnum;
-
 import springfox.documentation.RequestHandler;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.builders.ResponseMessageBuilder;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.ApiKey;
-import springfox.documentation.service.AuthorizationScope;
-import springfox.documentation.service.Contact;
-import springfox.documentation.service.ResponseMessage;
-import springfox.documentation.service.SecurityReference;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 说明: swagger配置
@@ -89,7 +82,7 @@ public class SwaggerConfig {
                 .useDefaultResponseMessages(false).globalResponseMessage(RequestMethod.GET, customerResponseMessage())
                 .globalResponseMessage(RequestMethod.POST, customerResponseMessage())
                 // .globalOperationParameters(pars)
-                .select().apis(basePackage("com.xwbing.web.controller.rest", "com.xwbing.web.controller.mq"))
+                .select().apis(basePackage("com.xwbing.web.controller.rest", "com.xwbing.web.controller.mq","com.xwbing.web.controller.demo"))
                 .paths(PathSelectors.any()).build().securitySchemes(securitySchemes())
                 .securityContexts(securityContexts());
     }

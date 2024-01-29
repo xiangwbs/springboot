@@ -3,20 +3,16 @@ package com.xwbing.service.demo.sse;
 import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
-import okhttp3.internal.platform.Platform;
-import okhttp3.internal.sse.RealEventSource;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.sse.EventSource;
-import okhttp3.sse.EventSourceListener;
+import okhttp3.sse.EventSources;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -29,20 +25,22 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 public class SseService {
+    private final SseDao sseDao;
+
     public SseEmitter chat(SseChatDTO dto) {
         if (dto.getSessionId() == null) {
-            Long sessionId = this.saveSession(dto.getQuestion());
+            Long sessionId = sseDao.saveSession(dto.getQuestion());
             dto.setSessionId(sessionId);
         } else {
-            String title = this.getBySessionId(dto.getSessionId());
+            String title = sseDao.getBySessionId(dto.getSessionId());
             if (StringUtils.isEmpty(title)) {
-                this.updateSessionTitle(dto.getSessionId(), dto.getQuestion());
+                sseDao.updateSessionTitle(dto.getSessionId(), dto.getQuestion());
             }
         }
-        this.saveRequest(dto);
+        sseDao.saveRequest(dto);
         if (dto.isDirect()) {
-            String direct = this.getDirect(dto.getQuestion());
-            this.saveResponse(dto);
+            String direct = sseDao.getDirect(dto.getQuestion());
+            sseDao.saveResponse(dto);
             return this.sendMsg(direct);
         } else {
             return this.event(dto);
@@ -50,64 +48,25 @@ public class SseService {
     }
 
     private SseEmitter event(SseChatDTO dto) {
-        Long requestId = dto.getRequestId();
-        SseEmitter sseEmitter = new SseEmitter(0L);
-        sseEmitter.onError(throwable -> log.error("sseEvent sseEmitter requestId:{} error", requestId, throwable));
-        sseEmitter.onTimeout(() -> log.info("sseEvent sseEmitter requestId:{} timeout", requestId));
-        sseEmitter.onCompletion(() -> log.info("sseEvent sseEmitter requestId:{} complete", requestId));
         Request request = new Request.Builder()
                 .addHeader("content-type", "application/json")
-                .url("xxx")
+                .url("https://api-igor-nw.ifugle.com/events")
                 .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JSONUtil.toJsonStr(dto)))
                 .build();
-        RealEventSource eventSource = new RealEventSource(request, new EventSourceListener() {
-            @Override
-            public void onOpen(EventSource eventSource, Response response) {
-                // 记录响应时间
-                dto.setResponseDate(new Date());
-                log.info("sseEvent onOpen requestId:{}", requestId);
-            }
-
-            @Override
-            public void onEvent(EventSource eventSource, String id, String type, String data) {
-                try {
-                    log.info("sseEvent onEvent requestId:{} data:{}", requestId, data);
-                    sseEmitter.send(data);
-                    // 记录响应数据
-                    dto.setChatResult(data);
-                } catch (Exception e) {
-                    // 关闭eventSource
-                    eventSource.cancel();
-                }
-            }
-
-            @Override
-            public void onClosed(EventSource eventSource) {
-                log.info("sseEvent onClosed requestId:{}", requestId);
-                // 数据传输完成 保存响应数据
-                saveResponse(dto);
-                // 关闭sseEmitter
-                sseEmitter.complete();
-            }
-
-            @Override
-            public void onFailure(EventSource eventSource, Throwable t, Response response) {
-                log.info("sseEvent onFailure requestId:{} error", requestId, t);
-                // 数据传输过程失败(中断等) 也要保存响应数据
-                saveResponse(dto);
-                // 关闭sseEmitter
-                sseEmitter.complete();
-            }
-        });
         OkHttpClient client = new OkHttpClient
                 .Builder()
                 .connectTimeout(1, TimeUnit.MINUTES)
                 .readTimeout(1, TimeUnit.MINUTES)
-                .hostnameVerifier((hostname, session) -> true)
-                .sslSocketFactory(this.sslSocketFactory(), Platform.get().platformTrustManager())
+                .writeTimeout(1, TimeUnit.MINUTES)
+//                .hostnameVerifier((hostname, session) -> true)
+//                .sslSocketFactory(this.sslSocketFactory(), Platform.get().platformTrustManager())
                 .build();
-        eventSource.connect(client);
-        return sseEmitter;
+        SseEventSourceListener eventSourceListener = new SseEventSourceListener(sseDao, dto);
+        EventSource.Factory factory = EventSources.createFactory(client);
+        factory.newEventSource(request, eventSourceListener);
+//        RealEventSource eventSource = new RealEventSource(request, sseEventSourceListener);
+//        eventSource.connect(client);
+        return eventSourceListener.getSseEmitter();
     }
 
     private SseEmitter sendMsg(String msg) {
@@ -116,10 +75,10 @@ public class SseService {
         CompletableFuture.runAsync(() -> {
             try {
                 sseEmitter.send(msg);
+                sseEmitter.complete();
             } catch (Exception e) {
                 sseEmitter.completeWithError(e);
             }
-            sseEmitter.complete();
         });
         sseEmitter.onError(throwable -> log.error("sendSseMsg error", throwable));
         sseEmitter.onTimeout(() -> log.info("sendSseMsg timeout"));
@@ -127,65 +86,29 @@ public class SseService {
         return sseEmitter;
     }
 
-    private void saveResponse(SseChatDTO dto) {
-        if (dto.getChatResult() != null) {
-            // 保存数据
-        }
-    }
-
-    private void saveRequest(SseChatDTO dto) {
-        // 保存数据
-        dto.setRequestId(0L);
-    }
-
-    private Long saveSession(String title) {
-        if (StringUtils.isNotEmpty(title) && title.length() > 20) {
-            title = title.substring(0, 20);
-        }
-        // 修改数据
-        return 0L;
-    }
-
-    private void updateSessionTitle(Long sessionId, String title) {
-        if (title.length() > 20) {
-            title = title.substring(0, 20);
-        }
-        // 修改数据
-    }
-
-    private String getBySessionId(Long sessionId) {
-        // 获取数据
-        return null;
-    }
-
-    private String getDirect(String question) {
-        // 获取数据
-        return null;
-    }
-
-    private SSLSocketFactory sslSocketFactory() {
-        try {
-            TrustManager[] trustAllCerts = new TrustManager[]{
-                    new X509TrustManager() {
-                        @Override
-                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-                        }
-
-                        @Override
-                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-                        }
-
-                        @Override
-                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                            return new java.security.cert.X509Certificate[]{};
-                        }
-                    }
-            };
-            SSLContext sslContext = SSLContext.getInstance("SSL");
-            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-            return sslContext.getSocketFactory();
-        } catch (Exception e) {
-            return null;
-        }
-    }
+//    private SSLSocketFactory sslSocketFactory() {
+//        try {
+//            TrustManager[] trustAllCerts = new TrustManager[]{
+//                    new X509TrustManager() {
+//                        @Override
+//                        public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+//                        }
+//
+//                        @Override
+//                        public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+//                        }
+//
+//                        @Override
+//                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+//                            return new java.security.cert.X509Certificate[]{};
+//                        }
+//                    }
+//            };
+//            SSLContext sslContext = SSLContext.getInstance("SSL");
+//            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+//            return sslContext.getSocketFactory();
+//        } catch (Exception e) {
+//            return null;
+//        }
+//    }
 }
