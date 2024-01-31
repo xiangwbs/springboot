@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Date;
@@ -61,7 +62,7 @@ public class SseEventSourceListener extends EventSourceListener {
 
     @Override
     public void onFailure(EventSource eventSource, Throwable t, Response response) {
-        log.info("sseEvent onFailure requestId:{} error", dto.getRequestId(), t);
+        log.info("sseEvent onFailure requestId:{} error:{}", dto.getRequestId(), t != null ? ExceptionUtils.getStackTrace(t) : response.message());
         // 数据传输过程失败(中断等) 也要保存响应数据
         sseDao.saveResponse(dto);
         // 关闭sseEmitter
