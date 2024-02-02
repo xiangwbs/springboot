@@ -16,7 +16,7 @@ public class ResVO<T> {
     private String msg;
     private T data;
 
-    public static <T> T isSuccess(ResVO<T> res) {
+    public static <T> T getData(ResVO<T> res) {
         String code = res.getCode();
         if (!"200".equals(code)) {
             log.error("code:{} msg:{}", res.getCode(), res.getMsg());
