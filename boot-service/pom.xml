@@ -169,13 +169,13 @@
             <artifactId>sentinel-transport-simple-http</artifactId>
             <version>1.8.6</version>
         </dependency>
-        <!-- 钉钉新版服务端api -->
+        <!-- 钉钉新版服务端sdk -->
         <dependency>
             <groupId>com.aliyun</groupId>
             <artifactId>dingtalk</artifactId>
             <version>2.0.83</version>
         </dependency>
-        <!-- 钉钉旧版服务端api -->
+        <!-- 钉钉旧版服务端sdk -->
         <dependency>
             <groupId>com.aliyun</groupId>
             <artifactId>alibaba-dingtalk-service-sdk</artifactId>
