@@ -1,4 +1,4 @@
-package com.xwbing.service.demo;
+package com.xwbing.service.domain.entity;
 
 import com.xwbing.service.exception.BusinessException;
 import lombok.Data;
