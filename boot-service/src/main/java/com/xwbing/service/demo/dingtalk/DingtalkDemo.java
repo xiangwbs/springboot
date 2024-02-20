@@ -47,7 +47,7 @@ public class DingtalkDemo {
             LiandanluExclusiveModelRequest request = new LiandanluExclusiveModelRequest();
             request.setModule("aiChatData");
             request.setModelId("model-igor-tongji-chatbi-1-wqdr");
-            request.setPrompt("OKR是什么");
+            request.setPrompt("近10年杭州市余杭区的财政收入");
             request.setUserId("1");
             LiandanluExclusiveModelHeaders headers = new LiandanluExclusiveModelHeaders();
             headers.setXAcsDingtalkAccessToken("257e2a58e2fe378d810d0388f59472ac");
@@ -86,5 +86,6 @@ public class DingtalkDemo {
     public static void main(String[] args) throws Exception {
 //        String accessToken = getAccessToken("dingqwati6igezdfkmib", "iEuiuLggX_7cOpH4LwhKj1f_ky5sfgs2eitN74pTDXn0-IWsizNrOinGdwXsIWKR");
         String liandanlu = liandanlu();
+        System.out.println("");
     }
 }

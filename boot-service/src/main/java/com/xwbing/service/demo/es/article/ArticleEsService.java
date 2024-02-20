@@ -94,7 +94,9 @@ public class ArticleEsService {
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.preTags("<span style='color:red'>");
         highlightBuilder.postTags("</span>");
+        // 从第一个分片获取高亮片段
         highlightBuilder.field(new HighlightBuilder.Field("title").numOfFragments(0));
+        // fragmentSize高亮片段最大字符长度 numOfFragments最大高亮片段数
         highlightBuilder.field(new HighlightBuilder.Field("content").fragmentSize(100).numOfFragments(50));
         return highlightBuilder;
     }
