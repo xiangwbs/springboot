@@ -53,7 +53,7 @@ public class ApplicationContextConfig {
         corsConfiguration.setAllowedMethods(Arrays.asList(HttpMethod.GET.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(), HttpMethod.DELETE.name(), HttpMethod.OPTIONS.name()));
         corsConfiguration.addAllowedHeader(CorsConfiguration.ALL);
         corsConfiguration.addExposedHeader("token");
-        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowCredentials(Boolean.TRUE);
         source.registerCorsConfiguration("/**", corsConfiguration);
         return new CorsFilter(source);
     }
