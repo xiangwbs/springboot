@@ -9,10 +9,15 @@ import com.aliyun.dingtalkoauth2_1_0.models.GetAccessTokenResponse;
 import com.aliyun.dingtalkoauth2_1_0.models.GetAccessTokenResponseBody;
 import com.aliyun.tea.TeaException;
 import com.aliyun.teaopenapi.models.Config;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 钉钉新版服务端sdk
@@ -21,9 +26,13 @@ import java.util.Map;
  * @version $
  * @since 2024年02月02日 4:59 PM
  */
+@RequiredArgsConstructor
+@Component
 @Slf4j
 public class DingtalkHelper {
+    private static final String ACCESS_TOKEN_CACHE_KEY = "dingtalk:accessToken";
     private static final Config CONFIG;
+    private final StringRedisTemplate stringRedisTemplate;
 
     static {
         CONFIG = new Config();
@@ -31,14 +40,27 @@ public class DingtalkHelper {
         CONFIG.regionId = "central";
     }
 
-    public static String getAccessToken(String appKey, String appSecret) {
+    public String getAccessTokenCache(String appKey, String appSecret) {
+        String accessToken = stringRedisTemplate.opsForValue().get(ACCESS_TOKEN_CACHE_KEY + appKey);
+        if (StringUtils.isNotEmpty(accessToken)) {
+            return accessToken;
+        }
+        accessToken = this.getAccessToken(appKey, appSecret);
+        if (StringUtils.isEmpty(accessToken)) {
+            return null;
+        }
+        stringRedisTemplate.opsForValue().set(ACCESS_TOKEN_CACHE_KEY + appKey, accessToken, 100, TimeUnit.MINUTES);
+        return accessToken;
+    }
+
+    public String getAccessToken(String appKey, String appSecret) {
         try {
             com.aliyun.dingtalkoauth2_1_0.Client client = new com.aliyun.dingtalkoauth2_1_0.Client(CONFIG);
             com.aliyun.dingtalkoauth2_1_0.models.GetAccessTokenRequest getAccessTokenRequest = new com.aliyun.dingtalkoauth2_1_0.models.GetAccessTokenRequest()
                     .setAppKey(appKey)
                     .setAppSecret(appSecret);
-            GetAccessTokenResponse accessToken = client.getAccessToken(getAccessTokenRequest);
-            GetAccessTokenResponseBody body = getBody(accessToken.getStatusCode(), accessToken.getBody());
+            GetAccessTokenResponse response = client.getAccessToken(getAccessTokenRequest);
+            GetAccessTokenResponseBody body = getBody(response.getStatusCode(), response.getBody());
             if (body == null) {
                 return null;
             }
@@ -49,16 +71,16 @@ public class DingtalkHelper {
         }
     }
 
-    public static String liandanlu() {
+    public String liandanlu(String accessToken, LiandanluExclusiveModelRequest request) {
         try {
             com.aliyun.dingtalkai_paa_s_1_0.Client client = new Client(CONFIG);
-            LiandanluExclusiveModelRequest request = new LiandanluExclusiveModelRequest();
-            request.setModule("aiChatData");
-            request.setModelId("model-igor-tongji-chatbi-1-wqdr");
-            request.setPrompt("近10年杭州市余杭区的财政收入");
-            request.setUserId("1");
+//            LiandanluExclusiveModelRequest request = new LiandanluExclusiveModelRequest();
+//            request.setModule("aiChatData");
+//            request.setModelId("model-igor-tongji-chatbi-1-wqdr");
+//            request.setPrompt("近10年杭州市余杭区的财政收入");
+//            request.setUserId("1");
             LiandanluExclusiveModelHeaders headers = new LiandanluExclusiveModelHeaders();
-            headers.setXAcsDingtalkAccessToken("257e2a58e2fe378d810d0388f59472ac");
+            headers.setXAcsDingtalkAccessToken(accessToken);
             LiandanluExclusiveModelResponse response = client.liandanluExclusiveModelWithOptions(request, headers, new com.aliyun.teautil.models.RuntimeOptions());
             Map<String, Map<String, String>> body = (Map<String, Map<String, String>>) getBody(response.getStatusCode(), response.getBody().getResult());
             if (MapUtils.isEmpty(body)) {
@@ -71,7 +93,7 @@ public class DingtalkHelper {
         }
     }
 
-    private static void dealException(Exception e) {
+    private void dealException(Exception e) {
         TeaException teaException;
         if (e instanceof TeaException) {
             teaException = (TeaException) e;
@@ -83,17 +105,11 @@ public class DingtalkHelper {
         }
     }
 
-    private static <T> T getBody(Integer statusCode, T body) {
+    private <T> T getBody(Integer statusCode, T body) {
         log.info("dingtalk getBody statusCode:{} body:{}", statusCode, JSONUtil.toJsonStr(body));
         if (statusCode != 200) {
             return null;
         }
         return body;
-    }
-
-    public static void main(String[] args) throws Exception {
-//        String accessToken = getAccessToken("dingqwati6igezdfkmib", "iEuiuLggX_7cOpH4LwhKj1f_ky5sfgs2eitN74pTDXn0-IWsizNrOinGdwXsIWKR");
-        String liandanlu = liandanlu();
-        System.out.println("");
     }
 }
