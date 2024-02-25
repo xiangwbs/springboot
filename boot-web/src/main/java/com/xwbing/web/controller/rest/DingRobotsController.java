@@ -44,10 +44,10 @@ public class DingRobotsController {
         } else if (content.contains("世界上最好的老婆是谁")) {
             DingtalkRobotHelper.sendText(robotMsg.getClient(), false,
                     Collections.singletonList(robotMsg.getSenderStaffId()), "彩彩呀");
-        } else if ("世界上最美的女人又是谁".contains(content)) {
+        } else if (content.contains("世界上最美的女人又是谁")) {
             DingtalkRobotHelper.sendText(robotMsg.getClient(), false,
                     Collections.singletonList(robotMsg.getSenderStaffId()), "当然是彩彩呀");
-        } else if ("芳容".equals(content)) {
+        } else if (content.contains("芳容")) {
             List<String> orderedList = new ArrayList<>();
             orderedList.add(DingtalkRobotHelper.dtmdLink("想"));
             orderedList.add(DingtalkRobotHelper.dtmdLink("不想"));
