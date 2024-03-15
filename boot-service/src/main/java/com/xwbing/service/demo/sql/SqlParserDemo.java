@@ -42,8 +42,7 @@ public class SqlParserDemo {
         if (where == null) {
             return sqlMap;
         }
-        List<Expression> expressions = new ArrayList<>();
-        processExpression(where, expressions);
+        List<Expression> expressions = listExpression(where, new ArrayList<>());
         expressions.stream()
                 .filter(expression -> expression.toString().contains("date"))
                 .forEach(expression -> {
@@ -72,17 +71,18 @@ public class SqlParserDemo {
         return sqlMap;
     }
 
-    private static void processExpression(Expression expression, List<Expression> expressions) {
+    private static List<Expression> listExpression(Expression expression, List<Expression> expressions) {
         if (expression instanceof AndExpression || expression instanceof OrExpression) {
             BinaryExpression expr = (BinaryExpression) expression;
-            processExpression(expr.getLeftExpression(), expressions);
-            processExpression(expr.getRightExpression(), expressions);
+            listExpression(expr.getLeftExpression(), expressions);
+            listExpression(expr.getRightExpression(), expressions);
         } else if (expression instanceof Parenthesis) {
             Parenthesis expr = (Parenthesis) expression;
-            processExpression(expr.getExpression(), expressions);
+            listExpression(expr.getExpression(), expressions);
         } else {
             expressions.add(expression);
         }
+        return expressions;
     }
 
     public static void join() throws JSQLParserException {
