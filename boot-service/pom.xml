@@ -203,7 +203,12 @@
             <version>2.8.0</version>
         </dependency>
 
-
+        <!-- sql解析器 -->
+        <dependency>
+            <groupId>com.github.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>4.9</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
