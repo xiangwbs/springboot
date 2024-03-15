@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public class SqlParserDemo {
     public static void main(String[] args) throws JSQLParserException {
-        String sql = "select region from region_data where date is not null and date!='2023' and (date in('2023','2024') and date between '2023' and '2024')";
+        String sql = "select region from region_data where date is not null and date!='2023' and (date not in('2023','2024') and date between '2023' and '2024')";
         Map<String, String> dateSqlMap = formatDate(sql);
         System.out.println(dateSqlMap);
     }
@@ -57,7 +57,8 @@ public class SqlParserDemo {
                         InExpression in = (InExpression) expression;
                         String column = in.getLeftExpression().toString();
                         List<String> valueList = (List<String>) in.getRightExpression(ExpressionList.class).stream().map(o -> o.toString()).collect(Collectors.toList());
-                        sqlMap.put(in.toString(), column + " in (" + String.join(",", valueList) + ")");
+                        String operator = in.isNot() ? " not in" : " in ";
+                        sqlMap.put(in.toString(), column + operator + "(" + String.join(",", valueList) + ")");
                         System.out.println("");
                     } else if (expression instanceof Between) {
                         Between between = (Between) expression;
