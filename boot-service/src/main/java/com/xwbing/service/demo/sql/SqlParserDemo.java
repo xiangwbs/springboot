@@ -32,15 +32,18 @@ public class SqlParserDemo {
     public static void main(String[] args) throws JSQLParserException {
         String sql = "select region from region_data where date is not null and date!='2023' and (date in('2023','2024') and date between '2023' and '2024')";
         Map<String, String> dateSqlMap = formatDate(sql);
-        System.out.println("");
+        System.out.println(dateSqlMap);
     }
 
     private static Map<String, String> formatDate(String sql) throws JSQLParserException {
+        Map<String, String> sqlMap = new HashMap<>();
         PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
         Expression where = select.getWhere();
+        if (where == null) {
+            return sqlMap;
+        }
         List<Expression> expressions = new ArrayList<>();
         processExpression(where, expressions);
-        Map<String, String> sqlMap = new HashMap<>();
         expressions.stream()
                 .filter(expression -> expression.toString().contains("date"))
                 .forEach(expression -> {
