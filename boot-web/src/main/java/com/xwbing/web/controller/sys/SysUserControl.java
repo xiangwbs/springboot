@@ -1,34 +1,11 @@
 package com.xwbing.web.controller.sys;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.domain.entity.sys.SysAuthority;
 import com.xwbing.service.domain.entity.sys.SysRole;
 import com.xwbing.service.domain.entity.sys.SysUser;
 import com.xwbing.service.domain.entity.sys.SysUserRole;
-import com.xwbing.service.domain.entity.vo.ListSysAuthorityVo;
-import com.xwbing.service.domain.entity.vo.ListSysRoleVo;
-import com.xwbing.service.domain.entity.vo.PageSysUserVo;
-import com.xwbing.service.domain.entity.vo.RestMessageVo;
-import com.xwbing.service.domain.entity.vo.SysUserVo;
+import com.xwbing.service.domain.entity.vo.*;
 import com.xwbing.service.enums.MenuOrButtonEnum;
 import com.xwbing.service.enums.YesOrNoEnum;
 import com.xwbing.service.service.sys.SysAuthorityService;
@@ -39,14 +16,21 @@ import com.xwbing.service.util.JsonResult;
 import com.xwbing.service.util.Pagination;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.starter.aspect.annotation.Lock;
-import com.xwbing.starter.aspect.annotation.ReqIdempotent;
 import com.xwbing.starter.util.UserContext;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 说明: 用户控制层
@@ -67,7 +51,7 @@ public class SysUserControl {
     @Resource
     private SysAuthorityService sysAuthorityService;
 
-    @ReqIdempotent
+//    @ReqIdempotent
     @ApiOperation(value = "添加用户", response = RestMessageVo.class)
     @ApiImplicitParam(name = "sign", value = "签名", paramType = "header", dataType = "string")
     @PostMapping("save")
