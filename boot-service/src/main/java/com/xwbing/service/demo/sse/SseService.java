@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.sse.EventSource;
+import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -67,6 +68,23 @@ public class SseService {
 //        RealEventSource eventSource = new RealEventSource(request, sseEventSourceListener);
 //        eventSource.connect(client);
         return eventSourceListener.getSseEmitter();
+    }
+
+    public void sse(String url, String param, EventSourceListener eventSourceListener) {
+        log.info("sse url:{} param:{}", url, param);
+        Request request = new Request.Builder()
+                .addHeader("content-type", "application/json")
+                .url(url)
+                .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), param))
+                .build();
+        OkHttpClient client = new OkHttpClient
+                .Builder()
+                .connectTimeout(1, TimeUnit.MINUTES)
+                .readTimeout(1, TimeUnit.MINUTES)
+                .writeTimeout(1, TimeUnit.MINUTES)
+                .build();
+        EventSource.Factory factory = EventSources.createFactory(client);
+        factory.newEventSource(request, eventSourceListener);
     }
 
     private SseEmitter sendMsg(String msg) {
