@@ -1,9 +1,9 @@
 package com.xwbing.service.domain.entity;
 
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.xwbing.service.domain.entity.sys.SysUser;
-import com.xwbing.service.exception.BusinessException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,23 +17,28 @@ import lombok.extern.slf4j.Slf4j;
 public class ResVO<T> {
     private String code;
     private String msg;
+    private boolean success;
     private T data;
 
-    public static <T> T checkRes(ResVO<T> res) {
-        String code = res.getCode();
-        if (!"200".equals(code)) {
-            log.error("code:{} msg:{}", res.getCode(), res.getMsg());
-            throw new BusinessException(res.getMsg());
+    public static <T> T parse(String res, TypeReference<ResVO<T>> typeRef) {
+        if (!JSONUtil.isTypeJSON(res)) {
+            return null;
         }
-        return res.getData();
-    }
-
-    public static boolean isSuccess(ResVO resVO) {
-        return resVO != null && "200".equals(resVO.getCode());
+        ResVO<T> resVO = JSON.parseObject(res, typeRef);
+        if (resVO.isSuccess()) {
+            return resVO.getData();
+        } else {
+            return null;
+        }
     }
 
     public static void main(String[] args) {
-        ResVO<SysUser> sysUserResVO = JSON.parseObject("", new TypeReference<ResVO<SysUser>>() {
+        ResVO<SysUser> sysUserResVO = new ResVO<>();
+        sysUserResVO.setCode("212");
+        SysUser sysUser = new SysUser();
+        sysUser.setName("anm");
+        sysUserResVO.setData(sysUser);
+        sysUser = parse(JSONUtil.toJsonStr(sysUserResVO), new TypeReference<ResVO<SysUser>>() {
         });
     }
 }
