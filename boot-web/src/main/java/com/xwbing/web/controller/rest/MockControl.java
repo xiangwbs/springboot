@@ -12,6 +12,7 @@ import com.xwbing.service.domain.entity.rest.FilesUpload;
 import com.xwbing.service.domain.entity.sys.SysUser;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
+import com.xwbing.service.domain.mapper.rest.DynamicMapper;
 import com.xwbing.service.enums.SexEnum;
 import com.xwbing.service.exception.BusinessException;
 import com.xwbing.service.service.rest.CookieSessionService;
@@ -45,10 +46,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -77,6 +75,8 @@ public class MockControl {
     private OssService ossService;
     @Resource
     private RedisTemplateDemo redisTemplateDemo;
+    @Resource
+    private DynamicMapper dynamicMapper;
     private List<byte[]> memoryBytes = new ArrayList<>();
 
     @ApiOperation("导出zip")
@@ -482,5 +482,10 @@ public class MockControl {
     @GetMapping("/redis/bit")
     public void bit(){
         redisTemplateDemo.bit();
+    }
+
+    @GetMapping("/selectBySql")
+    public List<Map<String, Object>> selectBySql(){
+        return dynamicMapper.selectBySql("select * from sys_user_info");
     }
 }
