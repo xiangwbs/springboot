@@ -1,5 +1,6 @@
 package com.xwbing.web.controller.rest;
 
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.IoUtil;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.fastjson.JSONObject;
@@ -426,6 +427,37 @@ public class MockControl {
         });
         log.info("readProductExcel allCount:{}", allCount);
         return ApiResponseUtil.success();
+    }
+
+    @PostMapping("excelToSql")
+    public ApiResponse<Integer> excelToSql(@RequestParam MultipartFile file, @RequestParam String tableName) throws IOException {
+        Map<String, Map<Integer, String>> headMap = new HashMap<>();
+        StringBuilder sqls = new StringBuilder();
+        Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 500, head -> headMap.put("head", head), data -> data.forEach(excel -> {
+            Map<Integer, String> head = headMap.get("head");
+            ArrayList<String> heads = ListUtil.toList(head.values());
+            heads.add("CREATOR");
+            heads.add("MODIFIER");
+            String field = String.join(",", heads);
+            String sql = "INSERT INTO " + tableName + "(" + field + ") VALUES";
+            List<String> values = excel.entrySet().stream().map(entry -> {
+                Integer key = entry.getKey();
+                String value = entry.getValue();
+                if (value == null) {
+                    value = "0";
+                }
+                if (key == 0) {
+                    value = "'" + value + "'";
+                }
+                return value;
+            }).collect(Collectors.toList());
+            values.add("'道风'");
+            values.add("'道风'");
+            sql = sql + "(" + String.join(",",values) + ");";
+            sqls.append(sql).append("\n");
+        }));
+        String sqlStr = sqls.toString();
+        return ApiResponseUtil.success(count);
     }
 
     // @OperateLog(tag = "测试日志", content = "自定义函数1:{exampleFunction{#name}} 自定义函数2:{exampleFunction{#password}} {{#sex}}")

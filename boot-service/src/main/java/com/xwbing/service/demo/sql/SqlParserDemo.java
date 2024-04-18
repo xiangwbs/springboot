@@ -14,6 +14,7 @@ import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -33,29 +34,38 @@ import java.util.stream.Collectors;
  */
 public class SqlParserDemo {
     public static void main(String[] args) throws JSQLParserException {
-        String sql = "SELECT RECEIVINGTRENAME 地区,(CURRENTYEARTAXREVENU-LASTYEARTAXREVENU)/LASTYEARTAXREVENU*100 同比 FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ " +
-                "WHERE YEARMONTH =202402 AND TYPECODE =0 AND RECEIVINGTRENAME LIKE '%余杭区%'";
+        String sql = "SELECT a.RECEIVINGTRENAME,a.CURRENTYEARTAXREVENU/b.CURRENTYEARTAXREVENU*100 占比 from\n" +
+                "(SELECT RECEIVINGTRENAME,CURRENTYEARTAXREVENU  FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ WHERE YEARMONTH =202312 AND TYPECODE =1 AND RECEIVINGTRENAME LIKE '%余杭区%') a,\n" +
+                "(SELECT sum(CURRENTYEARTAXREVENU) CURRENTYEARTAXREVENU FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ WHERE YEARMONTH =202312 AND TYPECODE =1 ) b";
         PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
+        Set<String> tables = TablesNamesFinder.findTables(sql);
         Table table = (Table) select.getFromItem();
-        select.getSelectItems().forEach(selectItem -> {
+        String tableName = table.getName();
+        List<SelectItem<?>> selectItems = select.getSelectItems();
+        selectItems.forEach(selectItem -> {
             Expression expression = selectItem.getExpression();
             if (expression instanceof Column) {
                 selectItem.setAlias(null);
             }
         });
+        String reSql = select.toString().toLowerCase();
+        Limit limit = select.getLimit();
+        if (limit == null) {
+            reSql = reSql + " limit 100";
+        }
         System.out.println("");
 
 
-        // find in Statements
-        String sqlStr = "SELECT a.CURRENTYEARTAXREVENU/b.CURRENTYEARTAXREVENU*100  from\n" +
-                "(SELECT CURRENTYEARTAXREVENU  FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ\n" +
-                "WHERE YEARMONTH =202312 AND TYPECODE =1 AND RECEIVINGTRENAME LIKE '%余杭区%') a,\n" +
-                "(SELECT sum(CURRENTYEARTAXREVENU) CURRENTYEARTAXREVENU FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ\n" +
-                "WHERE YEARMONTH =202312 AND TYPECODE =1 ) b";
-        Set<String> tableNames = TablesNamesFinder.findTables(sqlStr);
-        // find in Expressions
-        String exprStr = "A.id=B.id and A.age = (select age from C)";
-        tableNames = TablesNamesFinder.findTablesInExpression(exprStr);
+//        // find in Statements
+//        String sqlStr = "SELECT a.CURRENTYEARTAXREVENU/b.CURRENTYEARTAXREVENU*100  from\n" +
+//                "(SELECT CURRENTYEARTAXREVENU  FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ\n" +
+//                "WHERE YEARMONTH =202312 AND TYPECODE =1 AND RECEIVINGTRENAME LIKE '%余杭区%') a,\n" +
+//                "(SELECT sum(CURRENTYEARTAXREVENU) CURRENTYEARTAXREVENU FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ\n" +
+//                "WHERE YEARMONTH =202312 AND TYPECODE =1 ) b";
+//        Set<String> tableNames = TablesNamesFinder.findTables(sqlStr);
+//        // find in Expressions
+//        String exprStr = "A.id=B.id and A.age = (select age from C)";
+//        tableNames = TablesNamesFinder.findTablesInExpression(exprStr);
     }
 
     private static Map<String, String> formatDate(String sql) throws JSQLParserException {
@@ -109,7 +119,7 @@ public class SqlParserDemo {
         return expressions;
     }
 
-    private void reSql(PlainSelect select, List<SqlFieldVO> fieldList) {
+    public static void reSql(PlainSelect select, List<SqlFieldVO> fieldList) {
         Map<String, Byte> functionDataTypeMap = new HashMap<>();
         Table table = (Table) select.getFromItem();
         String tableName = table.getName();
