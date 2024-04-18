@@ -1,6 +1,7 @@
 package com.xwbing.service.demo.sql;
 
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Parenthesis;
@@ -11,14 +12,16 @@ import net.sf.jsqlparser.expression.operators.relational.ComparisonOperator;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.util.TablesNamesFinder;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,9 +33,29 @@ import java.util.stream.Collectors;
  */
 public class SqlParserDemo {
     public static void main(String[] args) throws JSQLParserException {
-        String sql = "select region from region_data where date is not null and date!='2023' and (date not in('2023','2024') and date between '2023' and '2024')";
-        Map<String, String> dateSqlMap = formatDate(sql);
-        System.out.println(dateSqlMap);
+        String sql = "SELECT RECEIVINGTRENAME 地区,(CURRENTYEARTAXREVENU-LASTYEARTAXREVENU)/LASTYEARTAXREVENU*100 同比 FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ " +
+                "WHERE YEARMONTH =202402 AND TYPECODE =0 AND RECEIVINGTRENAME LIKE '%余杭区%'";
+        PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
+        Table table = (Table) select.getFromItem();
+        select.getSelectItems().forEach(selectItem -> {
+            Expression expression = selectItem.getExpression();
+            if (expression instanceof Column) {
+                selectItem.setAlias(null);
+            }
+        });
+        System.out.println("");
+
+
+        // find in Statements
+        String sqlStr = "SELECT a.CURRENTYEARTAXREVENU/b.CURRENTYEARTAXREVENU*100  from\n" +
+                "(SELECT CURRENTYEARTAXREVENU  FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ\n" +
+                "WHERE YEARMONTH =202312 AND TYPECODE =1 AND RECEIVINGTRENAME LIKE '%余杭区%') a,\n" +
+                "(SELECT sum(CURRENTYEARTAXREVENU) CURRENTYEARTAXREVENU FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ\n" +
+                "WHERE YEARMONTH =202312 AND TYPECODE =1 ) b";
+        Set<String> tableNames = TablesNamesFinder.findTables(sqlStr);
+        // find in Expressions
+        String exprStr = "A.id=B.id and A.age = (select age from C)";
+        tableNames = TablesNamesFinder.findTablesInExpression(exprStr);
     }
 
     private static Map<String, String> formatDate(String sql) throws JSQLParserException {
@@ -85,6 +108,47 @@ public class SqlParserDemo {
         }
         return expressions;
     }
+
+    private void reSql(PlainSelect select, List<SqlFieldVO> fieldList) {
+        Map<String, Byte> functionDataTypeMap = new HashMap<>();
+        Table table = (Table) select.getFromItem();
+        String tableName = table.getName();
+        List<String> selectItemList = select.getSelectItems().stream().map(selectItem -> {
+            String item = selectItem.toString();
+            Expression expression = selectItem.getExpression();
+            if (expression instanceof Column) {
+                Column column = (Column) expression;
+                item = column.getColumnName();
+            } else {
+                // 映射涉及计算列的字段类型
+                String expressionStr = expression.toString();
+                SqlFieldVO matchField = fieldList.stream().filter(chatBiFieldVO -> expressionStr.contains(chatBiFieldVO.getCode())).findFirst().orElse(null);
+                if (matchField != null) {
+                    String key = Optional.ofNullable(selectItem.getAlias()).map(Alias::getName).orElse(expressionStr);
+                    functionDataTypeMap.put(key, matchField.getDataType());
+                }
+            }
+            return item;
+        }).collect(Collectors.toList());
+        String whereStr = Optional.ofNullable(select.getWhere()).map(Object::toString).orElse(null);
+        String orderByStr = "";
+        if (CollectionUtils.isNotEmpty(select.getOrderByElements())) {
+            orderByStr = select.getOrderByElements().stream().map(OrderByElement::toString).collect(Collectors.joining(","));
+        }
+        StringBuilder sql = new StringBuilder()
+                .append("select ")
+                .append(select.getDistinct() != null ? "distinct " : "")
+                .append(String.join(",", selectItemList))
+                .append(" from ")
+                .append(tableName)
+                .append(StringUtils.isNotEmpty(whereStr) ? " where " + whereStr : "")
+                .append(select.getGroupBy() != null ? " " + select.getGroupBy().toString() : "")
+                .append(select.getHaving() != null ? " having " + select.getHaving().toString() : "")
+                .append(StringUtils.isNotEmpty(orderByStr) ? " order by " + orderByStr : "")
+                .append(select.getLimit() != null ? " " + select.getLimit().toString() : " limit 100");
+        String sqlSr = sql.toString().toLowerCase();
+    }
+
 
     public static void join() throws JSQLParserException {
         List<String> sqlList = new ArrayList<>();
