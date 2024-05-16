@@ -17,10 +17,7 @@ import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 import com.xwbing.service.domain.mapper.rest.DynamicMapper;
 import com.xwbing.service.enums.SexEnum;
 import com.xwbing.service.exception.BusinessException;
-import com.xwbing.service.service.rest.CookieSessionService;
-import com.xwbing.service.service.rest.EasyExcelDealService;
-import com.xwbing.service.service.rest.QRCodeZipService;
-import com.xwbing.service.service.rest.UploadService;
+import com.xwbing.service.service.rest.*;
 import com.xwbing.service.util.*;
 import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.service.util.dingtalk.LinkMessage;
@@ -79,6 +76,8 @@ public class MockControl {
     private RedisTemplateDemo redisTemplateDemo;
     @Resource
     private DynamicMapper dynamicMapper;
+    @Resource
+    private MockService mockService;
     private List<byte[]> memoryBytes = new ArrayList<>();
 
     @ApiOperation("导出zip")
@@ -326,6 +325,11 @@ public class MockControl {
             excelData.add(data3);
             return excelData;
         });
+    }
+
+    @PostMapping("runNl2sql")
+    public void runNl2sqlV2(@RequestParam MultipartFile file,HttpServletResponse response) throws IOException {
+        mockService.runNl2sql(file.getInputStream(), response);
     }
 
     @ApiOperation("下载excel到本地")
