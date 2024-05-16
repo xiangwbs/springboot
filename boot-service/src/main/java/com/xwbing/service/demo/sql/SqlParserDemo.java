@@ -34,9 +34,18 @@ import java.util.stream.Collectors;
  */
 public class SqlParserDemo {
     public static void main(String[] args) throws JSQLParserException {
-        String sql = "SELECT a.RECEIVINGTRENAME,a.CURRENTYEARTAXREVENU/b.CURRENTYEARTAXREVENU*100 占比 from\n" +
-                "(SELECT RECEIVINGTRENAME,CURRENTYEARTAXREVENU  FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ WHERE YEARMONTH =202312 AND TYPECODE =1 AND RECEIVINGTRENAME LIKE '%余杭区%') a,\n" +
-                "(SELECT sum(CURRENTYEARTAXREVENU) CURRENTYEARTAXREVENU FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ WHERE YEARMONTH =202312 AND TYPECODE =1 ) b";
+        String sql = "\nSELECT\n  STATISTICS_DATE,\n  TOTAL_FISCAL_REVENUE \nFROM\n  bot_chat_bi_economic \nWHERE\n  STATISTICS_DATE = 20211231 \n  AND CITY = '杭州市' \n  AND DISTRICT IS NULL;";
+//        String sql = "SELECT \n" +
+//                "    t2.REGION, \n" +
+//                "    ROUND((t2.TOTAL_EXPORT - t1.TOTAL_EXPORT) / t1.TOTAL_EXPORT * 100,2) AS 增长率\n" +
+//                "FROM \n" +
+//                "    bot_bi_national_economic_data t1\n" +
+//                "JOIN \n" +
+//                "    bot_bi_national_economic_data t2 ON t1.REGION = t2.REGION\n" +
+//                "WHERE \n" +
+//                "    t1.DATE = 20171231 AND  t2.DATE = 20221231 \n" +
+//                "\tand t2.region='宁波市'\n" +
+//                "\torder by 增长率 desc";
         PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
         Set<String> tables = TablesNamesFinder.findTables(sql);
         Table table = (Table) select.getFromItem();

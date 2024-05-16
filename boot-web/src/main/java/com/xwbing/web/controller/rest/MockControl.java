@@ -1,5 +1,6 @@
 package com.xwbing.web.controller.rest;
 
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.IoUtil;
 import com.alibaba.excel.support.ExcelTypeEnum;
@@ -437,23 +438,25 @@ public class MockControl {
             Map<Integer, String> head = headMap.get("head");
             ArrayList<String> heads = ListUtil.toList(head.values());
             heads.add("CREATOR");
-            heads.add("MODIFIER");
             String field = String.join(",", heads);
             String sql = "INSERT INTO " + tableName + "(" + field + ") VALUES";
             List<String> values = excel.entrySet().stream().map(entry -> {
                 Integer key = entry.getKey();
                 String value = entry.getValue();
                 if (value == null) {
-                    value = "0";
+                    if (key <= 2) {
+                        value = null;
+                    } else {
+                        value = "0";
+                    }
                 }
-                if (key == 0) {
+                if (key <= 3 && StringUtils.isNotEmpty(value)) {
                     value = "'" + value + "'";
                 }
                 return value;
             }).collect(Collectors.toList());
             values.add("'道风'");
-            values.add("'道风'");
-            sql = sql + "(" + String.join(",",values) + ");";
+            sql = sql + "(" + String.join(",", values) + ");";
             sqls.append(sql).append("\n");
         }));
         String sqlStr = sqls.toString();
@@ -519,5 +522,11 @@ public class MockControl {
     @GetMapping("/selectBySql")
     public List<Map<String, Object>> selectBySql(){
         return dynamicMapper.selectBySql("select * from sys_user_info");
+    }
+
+    @PostMapping("/insertBySql")
+    public void insertBySql(@RequestBody Map<String,String> data){
+        String sql = data.get("content");
+        dynamicMapper.insertBySql(Base64.decodeStr(sql.substring(1)));
     }
 }

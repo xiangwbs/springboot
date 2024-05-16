@@ -21,4 +21,6 @@ public interface DynamicMapper {
      * @return
      */
     List<Map<String, Object>> selectBySql(@Param("sql") String sql);
+
+    void insertBySql(@Param("sql") String sql);
 }

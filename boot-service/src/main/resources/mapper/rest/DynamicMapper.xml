@@ -4,4 +4,8 @@
 	<select id="selectBySql" resultType="java.util.LinkedHashMap">
         ${sql}
     </select>
+
+    <insert id="insertBySql">
+        ${sql}
+    </insert>
 </mapper>
