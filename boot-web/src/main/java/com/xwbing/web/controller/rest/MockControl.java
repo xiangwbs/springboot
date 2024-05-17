@@ -332,6 +332,11 @@ public class MockControl {
         mockService.runNl2sql(file.getInputStream(), response);
     }
 
+    @PostMapping("runChatglmNl2sql")
+    public void runChatglmNl2sql(@RequestParam MultipartFile file,HttpServletResponse response) throws IOException {
+        mockService.runChatglmNl2sql(file.getInputStream(), response);
+    }
+
     @ApiOperation("下载excel到本地")
     @GetMapping("writeToLocal")
     public void writeToLocal() {

@@ -16,8 +16,12 @@ public class Nl2sqlExcelDTO {
     private String question;
     @ExcelProperty(index = 2, value = "sql")
     private String sql;
-    @ExcelProperty(index = 3, value = "模型sql")
-    private String modelSql;
-    @ExcelProperty(index = 4, value = "是否正确")
-    private String correct;
+    @ExcelProperty(index = 3, value = "llamaSql")
+    private String llamaSql;
+    @ExcelProperty(index = 4, value = "llama检查")
+    private String llamaCorrect;
+    @ExcelProperty(index = 5, value = "炼丹炉sql")
+    private String ldlSql;
+    @ExcelProperty(index = 6, value = "炼丹炉检查")
+    private String ldlCorrect;
 }
