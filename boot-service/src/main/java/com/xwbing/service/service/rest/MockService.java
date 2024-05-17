@@ -247,7 +247,7 @@ public class MockService {
                 "- 若where中包含budgetsubjectname字段时，selec中必须包含budgetsubjectcode字段，反之也同理，这两个字段需共存；\n" +
                 "- 必须注意，一定只能回答SQL语句，不能包含其他任何内容；\n" +
                 "\n" +
-                "### 输入：" + content + "\n" +
+                "### 输入：生成一个SQL查询来回答问题：" + content + "\n" +
                 "\n" +
                 "### 回答：\n" +
                 "```sql";
