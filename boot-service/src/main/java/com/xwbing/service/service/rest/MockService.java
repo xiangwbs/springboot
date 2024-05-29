@@ -48,7 +48,7 @@ public class MockService {
             dto.setLlamaSql(sql);
             dto.setLlamaCorrect(dto.getSql().replaceAll("\n|\t|\u00a0| ", "").trim().equalsIgnoreCase(sql.replaceAll("\n|\t|\u00a0| ", "").trim()) ? "正确" : "错误");
         }).collect(Collectors.toList());
-        ExcelUtil.write(response, Nl2sqlExcelDTO.class, "智谱跑测结果.xlsx", null, list);
+        ExcelUtil.write(response, Nl2sqlExcelDTO.class, "智谱跑测结果1.xlsx", null, list);
     }
 
     public String llamaNl2sql2(String content) {
@@ -240,8 +240,9 @@ public class MockService {
                 "- **逐字仔细阅读问题和数据库模式** ，以适当回答问题；\n" +
                 "- 生成sql用的字段需要在数据库模式columns内，但columns字段可能会超出问句范畴，请选择合适字段，无需要使用所有字段；\n" +
                 "- 用户问中未指定收入支出类型，则不设置默认值；\n" +
-                "- select中不需要进行函数计算，直接返回where中涉及的所有字段；\n" +
+                "- select中不需要进行函数计算，直接返回where中涉及的所有字段，where中用到的筛选字段，在select中必须输出；\n" +
                 "- budgetsubjectname字段，where条件请使用like，如LIKE \"%税收收入%\"，其他维度字段基于用户问判断；\n" +
+                "- 若是dws_budget_domain_srzc_ai表且select不涉及字段计算，则selcet中必须包含 mofdivname,yearmonth,incexptype,budgetsubjectcode,budgetsubjectname,amt；\n" +
                 "- **使用表别名** 来防止歧义。例如， `SELECT table1.col1, table2.col1 FROM table1 JOIN table2 ON table1.id = table2.id`；\n" +
                 "- **提取到的条件信息不要翻译成英文**，例如， `WHERE type=\"风能\"`；\n" +
                 "- 若where中包含budgetsubjectname字段时，selec中必须包含budgetsubjectcode字段，反之也同理，这两个字段需共存；\n" +
