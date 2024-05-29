@@ -1,40 +1,48 @@
 package com.xwbing.service.demo.sql;
 
+import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author daofeng
  * @version $
  * @since 2024年05月29日 3:53 PM
  */
+@Slf4j
 public class JdbcDemo {
-    public static void query(String sql) {
+    public static List<JSONObject> query(String sql) {
         String jdbcUrl = "jdbc:mysql://127.0.0.1:3306/boot";
         String username = "root";
         String password = "xiangwbs";
+        List<JSONObject> list = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password)) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnsCount = metaData.getColumnCount();
             while (resultSet.next()) {
+                JSONObject column = new JSONObject();
                 for (int i = 1; i <= columnsCount; i++) {
-                    // 获取列的名字
-                    String columnName = metaData.getColumnName(i);
-                    // 获取对应列的值
-                    Object columnValue = resultSet.getObject(i);
-                    // 打印列名和值
-                    System.out.print(columnName + ": " + columnValue + "\n");
+                    column.put(metaData.getColumnName(i), resultSet.getObject(i));
                 }
+                list.add(column);
             }
             resultSet.close();
             statement.close();
+            return list;
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("jdbcUtil query sql:{} error", sql, e);
+            return Collections.emptyList();
         }
     }
 
     public static void main(String[] args) {
-        query("SELECT DISTINCT(name) from sys_user_info");
+        List<JSONObject> query = query("SELECT * from sys_user_info");
+        System.out.println("");
     }
 }
