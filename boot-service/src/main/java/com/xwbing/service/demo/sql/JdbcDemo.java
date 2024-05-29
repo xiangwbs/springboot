@@ -7,7 +7,7 @@ import java.sql.*;
  * @version $
  * @since 2024年05月29日 3:53 PM
  */
-public class DynamicDemo {
+public class JdbcDemo {
     public static void query(String sql) {
         String jdbcUrl = "jdbc:mysql://127.0.0.1:3306/boot";
         String username = "root";
