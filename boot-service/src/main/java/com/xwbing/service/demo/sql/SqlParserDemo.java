@@ -15,10 +15,7 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.GroupByElement;
-import net.sf.jsqlparser.statement.select.OrderByElement;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.util.SelectUtils;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.apache.commons.collections4.CollectionUtils;
@@ -36,27 +33,30 @@ import java.util.stream.Collectors;
  */
 public class SqlParserDemo {
     public static void main(String[] args) throws JSQLParserException {
-        String sql = "select a.a,b.b from aaa a left join bbb b on(a.id=b.aid) where a.name='1232'";
-        base(sql);
+//        base("select role.name,count(authority.id) from ROLE role left join AUTHORITY authority on(role.id=authority.roleId) where role.id in(1000,1001) group by role.id  order by role.creationDate desc limit 10");
+//        String addColumnSql = addColumn("select name,age from user where id=1", "sex");
+        System.out.println("");
     }
 
     private static void base(String sql) throws JSQLParserException {
         Statement statement = CCJSqlParserUtil.parse(sql);
+        PlainSelect select = (PlainSelect) statement;
         // 获取所有表
         Set<String> tables = new TablesNamesFinder().getTables(statement);
-        PlainSelect select = (PlainSelect) statement;
         // 获取from中的表
         Table fromTable = (Table) select.getFromItem();
         String tableName = fromTable.getName();
         Alias tableAlias = fromTable.getAlias();
         // 获取关联的表
-        List<Table> joinTableList = select.getJoins().stream()
+        List<Table> joinTableList = select.getJoins()
+                .stream()
                 .map(join -> (Table) join.getRightItem())
                 .collect(Collectors.toList());
 
-        List<SelectItem<?>> selectItems = select.getSelectItems();
-        List<OrderByElement> OrderByElements = select.getOrderByElements();
+        List<SelectItem<?>> selectList = select.getSelectItems();
+        List<OrderByElement> orderByList = select.getOrderByElements();
         GroupByElement groupBy = select.getGroupBy();
+        Limit limit = select.getLimit();
         System.out.println("");
     }
 
