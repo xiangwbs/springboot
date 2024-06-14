@@ -1,5 +1,6 @@
 package com.xwbing.service.demo.sql;
 
+import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -7,6 +8,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author daofeng
@@ -34,6 +36,11 @@ public class JdbcDemo {
             }
             resultSet.close();
             statement.close();
+            list = list.stream().map(obj -> {
+                JSONObject j = new JSONObject();
+                obj.forEach((k, v) -> j.put(k.toLowerCase(), v));
+                return j;
+            }).collect(Collectors.toList());
             return list;
         } catch (SQLException e) {
             log.error("jdbcUtil query sql:{} error", sql, e);
@@ -42,7 +49,12 @@ public class JdbcDemo {
     }
 
     public static void main(String[] args) {
-        List<JSONObject> query = query("SELECT * from sys_user_info");
+        SQLUtils.FormatOption formatOption = new SQLUtils.FormatOption();
+        formatOption.setPrettyFormat(true);
+        formatOption.setUppCase(false);
+        String sql = SQLUtils.formatMySql("SELECT * from sys_user_info", formatOption);
+        List<JSONObject> query = query(sql);
         System.out.println("");
+
     }
 }

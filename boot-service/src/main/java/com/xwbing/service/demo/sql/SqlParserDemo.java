@@ -14,10 +14,12 @@ import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.Limit;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.GroupByElement;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.util.SelectUtils;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,47 +36,44 @@ import java.util.stream.Collectors;
  */
 public class SqlParserDemo {
     public static void main(String[] args) throws JSQLParserException {
-        String sql = "\nSELECT\n  STATISTICS_DATE,\n  TOTAL_FISCAL_REVENUE \nFROM\n  bot_chat_bi_economic \nWHERE\n  STATISTICS_DATE = 20211231 \n  AND CITY = '杭州市' \n  AND DISTRICT IS NULL;";
-//        String sql = "SELECT \n" +
-//                "    t2.REGION, \n" +
-//                "    ROUND((t2.TOTAL_EXPORT - t1.TOTAL_EXPORT) / t1.TOTAL_EXPORT * 100,2) AS 增长率\n" +
-//                "FROM \n" +
-//                "    bot_bi_national_economic_data t1\n" +
-//                "JOIN \n" +
-//                "    bot_bi_national_economic_data t2 ON t1.REGION = t2.REGION\n" +
-//                "WHERE \n" +
-//                "    t1.DATE = 20171231 AND  t2.DATE = 20221231 \n" +
-//                "\tand t2.region='宁波市'\n" +
-//                "\torder by 增长率 desc";
-        PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
-        Set<String> tables = TablesNamesFinder.findTables(sql);
-        Table table = (Table) select.getFromItem();
-        String tableName = table.getName();
+        String sql = "select a.a,b.b from aaa a left join bbb b on(a.id=b.aid) where a.name='1232'";
+        base(sql);
+    }
+
+    private static void base(String sql) throws JSQLParserException {
+        Statement statement = CCJSqlParserUtil.parse(sql);
+        // 获取所有表
+        Set<String> tables = new TablesNamesFinder().getTables(statement);
+        PlainSelect select = (PlainSelect) statement;
+        // 获取from中的表
+        Table fromTable = (Table) select.getFromItem();
+        String tableName = fromTable.getName();
+        Alias tableAlias = fromTable.getAlias();
+        // 获取关联的表
+        List<Table> joinTableList = select.getJoins().stream()
+                .map(join -> (Table) join.getRightItem())
+                .collect(Collectors.toList());
+
         List<SelectItem<?>> selectItems = select.getSelectItems();
-        selectItems.forEach(selectItem -> {
-            Expression expression = selectItem.getExpression();
-            if (expression instanceof Column) {
-                selectItem.setAlias(null);
-            }
-        });
-        String reSql = select.toString().toLowerCase();
-        Limit limit = select.getLimit();
-        if (limit == null) {
-            reSql = reSql + " limit 100";
-        }
+        List<OrderByElement> OrderByElements = select.getOrderByElements();
+        GroupByElement groupBy = select.getGroupBy();
         System.out.println("");
+    }
 
-
-//        // find in Statements
-//        String sqlStr = "SELECT a.CURRENTYEARTAXREVENU/b.CURRENTYEARTAXREVENU*100  from\n" +
-//                "(SELECT CURRENTYEARTAXREVENU  FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ\n" +
-//                "WHERE YEARMONTH =202312 AND TYPECODE =1 AND RECEIVINGTRENAME LIKE '%余杭区%') a,\n" +
-//                "(SELECT sum(CURRENTYEARTAXREVENU) CURRENTYEARTAXREVENU FROM DWS_LEVY_DOMAIN_QYSRTJ_HZ\n" +
-//                "WHERE YEARMONTH =202312 AND TYPECODE =1 ) b";
-//        Set<String> tableNames = TablesNamesFinder.findTables(sqlStr);
-//        // find in Expressions
-//        String exprStr = "A.id=B.id and A.age = (select age from C)";
-//        tableNames = TablesNamesFinder.findTablesInExpression(exprStr);
+    private static String addColumn(String sql, String field) throws JSQLParserException {
+        PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql.toLowerCase());
+        List<SelectItem<?>> selectItems = select.getSelectItems();
+        List<String> selectColumList = selectItems.stream()
+                .filter(selectItem -> selectItem.getExpression() instanceof Column)
+                .map(selectItem -> {
+                    Expression expression = selectItem.getExpression();
+                    Column column = (Column) expression;
+                    return column.getColumnName();
+                }).collect(Collectors.toList());
+        if (!selectColumList.contains(field.toLowerCase())) {
+            SelectUtils.addExpression(select, new Column(field.toLowerCase()));
+        }
+        return select.toString().toLowerCase();
     }
 
     private static Map<String, String> formatDate(String sql) throws JSQLParserException {
