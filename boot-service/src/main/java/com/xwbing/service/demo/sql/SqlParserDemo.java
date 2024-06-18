@@ -38,7 +38,7 @@ public class SqlParserDemo {
     }
 
     private static void base(String sql) throws JSQLParserException {
-        Statement statement = CCJSqlParserUtil.parse(sql);
+        Statement statement = SqlUtil.getStatement(sql);
         PlainSelect select = (PlainSelect) statement;
         // 获取所有表
         Set<String> tables = new TablesNamesFinder().getTables(statement);
@@ -51,7 +51,6 @@ public class SqlParserDemo {
                 .stream()
                 .map(join -> (Table) join.getRightItem())
                 .collect(Collectors.toList());
-
         List<SelectItem<?>> selectList = select.getSelectItems();
         List<OrderByElement> orderByList = select.getOrderByElements();
         GroupByElement groupBy = select.getGroupBy();
@@ -62,7 +61,7 @@ public class SqlParserDemo {
 
     private static Map<String, String> formatDate(String sql) throws JSQLParserException {
         Map<String, String> sqlMap = new HashMap<>();
-        PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql);
+        PlainSelect select = SqlUtil.getSelect(sql);
         Expression where = select.getWhere();
         if (where == null) {
             return sqlMap;
@@ -97,18 +96,24 @@ public class SqlParserDemo {
         return sqlMap;
     }
 
-    public static void reSql(PlainSelect select, List<SqlFieldVO> fieldList) {
-        Map<String, Byte> functionDataTypeMap = new HashMap<>();
+    private ReSqlVO reSql(String sql, List<SqlFieldVO> fieldList) {
+        PlainSelect select = SqlUtil.getSelect(sql);
+        if (select == null) {
+            return null;
+        }
+        ReSqlVO reSql = new ReSqlVO();
         Map<String, String> fieldNameMap = fieldList.stream().collect(Collectors.toMap(SqlFieldVO::getCode, SqlFieldVO::getName));
-        Table table = (Table) select.getFromItem();
-        String tableName = table.getName();
-        List<String> selectItemList = select.getSelectItems().stream().map(selectItem -> {
-            String item = selectItem.toString();
+        Map<String, Byte> functionDataTypeMap = new HashMap<>();
+        List<SelectItem<?>> selectItems = select.getSelectItems();
+        selectItems.forEach(selectItem -> {
             Expression expression = selectItem.getExpression();
             if (expression instanceof Column) {
                 Column column = (Column) expression;
-                item = column.getColumnName();
-                selectItem.setAlias(new Alias(fieldNameMap.get(column.getColumnName()), true));
+                // 设置别名
+                String columnName = fieldNameMap.get(column.getColumnName());
+                if (StringUtils.isNotEmpty(columnName)) {
+                    selectItem.setAlias(new Alias("\"" + columnName + "\"", true));
+                }
             } else {
                 // 映射涉及计算列的字段类型
                 String expressionStr = expression.toString();
@@ -118,6 +123,38 @@ public class SqlParserDemo {
                     functionDataTypeMap.put(key, matchField.getDataType());
                 }
             }
+        });
+        sql = select.toString().toLowerCase();
+        Limit limit = select.getLimit();
+        if (limit == null) {
+            sql = sql + " limit 1000";
+        }
+        reSql.setReSql(sql);
+        reSql.setFunctionDataTypeMap(functionDataTypeMap);
+        // 获取去除别名的sql 便于动态sql查询到的数据(map<key,value>)key能匹配到对应的字段
+        select = SqlUtil.getSelect(sql);
+        select.getSelectItems().forEach(selectItem -> {
+            Expression expression = selectItem.getExpression();
+            if (expression instanceof Column) {
+                selectItem.setAlias(null);
+            }
+        });
+        reSql.setNoAliasSql(select.toString().toLowerCase());
+        return reSql;
+    }
+
+
+    public static String reSql(String sql) {
+        PlainSelect select = SqlUtil.getSelect(sql);
+        Table table = (Table) select.getFromItem();
+        String tableName = table.getName();
+        List<String> selectItemList = select.getSelectItems().stream().map(selectItem -> {
+            String item = selectItem.toString();
+            Expression expression = selectItem.getExpression();
+            if (expression instanceof Column) {
+                Column column = (Column) expression;
+                item = column.getColumnName();
+            }
             return item;
         }).collect(Collectors.toList());
         String whereStr = Optional.ofNullable(select.getWhere()).map(Object::toString).orElse(null);
@@ -125,7 +162,7 @@ public class SqlParserDemo {
         if (CollectionUtils.isNotEmpty(select.getOrderByElements())) {
             orderByStr = select.getOrderByElements().stream().map(OrderByElement::toString).collect(Collectors.joining(","));
         }
-        StringBuilder sql = new StringBuilder()
+        StringBuilder sqlBuilder = new StringBuilder()
                 .append("select ")
                 .append(select.getDistinct() != null ? "distinct " : "")
                 .append(String.join(",", selectItemList))
@@ -136,7 +173,7 @@ public class SqlParserDemo {
                 .append(select.getHaving() != null ? " having " + select.getHaving().toString() : "")
                 .append(StringUtils.isNotEmpty(orderByStr) ? " order by " + orderByStr : "")
                 .append(select.getLimit() != null ? " " + select.getLimit().toString() : " limit 100");
-        String sqlSr = sql.toString().toLowerCase();
+        return sqlBuilder.toString().toLowerCase();
     }
 
 
