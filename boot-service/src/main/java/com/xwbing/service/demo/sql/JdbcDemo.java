@@ -49,9 +49,7 @@ public class JdbcDemo {
     }
 
     public static void main(String[] args) {
-        SQLUtils.FormatOption formatOption = new SQLUtils.FormatOption();
-        formatOption.setPrettyFormat(true);
-        formatOption.setUppCase(false);
+        SQLUtils.FormatOption formatOption = new SQLUtils.FormatOption(false,true);
         String sql = SQLUtils.formatMySql("SELECT * from sys_user_info", formatOption);
         List<JSONObject> query = query(sql);
         System.out.println("");

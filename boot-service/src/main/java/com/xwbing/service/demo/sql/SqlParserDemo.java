@@ -1,12 +1,9 @@
 package com.xwbing.service.demo.sql;
 
+import com.xwbing.service.util.SqlUtil;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Alias;
-import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.Between;
 import net.sf.jsqlparser.expression.operators.relational.ComparisonOperator;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
@@ -16,7 +13,6 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
-import net.sf.jsqlparser.util.SelectUtils;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +30,9 @@ import java.util.stream.Collectors;
 public class SqlParserDemo {
     public static void main(String[] args) throws JSQLParserException {
 //        base("select role.name,count(authority.id) from ROLE role left join AUTHORITY authority on(role.id=authority.roleId) where role.id in(1000,1001) group by role.id  order by role.creationDate desc limit 10");
-//        String addColumnSql = addColumn("select name,age from user where id=1", "sex");
+//        String addColumnSql = SqlUtil.addColumn("select name,age from user where id=1", "sex");
+//        formatDate("select region from region_data where date is not null and date!='2023' and (date in('2023','2024') and date between '2023' and '2024')");
+//        List<String> fieldList = SqlUtil.listField("select region from region_data where date is not null and date!='2023' and (code in('2023','2024') and age between '10' and '20') group by code order by id desc");
         System.out.println("");
     }
 
@@ -60,21 +58,6 @@ public class SqlParserDemo {
         System.out.println("");
     }
 
-    private static String addColumn(String sql, String field) throws JSQLParserException {
-        PlainSelect select = (PlainSelect) CCJSqlParserUtil.parse(sql.toLowerCase());
-        List<SelectItem<?>> selectItems = select.getSelectItems();
-        List<String> selectColumList = selectItems.stream()
-                .filter(selectItem -> selectItem.getExpression() instanceof Column)
-                .map(selectItem -> {
-                    Expression expression = selectItem.getExpression();
-                    Column column = (Column) expression;
-                    return column.getColumnName();
-                }).collect(Collectors.toList());
-        if (!selectColumList.contains(field.toLowerCase())) {
-            SelectUtils.addExpression(select, new Column(field.toLowerCase()));
-        }
-        return select.toString().toLowerCase();
-    }
 
     private static Map<String, String> formatDate(String sql) throws JSQLParserException {
         Map<String, String> sqlMap = new HashMap<>();
@@ -83,7 +66,7 @@ public class SqlParserDemo {
         if (where == null) {
             return sqlMap;
         }
-        List<Expression> expressions = listExpression(where, new ArrayList<>());
+        List<Expression> expressions = SqlUtil.listWhereExpression(where, new ArrayList<>());
         expressions.stream()
                 .filter(expression -> expression.toString().contains("date"))
                 .forEach(expression -> {
@@ -113,22 +96,9 @@ public class SqlParserDemo {
         return sqlMap;
     }
 
-    private static List<Expression> listExpression(Expression expression, List<Expression> expressions) {
-        if (expression instanceof AndExpression || expression instanceof OrExpression) {
-            BinaryExpression expr = (BinaryExpression) expression;
-            listExpression(expr.getLeftExpression(), expressions);
-            listExpression(expr.getRightExpression(), expressions);
-        } else if (expression instanceof Parenthesis) {
-            Parenthesis expr = (Parenthesis) expression;
-            listExpression(expr.getExpression(), expressions);
-        } else {
-            expressions.add(expression);
-        }
-        return expressions;
-    }
-
     public static void reSql(PlainSelect select, List<SqlFieldVO> fieldList) {
         Map<String, Byte> functionDataTypeMap = new HashMap<>();
+        Map<String, String> fieldNameMap = fieldList.stream().collect(Collectors.toMap(SqlFieldVO::getCode, SqlFieldVO::getName));
         Table table = (Table) select.getFromItem();
         String tableName = table.getName();
         List<String> selectItemList = select.getSelectItems().stream().map(selectItem -> {
@@ -137,6 +107,7 @@ public class SqlParserDemo {
             if (expression instanceof Column) {
                 Column column = (Column) expression;
                 item = column.getColumnName();
+                selectItem.setAlias(new Alias(fieldNameMap.get(column.getColumnName()), true));
             } else {
                 // 映射涉及计算列的字段类型
                 String expressionStr = expression.toString();
