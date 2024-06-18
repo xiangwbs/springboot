@@ -176,7 +176,6 @@ public class SqlParserDemo {
         return sqlBuilder.toString().toLowerCase();
     }
 
-
     public static void join() throws JSQLParserException {
         List<String> sqlList = new ArrayList<>();
         sqlList.add("select table1.税收收入 from table1 where table1.region='杭州'");

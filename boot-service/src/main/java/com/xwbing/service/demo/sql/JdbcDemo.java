@@ -1,6 +1,5 @@
 package com.xwbing.service.demo.sql;
 
-import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,10 +48,7 @@ public class JdbcDemo {
     }
 
     public static void main(String[] args) {
-        SQLUtils.FormatOption formatOption = new SQLUtils.FormatOption(false,true);
-        String sql = SQLUtils.formatMySql("SELECT * from sys_user_info", formatOption);
-        List<JSONObject> query = query(sql);
+        List<JSONObject> query = query("SELECT * from sys_user_info");
         System.out.println("");
-
     }
 }
