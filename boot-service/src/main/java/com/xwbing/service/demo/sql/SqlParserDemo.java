@@ -33,6 +33,7 @@ public class SqlParserDemo {
 //        String addColumnSql = SqlUtil.addColumn("select name,age from user where id=1", "sex");
 //        formatDate("select region from region_data where date is not null and date!='2023' and (date in('2023','2024') and date between '2023' and '2024')");
 //        List<String> fieldList = SqlUtil.listField("select region from region_data where date is not null and date!='2023' and (code in('2023','2024') and age between '10' and '20') group by code order by id desc");
+        String formatSql = SqlUtil.formatSql("select yearmonth,mofdivname,incexptype,budgetsubjectcode,budgetsubjectname,amt from dws_budget_domain_srzc_ai where mofdivname in ('余杭区', '淳安县') and budgetsubjectname like '%干部教育%' and incexptype = '1' order by amt desc group by mofdivname limit 1000");
         System.out.println("");
     }
 

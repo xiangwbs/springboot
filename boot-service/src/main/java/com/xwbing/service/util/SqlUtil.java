@@ -10,6 +10,7 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.GroupByElement;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -32,6 +33,15 @@ public class SqlUtil {
     public static PlainSelect getSelect(String sql) {
         try {
             return (PlainSelect) CCJSqlParserUtil.parse(sql.toLowerCase());
+        } catch (Exception e) {
+            log.error("getSelect error", e);
+            return null;
+        }
+    }
+
+    public static Statement getStatement(String sql) {
+        try {
+            return CCJSqlParserUtil.parse(sql.toLowerCase());
         } catch (Exception e) {
             log.error("getSelect error", e);
             return null;
@@ -107,5 +117,9 @@ public class SqlUtil {
             });
         }
         return ListUtil.toList(fieldList);
+    }
+
+    public static String formatSql(String sql) {
+        return cn.hutool.db.sql.SqlUtil.formatSql(sql);
     }
 }
