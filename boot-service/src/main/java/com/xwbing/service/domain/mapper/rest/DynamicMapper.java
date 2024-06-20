@@ -16,6 +16,7 @@ import java.util.Map;
 public interface DynamicMapper {
     /**
      * 基于sql动态查询数据
+     * LinkedHashMap可以保持返回数据顺序和sql语句中字段顺序一致
      *
      * @param sql
      * @return
