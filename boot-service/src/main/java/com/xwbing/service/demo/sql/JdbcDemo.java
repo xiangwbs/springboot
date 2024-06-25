@@ -48,9 +48,9 @@ public class JdbcDemo {
                 if (schema.contains("?")) {
                     schema = schema.substring(0, schema.indexOf('?'));
                 }
-                sql = "SELECT TABLE_NAME tablename,COLUMN_NAME columnname,COLUMN_COMMENT columncomment FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND TABLE_NAME = '" + tableName + "'";
+                sql = "SELECT COLUMN_NAME name,COLUMN_COMMENT description FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND TABLE_NAME = '" + tableName + "'";
             } else if (url.contains(":dm:")) {
-                sql = "SELECT TABLE_NAME tablename,COLUMN_NAME columnname,COMMENTS columncomment FROM user_col_comments WHERE TABLE_NAME = '" + tableName.toUpperCase() + "'";
+                sql = "SELECT COLUMN_NAME name,COMMENTS description FROM user_col_comments WHERE TABLE_NAME = '" + tableName.toUpperCase() + "'";
             }
             if (sql == null) {
                 return Collections.emptyList();
@@ -76,9 +76,8 @@ public class JdbcDemo {
 
     @Data
     public static class Column {
-        private String tablename;
-        private String columnname;
-        private String columncomment;
+        private String name;
+        private String description;
     }
 
     public static void main(String[] args) {
