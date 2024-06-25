@@ -67,7 +67,7 @@ public class JdbcDemo {
             statement.close();
             return list;
         } catch (SQLException e) {
-            log.error("jdbcUtil queryColumn  error", e);
+            log.error("jdbcUtil queryColumn tableName:{} error", tableName, e);
             return Collections.emptyList();
         }
     }
