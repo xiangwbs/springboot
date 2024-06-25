@@ -1,5 +1,7 @@
 package com.xwbing.service.demo.sql;
 
+import cn.hutool.json.JSONUtil;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
@@ -35,8 +37,8 @@ public class JdbcDemo {
         }
     }
 
-    public static List<Map<String, Object>> queryColumn(String url, String username, String password, String tableName) {
-        List<Map<String, Object>> list = new ArrayList<>();
+    public static List<Column> queryColumn(String url, String username, String password, String tableName) {
+        List<Column> list = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
             Statement statement = connection.createStatement();
             String sql = null;
@@ -46,9 +48,9 @@ public class JdbcDemo {
                 if (schema.contains("?")) {
                     schema = schema.substring(0, schema.indexOf('?'));
                 }
-                sql = "SELECT TABLE_NAME tableCode,COLUMN_NAME code,COLUMN_COMMENT name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND TABLE_NAME = '" + tableName + "'";
+                sql = "SELECT TABLE_NAME tablename,COLUMN_NAME columnname,COLUMN_COMMENT columncomment FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND TABLE_NAME = '" + tableName + "'";
             } else if (url.contains(":dm:")) {
-                sql = "SELECT TABLE_NAME tableCode,COLUMN_NAME code,COMMENTS name FROM user_col_comments WHERE TABLE_NAME = '" + tableName.toUpperCase() + "'";
+                sql = "SELECT TABLE_NAME tablename,COLUMN_NAME columnname,COMMENTS columncomment FROM user_col_comments WHERE TABLE_NAME = '" + tableName.toUpperCase() + "'";
             }
             if (sql == null) {
                 return Collections.emptyList();
@@ -61,7 +63,7 @@ public class JdbcDemo {
                 for (int i = 1; i <= columnsCount; i++) {
                     column.put(metaData.getColumnLabel(i).toLowerCase(), resultSet.getString(i).toLowerCase());
                 }
-                list.add(column);
+                list.add(JSONUtil.toBean(JSONUtil.toJsonStr(column), Column.class));
             }
             resultSet.close();
             statement.close();
@@ -72,12 +74,19 @@ public class JdbcDemo {
         }
     }
 
+    @Data
+    public static class Column {
+        private String tablename;
+        private String columnname;
+        private String columncomment;
+    }
+
     public static void main(String[] args) {
         String jdbcUrl = "jdbc:mysql://127.0.0.1:3306/boot";
         String username = "root";
         String password = "xiangwbs";
-        List<Map<String, Object>> dataList = queryData(jdbcUrl, username, password, "SELECT * from sys_user_info");
-//        List<Map<String, Object>> columnList = queryColumn(jdbcUrl, username, password, "bot_chat_bi_table");
+//        List<Map<String, Object>> dataList = queryData(jdbcUrl, username, password, "SELECT * from sys_user_info");
+        List<Column> columnList = queryColumn(jdbcUrl, username, password, "sys_user_info");
         System.out.println("");
     }
 }
