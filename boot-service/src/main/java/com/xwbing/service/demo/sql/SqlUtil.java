@@ -110,8 +110,7 @@ public class SqlUtil {
         // 获取group by字段
         GroupByElement groupBy = select.getGroupBy();
         if (groupBy != null) {
-            List<Expression> expressions = groupBy.getGroupByExpressionList();
-            expressions.forEach(expression -> {
+            groupBy.getGroupByExpressionList().forEach(expression -> {
                 Column column = (Column) expression;
                 fieldList.add(column.getColumnName());
             });

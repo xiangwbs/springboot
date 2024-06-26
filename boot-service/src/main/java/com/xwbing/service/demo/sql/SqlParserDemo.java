@@ -58,7 +58,7 @@ public class SqlParserDemo {
     }
 
 
-    private static Map<String, String> formatDate(String sql) throws JSQLParserException {
+    private static Map<String, String> formatDate(String sql) {
         Map<String, String> sqlMap = new HashMap<>();
         PlainSelect select = SqlUtil.getSelect(sql);
         Expression where = select.getWhere();
@@ -141,7 +141,6 @@ public class SqlParserDemo {
         reSql.setNoAliasSql(select.toString().toLowerCase());
         return reSql;
     }
-
 
     public static String reSql(String sql) {
         PlainSelect select = SqlUtil.getSelect(sql);
