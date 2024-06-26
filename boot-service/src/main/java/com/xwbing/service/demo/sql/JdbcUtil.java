@@ -14,7 +14,7 @@ import java.util.*;
  * @since 2024年05月29日 3:53 PM
  */
 @Slf4j
-public class JdbcDemo {
+public class JdbcUtil {
     public static List<Map<String, Object>> querySql(String url, String username, String password, String sql) {
         List<Map<String, Object>> list = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
