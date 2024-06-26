@@ -1,6 +1,5 @@
 package com.xwbing.service.demo.sql;
 
-import com.xwbing.service.util.SqlUtil;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;

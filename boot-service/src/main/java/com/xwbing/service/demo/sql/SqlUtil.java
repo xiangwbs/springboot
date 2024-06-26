@@ -1,4 +1,4 @@
-package com.xwbing.service.util;
+package com.xwbing.service.demo.sql;
 
 import cn.hutool.core.collection.ListUtil;
 import lombok.extern.slf4j.Slf4j;
