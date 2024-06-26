@@ -51,7 +51,7 @@ public class JdbcUtil {
                 }
                 sql = "SELECT COLUMN_NAME name,COLUMN_COMMENT description,DATA_TYPE type FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND TABLE_NAME = '" + tableName + "'";
             } else if (url.contains(":dm:")) {
-                sql = "SELECT col.COLUMN_NAME name,col.DATA_TYPE type,com.COMMENTS description FROM user_tab_columns col INNER JOIN user_col_comments com ON com.COLUMN_NAME = col.COLUMN_NAME AND com.TABLE_NAME = col.TABLE_NAME WHERE col.TABLE_NAME = '" + tableName.toUpperCase() + "'";
+                sql = "SELECT col.COLUMN_NAME name,col.DATA_TYPE type,com.COMMENTS description FROM user_tab_columns col INNER JOIN user_col_comments com ON col.TABLE_NAME = com.TABLE_NAME AND col.COLUMN_NAME = com.COLUMN_NAME WHERE col.TABLE_NAME = '" + tableName.toUpperCase() + "'";
             }
             if (sql == null) {
                 return Collections.emptyList();
