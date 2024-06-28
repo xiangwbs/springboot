@@ -4,7 +4,10 @@ import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.util.URLUtil;
 import org.apache.commons.collections4.MapUtils;
 
+import java.net.MalformedURLException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author daofeng
@@ -12,16 +15,20 @@ import java.util.HashMap;
  * @since 2024年06月27日 3:10 PM
  */
 public class HttpDemo {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws MalformedURLException {
         String url = UrlBuilder.create()
                 .setScheme("http")
                 .setHost("www.xwbing.com")
                 .addPath("/page")
                 .build();
         HashMap<String, Object> paramMap = new HashMap<>();
-        paramMap.put("name", "道风");
         paramMap.put("age", 18);
+        paramMap.put("name", "道风");
         url = addParam(url, paramMap);
+        Map<String, Object> param = getParam(url);
+        UrlBuilder urlBuilder = UrlBuilder.of(url);
+        String paramStr = URLUtil.decode(urlBuilder.getQueryStr());//name=道风&age=18
+        String pathStr = urlBuilder.getPathStr();// /page
 //        String res = HttpUtil.get(url, paramMap);
 //        res = HttpRequest
 //                .get(url)
@@ -47,5 +54,10 @@ public class HttpDemo {
             paramMap.forEach(urlBuilder::addQuery);
         }
         return URLUtil.decode(urlBuilder.toString());
+    }
+
+    public static Map<String, Object> getParam(String url) {
+        UrlBuilder urlBuilder = UrlBuilder.of(url);
+        return urlBuilder.getQuery().getQueryMap().entrySet().stream().collect(Collectors.toMap(entry -> String.valueOf(entry.getKey()), Map.Entry::getValue));
     }
 }
