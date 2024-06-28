@@ -1,7 +1,8 @@
 package com.xwbing.service.demo;
 
 import cn.hutool.core.net.url.UrlBuilder;
-import cn.hutool.core.net.url.UrlQuery;
+import cn.hutool.core.util.URLUtil;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.HashMap;
 
@@ -20,12 +21,7 @@ public class HttpDemo {
         HashMap<String, Object> paramMap = new HashMap<>();
         paramMap.put("name", "道风");
         paramMap.put("age", 18);
-        String param = UrlQuery.of(paramMap).toString();
-        if (url.contains("?")) {
-            url = url + "&" + param;
-        } else {
-            url = url + "?" + param;
-        }
+        url = addParam(url, paramMap);
 //        String res = HttpUtil.get(url, paramMap);
 //        res = HttpRequest
 //                .get(url)
@@ -43,5 +39,13 @@ public class HttpDemo {
 //                .execute()
 //                .body();
         System.out.println("");
+    }
+
+    public static String addParam(String url, HashMap<String, Object> paramMap) {
+        UrlBuilder urlBuilder = UrlBuilder.of(url);
+        if (MapUtils.isNotEmpty(paramMap)) {
+            paramMap.forEach(urlBuilder::addQuery);
+        }
+        return URLUtil.decode(urlBuilder.toString());
     }
 }
