@@ -24,7 +24,7 @@ public class HttpDemo {
         HashMap<String, Object> paramMap = new HashMap<>();
         paramMap.put("age", 18);
         paramMap.put("name", "道风");
-        url = addParam(url, paramMap);
+        url = addParam(url, paramMap, true);
         Map<String, Object> param = getParam(url);
         UrlBuilder urlBuilder = UrlBuilder.of(url);
         String paramStr = URLUtil.decode(urlBuilder.getQueryStr());//name=道风&age=18
@@ -48,12 +48,16 @@ public class HttpDemo {
         System.out.println("");
     }
 
-    public static String addParam(String url, HashMap<String, Object> paramMap) {
+    public static String addParam(String url, HashMap<String, Object> paramMap, boolean decode) {
         UrlBuilder urlBuilder = UrlBuilder.of(url);
         if (MapUtils.isNotEmpty(paramMap)) {
             paramMap.forEach(urlBuilder::addQuery);
         }
-        return URLUtil.decode(urlBuilder.toString());
+        url = urlBuilder.build();
+        if (decode) {
+            url = URLUtil.decode(url);
+        }
+        return url;
     }
 
     public static Map<String, Object> getParam(String url) {
