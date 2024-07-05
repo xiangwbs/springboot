@@ -29,13 +29,11 @@ import java.net.URLEncoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author daofeng
@@ -192,8 +190,8 @@ public class ExcelUtil {
         write(response, null, head, fileName, password, allData, null);
     }
 
-    public static void write(HttpServletResponse response, List<String> heads, String fileName, String password, List<?> allData) {
-        write(response, null, heads, fileName, password, allData, null);
+    public static void write(HttpServletResponse response, List<List<String>> head, String fileName, String password, List<?> allData) {
+        write(response, null, head, fileName, password, allData, null);
     }
 
 
@@ -208,8 +206,8 @@ public class ExcelUtil {
         write(null, basedir, head, fileName, password, allData, null);
     }
 
-    public static void write(String basedir, List<String> heads, String fileName, String password, List<?> allData) {
-        write(null, basedir, heads, fileName, password, allData, null);
+    public static void write(String basedir, List<List<String>> head, String fileName, String password, List<?> allData) {
+        write(null, basedir, head, fileName, password, allData, null);
     }
 
     /**
@@ -222,8 +220,8 @@ public class ExcelUtil {
         write(response, null, head, fileName, password, null, pageFunction);
     }
 
-    public static void write(HttpServletResponse response, List<String> heads, String fileName, String password, Function<Integer, List<?>> pageFunction) {
-        write(response, null, heads, fileName, password, null, pageFunction);
+    public static void write(HttpServletResponse response, List<List<String>> head, String fileName, String password, Function<Integer, List<?>> pageFunction) {
+        write(response, null, head, fileName, password, null, pageFunction);
     }
 
     /**
@@ -237,8 +235,8 @@ public class ExcelUtil {
         write(null, basedir, head, fileName, password, null, pageFunction);
     }
 
-    public static void write(String basedir, List<String> heads, String fileName, String password, Function<Integer, List<?>> pageFunction) {
-        write(null, basedir, heads, fileName, password, null, pageFunction);
+    public static void write(String basedir, List<List<String>> head, String fileName, String password, Function<Integer, List<?>> pageFunction) {
+        write(null, basedir, head, fileName, password, null, pageFunction);
     }
 
     /**
@@ -369,11 +367,11 @@ public class ExcelUtil {
         }
     }
 
-    private static void write(HttpServletResponse response, String basedir, List<String> heads, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
+    private static void write(HttpServletResponse response, String basedir, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         if (StringUtils.isNotEmpty(basedir)) {
-            writeToLocal(basedir, heads, fileName, password, allData, pageFunction);
+            writeToLocal(basedir, head, fileName, password, allData, pageFunction);
         } else if (response != null) {
-            writeToBrowser(response, heads, fileName, password, allData, pageFunction);
+            writeToBrowser(response, head, fileName, password, allData, pageFunction);
         } else {
             throw new RuntimeException("excel不能为空");
         }
@@ -421,7 +419,7 @@ public class ExcelUtil {
         }
     }
 
-    private static void writeToBrowser(HttpServletResponse response, List<String> heads, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
+    private static void writeToBrowser(HttpServletResponse response, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
@@ -431,7 +429,6 @@ public class ExcelUtil {
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
-            List<List<String>> head = heads.stream().map(Collections::singletonList).collect(Collectors.toList());
             if (pageFunction != null) {
                 ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
                 WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
@@ -483,9 +480,8 @@ public class ExcelUtil {
         }
     }
 
-    private static void writeToLocal(String basedir, List<String> heads, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
+    private static void writeToLocal(String basedir, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName);
-        List<List<String>> head = heads.stream().map(Collections::singletonList).collect(Collectors.toList());
         if (pageFunction != null) {
             ExcelWriter excelWriter = EasyExcel.write(path.toString()).head(head)
                     .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();

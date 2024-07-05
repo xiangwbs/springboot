@@ -21,9 +21,13 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author daofeng
@@ -75,16 +79,38 @@ public class ExcelDemoController {
         });
     }
 
-    @ApiOperation("下载动态excel到浏览器")
-    @GetMapping("writeDynamicToBrowser")
-    public void writeDynamicToBrowser(HttpServletResponse response) {
-        List<String> heads = ListUtil.toList("姓名", "年龄", "电话", "简介");
+    @ApiOperation("下载简单动态excel到浏览器")
+    @GetMapping("writeSimpleDynamicToBrowser")
+    public void writeSimpleDynamicToBrowser(HttpServletResponse response) {
         List<Object> dataList = new ArrayList<>();
         dataList.add("巷子");
         dataList.add(18);
         dataList.add("13488888888");
         dataList.add("这是一条简介");
-        ExcelUtil.write(response, heads, "人员名单统计.xlsx", null, Collections.singletonList(dataList));
+        List<List<String>> head = Stream.of("姓名", "年龄", "电话", "简介").map(Collections::singletonList).collect(Collectors.toList());
+        ExcelUtil.write(response, head, "人员名单统计.xlsx", null, Collections.singletonList(dataList));
+    }
+
+    @ApiOperation("下载复杂动态excel到浏览器")
+    @GetMapping("writeComplexDynamicToBrowser")
+    public void writeComplexDynamicToBrowser(HttpServletResponse response) {
+        List<List<String>> head = new ArrayList<>();
+        head.add(ListUtil.toList("销售方式", "母公司"));
+        head.add(ListUtil.toList("销售方式", "公司"));
+        head.add(ListUtil.toList("销售方式", "销售渠道"));
+        head.add(ListUtil.toList("自运营", "收入目标（万元）"));
+        head.add(ListUtil.toList("自运营", "收入金额（万元）"));
+        head.add(ListUtil.toList("代运营", "收入目标（万元）"));
+        head.add(ListUtil.toList("代运营", "收入金额（万元）"));
+        List<Object> dataList = new ArrayList<>();
+        dataList.add("想象力无限公司");
+        dataList.add("快乐无限公司");
+        dataList.add("电商");
+        dataList.add(1000);
+        dataList.add(100);
+        dataList.add(50);
+        dataList.add(30);
+        ExcelUtil.write(response, head, "销售统计.xlsx", null, Collections.singletonList(dataList));
     }
 
     @ApiOperation("下载excel到本地")
