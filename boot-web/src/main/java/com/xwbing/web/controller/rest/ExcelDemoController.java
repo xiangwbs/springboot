@@ -193,23 +193,20 @@ public class ExcelDemoController {
     }
 
     @ApiOperation("生成sql")
-    @PostMapping("excelToSql")
-    public ApiResponse<String> excelToSql(@RequestParam MultipartFile file, @RequestParam String tableName) throws IOException {
+    @PostMapping("excelToInsertSql")
+    public ApiResponse<String> excelToInsertSql(@RequestParam MultipartFile file, @RequestParam String tableName) throws IOException {
         Map<String, Map<Integer, String>> headMap = new HashMap<>();
-        StringBuilder sqls = new StringBuilder();
+        List<String> values = new ArrayList<>();
         Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 500, head -> headMap.put("head", head), data -> data.forEach(excel -> {
-            Map<Integer, String> head = headMap.get("head");
-            ArrayList<String> heads = ListUtil.toList(head.values());
-            String field = String.join(",", heads);
-            String sql = "INSERT INTO " + tableName + "(" + field + ") VALUES";
-            List<String> values = excel.entrySet().stream().map(entry -> {
+            List<String> valueList = excel.entrySet().stream().map(entry -> {
                 Integer key = entry.getKey();
                 String value = entry.getValue();
                 return value;
             }).collect(Collectors.toList());
-            sql = sql + "(" + String.join(",", values) + ");";
-            sqls.append(sql).append("\n");
+            values.add("(" + String.join(",", valueList) + ")");
         }));
-        return ApiResponseUtil.success(sqls.toString());
+        String field = String.join(",", ListUtil.toList(headMap.get("head").values()));
+        String sql = "INSERT INTO " + tableName + "(" + field + ") VALUES " + String.join(",", values);
+        return ApiResponseUtil.success(sql);
     }
 }
