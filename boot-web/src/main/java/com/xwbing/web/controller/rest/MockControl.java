@@ -2,8 +2,6 @@ package com.xwbing.web.controller.rest;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.io.IoUtil;
-import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.demo.RedisTemplateDemo;
 import com.xwbing.service.demo.dingtalk.DingMarkdown;
@@ -12,18 +10,17 @@ import com.xwbing.service.demo.dingtalk.DingtalkRobotMsg;
 import com.xwbing.service.domain.entity.model.NullModel;
 import com.xwbing.service.domain.entity.rest.FilesUpload;
 import com.xwbing.service.domain.entity.sys.SysUser;
-import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
-import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 import com.xwbing.service.domain.mapper.rest.DynamicMapper;
 import com.xwbing.service.enums.SexEnum;
 import com.xwbing.service.exception.BusinessException;
-import com.xwbing.service.service.rest.*;
+import com.xwbing.service.service.rest.CookieSessionService;
+import com.xwbing.service.service.rest.MockService;
+import com.xwbing.service.service.rest.QRCodeZipService;
+import com.xwbing.service.service.rest.UploadService;
 import com.xwbing.service.util.*;
 import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.service.util.dingtalk.LinkMessage;
 import com.xwbing.service.util.dingtalk.MarkdownMessage;
-import com.xwbing.starter.aliyun.oss.OssService;
-import com.xwbing.starter.aliyun.oss.enums.ContentTypeEnum;
 import com.xwbing.starter.aspect.annotation.ReqLimit;
 import com.xwbing.starter.operatelog.annotation.OperateLog;
 import com.xwbing.starter.spring.ApplicationContextHelper;
@@ -48,7 +45,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -69,10 +65,6 @@ public class MockControl {
     @Resource
     private UploadService uploadService;
     @Resource
-    private EasyExcelDealService easyExcelDealService;
-    @Resource
-    private OssService ossService;
-    @Resource
     private RedisTemplateDemo redisTemplateDemo;
     @Resource
     private DynamicMapper dynamicMapper;
@@ -83,7 +75,7 @@ public class MockControl {
     @ApiOperation("导出zip")
     @GetMapping("downloadFileZip")
     public JSONObject downloadFileZip(HttpServletResponse response, @RequestParam String[] names,
-            @RequestParam String fileName) {
+                                      @RequestParam String fileName) {
         if (StringUtils.isEmpty(fileName)) {
             return JsonResult.toJSONObj("zip名称不能为空");
         }
@@ -94,7 +86,7 @@ public class MockControl {
     @ApiOperation("urlZip")
     @GetMapping("urlZip")
     public void urlZip(HttpServletResponse response, @RequestParam String[] urls, @RequestParam String fileName,
-            @RequestParam String path) throws IOException {
+                       @RequestParam String path) throws IOException {
         //创建临时随机目录
         Path tmp = Files.createTempDirectory("tmp");
         ArrayList<File> files = Arrays.stream(urls).map(url -> {
@@ -108,7 +100,7 @@ public class MockControl {
     @ApiOperation("获取数据库图片")
     @GetMapping("getDbPic")
     public void getDbPic(HttpServletResponse response, @RequestParam String name,
-            @RequestParam(required = false) String type) throws IOException {
+                         @RequestParam(required = false) String type) throws IOException {
         if (StringUtils.isNotEmpty(name)) {
             List<FilesUpload> files = uploadService.findByName(name, type);
             if (CollectionUtils.isNotEmpty(files)) {
@@ -301,101 +293,15 @@ public class MockControl {
         }
     }
 
-    @ApiOperation("下载excel到浏览器")
-    @GetMapping("writeToBrowser")
-    public void writeToBrowser(HttpServletResponse response) {
-        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计.xlsx", null, pageNumber -> {
-            if (pageNumber == 1) {
-                return Collections.emptyList();
-            }
-            //模拟分页
-            // PageHelper.startPage(pageNumber, 500);
-            List<ExcelHeaderVo> excelData = new ArrayList<>();
-            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            excelData.add(data);
-            excelData.add(data1);
-            excelData.add(data2);
-            excelData.add(data3);
-            return excelData;
-        });
-    }
 
     @PostMapping("runNl2sql")
-    public void runNl2sqlV2(@RequestParam MultipartFile file,HttpServletResponse response) throws IOException {
+    public void runNl2sqlV2(@RequestParam MultipartFile file, HttpServletResponse response) throws IOException {
         mockService.runNl2sql(file.getInputStream(), response);
     }
 
     @PostMapping("runChatglmNl2sql")
-    public void runChatglmNl2sql(@RequestParam MultipartFile file,HttpServletResponse response) throws IOException {
+    public void runChatglmNl2sql(@RequestParam MultipartFile file, HttpServletResponse response) throws IOException {
         mockService.runChatglmNl2sql(file.getInputStream(), response);
-    }
-
-    @ApiOperation("下载excel到本地")
-    @GetMapping("writeToLocal")
-    public void writeToLocal() {
-        ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计.xlsx", null, pageNumber -> {
-            if (pageNumber == 5) {
-                return Collections.emptyList();
-            }
-            //模拟分页
-            // PageHelper.startPage(pageNumber, 500);
-            List<ExcelHeaderVo> excelData = new ArrayList<>();
-            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            excelData.add(data);
-            excelData.add(data1);
-            excelData.add(data2);
-            excelData.add(data3);
-            return excelData;
-        });
-    }
-
-    @ApiOperation("下载excel到oss")
-    @GetMapping("writeToOss")
-    public String writeToOss() {
-        String objectKey = ossService.generateObjectKey(ContentTypeEnum.FILE);
-        CompletableFuture.runAsync(() -> {
-            try {
-                log.info("writeToOss");
-                File tmpFile = File.createTempFile("writeToOss", ExcelTypeEnum.XLSX.getValue());
-                String fileName = cn.hutool.core.io.FileUtil.getName(tmpFile);
-                ExcelUtil.write(cn.hutool.core.io.FileUtil.getTmpDirPath(), ExcelHeaderVo.class, fileName, null,
-                        pageNo -> {
-                            log.info("writeToOss pageNo:{}", pageNo);
-                            if (pageNo == 2) {
-                                return Collections.emptyList();
-                            }
-                            List<ExcelHeaderVo> excelData = new ArrayList<>();
-                            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888")
-                                    .introduction("这是一条简介").build();
-                            excelData.add(data);
-                            return excelData;
-                        });
-                log.info("writeToOss putOss");
-                ossService.putFile(IoUtil.toStream(tmpFile), ContentTypeEnum.FILE.getCode(),
-                        ExcelTypeEnum.XLSX.getValue());
-                if (tmpFile.exists()) {
-                    boolean delete = tmpFile.delete();
-                    log.info("writeToOss delete tmpFile:{}", delete);
-                }
-            } catch (Exception e) {
-                log.error("writeToOss error", e);
-            }
-        });
-        return ossService.getUrl(objectKey);
     }
 
     @GetMapping("nullModel")
@@ -426,17 +332,6 @@ public class MockControl {
         CompletableFuture.allOf(futures).join();
         System.out.println("22222");
         return JsonResult.toJSONObj("异步正常", "");
-    }
-
-    @PostMapping("readExcel")
-    public ApiResponse readExcel(@RequestParam MultipartFile file) throws IOException {
-        AtomicInteger count = new AtomicInteger();
-        Integer allCount = ExcelUtil.read(file.getInputStream(), ExcelHeaderDemoVo.class, 0, 10, data -> {
-            log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
-            data.forEach(d -> log.info("dealExcel row:{}", d));
-        });
-        log.info("readProductExcel allCount:{}", allCount);
-        return ApiResponseUtil.success();
     }
 
     @PostMapping("excelToSql")
@@ -489,7 +384,7 @@ public class MockControl {
 
     @RequestMapping("/robots")
     public String robots(@RequestBody(required = false) JSONObject msg, @RequestHeader(required = false) String sign,
-            @RequestHeader(required = false) String timestamp) {
+                         @RequestHeader(required = false) String timestamp) {
         DingtalkRobotMsg robotMsg = DingtalkRobotHelper.receiveMsg(msg, sign, timestamp);
         if (robotMsg == null) {
             return null;
@@ -524,17 +419,17 @@ public class MockControl {
     }
 
     @GetMapping("/redis/bit")
-    public void bit(){
+    public void bit() {
         redisTemplateDemo.bit();
     }
 
     @GetMapping("/selectBySql")
-    public List<Map<String, Object>> selectBySql(){
+    public List<Map<String, Object>> selectBySql() {
         return dynamicMapper.selectBySql("select * from sys_user_info");
     }
 
     @PostMapping("/insertBySql")
-    public void insertBySql(@RequestBody Map<String,String> data){
+    public void insertBySql(@RequestBody Map<String, String> data) {
         String sql = data.get("content");
         dynamicMapper.insertBySql(Base64.decodeStr(sql.substring(1)));
     }
