@@ -60,7 +60,8 @@ public class ExcelDemoController {
             Map<Integer, String> head = headMap.get("head");
             // key为列索引从0开始
             excel.forEach((key, value) -> {
-                System.out.println("第" + key + "列值为" + value);
+                String column = head.get(key);
+                System.out.println(column + "的值为" + value);
             });
         }));
         return ApiResponseUtil.success(count);
