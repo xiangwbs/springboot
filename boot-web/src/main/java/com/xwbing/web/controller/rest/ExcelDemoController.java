@@ -66,6 +66,24 @@ public class ExcelDemoController {
         return ApiResponseUtil.success(count);
     }
 
+    @ApiOperation("生成sql")
+    @PostMapping("readToInsertSql")
+    public ApiResponse<String> readToInsertSql(@RequestParam MultipartFile file, @RequestParam String tableName) throws IOException {
+        Map<String, Map<Integer, String>> headMap = new HashMap<>();
+        List<String> values = new ArrayList<>();
+        Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 500, head -> headMap.put("head", head), data -> data.forEach(excel -> {
+            List<String> valueList = excel.entrySet().stream().map(entry -> {
+                Integer key = entry.getKey();
+                String value = entry.getValue();
+                return value;
+            }).collect(Collectors.toList());
+            values.add("(" + String.join(",", valueList) + ")");
+        }));
+        String field = String.join(",", ListUtil.toList(headMap.get("head").values()));
+        String sql = "INSERT INTO " + tableName + "(" + field + ") VALUES " + String.join(",", values);
+        return ApiResponseUtil.success(sql);
+    }
+
     @ApiOperation("下载excel到浏览器")
     @GetMapping("writeToBrowser")
     public void writeToBrowser(HttpServletResponse response) {
@@ -190,23 +208,5 @@ public class ExcelDemoController {
             }
         });
         return ossService.getUrl(objectKey);
-    }
-
-    @ApiOperation("生成sql")
-    @PostMapping("excelToInsertSql")
-    public ApiResponse<String> excelToInsertSql(@RequestParam MultipartFile file, @RequestParam String tableName) throws IOException {
-        Map<String, Map<Integer, String>> headMap = new HashMap<>();
-        List<String> values = new ArrayList<>();
-        Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 500, head -> headMap.put("head", head), data -> data.forEach(excel -> {
-            List<String> valueList = excel.entrySet().stream().map(entry -> {
-                Integer key = entry.getKey();
-                String value = entry.getValue();
-                return value;
-            }).collect(Collectors.toList());
-            values.add("(" + String.join(",", valueList) + ")");
-        }));
-        String field = String.join(",", ListUtil.toList(headMap.get("head").values()));
-        String sql = "INSERT INTO " + tableName + "(" + field + ") VALUES " + String.join(",", values);
-        return ApiResponseUtil.success(sql);
     }
 }
