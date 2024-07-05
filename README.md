@@ -56,7 +56,7 @@
 * com.xwbing.service.util.DigestsUtil -MD5/SHA-1
 * com.xwbing.service.util.EmailUtil -邮箱工具类
 * com.xwbing.service.util.EncodeUtil -编码解码工具类
-* com.xwbing.service.util.ExcelUtil -excel工具类
+* com.xwbing.service.util.excel.ExcelUtil -excel工具类
 * com.xwbing.service.util.HttpUtil -httpcliet工具类
 * com.xwbing.service.util.KdniaoUtil -快递鸟快递查询
 * com.xwbing.service.util.PassWordUtil -密码工具类

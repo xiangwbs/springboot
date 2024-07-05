@@ -6,7 +6,7 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.domain.entity.dto.Nl2sqlExcelDTO;
-import com.xwbing.service.util.ExcelUtil;
+import com.xwbing.service.util.excel.ExcelUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

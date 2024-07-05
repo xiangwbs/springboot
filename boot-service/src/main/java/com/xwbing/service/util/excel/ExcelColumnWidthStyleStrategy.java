@@ -1,4 +1,4 @@
-package com.xwbing.service.util;
+package com.xwbing.service.util.excel;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;

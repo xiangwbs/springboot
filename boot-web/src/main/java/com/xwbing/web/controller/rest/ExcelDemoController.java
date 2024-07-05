@@ -6,7 +6,8 @@ import cn.hutool.core.io.IoUtil;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
-import com.xwbing.service.util.ExcelUtil;
+import com.xwbing.service.util.excel.ExcelRowMergeStrategy;
+import com.xwbing.service.util.excel.ExcelUtil;
 import com.xwbing.starter.aliyun.oss.OssService;
 import com.xwbing.starter.aliyun.oss.enums.ContentTypeEnum;
 import com.xwbing.web.response.ApiResponse;
@@ -122,6 +123,31 @@ public class ExcelDemoController {
         dataList2.add(200);
         dataList.add(dataList2);
         ExcelUtil.write(response, head, "销售统计.xlsx", null, dataList);
+    }
+
+    @ApiOperation("下载单元格合并excel到浏览器")
+    @GetMapping("writeRowMergeToBrowser")
+    public void writeRowMergeToBrowser(HttpServletResponse response) {
+        List<List<String>> head = Stream.of("姓名", "年龄").map(Collections::singletonList).collect(Collectors.toList());
+        List<List<Object>> dataList = new ArrayList<>();
+        List<Object> dataList1 = new ArrayList<>();
+        dataList1.add("道风");
+        dataList1.add(16);
+        dataList.add(dataList1);
+        List<Object> dataList2 = new ArrayList<>();
+        dataList2.add("项伟兵");
+        dataList2.add(18);
+        dataList.add(dataList2);
+        List<Object> dataList3 = new ArrayList<>();
+        dataList3.add("项伟兵");
+        dataList3.add(19);
+        dataList.add(dataList3);
+        List<Object> dataList4 = new ArrayList<>();
+        dataList4.add("巷子");
+        dataList4.add(20);
+        dataList.add(dataList4);
+        ExcelRowMergeStrategy rowMergeStrategy = new ExcelRowMergeStrategy(0, ListUtil.toList(0));
+        ExcelUtil.write(response, head, "单元格合并.xlsx", null, dataList);
     }
 
     @ApiOperation("下载excel到本地")

@@ -1,4 +1,4 @@
-package com.xwbing.service.util;
+package com.xwbing.service.util.excel;
 
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
