@@ -58,20 +58,16 @@ public class ExcelDemoController {
     @GetMapping("writeToBrowser")
     public void writeToBrowser(HttpServletResponse response) {
         ExcelUtil.write(null, response, ExcelHeaderVo.class, "人员名单统计.xlsx", null, pageNumber -> {
-            if (pageNumber == 1) {
+            if (pageNumber == 2) {
                 return Collections.emptyList();
             }
             //模拟分页
             // PageHelper.startPage(pageNumber, 500);
             List<ExcelHeaderVo> excelData = new ArrayList<>();
-            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
+            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介").build();
+            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介").build();
+            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888").introduction("这是一条简介").build();
+            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888").introduction("这是一条简介").build();
             excelData.add(data);
             excelData.add(data1);
             excelData.add(data2);
@@ -145,20 +141,16 @@ public class ExcelDemoController {
     @GetMapping("writeToLocal")
     public void writeToLocal() {
         ExcelUtil.write(null, "/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计.xlsx", null, pageNumber -> {
-            if (pageNumber == 5) {
+            if (pageNumber == 2) {
                 return Collections.emptyList();
             }
             //模拟分页
             // PageHelper.startPage(pageNumber, 500);
             List<ExcelHeaderVo> excelData = new ArrayList<>();
-            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
-            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888")
-                    .introduction("这是一条简介").build();
+            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介").build();
+            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介").build();
+            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888").introduction("这是一条简介").build();
+            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888").introduction("这是一条简介").build();
             excelData.add(data);
             excelData.add(data1);
             excelData.add(data2);
@@ -183,14 +175,12 @@ public class ExcelDemoController {
                                 return Collections.emptyList();
                             }
                             List<ExcelHeaderVo> excelData = new ArrayList<>();
-                            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888")
-                                    .introduction("这是一条简介").build();
+                            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介").build();
                             excelData.add(data);
                             return excelData;
                         });
                 log.info("writeToOss putOss");
-                ossService.putFile(IoUtil.toStream(tmpFile), ContentTypeEnum.FILE.getCode(),
-                        ExcelTypeEnum.XLSX.getValue());
+                ossService.putFile(IoUtil.toStream(tmpFile), ContentTypeEnum.FILE.getCode(), ExcelTypeEnum.XLSX.getValue());
                 if (tmpFile.exists()) {
                     boolean delete = tmpFile.delete();
                     log.info("writeToOss delete tmpFile:{}", delete);
