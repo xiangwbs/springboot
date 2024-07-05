@@ -65,20 +65,14 @@ public class ExcelDemoController {
             // PageHelper.startPage(pageNumber, 500);
             List<ExcelHeaderVo> excelData = new ArrayList<>();
             ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介").build();
-            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介").build();
-            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888").introduction("这是一条简介").build();
-            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888").introduction("这是一条简介").build();
             excelData.add(data);
-            excelData.add(data1);
-            excelData.add(data2);
-            excelData.add(data3);
             return excelData;
         });
     }
 
     @ApiOperation("下载简单动态excel到浏览器")
-    @GetMapping("writeSimpleDynamicToBrowser")
-    public void writeSimpleDynamicToBrowser(HttpServletResponse response) {
+    @GetMapping("writeDynamicToBrowser")
+    public void writeDynamicToBrowser(HttpServletResponse response) {
         List<Object> dataList = new ArrayList<>();
         dataList.add("巷子");
         dataList.add(18);
@@ -89,8 +83,8 @@ public class ExcelDemoController {
     }
 
     @ApiOperation("下载复杂头动态excel到浏览器")
-    @GetMapping("writeComplexDynamicToBrowser")
-    public void writeComplexDynamicToBrowser(HttpServletResponse response) {
+    @GetMapping("writeComplexToBrowser")
+    public void writeComplexToBrowser(HttpServletResponse response) {
         List<List<String>> head = new ArrayList<>();
         head.add(ListUtil.toList("基础信息", "姓名"));
         head.add(ListUtil.toList("基础信息", "电话"));
@@ -148,13 +142,7 @@ public class ExcelDemoController {
             // PageHelper.startPage(pageNumber, 500);
             List<ExcelHeaderVo> excelData = new ArrayList<>();
             ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介").build();
-            ExcelHeaderVo data1 = ExcelHeaderVo.builder().name("道风").age(18).tel("13488888888").introduction("这是一条简介").build();
-            ExcelHeaderVo data2 = ExcelHeaderVo.builder().name("兵哥").age(18).tel("13488888888").introduction("这是一条简介").build();
-            ExcelHeaderVo data3 = ExcelHeaderVo.builder().name("西门吹雪").age(18).tel("13488888888").introduction("这是一条简介").build();
             excelData.add(data);
-            excelData.add(data1);
-            excelData.add(data2);
-            excelData.add(data3);
             return excelData;
         });
     }
