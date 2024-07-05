@@ -102,15 +102,26 @@ public class ExcelDemoController {
         head.add(ListUtil.toList("自运营", "收入金额（万元）"));
         head.add(ListUtil.toList("代运营", "收入目标（万元）"));
         head.add(ListUtil.toList("代运营", "收入金额（万元）"));
-        List<Object> dataList = new ArrayList<>();
-        dataList.add("想象力无限公司");
-        dataList.add("快乐无限公司");
-        dataList.add("电商");
-        dataList.add(1000);
-        dataList.add(100);
-        dataList.add(50);
-        dataList.add(30);
-        ExcelUtil.write(response, head, "销售统计.xlsx", null, Collections.singletonList(dataList));
+        List<List<Object>> dataList = new ArrayList<>();
+        List<Object> dataList1 = new ArrayList<>();
+        dataList1.add("想象力无限公司");
+        dataList1.add("快乐无限公司");
+        dataList1.add("电商");
+        dataList1.add(1000);
+        dataList1.add(500);
+        dataList1.add(500);
+        dataList1.add(300);
+        dataList.add(dataList1);
+        List<Object> dataList2 = new ArrayList<>();
+        dataList2.add("想象力无限公司");
+        dataList2.add("人才无限公司");
+        dataList2.add("门店");
+        dataList2.add(500);
+        dataList2.add(300);
+        dataList2.add(300);
+        dataList2.add(200);
+        dataList.add(dataList2);
+        ExcelUtil.write(response, head, "销售统计.xlsx", null, dataList);
     }
 
     @ApiOperation("下载excel到本地")
