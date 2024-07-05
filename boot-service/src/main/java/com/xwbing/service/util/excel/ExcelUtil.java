@@ -70,14 +70,13 @@ public class ExcelUtil {
             @Override
             public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
                 log.info("readExcel head:{}", JSONObject.toJSONString(headMap));
-                if (totalCount.get() != 0) {
-                    return;
+                if (totalCount.get() == 0) {
+                    // 获取总条数
+                    ReadSheetHolder readSheetHolder = context.readSheetHolder();
+                    int totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
+                    totalCount.set(totalRowNumber);
+                    log.info("readExcel totalCount:{}", totalCount.intValue());
                 }
-                // 获取总条数
-                ReadSheetHolder readSheetHolder = context.readSheetHolder();
-                int totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
-                totalCount.set(totalRowNumber);
-                log.info("readExcel totalCount:{}", totalCount.intValue());
                 // 自定义表头处理逻辑
                 if (headConsumer != null) {
                     headConsumer.accept(headMap);
@@ -284,14 +283,13 @@ public class ExcelUtil {
             @Override
             public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
                 log.info("readExcel head:{}", JSONObject.toJSONString(headMap));
-                if (totalCount.get() != 0) {
-                    return;
+                if (totalCount.get() == 0) {
+                    // 获取总条数
+                    ReadSheetHolder readSheetHolder = context.readSheetHolder();
+                    int totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
+                    totalRowNumber = totalRowNumber <= exampleNum ? 0 : totalRowNumber - exampleNum;
+                    totalCount.set(totalRowNumber);
                 }
-                // 获取总条数
-                ReadSheetHolder readSheetHolder = context.readSheetHolder();
-                int totalRowNumber = readSheetHolder.getApproximateTotalRowNumber() - headRowNum;
-                totalRowNumber = totalRowNumber <= exampleNum ? 0 : totalRowNumber - exampleNum;
-                totalCount.set(totalRowNumber);
                 log.info("readExcel totalCount:{}", totalCount.intValue());
                 // 自定义表头处理逻辑
                 if (headConsumer != null) {
