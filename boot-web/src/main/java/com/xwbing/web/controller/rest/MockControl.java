@@ -1,7 +1,6 @@
 package com.xwbing.web.controller.rest;
 
 import cn.hutool.core.codec.Base64;
-import cn.hutool.core.collection.ListUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.demo.RedisTemplateDemo;
 import com.xwbing.service.demo.dingtalk.DingMarkdown;
@@ -21,12 +20,9 @@ import com.xwbing.service.util.*;
 import com.xwbing.service.util.dingtalk.DingTalkUtil;
 import com.xwbing.service.util.dingtalk.LinkMessage;
 import com.xwbing.service.util.dingtalk.MarkdownMessage;
-import com.xwbing.service.util.excel.ExcelUtil;
 import com.xwbing.starter.aspect.annotation.ReqLimit;
 import com.xwbing.starter.operatelog.annotation.OperateLog;
 import com.xwbing.starter.spring.ApplicationContextHelper;
-import com.xwbing.web.response.ApiResponse;
-import com.xwbing.web.response.ApiResponseUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -294,17 +290,6 @@ public class MockControl {
         }
     }
 
-
-    @PostMapping("runNl2sql")
-    public void runNl2sqlV2(@RequestParam MultipartFile file, HttpServletResponse response) throws IOException {
-        mockService.runNl2sql(file.getInputStream(), response);
-    }
-
-    @PostMapping("runChatglmNl2sql")
-    public void runChatglmNl2sql(@RequestParam MultipartFile file, HttpServletResponse response) throws IOException {
-        mockService.runChatglmNl2sql(file.getInputStream(), response);
-    }
-
     @GetMapping("nullModel")
     public NullModel nullModel() {
         return NullModel.builder().string("字符串").sexEnum(SexEnum.MAN).build();
@@ -333,39 +318,6 @@ public class MockControl {
         CompletableFuture.allOf(futures).join();
         System.out.println("22222");
         return JsonResult.toJSONObj("异步正常", "");
-    }
-
-    @PostMapping("excelToSql")
-    public ApiResponse<Integer> excelToSql(@RequestParam MultipartFile file, @RequestParam String tableName) throws IOException {
-        Map<String, Map<Integer, String>> headMap = new HashMap<>();
-        StringBuilder sqls = new StringBuilder();
-        Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 500, head -> headMap.put("head", head), data -> data.forEach(excel -> {
-            Map<Integer, String> head = headMap.get("head");
-            ArrayList<String> heads = ListUtil.toList(head.values());
-            heads.add("CREATOR");
-            String field = String.join(",", heads);
-            String sql = "INSERT INTO " + tableName + "(" + field + ") VALUES";
-            List<String> values = excel.entrySet().stream().map(entry -> {
-                Integer key = entry.getKey();
-                String value = entry.getValue();
-                if (value == null) {
-                    if (key <= 2) {
-                        value = null;
-                    } else {
-                        value = "0";
-                    }
-                }
-                if (key <= 3 && StringUtils.isNotEmpty(value)) {
-                    value = "'" + value + "'";
-                }
-                return value;
-            }).collect(Collectors.toList());
-            values.add("'道风'");
-            sql = sql + "(" + String.join(",", values) + ");";
-            sqls.append(sql).append("\n");
-        }));
-        String sqlStr = sqls.toString();
-        return ApiResponseUtil.success(count);
     }
 
     // @OperateLog(tag = "测试日志", content = "自定义函数1:{exampleFunction{#name}} 自定义函数2:{exampleFunction{#password}} {{#sex}}")

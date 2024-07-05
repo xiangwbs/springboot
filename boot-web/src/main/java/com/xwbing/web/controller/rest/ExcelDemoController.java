@@ -22,9 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -50,8 +48,22 @@ public class ExcelDemoController {
             log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
             data.forEach(d -> log.info("dealExcel row:{}", d));
         });
-        log.info("readProductExcel allCount:{}", allCount);
+        log.info("readExcel allCount:{}", allCount);
         return ApiResponseUtil.success();
+    }
+
+    @PostMapping("readDynamic")
+    public ApiResponse<Integer> readDynamic(@RequestParam MultipartFile file) throws IOException {
+        Map<String, Map<Integer, String>> headMap = new HashMap<>();
+        Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 500, head -> headMap.put("head", head), data -> data.forEach(excel -> {
+            // 表头index从0开始
+            Map<Integer, String> head = headMap.get("head");
+            // key为列索引从0开始
+            excel.forEach((key, value) -> {
+                System.out.println("第" + key + "列值为" + value);
+            });
+        }));
+        return ApiResponseUtil.success(count);
     }
 
     @ApiOperation("下载excel到浏览器")
@@ -73,12 +85,12 @@ public class ExcelDemoController {
     @ApiOperation("下载简单动态excel到浏览器")
     @GetMapping("writeDynamicToBrowser")
     public void writeDynamicToBrowser(HttpServletResponse response) {
+        List<List<String>> head = Stream.of("姓名", "年龄", "电话", "简介").map(Collections::singletonList).collect(Collectors.toList());
         List<Object> dataList = new ArrayList<>();
         dataList.add("巷子");
         dataList.add(18);
         dataList.add("13488888888");
         dataList.add("这是一条简介");
-        List<List<String>> head = Stream.of("姓名", "年龄", "电话", "简介").map(Collections::singletonList).collect(Collectors.toList());
         ExcelUtil.write(null, response, head, "人员名单统计.xlsx", null, Collections.singletonList(dataList));
     }
 
@@ -178,5 +190,26 @@ public class ExcelDemoController {
             }
         });
         return ossService.getUrl(objectKey);
+    }
+
+    @ApiOperation("生成sql")
+    @PostMapping("excelToSql")
+    public ApiResponse<String> excelToSql(@RequestParam MultipartFile file, @RequestParam String tableName) throws IOException {
+        Map<String, Map<Integer, String>> headMap = new HashMap<>();
+        StringBuilder sqls = new StringBuilder();
+        Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 500, head -> headMap.put("head", head), data -> data.forEach(excel -> {
+            Map<Integer, String> head = headMap.get("head");
+            ArrayList<String> heads = ListUtil.toList(head.values());
+            String field = String.join(",", heads);
+            String sql = "INSERT INTO " + tableName + "(" + field + ") VALUES";
+            List<String> values = excel.entrySet().stream().map(entry -> {
+                Integer key = entry.getKey();
+                String value = entry.getValue();
+                return value;
+            }).collect(Collectors.toList());
+            sql = sql + "(" + String.join(",", values) + ");";
+            sqls.append(sql).append("\n");
+        }));
+        return ApiResponseUtil.success(sqls.toString());
     }
 }
