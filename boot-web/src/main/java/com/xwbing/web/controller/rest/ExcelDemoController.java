@@ -57,7 +57,7 @@ public class ExcelDemoController {
     @ApiOperation("下载excel到浏览器")
     @GetMapping("writeToBrowser")
     public void writeToBrowser(HttpServletResponse response) {
-        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计.xlsx", null, pageNumber -> {
+        ExcelUtil.write(null, response, ExcelHeaderVo.class, "人员名单统计.xlsx", null, pageNumber -> {
             if (pageNumber == 1) {
                 return Collections.emptyList();
             }
@@ -89,40 +89,31 @@ public class ExcelDemoController {
         dataList.add("13488888888");
         dataList.add("这是一条简介");
         List<List<String>> head = Stream.of("姓名", "年龄", "电话", "简介").map(Collections::singletonList).collect(Collectors.toList());
-        ExcelUtil.write(response, head, "人员名单统计.xlsx", null, Collections.singletonList(dataList));
+        ExcelUtil.write(null, response, head, "人员名单统计.xlsx", null, Collections.singletonList(dataList));
     }
 
-    @ApiOperation("下载复杂动态excel到浏览器")
+    @ApiOperation("下载复杂头动态excel到浏览器")
     @GetMapping("writeComplexDynamicToBrowser")
     public void writeComplexDynamicToBrowser(HttpServletResponse response) {
         List<List<String>> head = new ArrayList<>();
-        head.add(ListUtil.toList("销售方式", "母公司"));
-        head.add(ListUtil.toList("销售方式", "公司"));
-        head.add(ListUtil.toList("销售方式", "销售渠道"));
-        head.add(ListUtil.toList("自运营", "收入目标（万元）"));
-        head.add(ListUtil.toList("自运营", "收入金额（万元）"));
-        head.add(ListUtil.toList("代运营", "收入目标（万元）"));
-        head.add(ListUtil.toList("代运营", "收入金额（万元）"));
+        head.add(ListUtil.toList("基础信息", "姓名"));
+        head.add(ListUtil.toList("基础信息", "电话"));
+        head.add(ListUtil.toList("补充信息", "职业"));
+        head.add(ListUtil.toList("补充信息", "爱好"));
         List<List<Object>> dataList = new ArrayList<>();
         List<Object> dataList1 = new ArrayList<>();
-        dataList1.add("想象力无限公司");
-        dataList1.add("快乐无限公司");
-        dataList1.add("电商");
-        dataList1.add(1000);
-        dataList1.add(500);
-        dataList1.add(500);
-        dataList1.add(300);
+        dataList1.add("道风");
+        dataList1.add("13111112222");
+        dataList1.add("程序员");
+        dataList1.add("台球");
         dataList.add(dataList1);
         List<Object> dataList2 = new ArrayList<>();
-        dataList2.add("想象力无限公司");
-        dataList2.add("人才无限公司");
-        dataList2.add("门店");
-        dataList2.add(500);
-        dataList2.add(300);
-        dataList2.add(300);
-        dataList2.add(200);
+        dataList2.add("巷子");
+        dataList2.add("13412341234");
+        dataList2.add("销售");
+        dataList2.add("蹦迪");
         dataList.add(dataList2);
-        ExcelUtil.write(response, head, "销售统计.xlsx", null, dataList);
+        ExcelUtil.write(null, response, head, "复杂头.xlsx", null, dataList);
     }
 
     @ApiOperation("下载单元格合并excel到浏览器")
@@ -147,13 +138,13 @@ public class ExcelDemoController {
         dataList4.add(20);
         dataList.add(dataList4);
         ExcelRowMergeStrategy rowMergeStrategy = new ExcelRowMergeStrategy(0, ListUtil.toList(0));
-        ExcelUtil.write(response, head, "单元格合并.xlsx", null, dataList);
+        ExcelUtil.write(rowMergeStrategy, response, head, "单元格合并.xlsx", null, dataList);
     }
 
     @ApiOperation("下载excel到本地")
     @GetMapping("writeToLocal")
     public void writeToLocal() {
-        ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计.xlsx", null, pageNumber -> {
+        ExcelUtil.write(null, "/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计.xlsx", null, pageNumber -> {
             if (pageNumber == 5) {
                 return Collections.emptyList();
             }
@@ -185,7 +176,7 @@ public class ExcelDemoController {
                 log.info("writeToOss");
                 File tmpFile = File.createTempFile("writeToOss", ExcelTypeEnum.XLSX.getValue());
                 String fileName = FileUtil.getName(tmpFile);
-                ExcelUtil.write(FileUtil.getTmpDirPath(), ExcelHeaderVo.class, fileName, null,
+                ExcelUtil.write(null, FileUtil.getTmpDirPath(), ExcelHeaderVo.class, fileName, null,
                         pageNo -> {
                             log.info("writeToOss pageNo:{}", pageNo);
                             if (pageNo == 2) {

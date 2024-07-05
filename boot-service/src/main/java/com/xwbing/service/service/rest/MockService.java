@@ -37,7 +37,7 @@ public class MockService {
             dto.setLlamaCorrect(dto.getSql().replaceAll("\n|\t|\u00a0| ", "").trim().equalsIgnoreCase(llamaSql.replaceAll("\n|\t|\u00a0| ", "").trim()) ? "正确" : "错误");
             dto.setLdlCorrect(dto.getSql().replaceAll("\n|\t|\u00a0| ", "").trim().equalsIgnoreCase(ldlSql.replaceAll("\n|\t|\u00a0| ", "").trim()) ? "正确" : "错误");
         }).collect(Collectors.toList());
-        ExcelUtil.write(response, Nl2sqlExcelDTO.class, "nl2sql跑测结果.xlsx", null, list);
+        ExcelUtil.write(null, response, Nl2sqlExcelDTO.class, "nl2sql跑测结果.xlsx", null, list);
     }
 
     public void runChatglmNl2sql(InputStream inputStream, HttpServletResponse response) {
@@ -48,7 +48,7 @@ public class MockService {
             dto.setLlamaSql(sql);
             dto.setLlamaCorrect(dto.getSql().replaceAll("\n|\t|\u00a0| ", "").trim().equalsIgnoreCase(sql.replaceAll("\n|\t|\u00a0| ", "").trim()) ? "正确" : "错误");
         }).collect(Collectors.toList());
-        ExcelUtil.write(response, Nl2sqlExcelDTO.class, "智谱跑测结果1.xlsx", null, list);
+        ExcelUtil.write(null, response, Nl2sqlExcelDTO.class, "智谱跑测结果1.xlsx", null, list);
     }
 
     public String llamaNl2sql2(String content) {

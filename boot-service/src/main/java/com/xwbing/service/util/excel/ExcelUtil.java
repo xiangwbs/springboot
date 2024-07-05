@@ -10,6 +10,9 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.read.metadata.holder.ReadRowHolder;
 import com.alibaba.excel.read.metadata.holder.ReadSheetHolder;
+import com.alibaba.excel.write.builder.ExcelWriterBuilder;
+import com.alibaba.excel.write.builder.ExcelWriterSheetBuilder;
+import com.alibaba.excel.write.handler.WriteHandler;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -186,12 +189,12 @@ public class ExcelUtil {
      * @param password 为null不加密
      * @param allData  excel全量数据 数据量大时 可能会oom 建议分页查询
      */
-    public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData) {
-        write(response, null, head, fileName, password, allData, null);
+    public static <T> void write(WriteHandler writeHandler, HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData) {
+        write(writeHandler, response, null, head, fileName, password, allData, null);
     }
 
-    public static void write(HttpServletResponse response, List<List<String>> head, String fileName, String password, List<?> allData) {
-        write(response, null, head, fileName, password, allData, null);
+    public static void write(WriteHandler writeHandler, HttpServletResponse response, List<List<String>> head, String fileName, String password, List<?> allData) {
+        write(writeHandler, response, null, head, fileName, password, allData, null);
     }
 
 
@@ -202,12 +205,12 @@ public class ExcelUtil {
      * @param password 为null不加密
      * @param allData  excel全量数据 数据量大时 可能会oom 建议分页查询
      */
-    public static <T> void write(String basedir, Class<T> head, String fileName, String password, List<T> allData) {
-        write(null, basedir, head, fileName, password, allData, null);
+    public static <T> void write(WriteHandler writeHandler, String basedir, Class<T> head, String fileName, String password, List<T> allData) {
+        write(writeHandler, null, basedir, head, fileName, password, allData, null);
     }
 
-    public static void write(String basedir, List<List<String>> head, String fileName, String password, List<?> allData) {
-        write(null, basedir, head, fileName, password, allData, null);
+    public static void write(WriteHandler writeHandler, String basedir, List<List<String>> head, String fileName, String password, List<?> allData) {
+        write(writeHandler, null, basedir, head, fileName, password, allData, null);
     }
 
     /**
@@ -216,12 +219,12 @@ public class ExcelUtil {
      * @param password     为null不加密
      * @param pageFunction 分页数据组装逻辑 pageNo start form 1
      */
-    public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
-        write(response, null, head, fileName, password, null, pageFunction);
+    public static <T> void write(WriteHandler writeHandler, HttpServletResponse response, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
+        write(writeHandler, response, null, head, fileName, password, null, pageFunction);
     }
 
-    public static void write(HttpServletResponse response, List<List<String>> head, String fileName, String password, Function<Integer, List<?>> pageFunction) {
-        write(response, null, head, fileName, password, null, pageFunction);
+    public static void write(WriteHandler writeHandler, HttpServletResponse response, List<List<String>> head, String fileName, String password, Function<Integer, List<?>> pageFunction) {
+        write(writeHandler, response, null, head, fileName, password, null, pageFunction);
     }
 
     /**
@@ -231,12 +234,12 @@ public class ExcelUtil {
      * @param password     为null不加密
      * @param pageFunction 分页数据组装逻辑 pageNo start form 1
      */
-    public static <T> void write(String basedir, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
-        write(null, basedir, head, fileName, password, null, pageFunction);
+    public static <T> void write(WriteHandler writeHandler, String basedir, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
+        write(writeHandler, null, basedir, head, fileName, password, null, pageFunction);
     }
 
-    public static void write(String basedir, List<List<String>> head, String fileName, String password, Function<Integer, List<?>> pageFunction) {
-        write(null, basedir, head, fileName, password, null, pageFunction);
+    public static void write(WriteHandler writeHandler, String basedir, List<List<String>> head, String fileName, String password, Function<Integer, List<?>> pageFunction) {
+        write(writeHandler, null, basedir, head, fileName, password, null, pageFunction);
     }
 
     /**
@@ -357,21 +360,21 @@ public class ExcelUtil {
      * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
-    private static <T> void write(HttpServletResponse response, String basedir, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
+    private static <T> void write(WriteHandler writeHandler, HttpServletResponse response, String basedir, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         if (StringUtils.isNotEmpty(basedir)) {
-            writeToLocal(basedir, head, fileName, password, allData, pageFunction);
+            writeToLocal(writeHandler, basedir, head, fileName, password, allData, pageFunction);
         } else if (response != null) {
-            writeToBrowser(response, head, fileName, password, allData, pageFunction);
+            writeToBrowser(writeHandler, response, head, fileName, password, allData, pageFunction);
         } else {
             throw new RuntimeException("excel不能为空");
         }
     }
 
-    private static void write(HttpServletResponse response, String basedir, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
+    private static void write(WriteHandler writeHandler, HttpServletResponse response, String basedir, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         if (StringUtils.isNotEmpty(basedir)) {
-            writeToLocal(basedir, head, fileName, password, allData, pageFunction);
+            writeToLocal(writeHandler, basedir, head, fileName, password, allData, pageFunction);
         } else if (response != null) {
-            writeToBrowser(response, head, fileName, password, allData, pageFunction);
+            writeToBrowser(writeHandler, response, head, fileName, password, allData, pageFunction);
         } else {
             throw new RuntimeException("excel不能为空");
         }
@@ -387,7 +390,7 @@ public class ExcelUtil {
      *                     动态数据  List<List<Object>> excelData
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
-    private static <T> void writeToBrowser(HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
+    private static <T> void writeToBrowser(WriteHandler writeHandler, HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
@@ -398,7 +401,11 @@ public class ExcelUtil {
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
             if (pageFunction != null) {
-                ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
+                ExcelWriterBuilder writerBuilder = EasyExcel.write(outputStream).head(head).password(password);
+                if (writeHandler != null) {
+                    writerBuilder.registerWriteHandler(writeHandler);
+                }
+                ExcelWriter excelWriter = writerBuilder.build();
                 WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
                 int pageNumber = 1;
                 while (true) {
@@ -411,15 +418,18 @@ public class ExcelUtil {
                 }
                 excelWriter.finish();
             } else {
-                EasyExcel.write(outputStream).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy())
-                        .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
+                ExcelWriterSheetBuilder writerSheetBuilder = EasyExcel.write(outputStream).head(head).password(password).sheet("Sheet1").autoTrim(Boolean.TRUE);
+                if (writeHandler != null) {
+                    writerSheetBuilder.registerWriteHandler(writeHandler);
+                }
+                writerSheetBuilder.doWrite(allData);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void writeToBrowser(HttpServletResponse response, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
+    private static void writeToBrowser(WriteHandler writeHandler, HttpServletResponse response, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
@@ -430,7 +440,11 @@ public class ExcelUtil {
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
             if (pageFunction != null) {
-                ExcelWriter excelWriter = EasyExcel.write(outputStream).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
+                ExcelWriterBuilder writerBuilder = EasyExcel.write(outputStream).head(head).password(password);
+                if (writeHandler != null) {
+                    writerBuilder.registerWriteHandler(writeHandler);
+                }
+                ExcelWriter excelWriter = writerBuilder.build();
                 WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
                 int pageNumber = 1;
                 while (true) {
@@ -443,8 +457,11 @@ public class ExcelUtil {
                 }
                 excelWriter.finish();
             } else {
-                EasyExcel.write(outputStream).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy())
-                        .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
+                ExcelWriterSheetBuilder writerSheetBuilder = EasyExcel.write(outputStream).head(head).password(password).sheet("Sheet1").autoTrim(Boolean.TRUE);
+                if (writeHandler != null) {
+                    writerSheetBuilder.registerWriteHandler(writeHandler);
+                }
+                writerSheetBuilder.doWrite(allData);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -459,10 +476,14 @@ public class ExcelUtil {
      * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
-    private static <T> void writeToLocal(String basedir, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
+    private static <T> void writeToLocal(WriteHandler writeHandler, String basedir, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName);
         if (pageFunction != null) {
-            ExcelWriter excelWriter = EasyExcel.write(path.toString()).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
+            ExcelWriterBuilder writerBuilder = EasyExcel.write(path.toString()).head(head).password(password);
+            if (writeHandler != null) {
+                writerBuilder.registerWriteHandler(writeHandler);
+            }
+            ExcelWriter excelWriter = writerBuilder.build();
             WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
             int pageNumber = 1;
             while (true) {
@@ -475,16 +496,22 @@ public class ExcelUtil {
             }
             excelWriter.finish();
         } else {
-            EasyExcel.write(path.toString()).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy())
-                    .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
+            ExcelWriterSheetBuilder writerSheetBuilder = EasyExcel.write(path.toString()).head(head).password(password).sheet("Sheet1").autoTrim(Boolean.TRUE);
+            if (writeHandler != null) {
+                writerSheetBuilder.registerWriteHandler(writeHandler);
+            }
+            writerSheetBuilder.doWrite(allData);
         }
     }
 
-    private static void writeToLocal(String basedir, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
+    private static void writeToLocal(WriteHandler writeHandler, String basedir, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName);
         if (pageFunction != null) {
-            ExcelWriter excelWriter = EasyExcel.write(path.toString()).head(head)
-                    .registerWriteHandler(new ExcelColumnWidthStyleStrategy()).password(password).build();
+            ExcelWriterBuilder writerBuilder = EasyExcel.write(path.toString()).head(head).password(password);
+            if (writeHandler != null) {
+                writerBuilder.registerWriteHandler(writeHandler);
+            }
+            ExcelWriter excelWriter = writerBuilder.build();
             WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
             int pageNumber = 1;
             while (true) {
@@ -497,8 +524,11 @@ public class ExcelUtil {
             }
             excelWriter.finish();
         } else {
-            EasyExcel.write(path.toString()).head(head).registerWriteHandler(new ExcelColumnWidthStyleStrategy())
-                    .password(password).sheet("Sheet1").autoTrim(Boolean.TRUE).doWrite(allData);
+            ExcelWriterSheetBuilder writerSheetBuilder = EasyExcel.write(path.toString()).head(head).password(password).sheet("Sheet1").autoTrim(Boolean.TRUE);
+            if (writeHandler != null) {
+                writerSheetBuilder.registerWriteHandler(writeHandler);
+            }
+            writerSheetBuilder.doWrite(allData);
         }
     }
 
