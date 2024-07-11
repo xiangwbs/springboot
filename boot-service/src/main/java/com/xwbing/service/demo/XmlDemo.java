@@ -1,9 +1,7 @@
 package com.xwbing.service.demo;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.List;
-
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.XML;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -12,12 +10,21 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.List;
+
 /**
  * 创建日期: 2017年2月16日 下午1:23:16
  * 作者: xiangwb
  */
 
 public class XmlDemo {
+    private static JSONObject toJSONObject() {
+        // 假设这是你的 XML 字符串
+        String xmlStr = "<root><person><name>John Doe</name><age>30</age></person></root>";
+        return XML.toJSONObject(xmlStr);
+    }
 
     /**
      * 功能描述：将doc对象（xml）写到文件中
