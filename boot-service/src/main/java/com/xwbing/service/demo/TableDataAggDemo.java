@@ -24,16 +24,12 @@ public class TableDataAggDemo {
     public static List<Map<String, Object>> aggData(List<String> dimensionList, List<String> metricList, List<Map<String, Object>> dataList) {
         // 获取维度聚合列表
         List<String> groupDimensionList = dataList.stream()
-                .map(data -> dimensionList.stream()
-                        .map(dimension -> data.getOrDefault(dimension, "").toString())
-                        .collect(Collectors.joining("-")))
+                .map(data -> groupDimensionData(dimensionList, data))
                 .distinct()
                 .collect(Collectors.toList());
         // 分组数据
         Map<String, List<Map<String, Object>>> dataListMap = dataList.stream()
-                .collect(Collectors.groupingBy(data -> dimensionList.stream()
-                        .map(dimension -> data.getOrDefault(dimension, "").toString())
-                        .collect(Collectors.joining("-"))));
+                .collect(Collectors.groupingBy(data -> groupDimensionData(dimensionList, data)));
         // 聚合数据
         return groupDimensionList.stream()
                 .map(groupDimension -> {
@@ -54,6 +50,7 @@ public class TableDataAggDemo {
                 }).collect(Collectors.toList());
     }
 
+
     /**
      * @param dimensionCount 维度数量
      * @param dataList
@@ -61,17 +58,11 @@ public class TableDataAggDemo {
      */
     public static List<List<Object>> aggData(Integer dimensionCount, List<List<Object>> dataList) {
         List<String> dimensionList = dataList.stream()
-                .map(data -> IntStream.range(0, dimensionCount)
-                        .mapToObj(data::get)
-                        .map(String::valueOf)
-                        .collect(Collectors.joining("-")))
+                .map(data -> groupDimensionData(dimensionCount, data))
                 .distinct()
                 .collect(Collectors.toList());
         Map<Object, List<List<Object>>> metricMap = dataList.stream()
-                .collect(Collectors.groupingBy((data -> IntStream.range(0, dimensionCount)
-                        .mapToObj(data::get)
-                        .map(String::valueOf)
-                        .collect(Collectors.joining("-")))));
+                .collect(Collectors.groupingBy((data -> groupDimensionData(dimensionCount, data))));
         List<List<Object>> newList = new ArrayList<>();
         int size = dataList.get(0).size();
         dimensionList.forEach(dimension -> {
@@ -85,6 +76,33 @@ public class TableDataAggDemo {
             newList.add(s);
         });
         return newList;
+    }
+
+    /**
+     * 聚合维度数据
+     *
+     * @param dimensionList
+     * @param data
+     * @return
+     */
+    private static String groupDimensionData(List<String> dimensionList, Map<String, Object> data) {
+        return dimensionList.stream()
+                .map(dimension -> data.getOrDefault(dimension, "").toString())
+                .collect(Collectors.joining("-"));
+    }
+
+    /**
+     * 聚合维度数据
+     *
+     * @param dimensionCount
+     * @param data
+     * @return
+     */
+    private static String groupDimensionData(Integer dimensionCount, List<Object> data) {
+        return IntStream.range(0, dimensionCount)
+                .mapToObj(data::get)
+                .map(String::valueOf)
+                .collect(Collectors.joining("-"));
     }
 
     public static List<List<Object>> convertData(List<Map<String, Object>> dataList) {
@@ -115,9 +133,7 @@ public class TableDataAggDemo {
         dataMap4.put("alias", "a");
         dataMap4.put("age", 12);
         dataList.add(dataMap4);
-        List<String> dimensionList = ListUtil.toList("name", "alias");
-        List<String> metricList = ListUtil.toList("age");
-        List<Map<String, Object>> aggList1 = aggData(dimensionList, metricList, dataList);
+        List<Map<String, Object>> aggList1 = aggData( ListUtil.toList("name", "alias"), ListUtil.toList("age"), dataList);
         List<List<Object>> aggList2 = aggData(2, convertData(dataList));
         System.out.println("");
     }
