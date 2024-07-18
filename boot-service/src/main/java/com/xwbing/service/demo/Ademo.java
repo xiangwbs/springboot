@@ -1,6 +1,5 @@
 package com.xwbing.service.demo;
 
-import cn.hutool.core.codec.Base64;
 import com.alibaba.dashscope.app.Application;
 import com.alibaba.dashscope.app.ApplicationParam;
 import com.alibaba.dashscope.app.ApplicationResult;
@@ -21,12 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 
 public class Ademo {
-    public static void main(String[] args) throws NoApiKeyException, InputRequiredException {
-        String encode = Base64.encode("select region,gdp from BOT_BI_NATIONAL_ECONOMIC_DATA where date like '%2022%' order by gdp desc limit 3");
-        String s = Base64.decodeStr(encode);
-        System.out.println("");
-//        testCompletionsWithStream();
-//        streamCall();
+    public static void main(String[] args) {
 
     }
 
