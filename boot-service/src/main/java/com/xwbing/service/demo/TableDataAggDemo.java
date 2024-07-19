@@ -133,6 +133,16 @@ public class TableDataAggDemo {
         dataMap4.put("alias", "a");
         dataMap4.put("age", 12);
         dataList.add(dataMap4);
+        Map<String, Object> dataMap5 = new LinkedHashMap<>();
+        dataMap5.put("name", "b");
+        dataMap5.put("alias", "b");
+        dataMap5.put("age", 18);
+        dataList.add(dataMap5);
+        Map<String, Object> dataMap6 = new LinkedHashMap<>();
+        dataMap6.put("name", "b");
+        dataMap6.put("alias", "a");
+        dataMap6.put("age", 18);
+        dataList.add(dataMap6);
         List<Map<String, Object>> aggList1 = aggData( ListUtil.toList("name", "alias"), ListUtil.toList("age"), dataList);
         List<List<Object>> aggList2 = aggData(2, convertData(dataList));
         System.out.println("");
