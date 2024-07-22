@@ -22,6 +22,9 @@ public class TableDataAggDemo {
      * @return
      */
     public static List<Map<String, Object>> aggData(List<String> dimensionList, List<String> metricList, List<Map<String, Object>> dataList) {
+        if (CollectionUtils.isEmpty(dimensionList) || CollectionUtils.isEmpty(dataList)) {
+            return Collections.emptyList();
+        }
         // 获取维度聚合列表
         List<String> groupDimensionList = dataList.stream()
                 .map(data -> groupDimensionData(dimensionList, data))
@@ -61,6 +64,9 @@ public class TableDataAggDemo {
      * @return
      */
     public static List<List<Object>> aggData(Integer dimensionCount, List<List<Object>> dataList) {
+        if (dimensionCount == null || dimensionCount <= 0 || CollectionUtils.isEmpty(dataList)) {
+            return Collections.emptyList();
+        }
         List<String> dimensionList = dataList.stream()
                 .map(data -> groupDimensionData(dimensionCount, data))
                 .distinct()
