@@ -86,7 +86,7 @@ public class TableDataAggDemo {
                 }
                 return d;
             }).collect(Collectors.toList());
-            List<List<Object>> metricList = metricMap.get(dimension);
+            List<List<Object>> metricList = metricMap.getOrDefault(dimension, Collections.emptyList());
             for (int i = dimensionCount; i < size; i++) {
                 int finalI = i;
                 double sum = metricList.stream()
@@ -180,6 +180,7 @@ public class TableDataAggDemo {
         dataMap6.put("age", 18);
         dataList.add(dataMap6);
         List<Map<String, Object>> aggList1 = aggData(ListUtil.toList("name", "alias"), ListUtil.toList("age"), dataList);
+//        List<Map<String, Object>> aggList1 = aggData(ListUtil.toList("name", "alias"), Collections.emptyList(), dataList);
         List<List<Object>> aggList2 = aggData(2, convertData(dataList));
         System.out.println("");
     }
