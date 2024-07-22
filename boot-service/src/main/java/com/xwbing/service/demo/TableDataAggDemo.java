@@ -41,7 +41,11 @@ public class TableDataAggDemo {
                     if (CollectionUtils.isNotEmpty(metricList)) {
                         List<Map<String, Object>> metricDataList = dataListMap.getOrDefault(groupDimension, Collections.emptyList());
                         metricList.forEach(metric -> {
-                                    double sum = metricDataList.stream().mapToDouble(value -> Double.parseDouble(String.valueOf(value.getOrDefault(metric, 0)))).sum();
+                                    double sum = metricDataList.stream()
+                                            .mapToDouble(value -> Optional.ofNullable(value.get(metric))
+                                                    .map(o -> Double.parseDouble(String.valueOf(o)))
+                                                    .orElse(0.0))
+                                            .sum();
                                     dataMap.put(metric, sum);
                                 }
                         );
@@ -61,21 +65,23 @@ public class TableDataAggDemo {
                 .map(data -> groupDimensionData(dimensionCount, data))
                 .distinct()
                 .collect(Collectors.toList());
-        Map<Object, List<List<Object>>> metricMap = dataList.stream()
+        Map<String, List<List<Object>>> metricMap = dataList.stream()
                 .collect(Collectors.groupingBy((data -> groupDimensionData(dimensionCount, data))));
-        List<List<Object>> newList = new ArrayList<>();
         int size = dataList.get(0).size();
-        dimensionList.forEach(dimension -> {
-            List<Object> s = new ArrayList<>(Arrays.asList(dimension.split("-")));
-            List<List<Object>> lists = metricMap.get(dimension);
+        return dimensionList.stream().map(dimension -> {
+            List<Object> list = new ArrayList<>(Arrays.asList(dimension.split("-")));
+            List<List<Object>> metricList = metricMap.get(dimension);
             for (int i = dimensionCount; i < size; i++) {
                 int finalI = i;
-                double sum = lists.stream().mapToDouble(obj -> Double.parseDouble(String.valueOf(obj.get(finalI)))).sum();
-                s.add(sum);
+                double sum = metricList.stream()
+                        .mapToDouble(obj -> Optional.ofNullable(obj.get(finalI))
+                                .map(o -> Double.parseDouble(String.valueOf(o)))
+                                .orElse(0.0))
+                        .sum();
+                list.add(sum);
             }
-            newList.add(s);
-        });
-        return newList;
+            return list;
+        }).collect(Collectors.toList());
     }
 
     /**
@@ -105,7 +111,7 @@ public class TableDataAggDemo {
                 .collect(Collectors.joining("-"));
     }
 
-    public static List<List<Object>> convertData(List<Map<String, Object>> dataList) {
+    private static List<List<Object>> convertData(List<Map<String, Object>> dataList) {
         return dataList.stream()
                 .map(dataMap -> new ArrayList<>(dataMap.values()))
                 .collect(Collectors.toList());
@@ -136,14 +142,14 @@ public class TableDataAggDemo {
         Map<String, Object> dataMap5 = new LinkedHashMap<>();
         dataMap5.put("name", "b");
         dataMap5.put("alias", "b");
-        dataMap5.put("age", 18);
+        dataMap5.put("age", null);
         dataList.add(dataMap5);
         Map<String, Object> dataMap6 = new LinkedHashMap<>();
         dataMap6.put("name", "b");
         dataMap6.put("alias", "a");
         dataMap6.put("age", 18);
         dataList.add(dataMap6);
-        List<Map<String, Object>> aggList1 = aggData( ListUtil.toList("name", "alias"), ListUtil.toList("age"), dataList);
+        List<Map<String, Object>> aggList1 = aggData(ListUtil.toList("name", "alias"), ListUtil.toList("age"), dataList);
         List<List<Object>> aggList2 = aggData(2, convertData(dataList));
         System.out.println("");
     }
