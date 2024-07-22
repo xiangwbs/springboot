@@ -112,7 +112,7 @@ public class TableDataAggDemo {
                 .map(dimension -> {
                     String dimensionStr = String.valueOf(data.get(dimension));
                     if (StrUtil.isNullOrUndefined(dimensionStr)) {
-                        // 没有数据为null字符串，避免split("-")缺少数据
+                        // 没有数据默认为null字符串，避免split("-")缺少数据
                         dimensionStr = "null";
                     }
                     return dimensionStr;
@@ -133,7 +133,7 @@ public class TableDataAggDemo {
                 .map(dimension -> {
                     String dimensionStr = String.valueOf(dimension);
                     if (StrUtil.isNullOrUndefined(dimensionStr)) {
-                        // 没有数据为null字符串，避免split("-")缺少数据
+                        // 没有数据默认为null字符串，避免split("-")缺少数据
                         dimensionStr = "null";
                     }
                     return dimensionStr;
