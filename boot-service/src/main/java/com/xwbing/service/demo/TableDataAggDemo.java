@@ -99,7 +99,7 @@ public class TableDataAggDemo {
      */
     private static String groupDimensionData(List<String> dimensionList, Map<String, Object> data) {
         return dimensionList.stream()
-                .map(dimension -> data.getOrDefault(dimension, "").toString())
+                .map(dimension -> Optional.ofNullable(data.get(dimension)).orElse("").toString())
                 .collect(Collectors.joining("-"));
     }
 

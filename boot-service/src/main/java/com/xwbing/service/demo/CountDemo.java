@@ -97,7 +97,7 @@ public class CountDemo {
      * @return
      */
     public static Map<String, Object> g2Bar(String startDate, String endDate, List<JSONObject> list) {
-        Map<String,Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         List<String> days = listDate(startDate, endDate);
         result.put("fields", days);
         if (list == null) {
@@ -207,7 +207,7 @@ public class CountDemo {
 //        List<JSONObject> list = null;
         log.info("pie:{}", JSON.toJSONString(pie(list), SerializerFeature.PrettyFormat));
         log.info("eChartsBarOrLine{}", JSON.toJSONString(eChartsBarOrLine(startDate, endDate, list), SerializerFeature.PrettyFormat));
-        log.info("g2Bar{}" + JSON.toJSONString(g2Bar(startDate, endDate, list), SerializerFeature.PrettyFormat));
+        log.info("g2Bar{}", JSON.toJSONString(g2Bar(startDate, endDate, list), SerializerFeature.PrettyFormat));
         log.info("g2Line{}", JSON.toJSONString(g2Line(startDate, endDate, list), SerializerFeature.PrettyFormat));
     }
 }
