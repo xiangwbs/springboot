@@ -1,6 +1,7 @@
 package com.xwbing.service.demo;
 
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.util.StrUtil;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.*;
@@ -38,8 +39,12 @@ public class TableDataAggDemo {
                 .map(groupDimension -> {
                     Map<String, Object> dataMap = new LinkedHashMap<>();
                     String[] dimensionArray = groupDimension.split("-");
-                    for (int i = 0; i < dimensionArray.length; i++) {
-                        dataMap.put(dimensionList.get(i), dimensionArray[i]);
+                    for (int i = 0; i < dimensionList.size(); i++) {
+                        String dimension = dimensionArray[i];
+                        if (StrUtil.isNullOrUndefined(dimension)) {
+                            dimension = "";
+                        }
+                        dataMap.put(dimensionList.get(i), dimension);
                     }
                     if (CollectionUtils.isNotEmpty(metricList)) {
                         List<Map<String, Object>> metricDataList = dataListMap.getOrDefault(groupDimension, Collections.emptyList());
@@ -75,7 +80,12 @@ public class TableDataAggDemo {
                 .collect(Collectors.groupingBy((data -> groupDimensionData(dimensionCount, data))));
         int size = dataList.get(0).size();
         return dimensionList.stream().map(dimension -> {
-            List<Object> list = new ArrayList<>(Arrays.asList(dimension.split("-")));
+            List<Object> list = Arrays.stream(dimension.split("-")).map(d -> {
+                if (StrUtil.isNullOrUndefined(d)) {
+                    d = "";
+                }
+                return d;
+            }).collect(Collectors.toList());
             List<List<Object>> metricList = metricMap.get(dimension);
             for (int i = dimensionCount; i < size; i++) {
                 int finalI = i;
@@ -99,7 +109,14 @@ public class TableDataAggDemo {
      */
     private static String groupDimensionData(List<String> dimensionList, Map<String, Object> data) {
         return dimensionList.stream()
-                .map(dimension -> Optional.ofNullable(data.get(dimension)).orElse("").toString())
+                .map(dimension -> {
+                    String dimensionStr = String.valueOf(data.get(dimension));
+                    if (StrUtil.isNullOrUndefined(dimensionStr)) {
+                        // 没有数据为null字符串，避免split("-")缺少数据
+                        dimensionStr = "null";
+                    }
+                    return dimensionStr;
+                })
                 .collect(Collectors.joining("-"));
     }
 
@@ -113,7 +130,14 @@ public class TableDataAggDemo {
     private static String groupDimensionData(Integer dimensionCount, List<Object> data) {
         return IntStream.range(0, dimensionCount)
                 .mapToObj(data::get)
-                .map(String::valueOf)
+                .map(dimension -> {
+                    String dimensionStr = String.valueOf(dimension);
+                    if (StrUtil.isNullOrUndefined(dimensionStr)) {
+                        // 没有数据为null字符串，避免split("-")缺少数据
+                        dimensionStr = "null";
+                    }
+                    return dimensionStr;
+                })
                 .collect(Collectors.joining("-"));
     }
 
@@ -137,7 +161,7 @@ public class TableDataAggDemo {
         dataList.add(dataMap2);
         Map<String, Object> dataMap3 = new LinkedHashMap<>();
         dataMap3.put("name", "a");
-        dataMap3.put("alias", "b");
+        dataMap3.put("alias", null);
         dataMap3.put("age", 12);
         dataList.add(dataMap3);
         Map<String, Object> dataMap4 = new LinkedHashMap<>();
