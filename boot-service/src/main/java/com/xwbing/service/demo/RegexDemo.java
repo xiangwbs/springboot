@@ -12,7 +12,8 @@ import cn.hutool.core.util.StrUtil;
  * 说明: 正则表达式
  */
 public class RegexDemo {
-    public static void main(String[] args) {
+
+    private static void demo() {
         String s1 = "[abc]";//abc任意字符
         String s2 = "[^abc]";//除abc任意字符
         String s3 = "[a-zA-Z0-9]";//a~zA~Z0~9任意一个字符
@@ -35,6 +36,7 @@ public class RegexDemo {
 
         String a9 = "[\\u4e00-\\u9fa5]";//汉字
 
+        String[] split = "a|b".split("\\|");
         boolean number = Validator.isNumber("12345");
         boolean word = Validator.isWord("单词");
         boolean chinese = Validator.isChinese("汉字");
@@ -67,5 +69,9 @@ public class RegexDemo {
         // 获取${}里的字符
         System.out.println(StrUtil.subBetween(ReUtil.getGroup0("\\$\\{\\w+}", "123${code}456"), "${", "}"));
         System.out.println("xiangggweiiii".replaceAll("(.)\\1+", "$1"));
+    }
+
+    public static void main(String[] args) {
+        demo();
     }
 }
