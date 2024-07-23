@@ -35,16 +35,17 @@ public class TableDataAggDemo {
         Map<String, List<Map<String, Object>>> dataListMap = dataList.stream()
                 .collect(Collectors.groupingBy(data -> groupDimensionData(dimensionList, data)));
         // 聚合数据
+        int dimensionCount = dimensionList.size();
         return groupDimensionList.stream()
                 .map(groupDimension -> {
                     Map<String, Object> dataMap = new LinkedHashMap<>();
-                    String[] dimensionArray = groupDimension.split("-");
-                    for (int i = 0; i < dimensionList.size(); i++) {
-                        String dimension = dimensionArray[i];
-                        if (StrUtil.isNullOrUndefined(dimension)) {
-                            dimension = "";
+                    String[] dimensionDataArray = groupDimension.split("-");
+                    for (int i = 0; i < dimensionCount; i++) {
+                        String dimensionData = dimensionDataArray[i];
+                        if (StrUtil.isNullOrUndefined(dimensionData)) {
+                            dimensionData = "";
                         }
-                        dataMap.put(dimensionList.get(i), dimension);
+                        dataMap.put(dimensionList.get(i), dimensionData);
                     }
                     if (CollectionUtils.isNotEmpty(metricList)) {
                         List<Map<String, Object>> metricDataList = dataListMap.getOrDefault(groupDimension, Collections.emptyList());
