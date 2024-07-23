@@ -76,5 +76,6 @@ public class ForEachMap {
          * jdk1.8
          */
         map.forEach((k, v) -> System.out.println("key : " + k + "; value : " + v));
+        map.keySet().removeIf(key -> key.equals("英语"));
     }
 }
