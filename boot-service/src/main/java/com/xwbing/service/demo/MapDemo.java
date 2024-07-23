@@ -1,11 +1,8 @@
 package com.xwbing.service.demo;
 
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * 遍历map
@@ -24,7 +21,7 @@ import java.util.Set;
  *
  * @author xiangwb
  */
-public class ForEachMap {
+public class MapDemo {
     public static void main(String[] args) {
         Map<String, Integer> map = new HashMap<String, Integer>(7) {
             private static final long serialVersionUID = 2832423252566685445L;
@@ -77,5 +74,10 @@ public class ForEachMap {
          */
         map.forEach((k, v) -> System.out.println("key : " + k + "; value : " + v));
         map.keySet().removeIf(key -> key.equals("英语"));
+        map.putIfAbsent("英语", 100);
+
+        List<Map<String, Object>> dataList = new ArrayList<>();
+        Map<String, List<Object>> dataMap = new HashMap<>();
+        dataList.forEach(data -> data.forEach((key, value) -> dataMap.computeIfAbsent(key, k -> new ArrayList<>()).add(value)));
     }
 }
