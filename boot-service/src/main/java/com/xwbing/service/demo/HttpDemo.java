@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
  * @since 2024年06月27日 3:10 PM
  */
 public class HttpDemo {
+    private static final Integer TIMEOUT = 15 * 1000;
+
     public static void main(String[] args) throws MalformedURLException {
         String url = UrlBuilder.create()
                 .setScheme("http")
@@ -29,19 +31,19 @@ public class HttpDemo {
         UrlBuilder urlBuilder = UrlBuilder.of(url);
         String paramStr = URLUtil.decode(urlBuilder.getQueryStr());//name=道风&age=18
         String pathStr = urlBuilder.getPathStr();// /page
-//        String res = HttpUtil.get(url, paramMap);
+//        String res = HttpUtil.get(url, paramMap, TIMEOUT);
 //        res = HttpRequest
 //                .get(url)
 //                .form(param)
-//                .timeout(5 * 1000)
+//                .timeout(TIMEOUT)
 //                .header("", "")
 //                .execute()
 //                .body();
-//        res = HttpUtil.post(url, JSONUtil.toJsonStr(paramMap));
+//        res = HttpUtil.post(url, JSONUtil.toJsonStr(paramMap), TIMEOUT);
 //        res = HttpRequest
 //                .post(url)
 //                .body(JSONUtil.toJsonStr(paramMap))
-//                .timeout(5 * 1000)
+//                .timeout(TIMEOUT)
 //                .header("", "")
 //                .execute()
 //                .body();
