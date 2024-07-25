@@ -72,9 +72,9 @@ public class ExcelDemoController {
         return ApiResponseUtil.success(count);
     }
 
-    @ApiOperation("生成sql")
-    @PostMapping("readToInsertSql")
-    public ApiResponse<Integer> readToInsertSql(@RequestParam MultipartFile file) throws IOException {
+    @ApiOperation("生成sql插入数据")
+    @PostMapping("readInsertSql")
+    public ApiResponse<Integer> readInsertSql(@RequestParam MultipartFile file) throws IOException {
         Map<String, Map<Integer, String>> headMap = new HashMap<>();
         Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 500,
                 head -> headMap.put("head", head),
