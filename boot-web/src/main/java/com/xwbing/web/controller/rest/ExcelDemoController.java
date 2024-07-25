@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
+import com.xwbing.service.domain.mapper.rest.DynamicMapper;
 import com.xwbing.service.util.excel.ExcelRowMergeStrategy;
 import com.xwbing.service.util.excel.ExcelUtil;
 import com.xwbing.starter.aliyun.oss.OssService;
@@ -41,6 +42,7 @@ import java.util.stream.Stream;
 @RequestMapping("/excel/")
 public class ExcelDemoController {
     private final OssService ossService;
+    private final DynamicMapper dynamicMapper;
 
     @PostMapping("read")
     public ApiResponse readExcel(@RequestParam MultipartFile file) throws IOException {
@@ -77,13 +79,22 @@ public class ExcelDemoController {
         Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 500,
                 head -> headMap.put("head", head),
                 data -> {
-                    List<String> values = data.stream()
-                            .map(excel -> "(" + String.join(",", excel.values()) + ")")
-                            .collect(Collectors.toList());
+                    List<String> valueList = data.stream()
+                            .map(excel -> {
+                                List<String> values = excel.values().stream()
+                                        .map(value -> {
+                                            if (value != null) {
+                                                value = "'" + value + "'";
+                                            }
+                                            return value;
+                                        })
+                                        .collect(Collectors.toList());
+                                return "(" + String.join(",", values) + ")";
+                            }).collect(Collectors.toList());
                     String field = String.join(",", ListUtil.toList(headMap.get("head").values()));
                     String table = StrUtil.subBefore(file.getOriginalFilename(), ".", false);
-                    String sql = "INSERT INTO " + table + "(" + field + ") VALUES " + String.join(",", values);
-                    System.out.println(sql);
+                    String sql = "INSERT INTO " + table + "(" + field + ") VALUES " + String.join(",", valueList);
+                    dynamicMapper.insertBySql(sql);
                 });
         return ApiResponseUtil.success(count);
     }
