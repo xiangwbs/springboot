@@ -7,8 +7,13 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.font.FontProvider;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * @author daofeng
@@ -17,7 +22,7 @@ import java.io.FileOutputStream;
  */
 public class PdfDemo {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String sourceHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html>\n" +
                 "<head>\n" +
@@ -39,9 +44,19 @@ public class PdfDemo {
                 "</body>\n" +
                 "</html>";
         String destPdf = "output.pdf";
-        convertHtmlToPdf(sourceHtml, destPdf);
+//        convertHtmlToPdf(sourceHtml, destPdf);
+        loadPDF();
     }
 
+    private static void loadPDF() throws IOException {
+        File file = new File("/Users/xwbing/Documents/work/孚嘉/生态集成技术白皮书.pdf");
+        PDDocument document = Loader.loadPDF(file);
+        PDFTextStripper pdfStripper = new PDFTextStripper();
+        String text = pdfStripper.getText(document);
+        System.out.println("");
+
+
+    }
     private static void convertHtmlToPdf(String htmlContent, String destPath) {
         try (FileOutputStream outputStream = new FileOutputStream(destPath)) {
             PdfWriter writer = new PdfWriter(outputStream);

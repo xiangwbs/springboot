@@ -1,17 +1,20 @@
 package com.xwbing.service.util;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.net.URL;
-
-import javax.imageio.ImageIO;
-
+import cn.hutool.core.io.IoUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author daofeng
@@ -22,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PdfUtil {
     public static byte[] urlToImage(String url) {
         try (InputStream inputStream = new URL(url).openConnection().getInputStream()) {
-            PDDocument doc = PDDocument.load(inputStream);
+            PDDocument doc = Loader.loadPDF(IoUtil.readBytes(inputStream));
             PDFRenderer renderer = new PDFRenderer(doc);
             int pageCount = doc.getNumberOfPages();
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -37,26 +40,28 @@ public class PdfUtil {
         }
     }
 
-    public static byte[] fileToImage(MultipartFile file) {
+    public static List<byte[]> fileToImage(MultipartFile file) {
+        List<byte[]> list  =new ArrayList<>();
         try {
-            PDDocument doc = PDDocument.load(file.getInputStream());
+            PDDocument doc = Loader.loadPDF(IoUtil.readBytes(file.getInputStream()));
             PDFRenderer renderer = new PDFRenderer(doc);
             int pageCount = doc.getNumberOfPages();
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
             for (int i = 0; i < pageCount; i++) {
                 BufferedImage image = renderer.renderImageWithDPI(i, 296);
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
                 ImageIO.write(image, "png", os);
+                list.add(os.toByteArray());
             }
-            return os.toByteArray();
+            return list;
         } catch (Exception e) {
             log.error("PdfUtil.fileToImage error", e);
-            return new byte[0];
+            return Collections.emptyList();
         }
     }
 
     public static byte[] streamToImage(InputStream inputStream) {
         try {
-            PDDocument doc = PDDocument.load(inputStream);
+            PDDocument doc = Loader.loadPDF(IoUtil.readBytes(inputStream));
             PDFRenderer renderer = new PDFRenderer(doc);
             int pageCount = doc.getNumberOfPages();
             ByteArrayOutputStream os = new ByteArrayOutputStream();

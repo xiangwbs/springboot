@@ -131,9 +131,8 @@ public class MockControl {
 
     @ApiOperation("pdf转图片")
     @PostMapping("fileToImage")
-    public void pdfConvert(HttpServletResponse response, @RequestParam MultipartFile file) throws IOException {
-        byte[] bytes = PdfUtil.fileToImage(file);
-        if (bytes != null) {
+    public void pdfConvert(HttpServletResponse response, @RequestParam MultipartFile file) throws Exception {
+        for (byte[] bytes : PdfUtil.fileToImage(file)) {
             response.setContentType("image/jpeg");
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
