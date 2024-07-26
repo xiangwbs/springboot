@@ -54,7 +54,8 @@ public class ExcelUtil {
      * @param headConsumer 表头消费 校验表头是否正确等处理逻辑
      * @param dataConsumer 数据消费 数据存储等处理逻辑
      */
-    public static Integer read(InputStream inputStream, int sheetNo, int headRowNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer, Consumer<List<Map<Integer, String>>> dataConsumer) {
+    public static Integer read(InputStream inputStream, int sheetNo, int headRowNum, int batchDealNum,
+                               Consumer<Map<Integer, String>> headConsumer, Consumer<List<Map<Integer, String>>> dataConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<Map<Integer, String>> readListener = new AnalysisEventListener<Map<Integer, String>>() {
             private final List<Map<Integer, String>> list = new ArrayList<>();
@@ -137,9 +138,8 @@ public class ExcelUtil {
         return read(inputStream, null, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
     }
 
-    public static <T> Integer read(InputStream inputStream, String password, Class<T> head, int sheetNo, int headRowNum,
-                                   int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
-                                   Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
+    public static <T> Integer read(InputStream inputStream, String password, Class<T> head, int sheetNo, int headRowNum, int exampleNum, int batchDealNum,
+                                   Consumer<Map<Integer, String>> headConsumer, Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         return read(inputStream, null, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer, dataConsumer, errorConsumer);
     }
 
@@ -148,9 +148,8 @@ public class ExcelUtil {
         return read(null, fullPath, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
     }
 
-    public static <T> Integer read(String fullPath, String password, Class<T> head, int sheetNo, int headRowNum,
-                                   int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
-                                   Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
+    public static <T> Integer read(String fullPath, String password, Class<T> head, int sheetNo, int headRowNum, int exampleNum, int batchDealNum,
+                                   Consumer<Map<Integer, String>> headConsumer, Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         return read(null, fullPath, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer, dataConsumer, errorConsumer);
     }
 
@@ -235,9 +234,8 @@ public class ExcelUtil {
      * @param dataConsumer  数据消费 数据存储等处理逻辑
      * @param errorConsumer 异常消费 读取数据异常处理逻辑
      */
-    private static <T> Integer read(InputStream inputStream, String fullPath, String password, Class<T> head, int sheetNo,
-                                    int headRowNum, int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
-                                    Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
+    private static <T> Integer read(InputStream inputStream, String fullPath, String password, Class<T> head, int sheetNo, int headRowNum, int exampleNum, int batchDealNum,
+                                    Consumer<Map<Integer, String>> headConsumer, Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<T> readListener = new AnalysisEventListener<T>() {
             private final List<T> list = new ArrayList<>();
