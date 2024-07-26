@@ -77,7 +77,7 @@ public class ExcelDemoController {
     @PostMapping("readInsertSql")
     public ApiResponse<Integer> readInsertSql(@RequestParam MultipartFile file) throws IOException {
         Map<String, Map<Integer, String>> headMap = new HashMap<>();
-        Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 500,
+        Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 100,
                 head -> headMap.put("head", head),
                 data -> {
                     List<String> valueList = data.stream()
