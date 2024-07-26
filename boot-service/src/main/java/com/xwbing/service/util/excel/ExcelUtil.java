@@ -45,6 +45,15 @@ import java.util.function.Function;
  */
 @Slf4j
 public class ExcelUtil {
+    // ---------------------- read动态头 ----------------------
+
+    /**
+     * @param sheetNo      start form 0
+     * @param headRowNum   表头行数
+     * @param batchDealNum 批处理数量(分批处理 防止oom)
+     * @param headConsumer 表头消费 校验表头是否正确等处理逻辑
+     * @param dataConsumer 数据消费 数据存储等处理逻辑
+     */
     public static Integer read(InputStream inputStream, int sheetNo, int headRowNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer, Consumer<List<Map<Integer, String>>> dataConsumer) {
         AtomicInteger totalCount = new AtomicInteger();
         AnalysisEventListener<Map<Integer, String>> readListener = new AnalysisEventListener<Map<Integer, String>>() {
@@ -123,127 +132,99 @@ public class ExcelUtil {
         return totalCount.get();
     }
 
-    /**
-     * @param inputStream  文件流
-     * @param head         表头 {@link ExcelProperty}
-     * @param sheetNo      start form 0
-     * @param batchDealNum 批处理数量(分批处理 防止oom)
-     * @param dataConsumer 数据消费 数据存储等处理逻辑
-     */
+    // ---------------------- read inputStream ----------------------
     public static <T> Integer read(InputStream inputStream, Class<T> head, int sheetNo, int batchDealNum, Consumer<List<T>> dataConsumer) {
         return read(inputStream, null, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
     }
 
-    /**
-     * @param fullPath     带后缀全路径
-     * @param head         表头 {@link ExcelProperty}
-     * @param sheetNo      start form 0
-     * @param batchDealNum 批处理数量(分批处理 防止oom)
-     * @param dataConsumer 数据消费 数据存储等处理逻辑
-     */
-    public static <T> Integer read(String fullPath, Class<T> head, int sheetNo, int batchDealNum, Consumer<List<T>> dataConsumer) {
-        return read(null, fullPath, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
-    }
-
-    /**
-     * @param inputStream   文件流
-     * @param password      为null无密码
-     * @param head          表头 {@link ExcelProperty}
-     * @param sheetNo       start form 0
-     * @param headRowNum    表头行数
-     * @param exampleNum    示例数据行数
-     * @param batchDealNum  批处理数量(分批处理 防止oom)
-     * @param headConsumer  表头消费 校验表头是否正确等处理逻辑
-     * @param dataConsumer  数据消费 数据存储等处理逻辑
-     * @param errorConsumer 异常消费 读取数据异常处理逻辑
-     */
     public static <T> Integer read(InputStream inputStream, String password, Class<T> head, int sheetNo, int headRowNum,
                                    int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
                                    Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         return read(inputStream, null, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer, dataConsumer, errorConsumer);
     }
 
-    /**
-     * @param fullPath      带后缀全路径
-     * @param password      为null无密码
-     * @param head          表头 {@link ExcelProperty}
-     * @param sheetNo       start form 0
-     * @param headRowNum    表头行数
-     * @param exampleNum    示例数据行数
-     * @param batchDealNum  批处理数量(分批处理 防止oom)
-     * @param headConsumer  表头消费 校验表头是否正确等处理逻辑
-     * @param dataConsumer  数据消费 数据存储等处理逻辑
-     * @param errorConsumer 异常消费 读取数据异常处理逻辑
-     */
+    // ---------------------- read path ----------------------
+    public static <T> Integer read(String fullPath, Class<T> head, int sheetNo, int batchDealNum, Consumer<List<T>> dataConsumer) {
+        return read(null, fullPath, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
+    }
+
     public static <T> Integer read(String fullPath, String password, Class<T> head, int sheetNo, int headRowNum,
                                    int exampleNum, int batchDealNum, Consumer<Map<Integer, String>> headConsumer,
                                    Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         return read(null, fullPath, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer, dataConsumer, errorConsumer);
     }
 
-    /**
-     * @param response
-     * @param head     表头 {@link ExcelProperty}
-     * @param fileName xxx.xlsx
-     * @param password 为null不加密
-     * @param allData  excel全量数据 数据量大时 可能会oom 建议分页查询
-     */
+    // ---------------------- write response ----------------------
+    public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData) {
+        write(null, response, null, head, fileName, password, allData, null);
+    }
+
+    public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
+        write(null, response, null, head, fileName, password, null, pageFunction);
+    }
+
+    public static void write(HttpServletResponse response, List<List<String>> head, String fileName, String password, List<?> allData) {
+        write(null, response, null, head, fileName, password, allData, null);
+    }
+
+    public static void write(HttpServletResponse response, List<List<String>> head, String fileName, String password, Function<Integer, List<?>> pageFunction) {
+        write(null, response, null, head, fileName, password, null, pageFunction);
+    }
+
     public static <T> void write(WriteHandler writeHandler, HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData) {
         write(writeHandler, response, null, head, fileName, password, allData, null);
+    }
+
+    public static <T> void write(WriteHandler writeHandler, HttpServletResponse response, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
+        write(writeHandler, response, null, head, fileName, password, null, pageFunction);
     }
 
     public static void write(WriteHandler writeHandler, HttpServletResponse response, List<List<String>> head, String fileName, String password, List<?> allData) {
         write(writeHandler, response, null, head, fileName, password, allData, null);
     }
 
+    public static void write(WriteHandler writeHandler, HttpServletResponse response, List<List<String>> head, String fileName, String password, Function<Integer, List<?>> pageFunction) {
+        write(writeHandler, response, null, head, fileName, password, null, pageFunction);
+    }
 
-    /**
-     * @param basedir  文件夹路径
-     * @param head     表头 {@link ExcelProperty}
-     * @param fileName xxx.xlsx
-     * @param password 为null不加密
-     * @param allData  excel全量数据 数据量大时 可能会oom 建议分页查询
-     */
+    // ---------------------- write path ----------------------
+    public static <T> void write(String basedir, Class<T> head, String fileName, String password, List<T> allData) {
+        write(null, null, basedir, head, fileName, password, allData, null);
+    }
+
+    public static <T> void write(String basedir, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
+        write(null, null, basedir, head, fileName, password, null, pageFunction);
+    }
+
+    public static void write(String basedir, List<List<String>> head, String fileName, String password, List<?> allData) {
+        write(null, null, basedir, head, fileName, password, allData, null);
+    }
+
+    public static void write(String basedir, List<List<String>> head, String fileName, String password, Function<Integer, List<?>> pageFunction) {
+        write(null, null, basedir, head, fileName, password, null, pageFunction);
+    }
+
     public static <T> void write(WriteHandler writeHandler, String basedir, Class<T> head, String fileName, String password, List<T> allData) {
         write(writeHandler, null, basedir, head, fileName, password, allData, null);
+    }
+
+    public static <T> void write(WriteHandler writeHandler, String basedir, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
+        write(writeHandler, null, basedir, head, fileName, password, null, pageFunction);
     }
 
     public static void write(WriteHandler writeHandler, String basedir, List<List<String>> head, String fileName, String password, List<?> allData) {
         write(writeHandler, null, basedir, head, fileName, password, allData, null);
     }
 
-    /**
-     * @param response     * @param head 表头 {@link ExcelProperty}
-     * @param fileName     xxx.xlsx
-     * @param password     为null不加密
-     * @param pageFunction 分页数据组装逻辑 pageNo start form 1
-     */
-    public static <T> void write(WriteHandler writeHandler, HttpServletResponse response, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
-        write(writeHandler, response, null, head, fileName, password, null, pageFunction);
-    }
-
-    public static void write(WriteHandler writeHandler, HttpServletResponse response, List<List<String>> head, String fileName, String password, Function<Integer, List<?>> pageFunction) {
-        write(writeHandler, response, null, head, fileName, password, null, pageFunction);
-    }
-
-    /**
-     * @param basedir      文件夹路径
-     * @param head         表头 {@link ExcelProperty}
-     * @param fileName     xxx.xlsx
-     * @param password     为null不加密
-     * @param pageFunction 分页数据组装逻辑 pageNo start form 1
-     */
-    public static <T> void write(WriteHandler writeHandler, String basedir, Class<T> head, String fileName, String password, Function<Integer, List<T>> pageFunction) {
-        write(writeHandler, null, basedir, head, fileName, password, null, pageFunction);
-    }
-
     public static void write(WriteHandler writeHandler, String basedir, List<List<String>> head, String fileName, String password, Function<Integer, List<?>> pageFunction) {
         write(writeHandler, null, basedir, head, fileName, password, null, pageFunction);
     }
 
+    // ---------------------- private method ----------------------
+
     /**
-     * @param inputStream   2选1 文件流
-     * @param fullPath      2选1 带后缀全路径
+     * @param inputStream   2选1
+     * @param fullPath      2选1 文件路径
      * @param password      为null无密码
      * @param head          表头 {@link ExcelProperty}
      * @param sheetNo       start form 0
@@ -349,15 +330,6 @@ public class ExcelUtil {
         return totalCount.get();
     }
 
-    /**
-     * @param response     2选1
-     * @param basedir      2选1 文件夹路径
-     * @param head         表头 {@link ExcelProperty}
-     * @param fileName     xxx.xlsx
-     * @param password     为null不加密
-     * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
-     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
-     */
     private static <T> void write(WriteHandler writeHandler, HttpServletResponse response, String basedir, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         if (StringUtils.isNotEmpty(basedir)) {
             writeToLocal(writeHandler, basedir, head, fileName, password, allData, pageFunction);
@@ -379,13 +351,13 @@ public class ExcelUtil {
     }
 
     /**
-     * @param response
+     * @param writeHandler 写处理:自动列宽,单元格合并等
      * @param head         表头 {@link ExcelProperty}
-     *                     动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList());
+     *                     动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList())
      * @param fileName     xxx.xlsx
      * @param password     为null不加密
      * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
-     *                     动态数据  List<List<Object>> excelData
+     *                     动态数据  List<List<Object>> allData
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
     private static <T> void writeToBrowser(WriteHandler writeHandler, HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
@@ -467,11 +439,14 @@ public class ExcelUtil {
     }
 
     /**
+     * @param writeHandler 写处理:自动列宽,单元格合并等
      * @param basedir      文件夹路径
      * @param head         表头 {@link ExcelProperty}
+     *                     动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList());
      * @param fileName     xxx.xlsx
      * @param password     为null不加密
      * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
+     *                     动态数据  List<List<Object>> allData
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
     private static <T> void writeToLocal(WriteHandler writeHandler, String basedir, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
