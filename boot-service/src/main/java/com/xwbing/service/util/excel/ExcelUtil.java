@@ -143,7 +143,7 @@ public class ExcelUtil {
         return read(inputStream, null, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer, dataConsumer, errorConsumer);
     }
 
-    // ---------------------- read path ----------------------
+    // ---------------------- read local ----------------------
     public static <T> Integer read(String fullPath, Class<T> head, int sheetNo, int batchDealNum, Consumer<List<T>> dataConsumer) {
         return read(null, fullPath, null, head, sheetNo, 1, 0, batchDealNum, null, dataConsumer, null);
     }
@@ -154,7 +154,7 @@ public class ExcelUtil {
         return read(null, fullPath, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer, dataConsumer, errorConsumer);
     }
 
-    // ---------------------- write response ----------------------
+    // ---------------------- write browser ----------------------
     public static <T> void write(HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData) {
         write(null, response, null, head, fileName, password, allData, null);
     }
@@ -187,7 +187,7 @@ public class ExcelUtil {
         write(writeHandler, response, null, head, fileName, password, null, pageFunction);
     }
 
-    // ---------------------- write path ----------------------
+    // ---------------------- write local ----------------------
     public static <T> void write(String basedir, Class<T> head, String fileName, String password, List<T> allData) {
         write(null, null, basedir, head, fileName, password, allData, null);
     }
