@@ -37,24 +37,25 @@ import java.util.stream.Stream;
  */
 @Slf4j
 @RequiredArgsConstructor
-@Api(tags = "excelDemo", description = "excelDemo接口")
+@Api(tags = "excelDemo接口")
 @RestController
 @RequestMapping("/excel/")
 public class ExcelDemoController {
     private final OssService ossService;
     private final DynamicMapper dynamicMapper;
 
-    @PostMapping("read")
-    public ApiResponse readExcel(@RequestParam MultipartFile file) throws IOException {
+    @ApiOperation("读取固定头")
+    @PostMapping("readExcel")
+    public ApiResponse<Integer> readExcel(@RequestParam MultipartFile file) throws IOException {
         AtomicInteger count = new AtomicInteger();
         Integer allCount = ExcelUtil.read(file.getInputStream(), ExcelHeaderDemoVo.class, 0, 10, data -> {
             log.info("dealExcel count:{} size:{}", count.incrementAndGet(), data.size());
             data.forEach(d -> log.info("dealExcel row:{}", d));
         });
-        log.info("readExcel allCount:{}", allCount);
-        return ApiResponseUtil.success();
+        return ApiResponseUtil.success(allCount);
     }
 
+    @ApiOperation("读取动态头")
     @PostMapping("readDynamic")
     public ApiResponse<Integer> readDynamic(@RequestParam MultipartFile file) throws IOException {
         Map<String, Map<Integer, String>> headMap = new HashMap<>();
@@ -72,7 +73,7 @@ public class ExcelDemoController {
         return ApiResponseUtil.success(count);
     }
 
-    @ApiOperation("生成sql插入数据")
+    @ApiOperation("读取sql数据")
     @PostMapping("readInsertSql")
     public ApiResponse<Integer> readInsertSql(@RequestParam MultipartFile file) throws IOException {
         Map<String, Map<Integer, String>> headMap = new HashMap<>();
@@ -131,7 +132,7 @@ public class ExcelDemoController {
         });
     }
 
-    @ApiOperation("下载简单动态excel到浏览器")
+    @ApiOperation("下载动态头excel到浏览器")
     @GetMapping("writeDynamicToBrowser")
     public void writeDynamicToBrowser(HttpServletResponse response) {
         List<List<String>> head = Stream.of("姓名", "年龄", "电话", "简介").map(Collections::singletonList).collect(Collectors.toList());
@@ -140,10 +141,10 @@ public class ExcelDemoController {
         dataList.add(18);
         dataList.add("13488888888");
         dataList.add("这是一条简介");
-        ExcelUtil.write(response, head, "下载动态excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, Collections.singletonList(dataList));
+        ExcelUtil.write(response, head, "下载动态头excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, Collections.singletonList(dataList));
     }
 
-    @ApiOperation("下载复杂头动态excel到浏览器")
+    @ApiOperation("下载复杂头excel到浏览器")
     @GetMapping("writeComplexToBrowser")
     public void writeComplexToBrowser(HttpServletResponse response) {
         List<List<String>> head = new ArrayList<>();
