@@ -192,7 +192,6 @@ public class ExcelDemoController {
         ExcelUtil.write(rowMergeStrategy, response, head, "下载单元格合并excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, dataList);
     }
 
-
     @ApiOperation("下载excel到oss")
     @GetMapping("writeToOss")
     public String writeToOss() {
