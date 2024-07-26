@@ -48,7 +48,7 @@ public class ExcelUtil {
     // ---------------------- read动态头 ----------------------
 
     /**
-     * @param sheetNo      start form 0
+     * @param sheetNo      start from 0
      * @param headRowNum   表头行数
      * @param batchDealNum 批处理数量(分批处理 防止oom)
      * @param headConsumer 表头消费 校验表头是否正确等处理逻辑
@@ -75,7 +75,7 @@ public class ExcelUtil {
             /**
              * 表头数据处理
              *
-             * @param headMap key start form 0
+             * @param headMap key start from 0
              */
             @Override
             public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
@@ -98,7 +98,7 @@ public class ExcelUtil {
              */
             @Override
             public void invoke(Map<Integer, String> data, AnalysisContext context) {
-                // start form 0
+                // start from 0
                 Integer rowIndex = context.readRowHolder().getRowIndex();
                 log.info("readExcel invoke rowIndex:{} data:{}", rowIndex, JSON.toJSONString(data));
                 list.add(data);
@@ -226,7 +226,7 @@ public class ExcelUtil {
      * @param fullPath      2选1 文件路径
      * @param password      为null无密码
      * @param head          表头 {@link ExcelProperty}
-     * @param sheetNo       start form 0
+     * @param sheetNo       start from 0
      * @param headRowNum    表头行数
      * @param exampleNum    示例数据行数
      * @param batchDealNum  批处理数量(分批处理 防止oom)
@@ -257,7 +257,7 @@ public class ExcelUtil {
             /**
              * 表头数据处理
              *
-             * @param headMap key start form 0
+             * @param headMap key start from 0
              */
             @Override
             public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
@@ -281,7 +281,7 @@ public class ExcelUtil {
              */
             @Override
             public void invoke(T data, AnalysisContext context) {
-                // start form 0
+                // start from 0
                 Integer rowIndex = context.readRowHolder().getRowIndex();
                 log.info("readExcel invoke rowIndex:{} data:{}", rowIndex, JSON.toJSONString(data));
                 // 不处理示例数据
@@ -354,7 +354,7 @@ public class ExcelUtil {
      * @param fileName     xxx.xlsx
      * @param password     为null不加密
      * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
-     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start from 1
      */
     private static <T> void writeToBrowser(WriteHandler writeHandler, HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
@@ -401,7 +401,7 @@ public class ExcelUtil {
      * @param fileName     xxx.xlsx
      * @param password     为null不加密
      * @param allData      2选1 动态数据  List<List<Object>>
-     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start from 1
      */
     private static void writeToBrowser(WriteHandler writeHandler, HttpServletResponse response, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
@@ -449,7 +449,7 @@ public class ExcelUtil {
      * @param fileName     xxx.xlsx
      * @param password     为null不加密
      * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
-     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start from 1
      */
     private static <T> void writeToLocal(WriteHandler writeHandler, String basedir, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName);
@@ -486,7 +486,7 @@ public class ExcelUtil {
      * @param fileName     xxx.xlsx
      * @param password     为null不加密
      * @param allData      2选1 动态数据  List<List<Object>>
-     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start from 1
      */
     private static void writeToLocal(WriteHandler writeHandler, String basedir, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName);
