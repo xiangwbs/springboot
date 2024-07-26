@@ -353,11 +353,9 @@ public class ExcelUtil {
     /**
      * @param writeHandler 写处理:自动列宽,单元格合并等
      * @param head         表头 {@link ExcelProperty}
-     *                     动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList())
      * @param fileName     xxx.xlsx
      * @param password     为null不加密
      * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
-     *                     动态数据  List<List<Object>> allData
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
     private static <T> void writeToBrowser(WriteHandler writeHandler, HttpServletResponse response, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
@@ -399,6 +397,14 @@ public class ExcelUtil {
         }
     }
 
+    /**
+     * @param writeHandler 写处理:自动列宽,单元格合并等
+     * @param head         动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList())
+     * @param fileName     xxx.xlsx
+     * @param password     为null不加密
+     * @param allData      2选1 动态数据  List<List<Object>>
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
+     */
     private static void writeToBrowser(WriteHandler writeHandler, HttpServletResponse response, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             response.setCharacterEncoding("UTF-8");
@@ -442,11 +448,9 @@ public class ExcelUtil {
      * @param writeHandler 写处理:自动列宽,单元格合并等
      * @param basedir      文件夹路径
      * @param head         表头 {@link ExcelProperty}
-     *                     动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList());
      * @param fileName     xxx.xlsx
      * @param password     为null不加密
      * @param allData      2选1 excel全量数据 数据量大时 可能会oom 建议分页查询
-     *                     动态数据  List<List<Object>> allData
      * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
      */
     private static <T> void writeToLocal(WriteHandler writeHandler, String basedir, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
@@ -477,6 +481,15 @@ public class ExcelUtil {
         }
     }
 
+    /**
+     * @param writeHandler 写处理:自动列宽,单元格合并等
+     * @param basedir      文件夹路径
+     * @param head         动态表头     List<String> heads;heads.stream().map(Collections::singletonList).collect(Collectors.toList());
+     * @param fileName     xxx.xlsx
+     * @param password     为null不加密
+     * @param allData      2选1 动态数据  List<List<Object>>
+     * @param pageFunction 2选1 分页数据组装逻辑 pageNo start form 1
+     */
     private static void writeToLocal(WriteHandler writeHandler, String basedir, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName);
         if (pageFunction != null) {
