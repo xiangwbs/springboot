@@ -99,10 +99,26 @@ public class ExcelDemoController {
         return ApiResponseUtil.success(count);
     }
 
+    @ApiOperation("下载excel到本地")
+    @GetMapping("writeToLocal")
+    public void writeToLocal() {
+        ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "下载excel到本地" + ExcelTypeEnum.XLSX.getValue(), null, pageNumber -> {
+            if (pageNumber == 2) {
+                return Collections.emptyList();
+            }
+            //模拟分页
+            // PageHelper.startPage(pageNumber, 500);
+            List<ExcelHeaderVo> excelData = new ArrayList<>();
+            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介").build();
+            excelData.add(data);
+            return excelData;
+        });
+    }
+
     @ApiOperation("下载excel到浏览器")
     @GetMapping("writeToBrowser")
     public void writeToBrowser(HttpServletResponse response) {
-        ExcelUtil.write(response, ExcelHeaderVo.class, "人员名单统计" + ExcelTypeEnum.XLSX.getValue(), null, pageNumber -> {
+        ExcelUtil.write(response, ExcelHeaderVo.class, "下载excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
             }
@@ -124,7 +140,7 @@ public class ExcelDemoController {
         dataList.add(18);
         dataList.add("13488888888");
         dataList.add("这是一条简介");
-        ExcelUtil.write(response, head, "人员名单统计" + ExcelTypeEnum.XLSX.getValue(), null, Collections.singletonList(dataList));
+        ExcelUtil.write(response, head, "下载动态excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, Collections.singletonList(dataList));
     }
 
     @ApiOperation("下载复杂头动态excel到浏览器")
@@ -148,7 +164,7 @@ public class ExcelDemoController {
         dataList2.add("销售");
         dataList2.add("蹦迪");
         dataList.add(dataList2);
-        ExcelUtil.write(response, head, "复杂头" + ExcelTypeEnum.XLSX.getValue(), null, dataList);
+        ExcelUtil.write(response, head, "下载复杂头excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, dataList);
     }
 
     @ApiOperation("下载单元格合并excel到浏览器")
@@ -173,24 +189,9 @@ public class ExcelDemoController {
         dataList4.add(20);
         dataList.add(dataList4);
         ExcelRowMergeStrategy rowMergeStrategy = new ExcelRowMergeStrategy(0, ListUtil.toList(0));
-        ExcelUtil.write(rowMergeStrategy, response, head, "单元格合并" + ExcelTypeEnum.XLSX.getValue(), null, dataList);
+        ExcelUtil.write(rowMergeStrategy, response, head, "下载单元格合并excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, dataList);
     }
 
-    @ApiOperation("下载excel到本地")
-    @GetMapping("writeToLocal")
-    public void writeToLocal() {
-        ExcelUtil.write("/Users/xwbing/Documents", ExcelHeaderVo.class, "人员名单统计" + ExcelTypeEnum.XLSX.getValue(), null, pageNumber -> {
-            if (pageNumber == 2) {
-                return Collections.emptyList();
-            }
-            //模拟分页
-            // PageHelper.startPage(pageNumber, 500);
-            List<ExcelHeaderVo> excelData = new ArrayList<>();
-            ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介").build();
-            excelData.add(data);
-            return excelData;
-        });
-    }
 
     @ApiOperation("下载excel到oss")
     @GetMapping("writeToOss")
