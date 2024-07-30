@@ -61,7 +61,7 @@ public class ExcelDemoController {
         Map<String, Map<Integer, String>> headMap = new HashMap<>();
         Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 500,
                 head -> headMap.put("head", head),
-                data -> data.forEach(excel -> {
+                dataList -> dataList.forEach(excel -> {
                     // 表头index从0开始
                     Map<Integer, String> head = headMap.get("head");
                     // key为列索引从0开始
