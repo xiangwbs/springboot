@@ -12,7 +12,6 @@ public class CrawlerDemo {
         Spider.create(new MyPageProcessor())
                 .addUrl("https://shuo.news.esnai.com/article/")
                 .addPipeline(new MyPipeline())
-//                .thread(5)
                 .thread(1)
                 .run();
     }
