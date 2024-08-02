@@ -36,6 +36,7 @@ public class TreeDemo {
                     return new TreeNode<>(entries.getStr("id"), entries.getStr("pId"), entries.getStr("text"), entries.getInt("folderNo"));
                 })
                 .collect(Collectors.toList());
+        log.info("treeNodeCount:{}", treeNodeList.size());
         List<Tree<String>> treeList = TreeUtil.build(treeNodeList, "THEME_J_33urn:ddi:ZJJCKSTAT:7c0d421e-f5e7-4c66-88b6-61d0407dc73a:1");
         log.info("treeCount:{}", treeList.size());
         List<Tree<String>> bottomNodeList = new ArrayList<>();
@@ -45,7 +46,7 @@ public class TreeDemo {
         AtomicInteger index = new AtomicInteger();
         bottomNodeList.forEach(node -> {
             String categoryPath = categoryPathMap.get(node.getId());
-            int i = index.incrementAndGet();
+            log.info("index:{} categoryPath:{}", index.incrementAndGet(), categoryPath);
         });
     }
 
