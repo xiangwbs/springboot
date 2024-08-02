@@ -1,13 +1,15 @@
 package com.xwbing.service.demo;
 
+import cn.hutool.core.io.IoUtil;
+import org.springframework.core.io.ClassPathResource;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import org.springframework.core.io.ClassPathResource;
 
 /**
  * 说明: java.io.File File的每一个实例可以表示文件系统中的一个文件或目录 使用file可以：
@@ -78,6 +80,7 @@ public class FileDemo {
         String absolutePath = pic.getFile().getAbsolutePath();
         //配置文件
         String filePath = IODemo.class.getClassLoader().getResource("/redis.properties").getPath();
-        InputStream in = IODemo.class.getResourceAsStream("/redis.properties");
+        InputStream in = IODemo.class.getResourceAsStream("/data/zjPublishJdZb.json");
+        String treeStr = new String(IoUtil.readBytes(in), StandardCharsets.UTF_8);
     }
 }
