@@ -30,7 +30,7 @@ public class TreeDemo {
     public static void main(String[] args) {
         InputStream inputStream = TreeDemo.class.getResourceAsStream("/data/zjPublishJdZb.json");
         String treeStr = new String(IoUtil.readBytes(inputStream), StandardCharsets.UTF_8);
-        JSONArray jsonArray = JSONUtil.parseObj(treeStr).getJSONArray("data").getJSONObject(0).getJSONArray("data");
+        JSONArray jsonArray = JSONUtil.parseArray(treeStr);
         List<JSONObject> jsonList = jsonArray.stream().map(o -> JSONUtil.parseObj(JSONUtil.toJsonStr(o))).collect(Collectors.toList());
         List<TreeNode<String>> treeNodeList = jsonList.stream().map(entries -> new TreeNode<>(entries.getStr("id"), entries.getStr("pId"), entries.getStr("text"), entries.getInt("folderNo"))).collect(Collectors.toList());
         List<Tree<String>> treeList = TreeUtil.build(treeNodeList, "THEME_J_33urn:ddi:ZJJCKSTAT:7c0d421e-f5e7-4c66-88b6-61d0407dc73a:1");
