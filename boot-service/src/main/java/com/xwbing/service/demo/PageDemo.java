@@ -67,12 +67,15 @@ public class PageDemo {
         Page<Object> page = PageHelper.startPage(1, 1);
         query();
         long count = page.getTotal();
+        log.info("updateByPageHelper count:{}", count);
         if (count == 0) {
             return;
         }
         long times = (count % pageSize == 0) ? count / pageSize : (count / pageSize + 1);
+        log.info("updateByPageHelper page:{}", page);
         for (int i = 1; i <= times; i++) {
             PageHelper.startPage(1, pageSize);
+            log.info("updateByPageHelper page:{} pageNum:{}", page, i);
             query().forEach(item -> {
                 // TODO: 处理业务逻辑
             });
