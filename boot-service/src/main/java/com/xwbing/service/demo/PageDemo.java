@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author daofeng
@@ -40,10 +41,11 @@ public class PageDemo {
         ThreadPoolExecutor threadPool = new ThreadPoolExecutor(3, 3, 600L, TimeUnit.MICROSECONDS,
                 new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("pageHelper-pool-%d").build());
         CompletableFuture[] futures = new CompletableFuture[(int) times];
+        AtomicInteger index = new AtomicInteger();
         for (int i = 1; i <= times; i++) {
             PageHelper.startPage(i, pageSize);
             List<Object> list = query();
-            int finalI = i;
+            int pageNo = index.incrementAndGet();
             futures[i - 1] = CompletableFuture.runAsync(() -> {
                 StopWatch pageSw = new StopWatch();
                 pageSw.start();
@@ -51,9 +53,9 @@ public class PageDemo {
                     // TODO: 处理业务逻辑
                 });
                 pageSw.stop();
-                log.info("pageHelper pageNum:{} cost:{}s", finalI, pageSw.getTotalTimeSeconds());
+                log.info("pageHelper page:{} pageNo:{} cost:{}s", times, pageNo, pageSw.getTotalTimeSeconds());
             }, threadPool).exceptionally(throwable -> {
-                log.error("pageHelper pageNum:{} error:{}", finalI, ExceptionUtils.getStackTrace(throwable));
+                log.error("pageHelper page:{} pageNo:{} error:{}", times, pageNo, ExceptionUtils.getStackTrace(throwable));
                 return null;
             });
         }
@@ -64,6 +66,7 @@ public class PageDemo {
     }
 
     public static void updateByPageHelper(int pageSize) {
+        log.info("updateByPageHelper start");
         Page<Object> page = PageHelper.startPage(1, 1);
         query();
         long count = page.getTotal();
@@ -72,31 +75,32 @@ public class PageDemo {
             return;
         }
         long times = (count % pageSize == 0) ? count / pageSize : (count / pageSize + 1);
-        log.info("updateByPageHelper page:{}", page);
+        log.info("updateByPageHelper page:{}", times);
         for (int i = 1; i <= times; i++) {
             PageHelper.startPage(1, pageSize);
-            log.info("updateByPageHelper page:{} pageNum:{}", page, i);
+            log.info("updateByPageHelper page:{} pageNo:{}", times, i);
             query().forEach(item -> {
                 // TODO: 处理业务逻辑
             });
         }
+        log.info("updateByPageHelper end");
     }
 
     public static void whilePage(int pageSize) {
-        log.info("whilePage start pageSize:{}", pageSize);
-        int pageNum = 1;
+        log.info("whilePage pageSize:{}", pageSize);
+        int pageNo = 1;
         StopWatch sw = new StopWatch();
         sw.start();
         while (true) {
-            List<Object> list = pageQuery(pageNum, pageSize);
-            log.info("whilePage pageNum:{} size:{}", pageNum, list.size());
+            List<Object> list = pageQuery(pageNo, pageSize);
+            log.info("whilePage pageNo:{} size:{}", pageNo, list.size());
             list.forEach(ordersResponse -> {
                 // TODO: 处理业务逻辑
             });
             if (list.size() < pageSize) {
                 break;
             }
-            pageNum++;
+            pageNo++;
         }
         sw.stop();
         log.info("whilePage end cost:{}m", sw.getTotalTimeSeconds() / 60);
