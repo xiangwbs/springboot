@@ -62,6 +62,8 @@ public class RegexDemo {
         System.out.println("127.0.0.1".matches("(?:\\d{1,3}\\.){3}\\d{1,3}"));
         // 获取第一组数字字符
         System.out.println(ReUtil.getGroup0("\\d+", "qaz1235qwer5678"));
+        // 获取最后一组数字字符
+        System.out.println(ReUtil.getGroup0("\\d+$", "qaz1235qwer5678"));
         // 获取所有数字字符
         System.out.println(ReUtil.findAllGroup0("\\d+", "qaz1235qwer5678"));
         // 获取第一组数字

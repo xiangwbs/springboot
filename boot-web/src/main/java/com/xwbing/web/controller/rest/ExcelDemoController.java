@@ -3,6 +3,8 @@ package com.xwbing.web.controller.rest;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
@@ -15,6 +17,8 @@ import com.xwbing.starter.aliyun.oss.enums.ContentTypeEnum;
 import com.xwbing.web.response.ApiResponse;
 import com.xwbing.web.response.ApiResponseUtil;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,10 +78,13 @@ public class ExcelDemoController {
     }
 
     @ApiOperation("读取sql数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "sheetNo", value = "sheetNo", example = "0")
+    })
     @PostMapping("readInsertSql")
-    public ApiResponse<Integer> readInsertSql(@RequestParam MultipartFile file) throws IOException {
+    public ApiResponse<Integer> readInsertSql(@RequestParam MultipartFile file, @RequestParam Integer sheetNo, @RequestParam Boolean hasSerial) throws IOException {
         Map<String, Map<Integer, String>> headMap = new HashMap<>();
-        Integer count = ExcelUtil.read(file.getInputStream(), 0, 1, 100,
+        Integer count = ExcelUtil.read(file.getInputStream(), sheetNo, 1, 100,
                 head -> headMap.put("head", head),
                 data -> {
                     List<String> valueList = data.stream()
@@ -94,6 +101,10 @@ public class ExcelDemoController {
                             }).collect(Collectors.toList());
                     String field = String.join(",", ListUtil.toList(headMap.get("head").values()));
                     String table = StrUtil.subBefore(file.getOriginalFilename(), ".", false);
+                    if (BooleanUtil.isTrue(hasSerial)) {
+                        String serial = ReUtil.getGroup0("\\d+$", table);
+                        table = table.replace(serial, "");
+                    }
                     String sql = "INSERT INTO " + table + "(" + field + ") VALUES " + String.join(",", valueList);
                     dynamicMapper.insertBySql(sql);
                 });
