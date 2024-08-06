@@ -248,17 +248,17 @@ public class CollectionDemo {
     }
 
     /**
-     * 堆叠数组
+     * 嵌套数组
      *
      * @param list
      */
-    public List<List<String>> stackList(List<String> list) {
-        List<List<String>> stackList = new ArrayList<>();
+    public List<List<String>> nestedList(List<String> list) {
+        List<List<String>> nestedList = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
-            List<String> stack = new ArrayList<>();
-            IntStream.rangeClosed(0, i).forEach(value -> stack.add(list.get(value)));
-            stackList.add(stack);
+            List<String> nested = new ArrayList<>();
+            IntStream.rangeClosed(0, i).forEach(value -> nested.add(list.get(value)));
+            nestedList.add(nested);
         }
-        return stackList;
+        return nestedList;
     }
 }
