@@ -68,6 +68,8 @@ public class RegexDemo {
         System.out.println(ReUtil.findAllGroup0("\\d+", "qaz1235qwer5678"));
         // 获取第一组数字
         System.out.println(ReUtil.getGroup0("(\\d+\\.?\\d*)", "wed23sd2.4ssd"));
+        // 获取税务机关代码前缀
+        System.out.println("13300000000".replaceAll("0+$", ""));
         // 获取${}里的字符
         System.out.println(StrUtil.subBetween(ReUtil.getGroup0("\\$\\{\\w+}", "123${code}456"), "${", "}"));
         System.out.println("xiangggweiiii".replaceAll("(.)\\1+", "$1"));

@@ -1,7 +1,6 @@
 package com.xwbing.service.demo.sql;
 
 import cn.hutool.json.JSONUtil;
-import com.xwbing.service.exception.BusinessException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +15,7 @@ import java.util.*;
  */
 @Slf4j
 public class JdbcUtil {
-    public void upsertSql(String url, String username, String password, String sql) {
+    public void upsertSql(String url, String username, String password, String sql) throws SQLException {
         try (Connection connection = DriverManager.getConnection(url, username, password)) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 int row = preparedStatement.executeUpdate();
@@ -24,7 +23,7 @@ public class JdbcUtil {
             }
         } catch (SQLException e) {
             log.error("jdbcUtil upsertSql sql:{} error", sql, e);
-            throw new BusinessException("新增、修改数据失败");
+            throw e;
         }
     }
 
