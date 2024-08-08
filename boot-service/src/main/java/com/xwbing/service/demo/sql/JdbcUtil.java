@@ -1,10 +1,14 @@
 package com.xwbing.service.demo.sql;
 
 import cn.hutool.json.JSONUtil;
+import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
+import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 
@@ -15,8 +19,22 @@ import java.util.*;
  */
 @Slf4j
 public class JdbcUtil {
-    public void upsertSql(String url, String username, String password, String sql) throws SQLException {
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+    private static final Map<String, DataSource> DATA_SOURCE_MAP = Maps.newConcurrentMap();
+
+    private static DataSource createDataSource(String url, String username, String password) {
+        DruidDataSource dataSource = DruidDataSourceBuilder.create().build();
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        return dataSource;
+    }
+
+    private static DataSource getDataSource(String url, String username, String password) {
+        return DATA_SOURCE_MAP.computeIfAbsent(url, k -> createDataSource(url, username, password));
+    }
+
+    public static void upsertSql(String url, String username, String password, String sql) throws SQLException {
+        try (Connection connection = getDataSource(url, username, password).getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 int row = preparedStatement.executeUpdate();
                 log.info("jdbcUtil upsertSql sql:{} row:{}", sql, row);
@@ -29,7 +47,7 @@ public class JdbcUtil {
 
     public static List<Map<String, Object>> querySql(String url, String username, String password, String sql) {
         List<Map<String, Object>> list = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+        try (Connection connection = getDataSource(url, username, password).getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     ResultSetMetaData metaData = resultSet.getMetaData();
@@ -53,7 +71,7 @@ public class JdbcUtil {
 
     public static List<Column> queryColumn(String url, String username, String password, String tableName) {
         List<Column> list = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+        try (Connection connection = getDataSource(url, username, password).getConnection()) {
             String sql = null;
             if (url.contains(":mysql:")) {
                 String schema = url.replaceAll("jdbc:mysql://", "");
