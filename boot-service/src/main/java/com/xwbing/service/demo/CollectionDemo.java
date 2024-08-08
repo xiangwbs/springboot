@@ -1,5 +1,8 @@
 package com.xwbing.service.demo;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.comparator.ComparatorChain;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Lists;
@@ -260,5 +263,23 @@ public class CollectionDemo {
             nestedList.add(nested);
         }
         return nestedList;
+    }
+
+    /**
+     * 类似于order by field1,field2
+     *
+     * @param list
+     * @param sortKeyList
+     */
+    public static void sort(List<Map<String, Object>> list, List<String> sortKeyList) {
+        ComparatorChain<Map<String, Object>> chain = new ComparatorChain<>();
+        sortKeyList.forEach(key -> chain.addComparator(Comparator.comparing(c -> {
+            String data = String.valueOf(c.get(key));
+            if (StrUtil.isNullOrUndefined(data)) {
+                data = "";
+            }
+            return data;
+        })));
+        CollUtil.sort(list, chain);
     }
 }
