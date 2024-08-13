@@ -16,7 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
- * <a href="https://data.stats.gov.cn/easyquery.htm?cn=B01">国家季度数据</a>
+ * <a href="https://github.com/xiangwbs/js-crawl.git">插件地址</a>
+ * <a href="https://data.stats.gov.cn/easyquery.htm?cn=B01">国家季度数据页面</a>
  * 基于js浏览器插件爬取数据到本地excel,再读取excel数据
  *
  * @author daofeng
