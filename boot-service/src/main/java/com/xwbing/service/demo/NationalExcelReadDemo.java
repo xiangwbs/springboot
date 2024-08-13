@@ -48,7 +48,7 @@ public class NationalExcelReadDemo {
             }
             String categoryPath = fileName.replace(ExcelTypeEnum.XLSX.getValue(), "");
             Map<String, Map<Integer, String>> headMap = new HashMap<>();
-            Integer count = ExcelUtil.read(FileUtil.getInputStream(path + "/" + fileName), 0, 1, 500,
+            Integer count = ExcelUtil.read(FileUtil.getInputStream(path + "/" + fileName), 0, 1, 100,
                     head -> headMap.put("head", head),
                     data -> {
                         Map<Integer, String> head = headMap.get("head");
