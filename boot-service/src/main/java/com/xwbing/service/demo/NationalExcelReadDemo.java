@@ -42,29 +42,28 @@ public class NationalExcelReadDemo {
         }
         AtomicInteger index = new AtomicInteger();
         fileNames.forEach(fileName -> {
+            log.info("readExcel fileName:{} total:{} index:{} ", fileName, total, index.incrementAndGet());
             if (".DS_Store".equals(fileName)) {
                 return;
             }
             String categoryPath = fileName.replace(ExcelTypeEnum.XLSX.getValue(), "");
             Map<String, Map<Integer, String>> headMap = new HashMap<>();
-            log.info("readExcel fileName:{} total:{} index:{} ", fileName, total, index.incrementAndGet());
             Integer count = ExcelUtil.read(FileUtil.getInputStream(path + "/" + fileName), 0, 1, 500,
                     head -> headMap.put("head", head),
                     data -> {
                         Map<Integer, String> head = headMap.get("head");
                         List<String> valueList = data.stream()
                                 .map(excel -> {
-                                    String measureText = excel.remove(0);
-                                    measureText = measureText.replace("\n", "");
+                                    String measureStr = excel.remove(0).replace("\n", "");
                                     String measure;
                                     String dataUnit;
                                     // 例子:各项税收(亿元)
-                                    String unit = ReUtil.getGroup0("\\([^)]+\\)$", measureText);
+                                    String unit = ReUtil.getGroup0("\\([^)]+\\)$", measureStr);
                                     if (StringUtils.isNotEmpty(unit)) {
-                                        measure = measureText.replace(unit, "");
+                                        measure = measureStr.replace(unit, "");
                                         dataUnit = unit.replaceAll("[()]", "");
                                     } else {
-                                        measure = measureText;
+                                        measure = measureStr;
                                         dataUnit = null;
                                     }
                                     return excel.entrySet().stream()
@@ -74,6 +73,12 @@ public class NationalExcelReadDemo {
                                                     return null;
                                                 }
                                                 String date = head.get(entry.getKey());
+                                                if ("chat_bi_national_qtr".equals(tableName)) {
+                                                    date = date.replace("A", "01");
+                                                    date = date.replace("B", "02");
+                                                    date = date.replace("C", "03");
+                                                    date = date.replace("D", "04");
+                                                }
                                                 ArrayList<String> list = ListUtil.toList(categoryPath, measure, value, dataUnit, date, "系统");
                                                 List<String> collect = list.stream().map(v -> {
                                                     if (StringUtils.isNotEmpty(v)) {
