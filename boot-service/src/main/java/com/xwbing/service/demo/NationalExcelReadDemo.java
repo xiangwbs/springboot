@@ -54,10 +54,11 @@ public class NationalExcelReadDemo {
                         Map<Integer, String> head = headMap.get("head");
                         List<String> valueList = data.stream()
                                 .map(excel -> {
+                                    // 获取指标信息
                                     String measureStr = excel.remove(0).replace("\n", "");
                                     String measure;
                                     String dataUnit;
-                                    // 例子:各项税收(亿元)
+                                    // 获取单位 例子:各项税收(亿元)
                                     String unit = ReUtil.getGroup0("\\([^)]+\\)$", measureStr);
                                     if (StringUtils.isNotEmpty(unit)) {
                                         measure = measureStr.replace(unit, "");
@@ -68,10 +69,12 @@ public class NationalExcelReadDemo {
                                     }
                                     return excel.entrySet().stream()
                                             .map(entry -> {
+                                                // 获取统计数据
                                                 String value = entry.getValue();
                                                 if (StringUtils.isEmpty(value)) {
                                                     return null;
                                                 }
+                                                // 从表头获取时间
                                                 String date = head.get(entry.getKey());
                                                 if ("chat_bi_national_qtr".equals(tableName)) {
                                                     date = date.replace("A", "01");
@@ -80,6 +83,7 @@ public class NationalExcelReadDemo {
                                                     date = date.replace("D", "04");
                                                 }
                                                 ArrayList<String> list = ListUtil.toList(categoryPath, measure, value, dataUnit, date, "系统");
+                                                // 拼接'',不然sql字符串数据插入会报错
                                                 List<String> collect = list.stream().map(v -> {
                                                     if (StringUtils.isNotEmpty(v)) {
                                                         v = "'" + v + "'";

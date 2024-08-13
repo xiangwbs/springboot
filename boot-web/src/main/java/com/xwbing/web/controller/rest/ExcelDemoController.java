@@ -90,6 +90,7 @@ public class ExcelDemoController {
                 data -> {
                     List<String> valueList = data.stream()
                             .map(excel -> {
+                                // 拼接'',不然sql字符串数据插入会报错
                                 List<String> values = excel.values().stream()
                                         .map(value -> {
                                             if (value != null) {
