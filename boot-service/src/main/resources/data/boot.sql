@@ -58,7 +58,7 @@ CREATE TABLE `data_dict` (
   `name` varchar(50) DEFAULT NULL COMMENT '名称',
   `parent_id` varchar(50)  DEFAULT NULL COMMENT '父键',
   PRIMARY KEY (`id`) ,
-  UNIQUE KEY `uk_code` (`code`) 
+  UNIQUE KEY `uk_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='数据字典';
 
 -- ----------------------------
@@ -72,7 +72,7 @@ CREATE TABLE `demo` (
   `data` text  COMMENT '数据',
   `meat` longblob,
   `blob` blob,
-  PRIMARY KEY (`id`) 
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ;
 
 -- ----------------------------
@@ -89,7 +89,7 @@ CREATE TABLE `file_upload` (
   `name` varchar(50)  DEFAULT NULL COMMENT '名称',
   `type` varchar(10)  DEFAULT NULL COMMENT '类型',
   PRIMARY KEY (`id`) ,
-  KEY `idx_name` (`name`) 
+  KEY `idx_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='文件上传';
 
 -- ----------------------------
@@ -149,7 +149,7 @@ CREATE TABLE `sys_authority` (
   UNIQUE KEY `uk_code` (`code`) ,
   UNIQUE KEY `uk_sort` (`sort`) ,
   KEY `idx_enable` (`enable`) ,
-  KEY `idx_parent_id` (`parent_id`) 
+  KEY `idx_parent_id` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='权限';
 
 -- ----------------------------
@@ -168,7 +168,7 @@ CREATE TABLE `sys_role` (
   `enable` char(1)  DEFAULT NULL COMMENT '是否启用',
   PRIMARY KEY (`id`) ,
   UNIQUE KEY `uk_code` (`code`) ,
-  KEY `idx_enable` (`enable`) 
+  KEY `idx_enable` (`enable`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='角色';
 
 -- ----------------------------
@@ -184,7 +184,7 @@ CREATE TABLE `sys_role_authority` (
   `authority_id` varchar(50)  NOT NULL COMMENT '权限id',
   `role_id` varchar(50) NOT NULL COMMENT '角色id',
   PRIMARY KEY (`id`) ,
-  KEY `idx_role_id` (`role_id`) 
+  KEY `idx_role_id` (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='角色权限关系';
 
 -- ----------------------------
@@ -205,7 +205,7 @@ CREATE TABLE `sys_user_info` (
   `user_name` varchar(20)  NOT NULL COMMENT '用户名',
   `is_admin` char(1)  DEFAULT NULL COMMENT '是否管理员',
   PRIMARY KEY (`id`) ,
-  UNIQUE KEY `uk_user_name` (`user_name`) 
+  UNIQUE KEY `uk_user_name` (`user_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='用户';
 
 -- ----------------------------
@@ -224,7 +224,7 @@ CREATE TABLE `sys_user_login_in_out` (
   PRIMARY KEY (`id`) ,
   KEY `idx_user_id` (`user_id`) ,
   KEY `idx_inout_type` (`inout_type`) ,
-  KEY `idx_create_time` (`create_time`) 
+  KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='登录登出信息';
 
 -- ----------------------------
@@ -240,7 +240,7 @@ CREATE TABLE `sys_user_role` (
   `role_id` varchar(50)  NOT NULL COMMENT '角色id',
   `user_id` varchar(50)  NOT NULL COMMENT '用户id',
   PRIMARY KEY (`id`) ,
-  KEY `idx_user_id` (`user_id`) 
+  KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='用户角色关系';
 
 -- ----------------------------
@@ -259,7 +259,7 @@ CREATE TABLE `system_config` (
   `enable` char(1)  NOT NULL COMMENT '是否启用',
   PRIMARY KEY (`id`) ,
   UNIQUE KEY `uk_code` (`code`) ,
-  KEY `idx_enable` (`enable`) 
+  KEY `idx_enable` (`enable`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='系统配置';
 
 -- ----------------------------
@@ -290,5 +290,24 @@ CREATE TABLE `trade_record` (
   KEY `IDX_STATUS_SUB_CODE` (`status`,`sub_code`),
   KEY `IDX_PAID_DATE` (`paid_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='交易流水表';
+-- ----------------------------
+-- Table structure for chat_bi_national_qtr
+-- ----------------------------
+DROP TABLE IF EXISTS `chat_bi_national_qtr`;
+CREATE TABLE `chat_bi_national_qtr`
+(
+    `ID`              bigint(20)          NOT NULL AUTO_INCREMENT COMMENT '主键(不允许0,默认10000开始)',
+    `CATEGORY_PATH`   varchar(100)        NOT NULL COMMENT '分类路径',
+    `MEASURE`         varchar(70)         NOT NULL COMMENT '指标',
+    `STATISTICS_DATE` int(6)              NOT NULL COMMENT '统计日期',
+    `DATA`            decimal(18, 4)      NOT NULL DEFAULT '0.00' COMMENT '数据',
+    `DATA_UNIT`       varchar(10)                  DEFAULT NULL COMMENT '数据单位',
+    `IS_DELETED`      tinyint(4) UNSIGNED NOT NULL DEFAULT '0' COMMENT '删除标记:0=否,1=是',
+    `CREATOR`         varchar(30)         NOT NULL COMMENT '创建人',
+    `CREATION_DATE`   timestamp           NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`ID`),
+    KEY `IDX_MEASURE` (`MEASURE`),
+    UNIQUE KEY `UK_CATEGORY_PATH_MEASURE_STATISTICS_DATE` (`CATEGORY_PATH`, `MEASURE`, `STATISTICS_DATE`)
+) ENGINE = InnoDB AUTO_INCREMENT = 10000 DEFAULT CHARSET = utf8 COMMENT '国家季度统计数据';
 
 SET FOREIGN_KEY_CHECKS = 1;

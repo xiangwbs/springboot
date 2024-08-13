@@ -16,12 +16,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
+ * <a href="https://data.stats.gov.cn/easyquery.htm?cn=B01">国家季度数据</a>
+ * 基于js浏览器插件爬取数据到本地excel,再读取excel数据
+ *
  * @author daofeng
  * @version $
- * @since 2024年08月12日 5:05 PM
+ * @since 2024年08月12日 9:58 AM
  */
 @Slf4j
-public class NationalExcelHelper {
+public class NationalExcelReadDemo {
     /**
      * excel表名 分类路径.xlsx
      * excel表头结构 指标 时间1 时间2 时间n

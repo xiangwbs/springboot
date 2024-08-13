@@ -7,7 +7,7 @@ import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.support.ExcelTypeEnum;
-import com.xwbing.service.demo.NationalExcelHelper;
+import com.xwbing.service.demo.NationalExcelReadDemo;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 import com.xwbing.service.domain.mapper.rest.DynamicMapper;
@@ -115,7 +115,7 @@ public class ExcelDemoController {
     @ApiOperation("读取js爬虫的excel数据")
     @PostMapping("readCrawlExcelData")
     public void readCrawlExcelData() {
-        NationalExcelHelper.readExcel("/Users/xwbing/Documents/work/孚嘉/ai问数/国家统计数据/年度数据", "chat_bi_national_year");
+        NationalExcelReadDemo.readExcel("/Users/xwbing/Documents/work/孚嘉/ai问数/国家统计数据/季度数据", "chat_bi_national_qtr");
     }
 
     @ApiOperation("下载excel到本地")
