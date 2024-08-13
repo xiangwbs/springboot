@@ -22,10 +22,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class NationalExcelHelper {
-    public static void main(String[] args) {
-        readExcel("/Users/xwbing/Documents/work/孚嘉/ai问数/国家统计数据/年度数据", "chat_bi_national_year");
-    }
-
     /**
      * excel表名 分类路径.xlsx
      * excel表头结构 指标 时间1 时间2 时间n
