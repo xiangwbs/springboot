@@ -58,7 +58,7 @@ public class NationalExcelReadDemo {
                                     String measureStr = excel.remove(0).replace("\n", "");
                                     String measure;
                                     String dataUnit;
-                                    // 获取单位 例子:各项税收(亿元)
+                                    // 获取数据单位 例子:各项税收(亿元)
                                     String unit = ReUtil.getGroup0("\\([^)]+\\)$", measureStr);
                                     if (StringUtils.isNotEmpty(unit)) {
                                         measure = measureStr.replace(unit, "");
@@ -82,15 +82,16 @@ public class NationalExcelReadDemo {
                                                     date = date.replace("C", "03");
                                                     date = date.replace("D", "04");
                                                 }
-                                                ArrayList<String> list = ListUtil.toList(categoryPath, measure, value, dataUnit, date, "系统");
                                                 // 拼接'',不然sql字符串数据插入会报错
-                                                List<String> collect = list.stream().map(v -> {
-                                                    if (StringUtils.isNotEmpty(v)) {
-                                                        v = "'" + v + "'";
-                                                    }
-                                                    return v;
-                                                }).collect(Collectors.toList());
-                                                return "(" + String.join(",", collect) + ")";
+                                                String sqlValue = ListUtil.toList(categoryPath, measure, value, dataUnit, date, "系统").stream()
+                                                        .map(v -> {
+                                                            if (StringUtils.isNotEmpty(v)) {
+                                                                v = "'" + v + "'";
+                                                            }
+                                                            return v;
+                                                        })
+                                                        .collect(Collectors.joining(","));
+                                                return "(" + sqlValue + ")";
                                             })
                                             .filter(Objects::nonNull)
                                             .collect(Collectors.toList());
