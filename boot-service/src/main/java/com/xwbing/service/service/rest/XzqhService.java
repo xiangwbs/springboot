@@ -1,0 +1,63 @@
+package com.xwbing.service.service.rest;
+
+import cn.hutool.http.HttpUtil;
+import com.xwbing.service.domain.entity.rest.Xzqh;
+import com.xwbing.service.domain.mapper.rest.XzqhMapper;
+import com.xwbing.service.service.BaseService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author daofeng
+ * @version $
+ * @since 2024年08月15日 3:44 PM
+ */
+@Service
+@Slf4j
+public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
+    @Resource
+    private XzqhMapper xzqhMapper;
+
+    @Override
+    protected XzqhMapper getMapper() {
+        return xzqhMapper;
+    }
+
+    public String getGeo(List<String> regionList) {
+        Xzqh province = this.listByXzqhCj("1").stream().filter(xzqh -> regionList.stream().anyMatch(region -> xzqh.getXzqhMc().contains(region))).findFirst().orElse(null);
+        if (province != null) {
+            return this.getGeoJson("100000");
+        }
+        Xzqh city = this.listByXzqhCj("2").stream().filter(xzqh -> regionList.stream().anyMatch(region -> xzqh.getXzqhMc().contains(region))).findFirst().orElse(null);
+        if (city != null) {
+            return this.getGeoJson(city.getSjxzqhDm());
+        }
+        Xzqh district = this.listByXzqhCj("3").stream().filter(xzqh -> regionList.stream().anyMatch(region -> xzqh.getXzqhMc().contains(region))).findFirst().orElse(null);
+        if (district != null) {
+            return this.getGeoJson(district.getSjxzqhDm());
+        }
+        return null;
+    }
+
+    private List<Xzqh> listByXzqhCj(String xzqhCj) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("xzqhCj", xzqhCj);
+        return super.listByParam(map);
+    }
+
+    private Xzqh getByXzqhDm(String xzqhDm) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("xzqhDm", xzqhDm);
+        List<Xzqh> xzqhs = super.listByParam(map);
+        return xzqhs.isEmpty() ? null : xzqhs.get(0);
+    }
+
+    private String getGeoJson(String adCode) {
+        return HttpUtil.get(String.format("https://geo.datav.aliyun.com/areas_v3/bound/%s_full.json", adCode));
+    }
+}

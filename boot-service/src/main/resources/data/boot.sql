@@ -309,5 +309,17 @@ CREATE TABLE `chat_bi_national_qtr`
     KEY `IDX_MEASURE` (`MEASURE`),
     UNIQUE KEY `UK_CATEGORY_PATH_MEASURE_STATISTICS_DATE` (`CATEGORY_PATH`, `MEASURE`, `STATISTICS_DATE`)
 ) ENGINE = InnoDB AUTO_INCREMENT = 10000 DEFAULT CHARSET = utf8 COMMENT '国家季度统计数据';
+-- ----------------------------
+-- Table structure for xzqh
+-- ----------------------------
+DROP TABLE IF EXISTS `xzqh`;
+CREATE TABLE `xzqh`
+(
+    `XZQH_DM` varchar(6)   NOT NULL COMMENT '行政区划代码',
+    `XZQH_MC`   varchar(150) NOT NULL COMMENT '行政区划名称',
+    `SJXZQH_DM` varchar(6) DEFAULT NULL COMMENT '上级行政区划代码',
+    `XZQH_CJ`   varchar(1)   NOT NULL COMMENT '行政区划层级',
+    PRIMARY KEY (`XZQH_DM`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8 COMMENT ='行政区划表';
 
 SET FOREIGN_KEY_CHECKS = 1;
