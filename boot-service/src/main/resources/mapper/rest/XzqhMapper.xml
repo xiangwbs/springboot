@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xwbing.service.domain.mapper.rest.XzqhMapper">
+    <resultMap id="BaseResultMap" type="com.xwbing.service.domain.entity.rest.Xzqh">
+        <id column="XZQH_DM" property="xzqhDm"/>
+        <result column="XZQH_MC" property="xzqhMc"/>
+        <result column="SJXZQH_DM" property="sjxzqhDm"/>
+        <result column="XZQH_CJ" property="xzqhCj"/>
+    </resultMap>
+
+    <sql id="Table">
+        xzqh
+    </sql>
+
+    <sql id="Base_Column_List">
+        XZQH_DM, XZQH_MC, SJXZQH_DM, XZQH_CJ
+    </sql>
+
+    <sql id="Condition">
+        <where>
+            <if test="xzqhCj!=null">
+                XZQH_CJ=#{xzqhCj}
+            </if>
+            <if test="xzqhDm!=null">
+                XZQH_DM=#{xzqhDm}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insert">
+        insert into 
+        <include refid="Table"/>(
+        XZQH_DM, 
+        XZQH_MC, 
+        SJXZQH_DM, 
+        XZQH_CJ
+        )
+        values (
+        #{xzqhDm}, 
+        #{xzqhMc}, 
+        #{sjxzqhDm}, 
+        #{xzqhCj}
+        )
+    </insert>
+
+    <insert id="insertBatch">
+        insert into 
+        <include refid="Table"/>(
+        XZQH_DM, 
+        XZQH_MC, 
+        SJXZQH_DM, 
+        XZQH_CJ
+        )
+        values
+        <foreach collection="list" item="obj" separator=",">(
+            #{obj.xzqhDm}, 
+            #{obj.xzqhMc}, 
+            #{obj.sjxzqhDm}, 
+            #{obj.xzqhCj}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteById">
+        delete from 
+        <include refid="Table"/>
+        where XZQH_DM = #{xzqhDm}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from 
+        <include refid="Table"/>
+        where XZQH_DM in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="delete">
+        delete from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </delete>
+
+    <update id="update">
+        update 
+        <include refid="Table"/>
+        <set>
+            <if test="xzqhMc!=null">XZQH_MC=#{xzqhMc},</if>
+            <if test="sjxzqhDm!=null">SJXZQH_DM=#{sjxzqhDm},</if>
+            <if test="xzqhCj!=null">XZQH_CJ=#{xzqhCj},</if>
+        </set>
+        where XZQH_DM = #{xzqhDm}
+    </update>
+
+    <update id="updateBatch">
+        update 
+        <include refid="Table"/>
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="XZQH_MC=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.xzqhMc!=null">
+                        when XZQH_DM=#{obj.xzqhDm} then #{obj.xzqhMc}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="SJXZQH_DM=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.sjxzqhDm!=null">
+                        when XZQH_DM=#{obj.xzqhDm} then #{obj.sjxzqhDm}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="XZQH_CJ=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.xzqhCj!=null">
+                        when XZQH_DM=#{obj.xzqhDm} then #{obj.xzqhCj}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where XZQH_DM in
+        <foreach collection="list" item="obj" separator="," open="(" close=")">
+            #{obj.xzqhDm}
+        </foreach>
+    </update>
+
+    <select id="findById" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where XZQH_DM = #{xzqhDm}
+    </select>
+
+    <select id="findByIds" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        where XZQH_DM in
+        <foreach collection="list" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="find" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+        <include refid="Condition"/>
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from 
+        <include refid="Table"/>
+    </select>
+
+</mapper>
