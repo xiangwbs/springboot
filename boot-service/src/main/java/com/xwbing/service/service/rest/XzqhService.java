@@ -99,7 +99,7 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
                     String xzqhDm = province.getXzqhDm();
                     List<Xzqh> cityList;
                     //直辖市特殊处理
-                    if (StringUtils.equalsAny(xzqhDm, "110000", "310000", "500000", "120000")) {
+                    if (StringUtils.equalsAny(xzqhDm, "110000", "120000", "310000", "500000")) {
                         cityList = Collections.singletonList(BeanUtil.copyProperties(province, Xzqh.class));
                     } else {
                         cityList = xhqhParentMap.get(xzqhDm);
