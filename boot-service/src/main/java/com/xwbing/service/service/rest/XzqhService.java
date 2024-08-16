@@ -90,22 +90,21 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
 
     public List<Xzqh> addressTree() {
         Map<String, List<Xzqh>> xhqhParentMap = xzqhMapper.findAll().stream().collect(Collectors.groupingBy(Xzqh::getSjxzqhDm));
-        List<Xzqh> firstList = xhqhParentMap.get("100000");
-        return firstList.stream().filter(xzqh -> {
+        List<Xzqh> provinceList = xhqhParentMap.get("100000");
+        return provinceList.stream().filter(province -> {
             // 去除港澳台
-            return !StringUtils.equalsAny(xzqh.getXzqhDm(), "710000", "810000", "820000");
-        }).peek(first -> {
-            String xzqhDm = first.getXzqhDm();
-            List<Xzqh> secondList = xhqhParentMap.get(xzqhDm);
+            return !StringUtils.equalsAny(province.getXzqhDm(), "710000", "810000", "820000");
+        }).peek(province -> {
+            String xzqhDm = province.getXzqhDm();
+            List<Xzqh> cityList;
             //直辖市特殊处理
             if (StringUtils.equalsAny(xzqhDm, "110000", "310000", "500000", "120000")) {
-                List<Xzqh> children = Collections.singletonList(BeanUtil.copyProperties(first, Xzqh.class));
-                first.setChildren(children);
-                children.forEach(second -> second.setChildren(xhqhParentMap.get(second.getXzqhDm())));
+                cityList = Collections.singletonList(BeanUtil.copyProperties(province, Xzqh.class));
             } else {
-                first.setChildren(secondList);
-                secondList.forEach(second -> second.setChildren(xhqhParentMap.get(second.getXzqhDm())));
+                cityList = xhqhParentMap.get(xzqhDm);
             }
+            province.setChildren(cityList);
+            cityList.forEach(city -> city.setChildren(xhqhParentMap.get(city.getXzqhDm())));
         }).collect(Collectors.toList());
     }
 
