@@ -24,6 +24,9 @@
             <if test="xzqhDm!=null">
                 XZQH_DM=#{xzqhDm}
             </if>
+            <if test="sjxzqhDm!=null">
+                SJXZQH_DM=#{sjxzqhDm}
+            </if>
         </where>
     </sql>
 

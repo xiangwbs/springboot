@@ -1,5 +1,6 @@
 package com.xwbing.service.service.rest;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.lang.tree.TreeUtil;
@@ -8,6 +9,7 @@ import com.xwbing.service.domain.entity.rest.Xzqh;
 import com.xwbing.service.domain.mapper.rest.XzqhMapper;
 import com.xwbing.service.service.BaseService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -86,10 +88,25 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
         return treeList;
     }
 
-    private List<Xzqh> listByXzqhCj(String xzqhCj) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("xzqhCj", xzqhCj);
-        return super.listByParam(map);
+    public List<Xzqh> addressTree() {
+        Map<String, List<Xzqh>> xhqhParentMap = xzqhMapper.findAll().stream().collect(Collectors.groupingBy(Xzqh::getSjxzqhDm));
+        List<Xzqh> firstList = xhqhParentMap.get("100000");
+        return firstList.stream().filter(xzqh -> {
+            // 去除港澳台
+            return !StringUtils.equalsAny(xzqh.getXzqhDm(), "710000", "810000", "820000");
+        }).peek(first -> {
+            String xzqhDm = first.getXzqhDm();
+            List<Xzqh> secondList = xhqhParentMap.get(xzqhDm);
+            //直辖市特殊处理
+            if (StringUtils.equalsAny(xzqhDm, "110000", "310000", "500000", "120000")) {
+                List<Xzqh> children = Collections.singletonList(BeanUtil.copyProperties(first, Xzqh.class));
+                first.setChildren(children);
+                children.forEach(second -> second.setChildren(xhqhParentMap.get(second.getXzqhDm())));
+            } else {
+                first.setChildren(secondList);
+                secondList.forEach(second -> second.setChildren(xhqhParentMap.get(second.getXzqhDm())));
+            }
+        }).collect(Collectors.toList());
     }
 
     private Xzqh getByXzqhDm(String xzqhDm) {
@@ -97,6 +114,18 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
         map.put("xzqhDm", xzqhDm);
         List<Xzqh> xzqhs = super.listByParam(map);
         return xzqhs.isEmpty() ? null : xzqhs.get(0);
+    }
+
+    private List<Xzqh> listByXzqhCj(String xzqhCj) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("xzqhCj", xzqhCj);
+        return super.listByParam(map);
+    }
+
+    private List<Xzqh> listBySjxzqhDm(String xzqhDm) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("sjxzqhDm", xzqhDm);
+        return super.listByParam(map);
     }
 
     private String getGeoJson(String xzqhDm) {

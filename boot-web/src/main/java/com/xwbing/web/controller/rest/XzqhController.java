@@ -40,4 +40,9 @@ public class XzqhController {
     public ApiResponse<List<Xzqh>> tree1() {
         return ApiResponseUtil.success(xzqhService.tree1());
     }
+
+    @GetMapping("/addressTree")
+    public ApiResponse<List<Xzqh>> addressTree() {
+        return ApiResponseUtil.success(xzqhService.addressTree());
+    }
 }
