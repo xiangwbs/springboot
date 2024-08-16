@@ -91,21 +91,22 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
     public List<Xzqh> addressTree() {
         Map<String, List<Xzqh>> xhqhParentMap = xzqhMapper.findAll().stream().collect(Collectors.groupingBy(Xzqh::getSjxzqhDm));
         List<Xzqh> provinceList = xhqhParentMap.get("100000");
-        return provinceList.stream().filter(province -> {
-            // 去除港澳台
-            return !StringUtils.equalsAny(province.getXzqhDm(), "710000", "810000", "820000");
-        }).peek(province -> {
-            String xzqhDm = province.getXzqhDm();
-            List<Xzqh> cityList;
-            //直辖市特殊处理
-            if (StringUtils.equalsAny(xzqhDm, "110000", "310000", "500000", "120000")) {
-                cityList = Collections.singletonList(BeanUtil.copyProperties(province, Xzqh.class));
-            } else {
-                cityList = xhqhParentMap.get(xzqhDm);
-            }
-            province.setChildren(cityList);
-            cityList.forEach(city -> city.setChildren(xhqhParentMap.get(city.getXzqhDm())));
-        }).collect(Collectors.toList());
+        return provinceList.stream()
+                .filter(province -> {
+                    // 去除港澳台
+                    return !StringUtils.equalsAny(province.getXzqhDm(), "710000", "810000", "820000");
+                }).peek(province -> {
+                    String xzqhDm = province.getXzqhDm();
+                    List<Xzqh> cityList;
+                    //直辖市特殊处理
+                    if (StringUtils.equalsAny(xzqhDm, "110000", "310000", "500000", "120000")) {
+                        cityList = Collections.singletonList(BeanUtil.copyProperties(province, Xzqh.class));
+                    } else {
+                        cityList = xhqhParentMap.get(xzqhDm);
+                    }
+                    province.setChildren(cityList);
+                    cityList.forEach(city -> city.setChildren(xhqhParentMap.get(city.getXzqhDm())));
+                }).collect(Collectors.toList());
     }
 
     private Xzqh getByXzqhDm(String xzqhDm) {
