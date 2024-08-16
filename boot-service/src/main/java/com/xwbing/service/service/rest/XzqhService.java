@@ -67,24 +67,24 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
     }
 
     public List<Xzqh> tree1() {
-        List<Xzqh> list = new ArrayList<>();
-        Map<String, Xzqh> xzqhMap = xzqhMapper.findAll().stream().collect(Collectors.toMap(Xzqh::getXzqhDm, Function.identity()));
-        xzqhMap.values().stream()
-                .sorted(Comparator.comparing(Xzqh::getXzqhDm))
-                .forEach(xzqh -> {
-                    Xzqh parent = xzqhMap.get(xzqh.getSjxzqhDm());
-                    if (parent == null) {
-                        list.add(xzqh);
-                        return;
-                    }
-                    List<Xzqh> children = parent.getChildren();
-                    if (CollectionUtils.isEmpty(children)) {
-                        children = new ArrayList<>();
-                        parent.setChildren(children);
-                    }
-                    children.add(xzqh);
-                });
-        return list;
+        List<Xzqh> treeList = new ArrayList<>();
+        List<Xzqh> list = xzqhMapper.findAll();
+        list.sort(Comparator.comparing(Xzqh::getXzqhDm));
+        Map<String, Xzqh> xzqhMap = list.stream().collect(Collectors.toMap(Xzqh::getXzqhDm, Function.identity()));
+        list.forEach(xzqh -> {
+            Xzqh parent = xzqhMap.get(xzqh.getSjxzqhDm());
+            if (parent == null) {
+                treeList.add(xzqh);
+                return;
+            }
+            List<Xzqh> children = parent.getChildren();
+            if (CollectionUtils.isEmpty(children)) {
+                children = new ArrayList<>();
+                parent.setChildren(children);
+            }
+            children.add(xzqh);
+        });
+        return treeList;
     }
 
     private List<Xzqh> listByXzqhCj(String xzqhCj) {
