@@ -1,5 +1,6 @@
 package com.xwbing.web.controller.rest;
 
+import cn.hutool.core.lang.tree.Tree;
 import com.xwbing.service.service.rest.XzqhService;
 import com.xwbing.web.response.ApiResponse;
 import com.xwbing.web.response.ApiResponseUtil;
@@ -27,5 +28,10 @@ public class XzqhController {
     @GetMapping("/getGeo")
     public ApiResponse<String> getGeo(@RequestParam List<String> regionList) {
         return ApiResponseUtil.success(xzqhService.getGeo(regionList));
+    }
+
+    @GetMapping("/tree")
+    public ApiResponse<List<Tree<String>>> tree() {
+        return ApiResponseUtil.success(xzqhService.tree());
     }
 }

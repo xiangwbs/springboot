@@ -3,7 +3,6 @@ package com.xwbing.service.demo.sql;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
-import com.google.common.collect.Maps;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author daofeng
@@ -19,7 +19,7 @@ import java.util.*;
  */
 @Slf4j
 public class JdbcUtil {
-    private static final Map<String, DataSource> DATA_SOURCE_MAP = Maps.newConcurrentMap();
+    private static final Map<String, DataSource> DATA_SOURCE_MAP = new ConcurrentHashMap<>();
 
     private static DataSource createDataSource(String url, String username, String password) {
         DruidDataSource dataSource = DruidDataSourceBuilder.create().build();

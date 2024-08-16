@@ -1,5 +1,8 @@
 package com.xwbing.service.service.rest;
 
+import cn.hutool.core.lang.tree.Tree;
+import cn.hutool.core.lang.tree.TreeNodeConfig;
+import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.http.HttpUtil;
 import com.xwbing.service.domain.entity.rest.Xzqh;
 import com.xwbing.service.domain.mapper.rest.XzqhMapper;
@@ -31,6 +34,7 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
     public String getGeo(List<String> regionList) {
         Xzqh province = this.listByXzqhCj("1").stream().filter(xzqh -> regionList.stream().anyMatch(region -> xzqh.getXzqhMc().contains(region))).findFirst().orElse(null);
         if (province != null) {
+            boolean fullNameFlag = regionList.stream().anyMatch(region -> province.getXzqhMc().equals(region));
             return this.getGeoJson("100000");
         }
         Xzqh city = this.listByXzqhCj("2").stream().filter(xzqh -> regionList.stream().anyMatch(region -> xzqh.getXzqhMc().contains(region))).findFirst().orElse(null);
@@ -42,6 +46,22 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
             return this.getGeoJson(district.getSjxzqhDm());
         }
         return null;
+    }
+
+    public List<Tree<String>> tree() {
+        List<Xzqh> list = xzqhMapper.findAll();
+        TreeNodeConfig treeNodeConfig = new TreeNodeConfig();
+        treeNodeConfig.setIdKey("xzqhDm");
+        treeNodeConfig.setParentIdKey("sjxzqhDm");
+        treeNodeConfig.setNameKey("xzqhMc");
+        treeNodeConfig.setDeep(3);
+        return TreeUtil.build(list, "100000", treeNodeConfig, (treeNode, tree) -> {
+            tree.setId(treeNode.getXzqhDm());
+            tree.setParentId(treeNode.getSjxzqhDm());
+            tree.setWeight(treeNode.getXzqhDm());
+            tree.setName(treeNode.getXzqhMc());
+            tree.putExtra("xzqhCj", treeNode.getXzqhCj());
+        });
     }
 
     private List<Xzqh> listByXzqhCj(String xzqhCj) {
@@ -57,7 +77,7 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
         return xzqhs.isEmpty() ? null : xzqhs.get(0);
     }
 
-    private String getGeoJson(String adCode) {
-        return HttpUtil.get(String.format("https://geo.datav.aliyun.com/areas_v3/bound/%s_full.json", adCode));
+    private String getGeoJson(String xzqhDm) {
+        return HttpUtil.get(String.format("https://geo.datav.aliyun.com/areas_v3/bound/%s_full.json", xzqhDm));
     }
 }
