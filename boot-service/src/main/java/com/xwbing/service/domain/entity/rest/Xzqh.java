@@ -3,6 +3,8 @@ package com.xwbing.service.domain.entity.rest;
 import com.xwbing.service.domain.entity.BaseEntity;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @description 行政区划表
  * @author xiangwb
@@ -27,4 +29,5 @@ public class Xzqh extends BaseEntity {
      * 行政区划层级
      */
     private String xzqhCj;
+    private List<Xzqh> children;
 }

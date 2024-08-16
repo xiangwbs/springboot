@@ -8,12 +8,13 @@ import com.xwbing.service.domain.entity.rest.Xzqh;
 import com.xwbing.service.domain.mapper.rest.XzqhMapper;
 import com.xwbing.service.service.BaseService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author daofeng
@@ -55,6 +56,7 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
         treeNodeConfig.setParentIdKey("sjxzqhDm");
         treeNodeConfig.setNameKey("xzqhMc");
         treeNodeConfig.setDeep(3);
+        // 底层没有用到递归。先获取所有数据的id，value。再遍历基于pid去查数据，有就塞到子集里
         return TreeUtil.build(list, "100000", treeNodeConfig, (treeNode, tree) -> {
             tree.setId(treeNode.getXzqhDm());
             tree.setParentId(treeNode.getSjxzqhDm());
@@ -62,6 +64,27 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
             tree.setName(treeNode.getXzqhMc());
             tree.putExtra("xzqhCj", treeNode.getXzqhCj());
         });
+    }
+
+    public List<Xzqh> tree1() {
+        List<Xzqh> list = new ArrayList<>();
+        Map<String, Xzqh> xzqhMap = xzqhMapper.findAll().stream().collect(Collectors.toMap(Xzqh::getXzqhDm, Function.identity()));
+        xzqhMap.values().stream()
+                .sorted(Comparator.comparing(Xzqh::getXzqhDm))
+                .forEach(xzqh -> {
+                    Xzqh parent = xzqhMap.get(xzqh.getSjxzqhDm());
+                    if (parent == null) {
+                        list.add(xzqh);
+                        return;
+                    }
+                    List<Xzqh> children = parent.getChildren();
+                    if (CollectionUtils.isEmpty(children)) {
+                        children = new ArrayList<>();
+                        parent.setChildren(children);
+                    }
+                    children.add(xzqh);
+                });
+        return list;
     }
 
     private List<Xzqh> listByXzqhCj(String xzqhCj) {
