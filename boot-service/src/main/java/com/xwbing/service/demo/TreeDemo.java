@@ -37,6 +37,7 @@ public class TreeDemo {
                 })
                 .collect(Collectors.toList());
         log.info("treeNodeCount:{}", treeNodeList.size());
+        // 如果需要个性化配置，可以参考com.xwbing.service.service.rest.XzqhService.tree
         List<Tree<String>> treeList = TreeUtil.build(treeNodeList, "THEME_J_33urn:ddi:ZJJCKSTAT:7c0d421e-f5e7-4c66-88b6-61d0407dc73a:1");
         log.info("treeCount:{}", treeList.size());
         List<Tree<String>> bottomNodeList = new ArrayList<>();
