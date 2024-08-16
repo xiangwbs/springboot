@@ -8,7 +8,6 @@ import com.xwbing.service.domain.entity.rest.Xzqh;
 import com.xwbing.service.domain.mapper.rest.XzqhMapper;
 import com.xwbing.service.service.BaseService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -75,14 +74,14 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
             Xzqh parent = xzqhMap.get(xzqh.getSjxzqhDm());
             if (parent == null) {
                 treeList.add(xzqh);
-                return;
+            } else {
+                List<Xzqh> children = parent.getChildren();
+                if (children == null) {
+                    children = new ArrayList<>();
+                    parent.setChildren(children);
+                }
+                children.add(xzqh);
             }
-            List<Xzqh> children = parent.getChildren();
-            if (CollectionUtils.isEmpty(children)) {
-                children = new ArrayList<>();
-                parent.setChildren(children);
-            }
-            children.add(xzqh);
         });
         return treeList;
     }
