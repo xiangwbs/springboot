@@ -102,7 +102,7 @@ public class NationalExcelReadDemo {
                             String sql = "INSERT INTO " + tableName + "(CATEGORY_PATH,MEASURE,DATA,DATA_UNIT,STATISTICS_DATE,CREATOR) VALUES " + String.join(",", valueList);
                             try {
                                 log.info("readExcel fileName:{} sql:{}", fileName, sql);
-                                JdbcUtil.upsertSql("jdbc:mysql://127.0.0.1:3306/fugle", "root", "xiangwbs", sql);
+                                JdbcUtil.upsertRow("jdbc:mysql://127.0.0.1:3306/fugle", "root", "xiangwbs", sql);
                             } catch (Exception e) {
                                 if (e instanceof SQLIntegrityConstraintViolationException) {
                                     log.error("readExcel fileName:{} sql:{} duplicateKeyError", fileName, sql);

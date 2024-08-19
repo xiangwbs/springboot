@@ -33,19 +33,19 @@ public class JdbcUtil {
         return DATA_SOURCE_MAP.computeIfAbsent(url, k -> createDataSource(url, username, password));
     }
 
-    public static void upsertSql(String url, String username, String password, String sql) throws SQLException {
+    public static void upsertRow(String url, String username, String password, String sql) throws SQLException {
         try (Connection connection = getDataSource(url, username, password).getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 int row = preparedStatement.executeUpdate();
-                log.info("jdbcUtil upsertSql sql:{} row:{}", sql, row);
+                log.info("jdbcUtil upsertRow sql:{} row:{}", sql, row);
             }
         } catch (SQLException e) {
-            log.error("jdbcUtil upsertSql sql:{} error", sql, e);
+            log.error("jdbcUtil upsertRow sql:{} error", sql, e);
             throw e;
         }
     }
 
-    public static List<Map<String, Object>> querySql(String url, String username, String password, String sql) {
+    public static List<Map<String, Object>> queryRow(String url, String username, String password, String sql) {
         List<Map<String, Object>> list = new ArrayList<>();
         try (Connection connection = getDataSource(url, username, password).getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -64,7 +64,7 @@ public class JdbcUtil {
                 }
             }
         } catch (SQLException e) {
-            log.error("jdbcUtil querySql sql:{} error", sql, e);
+            log.error("jdbcUtil queryRow sql:{} error", sql, e);
             return Collections.emptyList();
         }
     }
@@ -118,7 +118,7 @@ public class JdbcUtil {
         String jdbcUrl = "jdbc:mysql://127.0.0.1:3306/boot";
         String username = "root";
         String password = "xiangwbs";
-        List<Map<String, Object>> dataList = querySql(jdbcUrl, username, password, "SELECT * from sys_user_info");
+        List<Map<String, Object>> dataList = queryRow(jdbcUrl, username, password, "SELECT * from sys_user_info");
         List<Column> columnList = queryColumn(jdbcUrl, username, password, "sys_user_info");
         System.out.println("");
     }
