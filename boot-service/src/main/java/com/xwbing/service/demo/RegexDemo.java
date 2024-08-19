@@ -71,7 +71,7 @@ public class RegexDemo {
         // 获取税务机关代码前缀
         System.out.println("13300000000".replaceAll("0+$", ""));
         // 获取最后一个括号里数据
-        System.out.println(ReUtil.getGroup0("\\([^)]+\\)$", "皮革、毛皮、羽毛(绒)及其制品业国有控股工业企业主营业务税金及附加(亿元)"));
+        System.out.println(ReUtil.getGroup0("\\([^)]+\\)$", "皮革、毛皮、羽毛(绒)及其制品业国有控股工业企业主营业务税金及附加(亿元)").replaceAll("[()]",""));
         // 获取${}里的字符
         System.out.println(StrUtil.subBetween(ReUtil.getGroup0("\\$\\{\\w+}", "123${code}456"), "${", "}"));
         System.out.println("xiangggweiiii".replaceAll("(.)\\1+", "$1"));
