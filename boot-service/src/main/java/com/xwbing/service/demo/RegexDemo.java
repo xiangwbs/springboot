@@ -68,7 +68,7 @@ public class RegexDemo {
         System.out.println(ReUtil.findAllGroup0("\\d+", "qaz1235qwer5678"));
         // 获取第一组数字
         System.out.println(ReUtil.getGroup0("(\\d+\\.?\\d*)", "wed23sd2.4ssd"));
-        // 获取税务机关代码前缀
+        // 获取税务机关代码前缀(看到本级和下级)
         System.out.println("13300000000".replaceAll("0+$", ""));
         // 获取最后一个括号里数据
         System.out.println(ReUtil.getGroup0("\\([^)]+\\)$", "皮革、毛皮、羽毛(绒)及其制品业国有控股工业企业主营业务税金及附加(亿元)").replaceAll("[()]",""));
