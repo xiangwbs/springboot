@@ -90,8 +90,7 @@ public class XzqhService extends BaseService<XzqhMapper, Xzqh> {
 
     public List<Xzqh> addressTree() {
         Map<String, List<Xzqh>> xhqhParentMap = xzqhMapper.findAll().stream().collect(Collectors.groupingBy(Xzqh::getSjxzqhDm));
-        List<Xzqh> provinceList = xhqhParentMap.get("100000");
-        return provinceList.stream()
+        return xhqhParentMap.get("100000").stream()
                 .filter(province -> {
                     // 去除港澳台
                     return !StringUtils.equalsAny(province.getXzqhDm(), "710000", "810000", "820000");
