@@ -14,10 +14,12 @@ import java.util.Map;
 public class DealSqlVO {
     // 原始sql
     private String originalSql;
-    // 处理过的sql
-    private String dealSql;
-    // 没有别名的sql
+    // 有别名的sql
+    private String aliasSql;
+    // 无别名的sql
     private String noAliasSql;
+    // 展示的sql
+    private String displaySql;
     // 查询字段列表
     private List<String> selectFieldList;
     // 计算列字段数据类型map

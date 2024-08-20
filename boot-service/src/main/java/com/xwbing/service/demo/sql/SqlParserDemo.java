@@ -1,5 +1,6 @@
 package com.xwbing.service.demo.sql;
 
+import cn.hutool.core.collection.ListUtil;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
@@ -12,6 +13,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.util.SelectUtils;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +35,13 @@ public class SqlParserDemo {
 //        formatDate("select region from region_data where date is not null and date!='2023' and (date in('2023','2024') and date between '2023' and '2024')");
 //        List<String> fieldList = SqlUtil.listField("select region from region_data where date is not null and date!='2023' and (code in('2023','2024') and age between '10' and '20') group by code order by id desc");
 //        String formatSql = SqlUtil.formatSql("select yearmonth,mofdivname,incexptype,budgetsubjectcode,budgetsubjectname,amt from dws_budget_domain_srzc_ai where mofdivname in ('余杭区', '淳安县') and budgetsubjectname like '%干部教育%' and incexptype = '1' order by amt desc group by mofdivname limit 1000");
-        dealSql("select * from dws_declare_domain_zdsyqyjbxx where practicenum < 10 and regdate between '2023-01-01' and '2024-12-31' limit 1000", Collections.emptyList(), false);
+        SqlFieldVO sqlField = new SqlFieldVO();
+        sqlField.setCode("taxpayname");
+        sqlField.setName("纳税人名称");
+        SqlFieldVO sqlField1 = new SqlFieldVO();
+        sqlField1.setCode("practicenum");
+        sqlField1.setName("数量");
+        dealSql("重点税源企业基本信息表", "select * from dws_declare_domain_zdsyqyjbxx where practicenum < 10 and regdate between '2023-01-01' and '2024-12-31' limit 1000", ListUtil.toList(sqlField, sqlField1), false);
         System.out.println("");
     }
 
@@ -96,7 +104,7 @@ public class SqlParserDemo {
         return sqlMap;
     }
 
-    private static DealSqlVO dealSql(String sql, List<SqlFieldVO> fieldList, boolean addLimit) {
+    private static DealSqlVO dealSql(String tableName, String sql, List<SqlFieldVO> fieldList, boolean addLimit) {
         PlainSelect select = SqlUtil.getSelect(sql);
         if (select == null) {
             return null;
@@ -106,14 +114,22 @@ public class SqlParserDemo {
         List<String> selectFieldList = new ArrayList<>();
         Map<String, Byte> functionDataTypeMap = new HashMap<>();
         Map<String, String> fieldNameMap = fieldList.stream().collect(Collectors.toMap(SqlFieldVO::getCode, SqlFieldVO::getName));
-        select.getSelectItems().forEach(selectItem -> {
+        List<SelectItem<?>> selectItems = select.getSelectItems();
+        if (selectItems.size() == 1 && selectItems.get(0).getExpression() instanceof AllColumns) {
+            // select * 得替换成字段
+            selectItems.remove(0);
+            for (SqlFieldVO sqlField : fieldList) {
+                SelectUtils.addExpression(select, new Column(sqlField.getCode()));
+            }
+        }
+        selectItems.forEach(selectItem -> {
             Expression expression = selectItem.getExpression();
             if (expression instanceof Column) {
                 Column column = (Column) expression;
                 // 设置别名
                 String columnName = fieldNameMap.get(column.getColumnName());
                 if (StringUtils.isNotEmpty(columnName)) {
-                    selectItem.setAlias(new Alias("\"" + columnName + "\"", true));
+                    selectItem.setAlias(new Alias("`" + columnName + "`", true));
                 }
                 // 汇总查询字段
                 selectFieldList.add(column.getColumnName());
@@ -126,18 +142,18 @@ public class SqlParserDemo {
                 selectFieldList.add(key);
             }
         });
-        String dealSql = select.toString().toLowerCase();
+        String aliasSql = select.toString().toLowerCase();
         if (addLimit) {
             Limit limit = select.getLimit();
             if (limit == null) {
-                dealSql = dealSql + " limit 1000";
+                aliasSql = aliasSql + " limit 1000";
             }
         }
-        vo.setDealSql(dealSql);
+        vo.setAliasSql(aliasSql);
         vo.setSelectFieldList(selectFieldList);
         vo.setFunctionDataTypeMap(functionDataTypeMap);
         // 获取去除别名的sql 便于动态sql查询到的数据(map<key,value>)key能匹配到对应的字段
-        select = SqlUtil.getSelect(dealSql);
+        select = SqlUtil.getSelect(aliasSql);
         select.getSelectItems().forEach(selectItem -> {
             Expression expression = selectItem.getExpression();
             if (expression instanceof Column) {
@@ -145,6 +161,15 @@ public class SqlParserDemo {
             }
         });
         vo.setNoAliasSql(select.toString().toLowerCase());
+        // 加工展示的sql
+        select = SqlUtil.getSelect(aliasSql);
+        Table fromTable = (Table) select.getFromItem();
+        fromTable.setName("`" + tableName + "`");
+        String displaySql = select.toString().toLowerCase();
+        for (SqlFieldVO field : fieldList) {
+            displaySql = displaySql.replace(field.getCode(), "`" + field.getName() + "`");
+        }
+        vo.setDisplaySql(displaySql);
         return vo;
     }
 
