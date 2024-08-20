@@ -32,7 +32,8 @@ public class SqlParserDemo {
 //        String addColumnSql = SqlUtil.addColumn("select name,age from user where id=1", "sex");
 //        formatDate("select region from region_data where date is not null and date!='2023' and (date in('2023','2024') and date between '2023' and '2024')");
 //        List<String> fieldList = SqlUtil.listField("select region from region_data where date is not null and date!='2023' and (code in('2023','2024') and age between '10' and '20') group by code order by id desc");
-        String formatSql = SqlUtil.formatSql("select yearmonth,mofdivname,incexptype,budgetsubjectcode,budgetsubjectname,amt from dws_budget_domain_srzc_ai where mofdivname in ('余杭区', '淳安县') and budgetsubjectname like '%干部教育%' and incexptype = '1' order by amt desc group by mofdivname limit 1000");
+//        String formatSql = SqlUtil.formatSql("select yearmonth,mofdivname,incexptype,budgetsubjectcode,budgetsubjectname,amt from dws_budget_domain_srzc_ai where mofdivname in ('余杭区', '淳安县') and budgetsubjectname like '%干部教育%' and incexptype = '1' order by amt desc group by mofdivname limit 1000");
+        dealSql("select * from dws_declare_domain_zdsyqyjbxx where practicenum < 10 and regdate between '2023-01-01' and '2024-12-31' limit 1000", Collections.emptyList(), false);
         System.out.println("");
     }
 
@@ -95,16 +96,17 @@ public class SqlParserDemo {
         return sqlMap;
     }
 
-    private ReSqlVO reSql(String sql, List<SqlFieldVO> fieldList) {
+    private static DealSqlVO dealSql(String sql, List<SqlFieldVO> fieldList, boolean addLimit) {
         PlainSelect select = SqlUtil.getSelect(sql);
         if (select == null) {
             return null;
         }
-        ReSqlVO reSql = new ReSqlVO();
-        Map<String, String> fieldNameMap = fieldList.stream().collect(Collectors.toMap(SqlFieldVO::getCode, SqlFieldVO::getName));
+        DealSqlVO vo = new DealSqlVO();
+        vo.setOriginalSql(sql);
+        List<String> selectFieldList = new ArrayList<>();
         Map<String, Byte> functionDataTypeMap = new HashMap<>();
-        List<SelectItem<?>> selectItems = select.getSelectItems();
-        selectItems.forEach(selectItem -> {
+        Map<String, String> fieldNameMap = fieldList.stream().collect(Collectors.toMap(SqlFieldVO::getCode, SqlFieldVO::getName));
+        select.getSelectItems().forEach(selectItem -> {
             Expression expression = selectItem.getExpression();
             if (expression instanceof Column) {
                 Column column = (Column) expression;
@@ -113,33 +115,37 @@ public class SqlParserDemo {
                 if (StringUtils.isNotEmpty(columnName)) {
                     selectItem.setAlias(new Alias("\"" + columnName + "\"", true));
                 }
+                // 汇总查询字段
+                selectFieldList.add(column.getColumnName());
             } else {
                 // 映射涉及计算列的字段类型
                 String expressionStr = expression.toString();
-                SqlFieldVO matchField = fieldList.stream().filter(chatBiFieldVO -> expressionStr.contains(chatBiFieldVO.getCode())).findFirst().orElse(null);
-                if (matchField != null) {
-                    String key = Optional.ofNullable(selectItem.getAlias()).map(Alias::getName).orElse(expressionStr);
-                    functionDataTypeMap.put(key, matchField.getDataType());
-                }
+                String key = Optional.ofNullable(selectItem.getAlias()).map(Alias::getName).orElse(expressionStr);
+                fieldList.stream().filter(chatBiFieldVO -> expressionStr.contains(chatBiFieldVO.getCode())).findFirst().ifPresent(matchField -> functionDataTypeMap.put(key, matchField.getDataType()));
+                // 汇总查询列
+                selectFieldList.add(key);
             }
         });
-        sql = select.toString().toLowerCase();
-        Limit limit = select.getLimit();
-        if (limit == null) {
-            sql = sql + " limit 1000";
+        String dealSql = select.toString().toLowerCase();
+        if (addLimit) {
+            Limit limit = select.getLimit();
+            if (limit == null) {
+                dealSql = dealSql + " limit 1000";
+            }
         }
-        reSql.setReSql(sql);
-        reSql.setFunctionDataTypeMap(functionDataTypeMap);
+        vo.setDealSql(dealSql);
+        vo.setSelectFieldList(selectFieldList);
+        vo.setFunctionDataTypeMap(functionDataTypeMap);
         // 获取去除别名的sql 便于动态sql查询到的数据(map<key,value>)key能匹配到对应的字段
-        select = SqlUtil.getSelect(sql);
+        select = SqlUtil.getSelect(dealSql);
         select.getSelectItems().forEach(selectItem -> {
             Expression expression = selectItem.getExpression();
             if (expression instanceof Column) {
                 selectItem.setAlias(null);
             }
         });
-        reSql.setNoAliasSql(select.toString().toLowerCase());
-        return reSql;
+        vo.setNoAliasSql(select.toString().toLowerCase());
+        return vo;
     }
 
     public static String reSql(String sql) {
