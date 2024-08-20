@@ -116,7 +116,7 @@ public class SqlParserDemo {
         Map<String, String> fieldNameMap = fieldList.stream().collect(Collectors.toMap(SqlFieldVO::getCode, SqlFieldVO::getName));
         List<SelectItem<?>> selectItems = select.getSelectItems();
         if (selectItems.size() == 1 && selectItems.get(0).getExpression() instanceof AllColumns) {
-            // select * 得替换成字段
+            // select * 替换成字段
             selectItems.remove(0);
             for (SqlFieldVO sqlField : fieldList) {
                 SelectUtils.addExpression(select, new Column(sqlField.getCode()));
