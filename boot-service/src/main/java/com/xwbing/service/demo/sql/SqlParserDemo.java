@@ -167,7 +167,7 @@ public class SqlParserDemo {
         fromTable.setName("`" + tableName + "`");
         String displaySql = select.toString().toLowerCase();
         for (SqlFieldVO field : fieldList) {
-            displaySql = displaySql.replace(field.getCode(), "`" + field.getName() + "`");
+            displaySql = displaySql.replaceAll("\\b" + field.getCode() + "\\b", "`" + field.getName() + "`");
         }
         vo.setDisplaySql(displaySql);
         return vo;
