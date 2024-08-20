@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @since 2024年03月05日 1:45 PM
  */
 public class SqlParserDemo {
-    public static void main(String[] args) throws JSQLParserException {
+    public static void main(String[] args) throws Exception {
 //        base("select role.name,count(authority.id) from ROLE role left join AUTHORITY authority on(role.id=authority.roleId) where role.id in(1000,1001) group by role.id  order by role.creationDate desc limit 10");
 //        String addColumnSql = SqlUtil.addColumn("select name,age from user where id=1", "sex");
 //        formatDate("select region from region_data where date is not null and date!='2023' and (date in('2023','2024') and date between '2023' and '2024')");

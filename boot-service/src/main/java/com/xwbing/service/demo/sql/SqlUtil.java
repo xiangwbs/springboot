@@ -1,6 +1,8 @@
 package com.xwbing.service.demo.sql;
 
 import cn.hutool.core.collection.ListUtil;
+import com.github.vertical_blank.sqlformatter.SqlFormatter;
+import com.github.vertical_blank.sqlformatter.core.FormatConfig;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
@@ -119,6 +121,6 @@ public class SqlUtil {
     }
 
     public static String formatSql(String sql) {
-        return cn.hutool.db.sql.SqlUtil.formatSql(sql);
+        return SqlFormatter.format(sql, FormatConfig.builder().uppercase(true).build());
     }
 }
