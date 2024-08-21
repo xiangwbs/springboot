@@ -3,6 +3,7 @@ package com.xwbing.service.demo.sql;
 import cn.hutool.core.collection.ListUtil;
 import com.github.vertical_blank.sqlformatter.SqlFormatter;
 import com.github.vertical_blank.sqlformatter.core.FormatConfig;
+import com.github.vertical_blank.sqlformatter.languages.Dialect;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
@@ -121,11 +122,19 @@ public class SqlUtil {
     }
 
     public static String formatSql(String sql) {
-        return SqlFormatter.format(sql, FormatConfig.builder().uppercase(true).build());
+        FormatConfig formatConfig = FormatConfig.builder()
+                // 关键词大写
+                .uppercase(true)
+                // 多个查询之间的换行数
+                .linesBetweenQueries(2)
+                // ()查询是否跳过换行
+                .skipWhitespaceNearBlockParentheses(false)
+                .build();
+        return SqlFormatter.of(Dialect.MySql).format(sql, formatConfig);
     }
 
     public static void main(String[] args) {
-        String sql = "select `纳税人名称` as `纳税人名称`, `数量` as `数量` from `重点税源企业基本信息表` where `数量` < 10 and regdate between '2023-01-01' and '2024-12-31' limit 1000";
+        String sql = "select a as `a`,b,c from table1 where a=1 and b=1 and (c between 1 and 2) group by a order by b limit 10;select * from table2";
         String s = formatSql(sql);
         System.out.println("");
     }
