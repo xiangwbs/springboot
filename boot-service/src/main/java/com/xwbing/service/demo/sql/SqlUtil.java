@@ -125,7 +125,7 @@ public class SqlUtil {
         FormatConfig formatConfig = FormatConfig.builder()
                 // 关键词大写
                 .uppercase(true)
-                // 多个查询之间的换行数
+                // 多个查询语句之间的换行数
                 .linesBetweenQueries(2)
                 // ()查询是否跳过换行
                 .skipWhitespaceNearBlockParentheses(false)
