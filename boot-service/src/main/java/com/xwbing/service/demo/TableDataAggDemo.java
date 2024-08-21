@@ -16,6 +16,7 @@ import java.util.stream.IntStream;
  * @since 2024年07月18日 11:09 AM
  */
 public class TableDataAggDemo {
+    private static final String SEPARATOR = "_bichart_";
     /**
      * @param dimensionList 维度列表
      * @param metricList    指标列表
@@ -39,7 +40,7 @@ public class TableDataAggDemo {
         return groupDimensionList.stream()
                 .map(groupDimension -> {
                     Map<String, Object> dataMap = new LinkedHashMap<>();
-                    String[] dimensionDataArray = groupDimension.split("-");
+                    String[] dimensionDataArray = groupDimension.split(SEPARATOR);
                     for (int i = 0; i < dimensionCount; i++) {
                         String dimensionData = dimensionDataArray[i];
                         if (StrUtil.isNullOrUndefined(dimensionData)) {
@@ -81,7 +82,7 @@ public class TableDataAggDemo {
                 .collect(Collectors.groupingBy((data -> groupDimensionData(dimensionCount, data))));
         int size = dataList.get(0).size();
         return dimensionList.stream().map(dimension -> {
-            List<Object> list = Arrays.stream(dimension.split("-")).map(d -> {
+            List<Object> list = Arrays.stream(dimension.split(SEPARATOR)).map(d -> {
                 if (StrUtil.isNullOrUndefined(d)) {
                     d = "";
                 }
@@ -113,12 +114,12 @@ public class TableDataAggDemo {
                 .map(dimension -> {
                     String dimensionStr = String.valueOf(data.get(dimension));
                     if (StrUtil.isNullOrUndefined(dimensionStr)) {
-                        // 没有数据默认为null字符串，避免split("-")缺少数据
+                        // 没有数据默认为null字符串，避免split(SEPARATOR)缺少数据
                         dimensionStr = "null";
                     }
                     return dimensionStr;
                 })
-                .collect(Collectors.joining("-"));
+                .collect(Collectors.joining(SEPARATOR));
     }
 
     /**
@@ -134,12 +135,12 @@ public class TableDataAggDemo {
                 .map(dimension -> {
                     String dimensionStr = String.valueOf(dimension);
                     if (StrUtil.isNullOrUndefined(dimensionStr)) {
-                        // 没有数据默认为null字符串，避免split("-")缺少数据
+                        // 没有数据默认为null字符串，避免split(SEPARATOR)缺少数据
                         dimensionStr = "null";
                     }
                     return dimensionStr;
                 })
-                .collect(Collectors.joining("-"));
+                .collect(Collectors.joining(SEPARATOR));
     }
 
     private static List<List<Object>> convertData(List<Map<String, Object>> dataList) {

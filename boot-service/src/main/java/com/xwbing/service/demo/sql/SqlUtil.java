@@ -123,4 +123,10 @@ public class SqlUtil {
     public static String formatSql(String sql) {
         return SqlFormatter.format(sql, FormatConfig.builder().uppercase(true).build());
     }
+
+    public static void main(String[] args) {
+        String sql = "select `纳税人名称` as `纳税人名称`, `数量` as `数量` from `重点税源企业基本信息表` where `数量` < 10 and regdate between '2023-01-01' and '2024-12-31' limit 1000";
+        String s = formatSql(sql);
+        System.out.println("");
+    }
 }
