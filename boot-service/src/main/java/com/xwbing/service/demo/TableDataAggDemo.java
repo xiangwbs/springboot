@@ -16,7 +16,7 @@ import java.util.stream.IntStream;
  * @since 2024年07月18日 11:09 AM
  */
 public class TableDataAggDemo {
-    private static final String SEPARATOR = "_bichart_";
+    private static final String SEPARATOR = "_tabledata_";
     /**
      * @param dimensionList 维度列表
      * @param metricList    指标列表
