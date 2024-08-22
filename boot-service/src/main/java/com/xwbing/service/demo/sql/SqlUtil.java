@@ -20,6 +20,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.util.SelectUtils;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,22 +34,34 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class SqlUtil {
+    public static Statement getStatement(String sql) {
+        try {
+            if (StringUtils.isEmpty(sql)) {
+                return null;
+            }
+            return CCJSqlParserUtil.parse(sql.toLowerCase());
+        } catch (Exception e) {
+            log.error("getStatement error", e);
+            return null;
+        }
+    }
+
     public static PlainSelect getSelect(String sql) {
         try {
-            return (PlainSelect) CCJSqlParserUtil.parse(sql.toLowerCase());
+            Statement statement = getStatement(sql);
+            if (statement instanceof PlainSelect) {
+                return (PlainSelect) statement;
+            } else {
+                return null;
+            }
         } catch (Exception e) {
             log.error("getSelect error", e);
             return null;
         }
     }
 
-    public static Statement getStatement(String sql) {
-        try {
-            return CCJSqlParserUtil.parse(sql.toLowerCase());
-        } catch (Exception e) {
-            log.error("getSelect error", e);
-            return null;
-        }
+    public static boolean isSelect(String sql) {
+        return getStatement(sql) instanceof PlainSelect;
     }
 
     public static List<Expression> listWhereExpression(Expression expression, List<Expression> expressions) {
