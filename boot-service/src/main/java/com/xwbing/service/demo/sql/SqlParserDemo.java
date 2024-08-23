@@ -1,6 +1,5 @@
 package com.xwbing.service.demo.sql;
 
-import cn.hutool.core.collection.ListUtil;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
@@ -31,19 +30,19 @@ import java.util.stream.Collectors;
  */
 public class SqlParserDemo {
     public static void main(String[] args) throws Exception {
-//        base("select distinct role.name,count(authority.id) from ROLE role left join AUTHORITY authority on(role.id=authority.roleId) where role.id in(1000,1001) group by role.id having count(authority.id)>10 order by role.creationDate desc limit 10");
+        base("select distinct r.name,count(a.id) from ROLE r left join AUTHORITY a on(r.id=a.roleId) where r.id in(1000,1001) group by r.id having count(a.id)>10 order by r.creationDate desc limit 10");
 //        String addColumnSql = SqlUtil.addColumn("select name,age from user where id=1", "sex");
 //        formatDate("select region from region_data where date is not null and date!='2023' and (date in('2023','2024') and date between '2023' and '2024')");
 //        List<String> fieldList = SqlUtil.listField("select region from region_data where date is not null and date!='2023' and (code in('2023','2024') and age between '10' and '20') group by code order by id desc");
 //        String formatSql = SqlUtil.formatSql("select yearmonth,mofdivname,incexptype,budgetsubjectcode,budgetsubjectname,amt from dws_budget_domain_srzc_ai where mofdivname in ('余杭区', '淳安县') and budgetsubjectname like '%干部教育%' and incexptype = '1' order by amt desc group by mofdivname limit 1000");
 
-        SqlFieldVO sqlField = new SqlFieldVO();
-        sqlField.setCode("a");
-        sqlField.setName("我是a");
-        SqlFieldVO sqlField1 = new SqlFieldVO();
-        sqlField1.setCode("b");
-        sqlField1.setName("我是b");
-        dealSql("表", "select a as `第一`,b from table1 where a=1 and b=1 group by `第一` having `第一`>0 order by `第一` limit 10", ListUtil.toList(sqlField, sqlField1), false);
+//        SqlFieldVO sqlField = new SqlFieldVO();
+//        sqlField.setCode("a");
+//        sqlField.setName("我是a");
+//        SqlFieldVO sqlField1 = new SqlFieldVO();
+//        sqlField1.setCode("b");
+//        sqlField1.setName("我是b");
+//        dealSql("表", "select a as `第一`,b from table1 where a=1 and b=1 group by `第一` having `第一`>0 order by `第一` limit 10", ListUtil.toList(sqlField, sqlField1), false);
         System.out.println("");
     }
 
