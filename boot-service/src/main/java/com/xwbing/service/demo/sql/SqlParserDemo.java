@@ -1,8 +1,10 @@
 package com.xwbing.service.demo.sql;
 
+import cn.hutool.core.collection.ListUtil;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.operators.relational.Between;
 import net.sf.jsqlparser.expression.operators.relational.ComparisonOperator;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
@@ -29,19 +31,19 @@ import java.util.stream.Collectors;
  */
 public class SqlParserDemo {
     public static void main(String[] args) throws Exception {
-        base("select distinct role.name,count(authority.id) from ROLE role left join AUTHORITY authority on(role.id=authority.roleId) where role.id in(1000,1001) group by role.id having count(authority.id)>10 order by role.creationDate desc limit 10");
+//        base("select distinct role.name,count(authority.id) from ROLE role left join AUTHORITY authority on(role.id=authority.roleId) where role.id in(1000,1001) group by role.id having count(authority.id)>10 order by role.creationDate desc limit 10");
 //        String addColumnSql = SqlUtil.addColumn("select name,age from user where id=1", "sex");
 //        formatDate("select region from region_data where date is not null and date!='2023' and (date in('2023','2024') and date between '2023' and '2024')");
 //        List<String> fieldList = SqlUtil.listField("select region from region_data where date is not null and date!='2023' and (code in('2023','2024') and age between '10' and '20') group by code order by id desc");
 //        String formatSql = SqlUtil.formatSql("select yearmonth,mofdivname,incexptype,budgetsubjectcode,budgetsubjectname,amt from dws_budget_domain_srzc_ai where mofdivname in ('余杭区', '淳安县') and budgetsubjectname like '%干部教育%' and incexptype = '1' order by amt desc group by mofdivname limit 1000");
 
-//        SqlFieldVO sqlField = new SqlFieldVO();
-//        sqlField.setCode("taxpayname");
-//        sqlField.setName("纳税人名称");
-//        SqlFieldVO sqlField1 = new SqlFieldVO();
-//        sqlField1.setCode("practicenum");
-//        sqlField1.setName("数量");
-//        dealSql("重点税源企业基本信息表", "select * from dws_declare_domain_zdsyqyjbxx where practicenum < 10 and regdate between '2023-01-01' and '2024-12-31' limit 1000", ListUtil.toList(sqlField, sqlField1), false);
+        SqlFieldVO sqlField = new SqlFieldVO();
+        sqlField.setCode("a");
+        sqlField.setName("我是a");
+        SqlFieldVO sqlField1 = new SqlFieldVO();
+        sqlField1.setCode("b");
+        sqlField1.setName("我是b");
+        dealSql("表", "select a as `A`,b from table1 where a=1 and b=1 group by `A` having avg(`A`)>0 order by `A` limit 10", ListUtil.toList(sqlField, sqlField1), false);
         System.out.println("");
     }
 
@@ -59,11 +61,11 @@ public class SqlParserDemo {
                 .stream()
                 .map(join -> (Table) join.getRightItem())
                 .collect(Collectors.toList());
+        Distinct distinct = select.getDistinct();
         List<SelectItem<?>> selectList = select.getSelectItems();
         Expression where = select.getWhere();
-        Distinct distinct = select.getDistinct();
-        Expression having = select.getHaving();
         GroupByElement groupBy = select.getGroupBy();
+        Expression having = select.getHaving();
         List<OrderByElement> orderByList = select.getOrderByElements();
         Limit limit = select.getLimit();
         System.out.println("");
@@ -117,6 +119,7 @@ public class SqlParserDemo {
         List<String> selectFieldList = new ArrayList<>();
         Map<String, Byte> functionDataTypeMap = new HashMap<>();
         Map<String, String> fieldNameMap = fieldList.stream().collect(Collectors.toMap(SqlFieldVO::getCode, SqlFieldVO::getName));
+        Map<String, String> columnAliasMap = new HashMap<>();
         List<SelectItem<?>> selectItems = select.getSelectItems();
         if (selectItems.size() == 1 && selectItems.get(0).getExpression() instanceof AllColumns) {
             // select * 替换成字段
@@ -130,9 +133,16 @@ public class SqlParserDemo {
             if (expression instanceof Column) {
                 Column column = (Column) expression;
                 // 设置别名
-                String columnName = fieldNameMap.get(column.getColumnName());
-                if (StringUtils.isNotEmpty(columnName)) {
-                    selectItem.setAlias(new Alias("`" + columnName + "`", true));
+                Alias alias = selectItem.getAlias();
+                if (alias == null) {
+                    String columnName = fieldNameMap.get(column.getColumnName());
+                    if (StringUtils.isNotEmpty(columnName)) {
+                        alias = new Alias("`" + columnName + "`", true);
+                        selectItem.setAlias(alias);
+                    }
+                }
+                if (alias != null) {
+                    columnAliasMap.put(alias.getName(), column.getColumnName());
                 }
                 // 汇总查询字段
                 selectFieldList.add(column.getColumnName());
@@ -161,6 +171,40 @@ public class SqlParserDemo {
             Expression expression = selectItem.getExpression();
             if (expression instanceof Column) {
                 selectItem.setAlias(null);
+            }
+        });
+        GroupByElement groupBy = select.getGroupBy();
+        if (groupBy != null) {
+            groupBy.getGroupByExpressionList().forEach(expression -> {
+                if (expression instanceof Column) {
+                    Column column = (Column) expression;
+                    String columnName = columnAliasMap.get(column.getColumnName());
+                    if (StringUtils.isNotEmpty(columnName)) {
+                        column.setColumnName(columnName);
+                    }
+                }
+            });
+        }
+        Expression having = select.getHaving();
+        if (having != null) {
+            having.accept(new ExpressionVisitorAdapter() {
+                @Override
+                public void visit(Column column) {
+                    String columnName = columnAliasMap.get(column.getColumnName());
+                    if (StringUtils.isNotEmpty(columnName)) {
+                        column.setColumnName(columnName);
+                    }
+                }
+            });
+        }
+        select.getOrderByElements().forEach(orderByElement -> {
+            Expression expression = orderByElement.getExpression();
+            if (expression instanceof Column) {
+                Column column = (Column) expression;
+                String columnName = columnAliasMap.get(column.getColumnName());
+                if (StringUtils.isNotEmpty(columnName)) {
+                    column.setColumnName(columnName);
+                }
             }
         });
         vo.setNoAliasSql(select.toString().toLowerCase());

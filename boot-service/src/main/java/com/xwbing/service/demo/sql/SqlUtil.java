@@ -147,8 +147,9 @@ public class SqlUtil {
     }
 
     public static void main(String[] args) {
-        String sql = "select a as `a`,b,c from table1 where a=1 and b=1 and (c between 1 and 2) group by a order by b limit 10;select * from table2";
-        String s = formatSql(sql);
+//        String sql = "select a as `a`,b,c from table1 where a=1 and b=1 and (c between 1 and 2) group by a order by b limit 10;select * from table2";
+//        String formatSql = formatSql(sql);
+        List<String> fieldList = listField("select a from table where b=1 group by c order by d");
         System.out.println("");
     }
 }
