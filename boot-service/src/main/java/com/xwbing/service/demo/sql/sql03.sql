@@ -92,7 +92,7 @@ SELECT COUNT(*),deptno FROM emp_xwbing GROUP BY deptno;
 
 查看每个部门的平均工资,前提是该部门平均工资高于2000?
 WHERE中不允许使用聚合函数作为过滤条件,原因在于过滤时机不同.WHERE的过滤时机是在第一次从表中检索数据是添加过滤条件,用来确定那些数据可以被查出来,以确定结果集
-HAVING子句:HAVING必须跟在 GROUP BY 子句之后,可以使用聚合函数作为过滤条件.使之可以对分组进行过滤,将满足条件的分组保留,不满足的去掉
+HAVING子句:HAVING必须跟在 GROUP BY 子句之后,可以使用聚合函数、GROUPBY指定的列名作为过滤条件。使之可以对分组进行过滤,将满足条件的分组保留,不满足的去掉
 SELECT AVG(sal),deptno FROM emp_xwbing GROUP BY deptno HAVING AVG(sal)>2000;
 
 

@@ -43,7 +43,7 @@ public class SqlParserDemo {
         SqlFieldVO sqlField1 = new SqlFieldVO();
         sqlField1.setCode("b");
         sqlField1.setName("我是b");
-        dealSql("表", "select a as `A`,b from table1 where a=1 and b=1 group by `A` having avg(`A`)>0 order by `A` limit 10", ListUtil.toList(sqlField, sqlField1), false);
+        dealSql("表", "select a as `第一`,b from table1 where a=1 and b=1 group by `第一` having `第一`>0 order by `第一` limit 10", ListUtil.toList(sqlField, sqlField1), false);
         System.out.println("");
     }
 
