@@ -17,12 +17,12 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.GroupByElement;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.util.SelectUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,33 +35,28 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SqlUtil {
     public static Statement getStatement(String sql) {
-        try {
-            if (StringUtils.isEmpty(sql)) {
-                return null;
-            }
-            return CCJSqlParserUtil.parse(sql.toLowerCase());
-        } catch (Exception e) {
-            log.error("getStatement error", e);
+        if (StringUtils.isEmpty(sql)) {
             return null;
         }
-    }
-
-    public static PlainSelect getSelect(String sql) {
         try {
-            Statement statement = getStatement(sql);
-            if (statement instanceof PlainSelect) {
-                return (PlainSelect) statement;
-            } else {
-                return null;
-            }
+            return CCJSqlParserUtil.parse(sql.toLowerCase());
         } catch (Exception e) {
-            log.error("getSelect error", e);
+            log.error("getStatement sql:{} error", sql, e);
             return null;
         }
     }
 
     public static boolean isSelect(String sql) {
         return getStatement(sql) instanceof PlainSelect;
+    }
+
+    public static PlainSelect getSelect(String sql) {
+        Statement statement = getStatement(sql);
+        if (statement instanceof PlainSelect) {
+            return (PlainSelect) statement;
+        } else {
+            return null;
+        }
     }
 
     public static List<Expression> listWhereExpression(Expression expression, List<Expression> expressions) {
@@ -80,8 +75,10 @@ public class SqlUtil {
 
     public static String addColumn(String sql, String field) {
         PlainSelect select = getSelect(sql);
-        List<SelectItem<?>> selectItems = select.getSelectItems();
-        List<String> selectColumList = selectItems.stream()
+        if (select == null) {
+            return sql;
+        }
+        List<String> selectColumList = select.getSelectItems().stream()
                 .filter(selectItem -> selectItem.getExpression() instanceof Column)
                 .map(selectItem -> {
                     Expression expression = selectItem.getExpression();
@@ -96,6 +93,9 @@ public class SqlUtil {
 
     public static List<String> listField(String sql) {
         PlainSelect select = getSelect(sql);
+        if (select == null) {
+            return Collections.emptyList();
+        }
         // 获取select字段
         Set<String> fieldList = select.getSelectItems().stream().filter(selectItem -> {
             Expression expression = selectItem.getExpression();
@@ -115,19 +115,19 @@ public class SqlUtil {
                 }
             }));
         }
-        // 获取order by字段
-        List<OrderByElement> orderByList = select.getOrderByElements();
-        if (CollectionUtils.isNotEmpty(orderByList)) {
-            orderByList.forEach(orderByElement -> {
-                Column column = (Column) orderByElement.getExpression();
-                fieldList.add(column.getColumnName());
-            });
-        }
         // 获取group by字段
         GroupByElement groupBy = select.getGroupBy();
         if (groupBy != null) {
             groupBy.getGroupByExpressionList().forEach(expression -> {
                 Column column = (Column) expression;
+                fieldList.add(column.getColumnName());
+            });
+        }
+        // 获取order by字段
+        List<OrderByElement> orderByList = select.getOrderByElements();
+        if (CollectionUtils.isNotEmpty(orderByList)) {
+            orderByList.forEach(orderByElement -> {
+                Column column = (Column) orderByElement.getExpression();
                 fieldList.add(column.getColumnName());
             });
         }
