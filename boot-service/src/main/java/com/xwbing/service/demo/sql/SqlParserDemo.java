@@ -197,16 +197,19 @@ public class SqlParserDemo {
                 }
             });
         }
-        select.getOrderByElements().forEach(orderByElement -> {
-            Expression expression = orderByElement.getExpression();
-            if (expression instanceof Column) {
-                Column column = (Column) expression;
-                String columnName = columnAliasMap.get(column.getColumnName());
-                if (StringUtils.isNotEmpty(columnName)) {
-                    column.setColumnName(columnName);
+        List<OrderByElement> orderByElements = select.getOrderByElements();
+        if (CollectionUtils.isNotEmpty(orderByElements)) {
+            orderByElements.forEach(orderByElement -> {
+                Expression expression = orderByElement.getExpression();
+                if (expression instanceof Column) {
+                    Column column = (Column) expression;
+                    String columnName = columnAliasMap.get(column.getColumnName());
+                    if (StringUtils.isNotEmpty(columnName)) {
+                        column.setColumnName(columnName);
+                    }
                 }
-            }
-        });
+            });
+        }
         vo.setNoAliasSql(select.toString().toLowerCase());
         // 加工展示的sql
         select = SqlUtil.getSelect(aliasSql);
