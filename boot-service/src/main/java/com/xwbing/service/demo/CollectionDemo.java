@@ -134,6 +134,7 @@ public class CollectionDemo {
         list.subList(0, 1).clear();// 删除集合中0-1的元素
         Collections.sort(list);// 对集合进行从小到大排序
         Collections.reverse(list);// 反转
+        boolean equalList = CollUtil.isEqualList(null, null);
         System.out.println(list);
 
         /**
