@@ -1,15 +1,15 @@
 package com.xwbing.service.demo;
 
+import cn.hutool.core.annotation.AnnotationUtil;
+import cn.hutool.core.util.ReflectUtil;
+import com.xwbing.service.domain.entity.BaseEntity;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
-import org.springframework.stereotype.Component;
-
-import com.xwbing.service.domain.entity.BaseEntity;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 项目名称: boot-module-pro
@@ -33,7 +33,7 @@ public class ReflectDemo {
         Reflect reflect = new Reflect();
         clazz = reflect.getClass();
         //3 通过全类名获取，用的比较多，但可能抛出ClassNotFoundException异常
-        clazz = Class.forName("com.xwbing.service.demo.Reflect");
+//        clazz = Class.forName("com.xwbing.service.demo.ReflectDemo.Reflect");
         //创建对象
         Object obj = clazz.newInstance();
         //获取类名
@@ -54,28 +54,38 @@ public class ReflectDemo {
         Method[] allMethods = clazz.getDeclaredMethods();//获取所有的方法(且只获取当前类声明的方法，包括private方法）
         //获取指定方法
         Method privateMethod = clazz.getDeclaredMethod("privateMethod");
+        ReflectUtil.getMethodByName(clazz, "privateMethod");
         Method method = clazz.getDeclaredMethod("setName", String.class, int.class);//第一个参数是方法名，后面的是方法里的参数
+        ReflectUtil.getMethod(clazz, "setName", String.class, int.class);
         //执行方法
         method.invoke(obj, "xwbing", 22);
         privateMethod.setAccessible(true); //执行private方法
         privateMethod.invoke(obj);
+        ReflectUtil.invoke(obj, method, "xwbingg", 23);
+        ReflectUtil.invoke(obj, "setName", "xwbingg", 23);
 
         /**
          * field
          */
         //获取所有字段
         Field[] fields = clazz.getDeclaredFields();
+        ReflectUtil.getFieldsDirectly(clazz, false);
         //获取指定名字的字段
         Field field = clazz.getDeclaredField("name");
+        ReflectUtil.getField(clazz, "name");
         field.setAccessible(true);//执行私有字段方法
         //获取指定对象的字段的值
         Object name = field.get(obj);
+        ReflectUtil.getFieldValue(obj, field);
+        ReflectUtil.getFieldValue(obj, "name");
         //设置指定对象的字段的值
         field.set(obj, "xwjun");
+        ReflectUtil.setFieldValue(obj, field, "xwjunn");
 
         /**
          * annotation(类，方法，字段)
          */
+        Component annotation1 = AnnotationUtil.getAnnotation(clazz, Component.class);
         Annotation annotation = clazz.getAnnotation(Component.class);
         if (annotation != null) {
             if (annotation instanceof Component) {
@@ -130,4 +140,3 @@ public class ReflectDemo {
         }
     }
 }
-
