@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -34,11 +33,12 @@ public class ReflectDemo {
         clazz = reflect.getClass();
         //3 通过全类名获取，用的比较多，但可能抛出ClassNotFoundException异常
 //        clazz = Class.forName("com.xwbing.service.demo.ReflectDemo.Reflect");
-        //创建对象
-        Object obj = clazz.newInstance();
         //获取类名
         String simpleName = clazz.getSimpleName();
-        String name1 = clazz.getName();
+        String fullName = clazz.getName();
+        //创建对象
+        Object obj = clazz.newInstance();
+        ReflectUtil.newInstance(clazz, "名字", 18);
 
         /**
          * supper
@@ -85,15 +85,10 @@ public class ReflectDemo {
         /**
          * annotation(类，方法，字段)
          */
-        Component annotation1 = AnnotationUtil.getAnnotation(clazz, Component.class);
-        Annotation annotation = clazz.getAnnotation(Component.class);
-        if (annotation != null) {
-            if (annotation instanceof Component) {
-                Component component = (Component) annotation;
-                String value = component.value();
-                System.out.println(value);
-            }
-        }
+        AnnotationUtil.getAnnotation(clazz, Component.class);
+        Component component = clazz.getAnnotation(Component.class);
+        String value = component.value();
+        System.out.println(value);
     }
 
     @Slf4j
