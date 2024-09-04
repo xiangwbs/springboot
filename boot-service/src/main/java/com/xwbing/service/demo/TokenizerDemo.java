@@ -6,6 +6,8 @@ import cn.hutool.extra.tokenizer.TokenizerEngine;
 import cn.hutool.extra.tokenizer.TokenizerUtil;
 
 /**
+ * 中文分词
+ *
  * @author daofeng
  * @version $
  * @since 2024年09月04日 10:09 AM
