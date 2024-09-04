@@ -1,9 +1,5 @@
 package com.xwbing.service.demo;
 
-import cn.hutool.core.collection.IterUtil;
-import cn.hutool.extra.tokenizer.Result;
-import cn.hutool.extra.tokenizer.TokenizerEngine;
-import cn.hutool.extra.tokenizer.TokenizerUtil;
 import com.alibaba.dashscope.app.Application;
 import com.alibaba.dashscope.app.ApplicationParam;
 import com.alibaba.dashscope.app.ApplicationResult;
@@ -25,12 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Ademo {
     public static void main(String[] args) {
-        //自动根据用户引入的分词库的jar来自动选择使用的引擎
-        TokenizerEngine engine = TokenizerUtil.createEngine();
-        String text = "我是中国人";
-        Result result = engine.parse(text);
-        String resultStr = IterUtil.join(result, " ");
-        System.out.println(resultStr);
+
     }
 
     public static void streamCall() throws NoApiKeyException, InputRequiredException {
