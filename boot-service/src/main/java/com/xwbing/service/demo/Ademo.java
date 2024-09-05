@@ -10,6 +10,7 @@ import com.aliyun.broadscope.bailian.sdk.ApplicationClient;
 import com.aliyun.broadscope.bailian.sdk.BaiLianSdkException;
 import com.aliyun.broadscope.bailian.sdk.models.*;
 import io.reactivex.Flowable;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import reactor.core.publisher.Flux;
 
@@ -19,9 +20,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 
+@Slf4j
 public class Ademo {
     public static void main(String[] args) {
-
+        log.info("dsf");
     }
 
     public static void streamCall() throws NoApiKeyException, InputRequiredException {
