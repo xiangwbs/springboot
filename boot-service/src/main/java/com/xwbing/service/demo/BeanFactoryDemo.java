@@ -32,7 +32,6 @@ import java.util.Set;
 public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProcessor, Ordered {
     private final Set<String> beanNames = new HashSet<>();
     private final Map<String, MyBean> annotationMap = new HashMap<>();
-
     private DefaultListableBeanFactory beanFactory;
 
     @Bean(name = "defaultBeanInitDemo", initMethod = "init", destroyMethod = "shutdown")
@@ -66,8 +65,7 @@ public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProces
                         .addPropertyValue("beanName", "definitionBeanInitDemo")
                         .addPropertyValue("beanFactory", beanFactory).setInitMethodName("init")
                         .setDestroyMethodName("shutdown");
-                this.beanFactory
-                        .registerBeanDefinition("definitionBeanInitDemo", beanDefinitionBuilder.getBeanDefinition());
+                this.beanFactory.registerBeanDefinition("definitionBeanInitDemo", beanDefinitionBuilder.getBeanDefinition());
             }
         }
     }
