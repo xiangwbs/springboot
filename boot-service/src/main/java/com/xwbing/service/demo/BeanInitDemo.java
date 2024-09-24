@@ -1,20 +1,14 @@
 package com.xwbing.service.demo;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
+import com.xwbing.service.annotation.MyBean;
+import lombok.ToString;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.BeanNameAware;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.xwbing.service.annotation.MyBean;
-
-import lombok.ToString;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 /**
  * 对象初始化先后顺序
@@ -44,7 +38,11 @@ public class BeanInitDemo
     // 构造方法，在该类被实例化的时候被执行。每个类都有隐式的空构造函数，如果定义了非空构造函数，需要自定义空构造函数
     public BeanInitDemo() {
         System.out.println("1.构造器 实例化bean");
+    }
 
+    public BeanInitDemo(String property) {
+        this.property = property;
+        System.out.println("1.构造器 实例化bean property:" + property);
     }
 
     public void setProperty(String property) {
@@ -52,53 +50,53 @@ public class BeanInitDemo
         this.property = property;
     }
 
+    public String getProperty() {
+        return property;
+    }
+
     @Override
     public void setBeanName(String beanName) {
         this.beanName = beanName;
-        System.out.println("3.setBeanName 检查Aware相关接口并设置相关依赖");
+        System.out.println("3.BeanNameAware.setBeanName " + beanName + " 检查Aware相关接口并设置相关依赖");
     }
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
-        System.out.println("3.setBeanFactory 检查Aware相关接口并设置相关依赖");
+        System.out.println("3.BeanFactoryAware.setBeanFactory 检查Aware相关接口并设置相关依赖");
     }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-        System.out.println("3.setApplicationContext 检查Aware相关接口并设置相关依赖");
+        System.out.println("3.ApplicationContextAware.setApplicationContext 检查Aware相关接口并设置相关依赖");
     }
 
     @PostConstruct
     public void postConstruct() {
-        System.out.println("4.postConstruct 初始化bean");
+        System.out.println("4.@PostConstruct 初始化bean InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization");
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        System.out.println("4.afterPropertiesSet 初始化bean");
+    public void afterPropertiesSet() {
+        System.out.println("5.InitializingBean.afterPropertiesSet 初始化bean");
     }
 
     public void init() {
-        System.out.println("4.init-method 初始化bean" + this);
+        System.out.println("5.@Bean.initMethod 初始化bean");
     }
 
     @PreDestroy
     public void preDestroy() {
-        System.out.println("5.preDestroy 销毁bean");
+        System.out.println("6.@PreDestroy 销毁bean InitDestroyAnnotationBeanPostProcessor.postProcessBeforeDestruction");
     }
 
     @Override
-    public void destroy() throws Exception {
-        System.out.println("5.destroy 销毁bean");
+    public void destroy() {
+        System.out.println("7.DisposableBean.destroy 销毁bean");
     }
 
     public void shutdown() {
-        System.out.println("5.destroy-method 销毁bean");
-    }
-
-    public String getProperty() {
-        return property;
+        System.out.println("7.@Bean.destroyMethod 销毁bean");
     }
 }

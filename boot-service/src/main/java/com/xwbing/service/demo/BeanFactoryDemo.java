@@ -1,10 +1,7 @@
 package com.xwbing.service.demo;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.xwbing.service.annotation.MyBean;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
@@ -20,9 +17,10 @@ import org.springframework.core.Ordered;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.util.MultiValueMap;
 
-import com.xwbing.service.annotation.MyBean;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author daofeng
@@ -39,27 +37,25 @@ public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProces
 
     @Bean(name = "defaultBeanInitDemo", initMethod = "init", destroyMethod = "shutdown")
     public BeanInitDemo beanInitDemo() {
-        BeanInitDemo beanInitDemo = new BeanInitDemo();
-        beanInitDemo.setProperty("property");
-        return beanInitDemo;
+        return new BeanInitDemo("property");
     }
 
     /**
+     * Spring容器加载完所有的bean定义之后、实例化bean之前执行
      * 获取bean的示例或定义等。同时可以修改bean的属性
      * 与bean definitions打交道，但是千万不要进行bean实例化
      *
      * @param beanFactory
-     *
      * @throws BeansException
      */
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-        this.beanFactory = (DefaultListableBeanFactory)beanFactory;
-        System.out.println("postProcessBeanFactory...");
+        this.beanFactory = (DefaultListableBeanFactory) beanFactory;
+        System.out.println("BeanFactoryPostProcessor.postProcessBeanFactory spring容器加载完所有的bean定义之后、实例化bean之前执行 只执行一次");
         for (String beanName : beanFactory.getBeanDefinitionNames()) {
             MyBean annotation = beanFactory.findAnnotationOnBean(beanName, MyBean.class);
             if (annotation != null) {
-                AnnotatedBeanDefinition beanDefinition = (AnnotatedBeanDefinition)beanFactory
+                AnnotatedBeanDefinition beanDefinition = (AnnotatedBeanDefinition) beanFactory
                         .getBeanDefinition(beanName);
                 AnnotationMetadata annotationMetadata = beanDefinition.getMetadata();
                 MultiValueMap<String, Object> allAnnotationAttributes = annotationMetadata
@@ -76,75 +72,13 @@ public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProces
         }
     }
 
-    // /**
-    //  * 如果此方法返回一个非null对象(生成代理对象)，则实例化bean过程将被短路
-    //  * 执行postProcessAfterInitialization
-    //  *
-    //  * @param beanClass
-    //  * @param beanName
-    //  *
-    //  * @return
-    //  *
-    //  * @throws BeansException
-    //  */
-    // @Override
-    // public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
-    //     if (BeanInitDemo.class.getSimpleName().equalsIgnoreCase(beanName)) {
-    //         beanNames.add(beanName);
-    //         System.out.println("postProcessBeforeInstantiation 实例化bean前 生成代理对象");
-    //         return beanClass;
-    //     } else {
-    //         return null;
-    //     }
-    // }
-    //
-    // /**
-    //  * 如果返回true，执行postProcessPropertyValues
-    //  *
-    //  * @param bean
-    //  * @param beanName
-    //  *
-    //  * @return
-    //  *
-    //  * @throws BeansException
-    //  */
-    // @Override
-    // public boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
-    //     if (beanNames.contains(beanName)) {
-    //         System.out.println("postProcessAfterInstantiation 实例化bean后" + bean);
-    //         return true;
-    //     } else {
-    //         return false;
-    //     }
-    // }
-    //
-    // /**
-    //  * 可以在该方法内对属性值进行修改
-    //  *
-    //  * @param pvs
-    //  * @param pds
-    //  * @param bean
-    //  * @param beanName
-    //  *
-    //  * @return
-    //  *
-    //  * @throws BeansException
-    //  */
-    // @Override
-    // public PropertyValues postProcessPropertyValues(PropertyValues pvs, PropertyDescriptor[] pds, Object bean,
-    //         String beanName) throws BeansException {
-    //     PropertyValue value = pvs.getPropertyValue("property");
-    //     value.setConvertedValue("modifyProperty");
-    //     return pvs;
-    // }
-
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         // 标记bean
         MyBean annotation = bean.getClass().getAnnotation(MyBean.class);
         if (annotation != null) {
             beanNames.add(beanName);
-            System.out.println("postProcessBeforeInitialization 初始化bean前");
+            System.out.println("BeanPostProcessor.postProcessBeforeInitialization 初始化bean前 所有bean都会执行");
         }
         return bean;
     }
@@ -153,8 +87,7 @@ public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProces
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         //处理bean
         if (beanNames.contains(beanName)) {
-
-            System.out.println("postProcessAfterInitialization 初始化bean后 " + bean);
+            System.out.println("BeanPostProcessor.postProcessAfterInitialization 初始化bean后 所有bean都会执行 " + bean);
         }
         return bean;
     }
@@ -164,7 +97,6 @@ public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProces
      *
      * @param beanFactory
      * @param beanName
-     *
      * @return
      */
     private BeanDefinition findBeanDefinition(ConfigurableListableBeanFactory beanFactory, String beanName) {
@@ -173,7 +105,7 @@ public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProces
         }
         BeanFactory parentBeanFactory = beanFactory.getParentBeanFactory();
         if (ConfigurableListableBeanFactory.class.isInstance(parentBeanFactory)) {
-            return findBeanDefinition((ConfigurableListableBeanFactory)parentBeanFactory, beanName);
+            return findBeanDefinition((ConfigurableListableBeanFactory) parentBeanFactory, beanName);
         }
         throw new RuntimeException(String.format("Bean with name '%s' can no longer be found.", beanName));
     }
@@ -182,7 +114,6 @@ public class BeanFactoryDemo implements BeanFactoryPostProcessor, BeanPostProces
      * 根据beanName获取Class
      *
      * @param beanName
-     *
      * @return
      */
     private Class<?> getClass(String beanName) {
