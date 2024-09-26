@@ -15,7 +15,7 @@ public class MyApplicationAllEventListener implements ApplicationListener<Applic
         // prepareEnvironment.ApplicationEnvironmentPreparedEvent 环境已准备好
         // prepareContext.ApplicationContextInitializedEvent 上下文已实例化
         // prepareContext.ApplicationPreparedEvent 上下文已准别好
-        // refreshContext.ContextRefreshedEvent
+        // refreshContext.ContextRefreshedEvent 上下文已刷新
         // ServletWebServerInitializedEvent  Web服务器已初始化(tomcat启动后)
         // ApplicationStartedEvent 应用成功启动
         // ApplicationReadyEvent 应用已准备好
