@@ -12,9 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,7 +33,6 @@ import java.util.Set;
 @Slf4j
 public class LoginInterceptor extends HandlerInterceptorAdapter {
     private static final AntPathMatcher MATCHER = new AntPathMatcher();
-    private RequestMappingHandlerMapping handlerMapping;
     //@formatter:off
     private static final Set<String> ALLOWED_PATH = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             //映射swagger文档
@@ -95,22 +92,6 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         UserContext.clearUser();
         ThreadLocalUtil.clearTraceId();
         ThreadLocalUtil.clearToken();
-    }
-
-    public Boolean isNoLogin(HttpServletRequest request) {
-        try {
-            HandlerExecutionChain executionChain = handlerMapping.getHandler(request);
-            if (executionChain != null) {
-                Object handler = executionChain.getHandler();
-                if (handler instanceof HandlerMethod) {
-                    HandlerMethod handlerMethod = (HandlerMethod) handler;
-                    return handlerMethod.hasMethodAnnotation(NoLoginRequired.class);
-                }
-            }
-        } catch (Exception e) {
-            log.error("handlerMapping.getHandler error", e);
-        }
-        return false;
     }
 
     private void getOutputStream(HttpServletResponse response, String msg) {

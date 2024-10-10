@@ -1,20 +1,21 @@
 package com.xwbing.web.handler;
 
+import com.xwbing.web.annotation.NoLoginRequired;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.annotation.Order;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerExecutionChain;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.annotation.Order;
 
 /**
  * @author xiangwb
@@ -22,14 +23,20 @@ import org.springframework.core.annotation.Order;
  * 防盗链过滤器
  */
 // @WebFilter(filterName = "fileFilter", urlPatterns = "/file/*")
+@Slf4j
 @Order(3)
 public class FileFilter implements Filter {
     private static final Set<String> WHITE_LIST = new HashSet<>();
+    private RequestMappingHandlerMapping handlerMapping;
+
 
     @Override
     public void init(FilterConfig filterConfig) {
         WHITE_LIST.add("localhost:8080");
         WHITE_LIST.add("127.0.0.1:8080");
+        ServletContext sc = filterConfig.getServletContext();
+        WebApplicationContext cxt = WebApplicationContextUtils.getWebApplicationContext(sc);
+        handlerMapping = cxt.getBean(RequestMappingHandlerMapping.class);
     }
 
     @Override
@@ -73,5 +80,21 @@ public class FileFilter implements Filter {
         } catch (StringIndexOutOfBoundsException e) {
             return "";
         }
+    }
+
+    public Boolean isNoLogin(HttpServletRequest request) {
+        try {
+            HandlerExecutionChain executionChain = handlerMapping.getHandler(request);
+            if (executionChain != null) {
+                Object handler = executionChain.getHandler();
+                if (handler instanceof HandlerMethod) {
+                    HandlerMethod handlerMethod = (HandlerMethod) handler;
+                    return handlerMethod.hasMethodAnnotation(NoLoginRequired.class);
+                }
+            }
+        } catch (Exception e) {
+            log.error("handlerMapping.getHandler error", e);
+        }
+        return false;
     }
 }
