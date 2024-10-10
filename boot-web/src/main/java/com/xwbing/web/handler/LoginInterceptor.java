@@ -1,28 +1,29 @@
 package com.xwbing.web.handler;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
+import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.util.HeaderUtil;
 import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.ThreadLocalUtil;
 import com.xwbing.starter.util.CommonDataUtil;
 import com.xwbing.starter.util.UserContext;
-
-import cn.hutool.core.util.IdUtil;
+import com.xwbing.web.annotation.NoLoginRequired;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerExecutionChain;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 说明:  登录拦截器
@@ -34,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class LoginInterceptor extends HandlerInterceptorAdapter {
     private static final AntPathMatcher MATCHER = new AntPathMatcher();
+    private RequestMappingHandlerMapping handlerMapping;
     //@formatter:off
     private static final Set<String> ALLOWED_PATH = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             //映射swagger文档
@@ -41,8 +43,10 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             //验证码
             "/captcha",
             //swagger
+            "/swagger-ui.html",
             "/v2/api-docs",
             "/swagger-resources/**",
+            "/webjars/**",
             //德鲁伊监控
             "/druid/**"
     )));
@@ -54,7 +58,13 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
             traceId = IdUtil.simpleUUID();
         }
         ThreadLocalUtil.setTraceId(traceId);
-
+        if (handler instanceof HandlerMethod) {
+            HandlerMethod method = (HandlerMethod) handler;
+            boolean noLogin = method.hasMethodAnnotation(NoLoginRequired.class);
+            if (noLogin) {
+                return true;
+            }
+        }
         String path = request.getRequestURI().substring(request.getContextPath().length()).replaceAll("[/]+$", "");
         boolean anyMatch = ALLOWED_PATH.stream().anyMatch(s -> MATCHER.match(s, path));
         if (!anyMatch) {
@@ -85,6 +95,22 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         UserContext.clearUser();
         ThreadLocalUtil.clearTraceId();
         ThreadLocalUtil.clearToken();
+    }
+
+    public Boolean isNoLogin(HttpServletRequest request) {
+        try {
+            HandlerExecutionChain executionChain = handlerMapping.getHandler(request);
+            if (executionChain != null) {
+                Object handler = executionChain.getHandler();
+                if (handler instanceof HandlerMethod) {
+                    HandlerMethod handlerMethod = (HandlerMethod) handler;
+                    return handlerMethod.hasMethodAnnotation(NoLoginRequired.class);
+                }
+            }
+        } catch (Exception e) {
+            log.error("handlerMapping.getHandler error", e);
+        }
+        return false;
     }
 
     private void getOutputStream(HttpServletResponse response, String msg) {
