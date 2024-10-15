@@ -112,6 +112,13 @@
             <artifactId>weixin-java-open</artifactId>
             <version>${weixin-java-open.version}</version>
         </dependency>
+        <!-- 企业微信-->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>weixin-java-cp</artifactId>
+            <version>${weixin-java-open.version}</version>
+        </dependency>
+
         <!-- xxl-job -->
         <dependency>
             <groupId>com.xuxueli</groupId>
