@@ -18,7 +18,7 @@ import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.service.WxOAuth2Service;
 
 /**
- * @author Binary Wang(https://github.com/binarywang)
+ * <a href="https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_Login/Wechat_Login.html">网站应用微信登录开发指南</a>
  */
 @Slf4j
 @AllArgsConstructor
