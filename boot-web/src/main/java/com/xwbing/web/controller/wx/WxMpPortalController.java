@@ -1,5 +1,6 @@
 package com.xwbing.web.controller.wx;
 
+import com.xwbing.service.domain.entity.vo.ScanCodeVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,8 @@ import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
 
+import java.time.LocalDateTime;
+
 /**
  * @author Binary Wang(https://github.com/binarywang)
  */
@@ -45,8 +48,8 @@ public class WxMpPortalController {
 
     @GetMapping(produces = "text/plain;charset=utf-8")
     public String authGet(@PathVariable String appId, @RequestParam(required = false) String timestamp,
-            @RequestParam(required = false) String nonce, @RequestParam(required = false) String signature,
-            @RequestParam(required = false) String echostr) {
+                          @RequestParam(required = false) String nonce, @RequestParam(required = false) String signature,
+                          @RequestParam(required = false) String echostr) {
         log.info("WxMpPortalController authGet timestamp:{} nonce:{} signature:{} echostr:{}", timestamp, nonce,
                 signature, echostr);
         if (StringUtils.isAnyBlank(signature, timestamp, nonce, echostr)) {
@@ -63,9 +66,9 @@ public class WxMpPortalController {
 
     @PostMapping(produces = "application/xml; charset=UTF-8")
     public String post(@PathVariable String appId, @RequestParam String timestamp, @RequestParam String nonce,
-            @RequestParam String signature, @RequestParam String openid, @RequestBody String requestBody,
-            @RequestParam(name = "encrypt_type", required = false) String encType,
-            @RequestParam(name = "msg_signature", required = false) String msgSignature) {
+                       @RequestParam String signature, @RequestParam String openid, @RequestBody String requestBody,
+                       @RequestParam(name = "encrypt_type", required = false) String encType,
+                       @RequestParam(name = "msg_signature", required = false) String msgSignature) {
         log.info(
                 "WxMpPortalController post timestamp:{} nonce:{} signature:{} encType:{} msgSignature:{} openid:{} requestBody:{}",
                 timestamp, nonce, signature, encType, msgSignature, openid, requestBody);
@@ -120,6 +123,8 @@ public class WxMpPortalController {
     private void handleEvent(WxMpXmlMessage message) {
         WxMpUser wxMpUser;
         String openId = message.getFromUser();
+        String event = message.getEvent();
+        String eventKey = message.getEventKey();
         try {
             wxMpUser = wxMpService.getUserService().userInfo(openId);
         } catch (WxErrorException e) {
@@ -127,23 +132,44 @@ public class WxMpPortalController {
                     e.getError().getErrorMsg());
             return;
         }
-        String event = message.getEvent();
-        String eventKey = message.getEventKey();
         switch (event) {
+            // 用户未关注时，进行关注后的事件推送
             case WxConsts.EventType.SUBSCRIBE:
                 if (StringUtils.isNotEmpty(eventKey) && eventKey.startsWith("qrscene_")) {
+                    // 登录
+                    if (eventKey.contains("login")) {
+
+                    }
                 }
                 break;
+            // 取消关注事件
             case EventType.UNSUBSCRIBE:
                 break;
+            // 用户已关注时的事件推送
             case EventType.SCAN:
-                if (Boolean.TRUE.equals(wxMpUser.getSubscribe())) {
-
+                // 登录
+                if (eventKey.contains("login")) {
                 }
                 break;
             default:
                 break;
 
+        }
+    }
+
+    @ApiOperation("获取二维码")
+    @GetMapping("/getQrcode")
+    public ScanCodeVO getMpQrcode() {
+        String qrcodeKey = IdUtil.fastSimpleUUID();
+        LocalDateTime expireDate = LocalDateTime.now().plusMinutes(10);
+        try {
+            WxMpQrcodeService qrcodeService = wxMpService.getQrcodeService();
+            String ticket = qrcodeService.qrCodeCreateTmpTicket(qrcodeKey, 60 * 10).getTicket();
+            String qrcode = qrcodeService.qrCodePictureUrl(ticket);
+            return ScanCodeVO.builder().qrcode(qrcode).qrcodeKey("login:" + qrcodeKey).expireDate(expireDate).build();
+        } catch (WxErrorException e) {
+            log.error("getQrcode errorCode:{} errorMsg:{}", e.getError().getErrorCode(), e.getError().getErrorMsg());
+            throw new BusinessException("获取微信二维码失败");
         }
     }
 
@@ -159,19 +185,5 @@ public class WxMpPortalController {
         WxOAuth2Service oAuth2Service = wxMpService.getOAuth2Service();
         WxOAuth2AccessToken accessToken = oAuth2Service.getAccessToken(code);
         return ApiResponseUtil.success(oAuth2Service.getUserInfo(accessToken, null));
-    }
-
-    @ApiOperation("获取二维码")
-    @GetMapping("/getQrcode")
-    public String getMpQrcode() {
-        String sceneStr = IdUtil.fastSimpleUUID();
-        try {
-            WxMpQrcodeService qrcodeService = wxMpService.getQrcodeService();
-            String ticket = qrcodeService.qrCodeCreateTmpTicket(sceneStr, 60 * 10).getTicket();
-            return qrcodeService.qrCodePictureUrl(ticket);
-        } catch (WxErrorException e) {
-            log.error("getQrcode errorCode:{} errorMsg:{}", e.getError().getErrorCode(), e.getError().getErrorMsg());
-            throw new BusinessException("获取微信二维码失败");
-        }
     }
 }

@@ -1,5 +1,7 @@
 package com.xwbing.web.controller.wx;
 
+import cn.hutool.core.util.IdUtil;
+import com.xwbing.service.domain.entity.vo.ScanCodeVO;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,18 +29,30 @@ import me.chanjar.weixin.common.service.WxOAuth2Service;
 public class WxOpenOAuth2Controller {
 
     @ApiOperation("获取网站应用授权登录的二维码")
-    @GetMapping("/buildAuthorizationUrl")
-    public ApiResponse<String> buildAuthorizationUrl(@RequestParam String appId, @RequestParam String redirectUri) {
-        String qrCode = WxOpenAppAutoConfiguration.getOpenOAuth2Service(appId)
-                .buildAuthorizationUrl(redirectUri, "snsapi_login", appId);
-        return ApiResponseUtil.success(qrCode);
+    @GetMapping("/web/buildAuthorizationUrl")
+    public ApiResponse<ScanCodeVO> buildAuthorizationUrl(@RequestParam String appId, @RequestParam String redirectUri) {
+        WxOAuth2Service openOAuth2Service = WxOpenAppAutoConfiguration.getOpenOAuth2Service(appId);
+        String qrCode = openOAuth2Service.buildAuthorizationUrl(redirectUri, "snsapi_login", appId);
+        String qrcodeKey = IdUtil.fastSimpleUUID();
+        ScanCodeVO scanCode = ScanCodeVO.builder().qrcode(qrCode).qrcodeKey(appId + ":" + qrcodeKey).build();
+        return ApiResponseUtil.success(scanCode);
+    }
+
+    @ApiOperation("网站应用扫码回调")
+    @GetMapping("/web/callback")
+    public void callback(@RequestParam String code, @RequestParam String state) throws WxErrorException {
+        String[] split = state.split(":");
+        String qrcodeKey = split[1];
+        WxOAuth2Service openOAuth2Service = WxOpenAppAutoConfiguration.getOpenOAuth2Service(split[0]);
+        WxOAuth2AccessToken accessToken = openOAuth2Service.getAccessToken(code);
+        WxOAuth2UserInfo userInfo = openOAuth2Service.getUserInfo(accessToken, null);
+        // 处理登录逻辑
     }
 
     @ApiOperation("获取用户信息")
-    @GetMapping("/getUserInfo")
-    public ApiResponse<WxOAuth2UserInfo> getUserInfo(@RequestParam String code, @RequestParam String state)
-            throws WxErrorException {
-        WxOAuth2Service openOAuth2Service = WxOpenAppAutoConfiguration.getOpenOAuth2Service(state);
+    @GetMapping("/app/getUserInfo")
+    public ApiResponse<WxOAuth2UserInfo> getUserInfo(@RequestParam String appId, @RequestParam String code) throws WxErrorException {
+        WxOAuth2Service openOAuth2Service = WxOpenAppAutoConfiguration.getOpenOAuth2Service(appId);
         WxOAuth2AccessToken accessToken = openOAuth2Service.getAccessToken(code);
         return ApiResponseUtil.success(openOAuth2Service.getUserInfo(accessToken, null));
     }
