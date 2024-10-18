@@ -42,8 +42,9 @@ public class WxOpenOAuth2Controller {
     @GetMapping("/web/callback")
     public void callback(@RequestParam String code, @RequestParam String state) throws WxErrorException {
         String[] split = state.split(":");
+        String appId = split[0];
         String qrcodeKey = split[1];
-        WxOAuth2Service openOAuth2Service = WxOpenAppAutoConfiguration.getOpenOAuth2Service(split[0]);
+        WxOAuth2Service openOAuth2Service = WxOpenAppAutoConfiguration.getOpenOAuth2Service(appId);
         WxOAuth2AccessToken accessToken = openOAuth2Service.getAccessToken(code);
         WxOAuth2UserInfo userInfo = openOAuth2Service.getUserInfo(accessToken, null);
         // 处理登录逻辑
