@@ -139,8 +139,8 @@ public class ArticleEsService {
             } else {
                 // 精准匹配 分词 term都包含且顺序一致 slop:term之间的position容错差值
                 //（where token=term0 and token=term1 and term1_position-term0_position<=1）
-                keyBuilder.should(QueryBuilders.matchPhraseQuery("title", searchKey).slop(1)).boost(100);
-                keyBuilder.should(QueryBuilders.matchPhraseQuery("content", searchKey).slop(1)).boost(5);
+                keyBuilder.should(QueryBuilders.matchPhraseQuery("title", searchKey).analyzer("ik_smart").slop(1)).boost(100);
+                keyBuilder.should(QueryBuilders.matchPhraseQuery("content", searchKey).analyzer("ik_smart").slop(1)).boost(5);
             }
             bool.must(keyBuilder);
         }
