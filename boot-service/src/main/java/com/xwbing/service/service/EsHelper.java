@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -291,11 +292,12 @@ public class EsHelper {
                             Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
                             if (MapUtils.isNotEmpty(highlightFields)) {
                                 highlightFields.forEach((field, highlightField) -> {
-                                    StringBuilder sb = new StringBuilder();
-                                    for (Text text : highlightField.getFragments()) {
-                                        sb.append(text);
+                                    String content = Arrays.stream(highlightField.getFragments())
+                                            .map(Text::toString)
+                                            .collect(Collectors.joining(" "));
+                                    if (StringUtils.isNotBlank(content)) {
+                                        sourceAsMap.put(field, content);
                                     }
-                                    sourceAsMap.put(field, sb.toString());
                                 });
                             }
                         }

@@ -23,7 +23,6 @@ import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -86,7 +85,7 @@ public class ArticleEsService {
         BoolQueryBuilder bool = this.bool(dto);
         FunctionScoreQueryBuilder functionScore = this.functionScore(bool);
         HighlightBuilder highlight = this.highlight();
-        SortBuilder[] sorts = { SortBuilders.fieldSort("_score").order(SortOrder.DESC) };
+        SortBuilder[] sorts = { SortBuilders.scoreSort() };
         return esHelper.search(functionScore, highlight, sorts, 1, 10, null, null, ArticleEsVO.class, INDEX);
     }
 
