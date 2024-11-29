@@ -85,6 +85,7 @@ public class ArticleEsService {
         BoolQueryBuilder bool = this.bool(dto);
         FunctionScoreQueryBuilder functionScore = this.functionScore(bool);
         HighlightBuilder highlight = this.highlight();
+//        SortBuilder[] sorts = { SortBuilders.fieldSort("_score").order(SortOrder.DESC) };
         SortBuilder[] sorts = { SortBuilders.scoreSort() };
         return esHelper.search(functionScore, highlight, sorts, 1, 10, null, null, ArticleEsVO.class, INDEX);
     }
@@ -138,6 +139,7 @@ public class ArticleEsService {
             } else {
                 // 精准匹配 分词 term都包含且顺序一致 slop:term之间的position容错差值
                 //（where token=term0 and token=term1 and term1_position-term0_position<=1）
+                // keyBuilder.must(QueryBuilders.multiMatchQuery(searchKey, "title", "content").analyzer("ik_smart"));
                 keyBuilder.should(QueryBuilders.matchPhraseQuery("title", searchKey).analyzer("ik_smart").slop(1)).boost(100);
                 keyBuilder.should(QueryBuilders.matchPhraseQuery("content", searchKey).analyzer("ik_smart").slop(1)).boost(5);
             }
