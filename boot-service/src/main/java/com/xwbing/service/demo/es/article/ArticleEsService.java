@@ -170,6 +170,7 @@ public class ArticleEsService {
             bool.mustNot(QueryBuilders.idsQuery().addIds(ids));
         }
         if (StringUtils.isNotEmpty(dto.getSwjgDm())) {
+            // 查询本级及下级
             bool.must(QueryBuilders.prefixQuery("swjgDm", dto.getSwjgDm().replaceAll("0+$", "")));
         }
         // range 一定要有头有尾 不然会出现慢查询
@@ -193,7 +194,7 @@ public class ArticleEsService {
         }
         // constantScore 推荐加分
         bool.should(QueryBuilders.constantScoreQuery(QueryBuilders.termQuery("recommendStatus.code", 1)).boost(50));
-        // nested
+        // nested 查询本级以及以上
         BoolQueryBuilder regionBool = regionBool("13300000000", "13301000000", "13301100000");
         bool.must(QueryBuilders.nestedQuery("regionList", regionBool, org.apache.lucene.search.join.ScoreMode.None));
         return bool;
