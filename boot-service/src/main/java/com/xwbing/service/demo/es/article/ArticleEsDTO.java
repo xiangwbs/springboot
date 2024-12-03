@@ -1,17 +1,16 @@
 package com.xwbing.service.demo.es.article;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+import cn.hutool.core.date.DatePattern;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-
-import cn.hutool.core.date.DatePattern;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 用户es搜索参数
@@ -40,6 +39,8 @@ public class ArticleEsDTO {
     private LocalDateTime publishDateEnd;
     @ApiModelProperty("排除的文章id")
     private List<Long> excludeIds;
+    @ApiModelProperty("税务机关代码")
+    private String swjgDm;
 
     @ApiModelProperty(value = "crm标签id")
     private List<Long> crmTagIdList;

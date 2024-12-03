@@ -86,7 +86,7 @@ public class ArticleEsService {
         FunctionScoreQueryBuilder functionScore = this.functionScore(bool);
         HighlightBuilder highlight = this.highlight();
 //        SortBuilder[] sorts = { SortBuilders.fieldSort("_score").order(SortOrder.DESC) };
-        SortBuilder[] sorts = { SortBuilders.scoreSort() };
+        SortBuilder[] sorts = {SortBuilders.scoreSort()};
         return esHelper.search(functionScore, highlight, sorts, 1, 10, null, null, ArticleEsVO.class, INDEX);
     }
 
@@ -121,8 +121,7 @@ public class ArticleEsService {
         ScriptScoreFunctionBuilder recommendDate = ScoreFunctionBuilders.scriptFunction(script).setWeight(5);
         FilterFunctionBuilder f2 = new FilterFunctionBuilder(recommendDate);
 
-        return QueryBuilders.functionScoreQuery(query, new FilterFunctionBuilder[] { f1, f2 }).scoreMode(ScoreMode.SUM)
-                .boostMode(CombineFunction.SUM);
+        return QueryBuilders.functionScoreQuery(query, new FilterFunctionBuilder[]{f1, f2}).scoreMode(ScoreMode.SUM).boostMode(CombineFunction.SUM);
     }
 
     private BoolQueryBuilder bool(ArticleEsDTO dto) {
@@ -170,6 +169,9 @@ public class ArticleEsService {
             String[] ids = dto.getExcludeIds().stream().map(String::valueOf).toArray(String[]::new);
             bool.mustNot(QueryBuilders.idsQuery().addIds(ids));
         }
+        if (StringUtils.isNotEmpty(dto.getSwjgDm())) {
+            bool.must(QueryBuilders.prefixQuery("swjgDm", dto.getSwjgDm().replaceAll("0+$", "")));
+        }
         // range 一定要有头有尾 不然会出现慢查询
         if (dto.getPublishDateStart() != null && dto.getPublishDateEnd() != null) {
             bool.filter(QueryBuilders.rangeQuery("publishDate")
@@ -191,6 +193,34 @@ public class ArticleEsService {
         }
         // constantScore 推荐加分
         bool.should(QueryBuilders.constantScoreQuery(QueryBuilders.termQuery("recommendStatus.code", 1)).boost(50));
+        // nested
+        BoolQueryBuilder regionBool = regionBool("13300000000", "13301000000", "13301100000");
+        bool.must(QueryBuilders.nestedQuery("region", regionBool, org.apache.lucene.search.join.ScoreMode.None));
         return bool;
+    }
+
+    private BoolQueryBuilder regionBool(String provinceCode, String cityCode, String districtCode) {
+        BoolQueryBuilder bool = QueryBuilders.boolQuery();
+        //全域
+        bool.should(QueryBuilders.termQuery("region.provinceCode", "-1"));
+        //省域
+        if (regionCheck(provinceCode)) {
+            TermQueryBuilder provinceQueryBuilder = QueryBuilders.termQuery("region.provinceCode", provinceCode);
+            bool.should(QueryBuilders.boolQuery().must(provinceQueryBuilder).must(QueryBuilders.termQuery("region.cityCode", "-1")));
+            //市域
+            if (regionCheck(cityCode)) {
+                TermQueryBuilder cityQueryBuilder = QueryBuilders.termQuery("region.cityCode", cityCode);
+                bool.should(QueryBuilders.boolQuery().must(provinceQueryBuilder).must(cityQueryBuilder).must(QueryBuilders.termQuery("region.districtCode", "-1")));
+                //区域
+                if (regionCheck(districtCode)) {
+                    bool.should(QueryBuilders.boolQuery().must(provinceQueryBuilder).must(cityQueryBuilder).must(QueryBuilders.termQuery("region.districtCode", districtCode)));
+                }
+            }
+        }
+        return bool;
+    }
+
+    public static Boolean regionCheck(String code) {
+        return StringUtils.isNotBlank(code) && !"-1".equals(code);
     }
 }
