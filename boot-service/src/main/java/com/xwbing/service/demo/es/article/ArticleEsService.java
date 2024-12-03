@@ -195,25 +195,25 @@ public class ArticleEsService {
         bool.should(QueryBuilders.constantScoreQuery(QueryBuilders.termQuery("recommendStatus.code", 1)).boost(50));
         // nested
         BoolQueryBuilder regionBool = regionBool("13300000000", "13301000000", "13301100000");
-        bool.must(QueryBuilders.nestedQuery("region", regionBool, org.apache.lucene.search.join.ScoreMode.None));
+        bool.must(QueryBuilders.nestedQuery("regionList", regionBool, org.apache.lucene.search.join.ScoreMode.None));
         return bool;
     }
 
     private BoolQueryBuilder regionBool(String provinceCode, String cityCode, String districtCode) {
         BoolQueryBuilder bool = QueryBuilders.boolQuery();
         //全域
-        bool.should(QueryBuilders.termQuery("region.provinceCode", "-1"));
+        bool.should(QueryBuilders.termQuery("regionList.provinceCode", "-1"));
         //省域
         if (regionCheck(provinceCode)) {
-            TermQueryBuilder provinceQueryBuilder = QueryBuilders.termQuery("region.provinceCode", provinceCode);
-            bool.should(QueryBuilders.boolQuery().must(provinceQueryBuilder).must(QueryBuilders.termQuery("region.cityCode", "-1")));
+            TermQueryBuilder provinceQueryBuilder = QueryBuilders.termQuery("regionList.provinceCode", provinceCode);
+            bool.should(QueryBuilders.boolQuery().must(provinceQueryBuilder).must(QueryBuilders.termQuery("regionList.cityCode", "-1")));
             //市域
             if (regionCheck(cityCode)) {
-                TermQueryBuilder cityQueryBuilder = QueryBuilders.termQuery("region.cityCode", cityCode);
-                bool.should(QueryBuilders.boolQuery().must(provinceQueryBuilder).must(cityQueryBuilder).must(QueryBuilders.termQuery("region.districtCode", "-1")));
+                TermQueryBuilder cityQueryBuilder = QueryBuilders.termQuery("regionList.cityCode", cityCode);
+                bool.should(QueryBuilders.boolQuery().must(provinceQueryBuilder).must(cityQueryBuilder).must(QueryBuilders.termQuery("regionList.districtCode", "-1")));
                 //区域
                 if (regionCheck(districtCode)) {
-                    bool.should(QueryBuilders.boolQuery().must(provinceQueryBuilder).must(cityQueryBuilder).must(QueryBuilders.termQuery("region.districtCode", districtCode)));
+                    bool.should(QueryBuilders.boolQuery().must(provinceQueryBuilder).must(cityQueryBuilder).must(QueryBuilders.termQuery("regionList.districtCode", districtCode)));
                 }
             }
         }
