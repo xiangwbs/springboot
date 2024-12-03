@@ -135,14 +135,18 @@ public class ArticleEsService {
             if (dto.isWasMatchSearch()) {
                 // 模糊匹配 分词 分为多个term
                 //（where token=term0 or token=term1）默认/（where token=term0 and token=term1）
-                keyBuilder.should(QueryBuilders.matchQuery("title", searchKey).operator(Operator.AND)).boost(100);
-                keyBuilder.should(QueryBuilders.matchQuery("content", searchKey).operator(Operator.AND)).boost(5);
+//                keyBuilder.must(QueryBuilders.multiMatchQuery(searchKey, "title", "content").analyzer("ik_smart"));
+//                Map<String, Float> fields = Maps.newHashMap();
+//                fields.put("title", 10f);
+//                fields.put("content", 1f);
+//                keyBuilder.must(QueryBuilders.multiMatchQuery(searchKey).fields(fields).analyzer("ik_smart"));
+                keyBuilder.should(QueryBuilders.matchQuery("title", searchKey).operator(Operator.AND)).boost(10);
+                keyBuilder.should(QueryBuilders.matchQuery("content", searchKey).operator(Operator.AND)).boost(1);
             } else {
                 // 精准匹配 分词 term都包含且顺序一致 slop:term之间的position容错差值
                 //（where token=term0 and token=term1 and term1_position-term0_position<=1）
-                // keyBuilder.must(QueryBuilders.multiMatchQuery(searchKey, "title", "content").analyzer("ik_smart"));
-                keyBuilder.should(QueryBuilders.matchPhraseQuery("title", searchKey).analyzer("ik_smart").slop(1)).boost(100);
-                keyBuilder.should(QueryBuilders.matchPhraseQuery("content", searchKey).analyzer("ik_smart").slop(1)).boost(5);
+                keyBuilder.should(QueryBuilders.matchPhraseQuery("title", searchKey).analyzer("ik_smart").slop(1)).boost(10);
+                keyBuilder.should(QueryBuilders.matchPhraseQuery("content", searchKey).analyzer("ik_smart").slop(1)).boost(1);
             }
             bool.must(keyBuilder);
         }
