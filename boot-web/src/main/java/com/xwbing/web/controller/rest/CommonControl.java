@@ -1,14 +1,5 @@
 package com.xwbing.web.controller.rest;
 
-import javax.annotation.Resource;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.service.rest.CommonService;
 import com.xwbing.service.util.JsonResult;
@@ -16,9 +7,13 @@ import com.xwbing.service.util.RestMessage;
 import com.xwbing.starter.aspect.properties.RsaProperties;
 import com.xwbing.web.response.ApiResponse;
 import com.xwbing.web.response.ApiResponseUtil;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 项目名称: boot-module-pro
@@ -54,5 +49,12 @@ public class CommonControl {
         RestMessage restMessage = commonService.upload(file);
         return JsonResult.toJSONObj(restMessage);
     }
-}
 
+    @PostMapping("batchUpload")
+    public ApiResponse batchUpload(@RequestPart("files") List<MultipartFile> files) {
+        for (MultipartFile file : files) {
+            commonService.upload(file);
+        }
+        return ApiResponseUtil.success();
+    }
+}
