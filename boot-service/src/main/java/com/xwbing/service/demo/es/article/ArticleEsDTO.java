@@ -41,6 +41,7 @@ public class ArticleEsDTO {
     private List<Long> excludeIds;
     @ApiModelProperty("税务机关代码")
     private String swjgDm;
+    private String swjgDmPath;
 
     @ApiModelProperty(value = "crm标签id")
     private List<Long> crmTagIdList;

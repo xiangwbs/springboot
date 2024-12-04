@@ -2,6 +2,7 @@ package com.xwbing.service.demo.es.article;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.xwbing.service.service.EsHelper;
 import com.xwbing.service.service.EsHelper.UpsertDoc;
@@ -169,10 +170,6 @@ public class ArticleEsService {
             String[] ids = dto.getExcludeIds().stream().map(String::valueOf).toArray(String[]::new);
             bool.mustNot(QueryBuilders.idsQuery().addIds(ids));
         }
-        if (StringUtils.isNotEmpty(dto.getSwjgDm())) {
-            // 查询本级及下级
-            bool.must(QueryBuilders.prefixQuery("swjgDm", dto.getSwjgDm().replaceAll("0+$", "")));
-        }
         // range 一定要有头有尾 不然会出现慢查询
         if (dto.getPublishDateStart() != null && dto.getPublishDateEnd() != null) {
             bool.filter(QueryBuilders.rangeQuery("publishDate")
@@ -192,11 +189,21 @@ public class ArticleEsService {
                 dto.getCrmTagIdList().forEach(id -> bool.must(QueryBuilders.termQuery("crmTagIdList", id)));
             }
         }
-        // constantScore 推荐加分
-        bool.should(QueryBuilders.constantScoreQuery(QueryBuilders.termQuery("recommendStatus.code", 1)).boost(50));
+        // 查询本级及下级
+        if (StringUtils.isNotEmpty(dto.getSwjgDm())) {
+            bool.must(QueryBuilders.prefixQuery("swjgDm", dto.getSwjgDm().replaceAll("0+$", "")));
+        }
+        // 如果查询本级及以上，需要组装本级以上swjgdmPath
+        if (StringUtils.isNotEmpty(dto.getSwjgDmPath())) {
+            List<String> paths = buildParentPath(dto.getSwjgDmPath());
+            paths.add(dto.getSwjgDmPath());
+            bool.must(QueryBuilders.termsQuery("swjgDmPath", paths));
+        }
         // nested 查询本级以及以上
         BoolQueryBuilder regionBool = regionBool("13300000000", "13301000000", "13301100000");
         bool.must(QueryBuilders.nestedQuery("regionList", regionBool, org.apache.lucene.search.join.ScoreMode.None));
+        // constantScore 推荐加分
+        bool.should(QueryBuilders.constantScoreQuery(QueryBuilders.termQuery("recommendStatus.code", 1)).boost(50));
         return bool;
     }
 
@@ -221,7 +228,28 @@ public class ArticleEsService {
         return bool;
     }
 
-    public static Boolean regionCheck(String code) {
+    private static Boolean regionCheck(String code) {
         return StringUtils.isNotBlank(code) && !"-1".equals(code);
+    }
+
+    private static List<String> buildParentPath(String path) {
+        List<String> parentPaths = Lists.newArrayList();
+        String[] swjgdms = path.split("-");
+        for (int i = swjgdms.length - 1; i > 0; i--) {
+            StringBuilder parentPath = new StringBuilder();
+            for (int j = 0; j < i; j++) {
+                parentPath.append(swjgdms[j]);
+                if (j < i - 1) {
+                    parentPath.append("-");
+                }
+            }
+            parentPaths.add(parentPath.toString());
+        }
+        return parentPaths;
+    }
+
+    public static void main(String[] args) {
+        List<String> parentPathList = buildParentPath("13300000000-13301000000-13301100000");
+        System.out.println("");
     }
 }
