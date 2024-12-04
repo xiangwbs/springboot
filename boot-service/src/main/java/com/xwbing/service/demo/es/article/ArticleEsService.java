@@ -249,7 +249,7 @@ public class ArticleEsService {
     }
 
     public static void main(String[] args) {
-        List<String> parentPathList = buildParentPath("13300000000-13301000000-13301100000");
+        List<String> parentPathList = buildParentPath("00000000000-13300000000-13301000000-13301100000");
         System.out.println("");
     }
 }
