@@ -1,26 +1,15 @@
 package com.xwbing.service.util;
 
+import cn.hutool.core.date.LocalDateTimeUtil;
+import com.xwbing.service.exception.UtilException;
+import lombok.extern.slf4j.Slf4j;
+
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.Period;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.xwbing.service.exception.UtilException;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
 
 /**
  * 基于java8的日期处理类
@@ -51,7 +40,6 @@ public class DateUtil2 {
      * 格式化
      *
      * @param pattern
-     *
      * @return
      */
     public static DateTimeFormatter getDateFormat(String pattern) {
@@ -65,7 +53,6 @@ public class DateUtil2 {
      *
      * @param date
      * @param pattern
-     *
      * @return
      */
     public static String dateToStr(Date date, String pattern) {
@@ -79,7 +66,6 @@ public class DateUtil2 {
      *
      * @param dateStr
      * @param pattern
-     *
      * @return
      */
     public static Date strToDate(String dateStr, String pattern) {
@@ -104,7 +90,6 @@ public class DateUtil2 {
      *
      * @param ms
      * @param pattern
-     *
      * @return
      */
     public static String msToDateStr(String ms, String pattern) {
@@ -123,7 +108,6 @@ public class DateUtil2 {
      *
      * @param s
      * @param pattern
-     *
      * @return
      */
     public static String sToDateStr(String s, String pattern) {
@@ -141,7 +125,6 @@ public class DateUtil2 {
      * 将时间字符串转为毫秒字符串
      *
      * @param dateStr
-     *
      * @return
      */
     public static String dateStrToMs(String dateStr) {
@@ -154,7 +137,6 @@ public class DateUtil2 {
      * 将时间字符串转为时间戳
      *
      * @param dateStr
-     *
      * @return
      */
     public static String dateStrToStamp(String dateStr) {
@@ -175,6 +157,38 @@ public class DateUtil2 {
     public static LocalDateTime dateStrToLocalDateTime(String dateStr) {
         return LocalDateTime.parse(dateStr, getDateFormat(YYYY_MM_DD_HH_MM_SS));
     }
+
+    public static String dateStrToDateStr(String dateStr, String pattern) {
+        List<DateTimeFormatter> formatters = Arrays.asList(
+                DateTimeFormatter.ofPattern("yyyyMMdd"),
+                DateTimeFormatter.ofPattern("yyyy-M-d"),
+                DateTimeFormatter.ofPattern("yyyy/M/d"),
+                DateTimeFormatter.ofPattern("yyyy年M月d号"),
+                DateTimeFormatter.ofPattern("yyyy年M月d日"),
+                DateTimeFormatter.ofPattern("yyyyMM"),
+                DateTimeFormatter.ofPattern("yyyy-M"),
+                DateTimeFormatter.ofPattern("yyyy/M"),
+                DateTimeFormatter.ofPattern("yyyy年M月"),
+                DateTimeFormatter.ofPattern("yyyy"),
+                DateTimeFormatter.ofPattern("yyyy年")
+        );
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                LocalDate parse = LocalDateTimeUtil.parseDate(dateStr, formatter);
+                return parse.format(DateTimeFormatter.ofPattern(pattern));
+            } catch (Exception e) {
+                log.error("dateStrToDateStr error", e);
+            }
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        LocalDate localDate = LocalDateTimeUtil.parseDate("2024年", "yyyy年");
+
+        String s = dateStrToDateStr("2024年7月01号", "yyyyMMdd");
+    }
+
 
     /////////////////////////////获取数据////////////获取数据/////////////////////////////////////////////////////////////
 
@@ -200,7 +214,6 @@ public class DateUtil2 {
      * 获取周几
      *
      * @param day 0代表当天 负数代表前几天 正数代表后几天
-     *
      * @return
      */
     public static int getWeek(int day) {
@@ -213,14 +226,13 @@ public class DateUtil2 {
      * 获取周几
      *
      * @param day 0代表当天 负数代表前几天 正数代表后几天
-     *
      * @return
      */
     public static String getWeek2(int day) {
         LocalDate localDate = LocalDate.now();
         LocalDate date = day >= 0 ? localDate.plusDays(day) : localDate.minusDays(Math.abs(day));
         int week = date.getDayOfWeek().getValue();
-        String[] data = { "一", "二", "三", "四", "五", "六", "日" };
+        String[] data = {"一", "二", "三", "四", "五", "六", "日"};
         return "周" + data[week - 1];
     }
 
@@ -228,9 +240,8 @@ public class DateUtil2 {
      * 获取n分钟前/后时间字符串
      * 返回格式：HH:mm/HH:mm:ss
      *
-     * @param time 格式:HH:mm/HH:mm:ss
+     * @param time   格式:HH:mm/HH:mm:ss
      * @param minute 分钟
-     *
      * @return
      */
     public static String timeAddMinusMinutes(String time, int minute) {
@@ -245,7 +256,6 @@ public class DateUtil2 {
      *
      * @param time 格式 HH:mm
      * @param h
-     *
      * @return
      */
     public static String timeAddMinusHours(String time, int h) {
@@ -260,7 +270,6 @@ public class DateUtil2 {
      *
      * @param date yyyy_MM_dd
      * @param day
-     *
      * @return
      */
     public static String dateAddMinusDays(String date, int day) {
@@ -306,7 +315,6 @@ public class DateUtil2 {
      * 获取指定月份第一天
      *
      * @param month yyyy-MM
-     *
      * @return
      */
     public static String getMonthFirstDay(int month) {
@@ -329,7 +337,6 @@ public class DateUtil2 {
      * 获取某年第一天日期
      *
      * @param year 年份
-     *
      * @return Date
      */
     public static String getYearFirstDay(int year) {
@@ -342,8 +349,7 @@ public class DateUtil2 {
      * 遍历获取月份集合
      *
      * @param startMoth yyyy-MM
-     * @param endMonth yyyy-MM
-     *
+     * @param endMonth  yyyy-MM
      * @return
      */
     public static List<String> listYearMonth(String startMoth, String endMonth) {
@@ -361,8 +367,7 @@ public class DateUtil2 {
      * 遍历获取两个日期之间天数集合
      *
      * @param startDate yyyy-MM-dd
-     * @param endDate yyyy-MM-dd
-     *
+     * @param endDate   yyyy-MM-dd
      * @return
      */
     public static List<String> listDate(String startDate, String endDate) {
@@ -383,7 +388,6 @@ public class DateUtil2 {
      *
      * @param str1
      * @param str2
-     *
      * @return
      */
     public static boolean compareDate(String str1, String str2) {
@@ -396,22 +400,21 @@ public class DateUtil2 {
      * 比较两个时间相差几小时（不隔天）
      *
      * @param startTime HH:mm
-     * @param endTime HH:mm
+     * @param endTime   HH:mm
      */
     public static Double hoursBetween1(String startTime, String endTime) {
         LocalTime sTime = LocalTime.parse(startTime);
         LocalTime eTime = LocalTime.parse(endTime);
         Duration duration = Duration.between(sTime, eTime);
         long m = duration.toMinutes();
-        return doubleFormat((double)m / 60.0, 1);
+        return doubleFormat((double) m / 60.0, 1);
     }
 
     /**
      * 比较两个时间相差几小时（隔天）
      *
      * @param startDateTime yyyy-MM-dd HH:mm
-     * @param endDateTime yyyy-MM-dd HH:mm
-     *
+     * @param endDateTime   yyyy-MM-dd HH:mm
      * @return
      */
 
@@ -420,15 +423,14 @@ public class DateUtil2 {
         LocalDateTime eDateTime = LocalDateTime.parse(endDateTime, getDateFormat(YYYY_MM_DD_HH_MM));
         Duration duration = Duration.between(sDateTime, eDateTime);
         long m = duration.toMinutes();
-        return doubleFormat((double)m / 60.0, 1);
+        return doubleFormat((double) m / 60.0, 1);
     }
 
     /**
      * 比较两个日期相差的天数
      *
      * @param startDate yyyy-MM-dd
-     * @param endDate yyyy-MM-dd
-     *
+     * @param endDate   yyyy-MM-dd
      * @return
      */
     public static long daysBetween(String startDate, String endDate) {
@@ -437,17 +439,16 @@ public class DateUtil2 {
         return ChronoUnit.DAYS.between(start, end);
     }
 
-    public static void main(String[] args) {
-        long l = daysBetween("2021-05-13", "2022-06-29");
-        System.out.println(l);
-    }
+//    public static void main(String[] args) {
+//        long l = daysBetween("2021-05-13", "2022-06-29");
+//        System.out.println(l);
+//    }
 
     /**
      * 比较两个日期相差的月数
      *
      * @param startDate yyyy-MM-dd
-     * @param endDate yyyy-MM-dd
-     *
+     * @param endDate   yyyy-MM-dd
      * @return
      */
     public static long monthBetween(String startDate, String endDate) {
@@ -460,8 +461,7 @@ public class DateUtil2 {
      * 比较两个日期相差的年数
      *
      * @param startDate yyyy-MM-dd
-     * @param endDate yyyy-MM-dd
-     *
+     * @param endDate   yyyy-MM-dd
      * @return
      */
     public static long yearsBetween(String startDate, String endDate) {
@@ -474,8 +474,7 @@ public class DateUtil2 {
      * 获取两个时间差(时间分量:日时分秒)
      *
      * @param startDateTime yyyy-MM-dd HH:mm:ss
-     * @param endDateTime yyyy-MM-dd HH:mm:ss
-     *
+     * @param endDateTime   yyyy-MM-dd HH:mm:ss
      * @return
      */
     public static Map<String, Integer> getDateTimePool(String startDateTime, String endDateTime) {
@@ -488,10 +487,10 @@ public class DateUtil2 {
         long diffHours = diff / HOUR % 24;
         long diffDays = diff / DAY;
         Map<String, Integer> map = new HashMap<>();
-        map.put("days", (int)diffDays);
-        map.put("hours", (int)diffHours);
-        map.put("minutes", (int)diffMinutes);
-        map.put("seconds", (int)diffSeconds);
+        map.put("days", (int) diffDays);
+        map.put("hours", (int) diffHours);
+        map.put("minutes", (int) diffMinutes);
+        map.put("seconds", (int) diffSeconds);
         return map;
     }
 
@@ -499,8 +498,7 @@ public class DateUtil2 {
      * 获取两个时间差(时间分量:年月日)
      *
      * @param startDate yyyy-MM-dd
-     * @param endDate yyyy-MM-dd
-     *
+     * @param endDate   yyyy-MM-dd
      * @return
      */
     public static Map<String, Integer> getDatePool(String startDate, String endDate) {
@@ -518,7 +516,6 @@ public class DateUtil2 {
      * 字符串类型日期集合排序
      *
      * @param list
-     *
      * @return
      */
     public static List<String> shortListDate(List<String> list) {
@@ -529,11 +526,10 @@ public class DateUtil2 {
     /**
      * 判断两者时间是否重合 重合返回true
      *
-     * @param needSDate 需要的时间段
-     * @param needEDate 需要的时间段
+     * @param needSDate    需要的时间段
+     * @param needEDate    需要的时间段
      * @param compareSDate 比较的时间段
      * @param compareEDate 比较的时间段
-     *
      * @return
      */
     public static boolean compareDate(String needSDate, String needEDate, String compareSDate, String compareEDate) {
@@ -586,7 +582,6 @@ public class DateUtil2 {
      *
      * @param v1
      * @param scale
-     *
      * @return
      */
     private static Double doubleFormat(Double v1, int scale) {
