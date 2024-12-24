@@ -3,6 +3,7 @@ package com.xwbing.service.util;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import com.xwbing.service.exception.UtilException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.*;
@@ -161,16 +162,8 @@ public class DateUtil2 {
     }
 
     public static String dateStrToDateStr(String dateStr, String pattern) {
-        List<DateTimeFormatter> formatterFromList = Arrays.asList(
-                DateTimeFormatter.ofPattern("yyyy-M-d H:m:s"),
-                DateTimeFormatter.ofPattern("yyyy-M-d H:m"),
-                DateTimeFormatter.ofPattern("yyyy-M-d H"),
-                DateTimeFormatter.ofPattern("yyyy年M月d日 H点m分s秒"),
-                DateTimeFormatter.ofPattern("yyyy年M月d日 H点m分"),
-                DateTimeFormatter.ofPattern("yyyy年M月d日 H点"),
-                DateTimeFormatter.ofPattern("yyyy年M月d号 H点m分s秒"),
-                DateTimeFormatter.ofPattern("yyyy年M月d号 H点m分"),
-                DateTimeFormatter.ofPattern("yyyy年M月d号 H点"),
+        DateTimeFormatter formatterTo = DateTimeFormatter.ofPattern(pattern);
+        List<DateTimeFormatter> dateFormatterList = Arrays.asList(
                 DateTimeFormatter.ofPattern("yyyyMMdd"),
                 DateTimeFormatter.ofPattern("yyyy-M-d"),
                 DateTimeFormatter.ofPattern("yyyy/M/d"),
@@ -183,7 +176,23 @@ public class DateUtil2 {
                 DateTimeFormatter.ofPattern("yyyy"),
                 DateTimeFormatter.ofPattern("yyyy年")
         );
-        DateTimeFormatter formatterTo = DateTimeFormatter.ofPattern(pattern);
+        List<DateTimeFormatter> timeFormatterList = Arrays.asList(
+                DateTimeFormatter.ofPattern("yyyy-M-d H:m:s"),
+                DateTimeFormatter.ofPattern("yyyy-M-d H:m"),
+                DateTimeFormatter.ofPattern("yyyy-M-d H"),
+                DateTimeFormatter.ofPattern("yyyy年M月d日 H点m分s秒"),
+                DateTimeFormatter.ofPattern("yyyy年M月d日 H点m分"),
+                DateTimeFormatter.ofPattern("yyyy年M月d日 H点"),
+                DateTimeFormatter.ofPattern("yyyy年M月d号 H点m分s秒"),
+                DateTimeFormatter.ofPattern("yyyy年M月d号 H点m分"),
+                DateTimeFormatter.ofPattern("yyyy年M月d号 H点")
+        );
+        List<DateTimeFormatter> formatterFromList;
+        if (StringUtils.containsAny(dateStr, " ", ":", "点")) {
+            formatterFromList = timeFormatterList;
+        } else {
+            formatterFromList = dateFormatterList;
+        }
         for (DateTimeFormatter formatterFrom : formatterFromList) {
             try {
                 TemporalAccessor parse = formatterFrom.parse(dateStr);
@@ -201,7 +210,7 @@ public class DateUtil2 {
     }
 
     public static void main(String[] args) {
-        String s = dateStrToDateStr("2024年12月10号 12点", "yyyyMMdd");
+        String s = dateStrToDateStr("2024-12-10 12", "yyyy-M-d H");
         System.out.println("");
     }
 
