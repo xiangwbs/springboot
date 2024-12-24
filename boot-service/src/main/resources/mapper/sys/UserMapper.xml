@@ -7,6 +7,7 @@
         <result column="modified_time" property="modifiedTime"/>
         <result column="user_name" property="userName"/>
         <result column="is_admin" property="isAdmin"/>
+        <result column="address" property="address" typeHandler="com.xwbing.service.datasource.typeHandler.CryptAesTypeHandler" />
     </resultMap>
 
     <sql id="Table">
@@ -25,7 +26,8 @@
         mail,
         salt,
         password,
-        is_admin
+        is_admin,
+        address
     </sql>
 
     <sql id="condition">
@@ -35,6 +37,18 @@
             </if>
             <if test="sex!=null">
                 and sex=#{sex}
+            </if>
+            <if test="ids!=null">
+                and id in
+                <foreach collection="ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="startDate!=null">
+                and create_time >= #{startDate}
+            </if>
+            <if test="endDate!=null">
+                and create_time <![CDATA[ <= ]]> #{endDate}
             </if>
         </where>
     </sql>
@@ -54,7 +68,8 @@
         mail,
         salt,
         password,
-        is_admin
+        is_admin,
+        address
         )
         VALUES(
         #{id},
@@ -66,7 +81,8 @@
         #{mail},
         #{salt},
         #{password},
-        #{isAdmin}
+        #{isAdmin},
+        #{address,typeHandler=com.xwbing.service.datasource.typeHandler.CryptAesTypeHandler}
         )
     </insert>
 
@@ -82,7 +98,8 @@
         mail,
         salt,
         password,
-        is_admin
+        is_admin,
+        address
         )
         VALUES
         <foreach collection="list" item="obj" separator=",">(
@@ -95,7 +112,8 @@
             #{obj.mail},
             #{obj.salt},
             #{obj.password},
-            #{obj.isAdmin}
+            #{obj.isAdmin},
+            #{obj.address,typeHandler=com.xwbing.service.datasource.typeHandler.CryptAesTypeHandler}
             )
         </foreach>
     </insert>
@@ -133,6 +151,7 @@
             <if test="salt!=null">salt=#{salt},</if>
             <if test="password!=null">password=#{password},</if>
             <if test="isAdmin!=null">is_admin=#{isAdmin},</if>
+            <if test="address!=null">is_admin=#{address,typeHandler=com.xwbing.service.datasource.typeHandler.CryptAesTypeHandler},</if>
         </set>
         WHERE id=#{id}
     </update>
@@ -192,6 +211,13 @@
                 <foreach collection="list" item="obj">
                     <if test="obj.isAdmin!=null">
                         when id=#{obj.id} then #{obj.isAdmin}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="address=case" suffix="end,">
+                <foreach collection="list" item="obj">
+                    <if test="obj.address!=null">
+                        when id=#{obj.id} then #{obj.address,typeHandler=com.xwbing.service.datasource.typeHandler.CryptAesTypeHandler}
                     </if>
                 </foreach>
             </trim>

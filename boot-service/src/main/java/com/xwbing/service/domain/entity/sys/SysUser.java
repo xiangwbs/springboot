@@ -1,18 +1,15 @@
 package com.xwbing.service.domain.entity.sys;
 
-import java.util.List;
+import com.xwbing.service.domain.entity.BaseEntity;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.Length;
-
-import com.xwbing.service.domain.entity.BaseEntity;
-
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import java.util.List;
 
 /**
  * 说明: 用户
@@ -45,6 +42,8 @@ public class SysUser extends BaseEntity {
     private String password;
     @ApiModelProperty(value = "是否为管理员", hidden = true)
     private String isAdmin;
+    @ApiModelProperty(value = "地址(加密)")
+    private String address;
     //临时字段
     @ApiModelProperty(hidden = true)
     private transient String created;

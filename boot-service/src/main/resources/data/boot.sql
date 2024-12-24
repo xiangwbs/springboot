@@ -204,6 +204,7 @@ CREATE TABLE `sys_user_info` (
   `sex` char(1)  NOT NULL COMMENT '性别',
   `user_name` varchar(20)  NOT NULL COMMENT '用户名',
   `is_admin` char(1)  DEFAULT NULL COMMENT '是否管理员',
+  `address` varchar(50) DEFAULT NULL COMMENT '地址(加密)',
   PRIMARY KEY (`id`) ,
   UNIQUE KEY `uk_user_name` (`user_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4  COMMENT='用户';
