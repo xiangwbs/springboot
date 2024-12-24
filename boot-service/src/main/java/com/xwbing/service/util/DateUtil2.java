@@ -7,7 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
@@ -159,12 +161,21 @@ public class DateUtil2 {
     }
 
     public static String dateStrToDateStr(String dateStr, String pattern) {
-        List<DateTimeFormatter> formatters = Arrays.asList(
+        List<DateTimeFormatter> formatterFromList = Arrays.asList(
+                DateTimeFormatter.ofPattern("yyyy-M-d H:m:s"),
+                DateTimeFormatter.ofPattern("yyyy-M-d H:m"),
+                DateTimeFormatter.ofPattern("yyyy-M-d H"),
+                DateTimeFormatter.ofPattern("yyyy年M月d日 H点m分s秒"),
+                DateTimeFormatter.ofPattern("yyyy年M月d日 H点m分"),
+                DateTimeFormatter.ofPattern("yyyy年M月d日 H点"),
+                DateTimeFormatter.ofPattern("yyyy年M月d号 H点m分s秒"),
+                DateTimeFormatter.ofPattern("yyyy年M月d号 H点m分"),
+                DateTimeFormatter.ofPattern("yyyy年M月d号 H点"),
                 DateTimeFormatter.ofPattern("yyyyMMdd"),
                 DateTimeFormatter.ofPattern("yyyy-M-d"),
                 DateTimeFormatter.ofPattern("yyyy/M/d"),
-                DateTimeFormatter.ofPattern("yyyy年M月d号"),
                 DateTimeFormatter.ofPattern("yyyy年M月d日"),
+                DateTimeFormatter.ofPattern("yyyy年M月d号"),
                 DateTimeFormatter.ofPattern("yyyyMM"),
                 DateTimeFormatter.ofPattern("yyyy-M"),
                 DateTimeFormatter.ofPattern("yyyy/M"),
@@ -172,10 +183,16 @@ public class DateUtil2 {
                 DateTimeFormatter.ofPattern("yyyy"),
                 DateTimeFormatter.ofPattern("yyyy年")
         );
-        for (DateTimeFormatter formatter : formatters) {
+        DateTimeFormatter formatterTo = DateTimeFormatter.ofPattern(pattern);
+        for (DateTimeFormatter formatterFrom : formatterFromList) {
             try {
-                LocalDate parse = LocalDateTimeUtil.parseDate(dateStr, formatter);
-                return parse.format(DateTimeFormatter.ofPattern(pattern));
+                TemporalAccessor parse = formatterFrom.parse(dateStr);
+                boolean isDateTime = parse.isSupported(ChronoField.HOUR_OF_DAY);
+                if (isDateTime) {
+                    return LocalDateTimeUtil.of(parse).format(formatterTo);
+                } else {
+                    return LocalDateTimeUtil.ofDate(parse).format(formatterTo);
+                }
             } catch (Exception e) {
                 log.error("dateStrToDateStr error", e);
             }
@@ -184,9 +201,8 @@ public class DateUtil2 {
     }
 
     public static void main(String[] args) {
-        LocalDate localDate = LocalDateTimeUtil.parseDate("2024年", "yyyy年");
-
-        String s = dateStrToDateStr("2024年7月01号", "yyyyMMdd");
+        String s = dateStrToDateStr("2024年12月10号 12点", "yyyyMMdd");
+        System.out.println("");
     }
 
 
