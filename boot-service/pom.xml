@@ -302,6 +302,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- word处理 -->
+        <dependency>
+            <groupId>com.luhuiguo</groupId>
+            <artifactId>aspose-words</artifactId>
+            <version>23.1</version>
+        </dependency>
 
     </dependencies>
     <build>
