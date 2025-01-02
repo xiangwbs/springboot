@@ -1,6 +1,7 @@
 package com.xwbing.web.controller.rest;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.collection.ListUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.demo.RedisTemplateDemo;
 import com.xwbing.service.demo.dingtalk.DingMarkdown;
@@ -37,8 +38,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -113,6 +116,17 @@ public class MockControl {
                 out.write(bytes);
             }
         }
+    }
+
+    @GetMapping("getContent")
+    public void getContent(HttpServletResponse response) throws IOException {
+        OutputStream outputStream = response.getOutputStream();
+        response.setHeader("content-type", "text/plain;charset=UTF-8");
+        LocalDateTime now = LocalDateTime.now();
+        response.setHeader("Last-Modified", now.toString());
+        response.setHeader("ETag", now.toString());
+        ArrayList<String> list = ListUtil.toList("词1", "词2");
+        outputStream.write(StringUtils.join(list, "\n").getBytes(StandardCharsets.UTF_8));
     }
 
     @ApiOperation("pdf转图片")

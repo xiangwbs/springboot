@@ -1,5 +1,8 @@
 package com.xwbing.service.demo.sql;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
@@ -9,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,7 +61,16 @@ public class JdbcUtil {
                         Map<String, Object> rowMap = new LinkedHashMap<>();
                         for (int i = 1; i <= columnsCount; i++) {
                             String column = StringUtils.isNotEmpty(metaData.getColumnLabel(i)) ? metaData.getColumnLabel(i) : metaData.getColumnName(i);
-                            rowMap.put(column.toLowerCase(), resultSet.getObject(i));
+                            Object data = resultSet.getObject(i);
+                            if (data instanceof Date) {
+                                data = DateUtil.format((Date) data, DatePattern.NORM_DATETIME_PATTERN);
+                            } else if (data instanceof LocalDateTime) {
+                                data = LocalDateTimeUtil.format((LocalDateTime) data, DatePattern.NORM_DATETIME_PATTERN);
+                            } else if (data instanceof Blob) {
+                                Blob blob = (Blob) data;
+                                data = blob.getBytes(1, (int) blob.length());
+                            }
+                            rowMap.put(column.toLowerCase(), data);
                         }
                         list.add(rowMap);
                     }
@@ -118,7 +132,7 @@ public class JdbcUtil {
         String jdbcUrl = "jdbc:mysql://127.0.0.1:3306/boot";
         String username = "root";
         String password = "xiangwbs";
-        List<Map<String, Object>> dataList = queryRow(jdbcUrl, username, password, "SELECT * from sys_user_info");
+        List<Map<String, Object>> dataList = queryRow(jdbcUrl, username, password, "SELECT * from demo");
         List<Column> columnList = queryColumn(jdbcUrl, username, password, "sys_user_info");
         System.out.println("");
     }

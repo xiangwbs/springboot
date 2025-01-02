@@ -1,19 +1,14 @@
 package com.xwbing.service.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import cn.hutool.http.HttpUtil;
+import com.xwbing.service.exception.UtilException;
+import lombok.extern.slf4j.Slf4j;
+
+import java.io.*;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import com.xwbing.service.exception.UtilException;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author daofeng
@@ -23,12 +18,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FileUtil {
     public static InputStream urlToStream(String url) {
+//        InputStream inputStream = HttpUtil.createGet(url).execute().bodyStream();
         try (InputStream inputStream = new URL(url).openConnection().getInputStream()) {
             return inputStream;
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new UtilException("url转化为流错误");
         }
+    }
+
+    public static void main(String[] args) {
+        String body = HttpUtil.createGet("https://bot-oss-test.dingtax.cn/kbs-test/frontEnd/20241225/xx.txt").execute().body();
+        System.out.println("");
     }
 
     public static byte[] urlToByte(String url) {
