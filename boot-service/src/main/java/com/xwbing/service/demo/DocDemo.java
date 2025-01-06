@@ -18,7 +18,7 @@ import java.io.InputStream;
  * @since 2025年01月02日 14:24
  */
 @Slf4j
-public class WordDemo {
+public class DocDemo {
     public static void main(String[] args) throws Exception {
         FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政政策/43193|正文|规范性文件正文.doc");
         String richText = toRichText(inputStream);
@@ -84,7 +84,6 @@ public class WordDemo {
         }
         return document.body().html();
     }
-
 
     public static InputStream toPdf(InputStream inputStream) throws Exception {
         Document doc = new Document(inputStream);
