@@ -9,8 +9,8 @@ import org.jsoup.nodes.Element;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 /**
  * @author daofeng
@@ -88,8 +88,7 @@ public class DocDemo {
     public static InputStream toPdf(InputStream inputStream) throws Exception {
         Document doc = new Document(inputStream);
         File tmpFile = File.createTempFile("tmpFile", ".pdf");
-        FileOutputStream fos = new FileOutputStream(tmpFile);
-        doc.save(fos, SaveFormat.PDF);
+        doc.save(Files.newOutputStream(tmpFile.toPath()), SaveFormat.PDF);
         FileInputStream stream = IoUtil.toStream(tmpFile);
         if (tmpFile.exists()) {
             tmpFile.delete();
