@@ -71,6 +71,12 @@ public class WordDemo {
         for (Element element : document.getAllElements()) {
             // 去除所有样式
             element.removeAttr("style");
+//            // 去除定位样式
+//            String style = element.attr("style");
+//            if (style != null && style.contains("position")) {
+//                style = style.replaceAll("position\\s*:\\s*[^;]+;?", "");
+//                element.attr("style", style);
+//            }
             // 表格添加边框
             if (element.is("table")) {
                 element.attr("border", "1");
