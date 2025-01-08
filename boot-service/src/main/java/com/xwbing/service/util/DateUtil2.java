@@ -164,17 +164,17 @@ public class DateUtil2 {
     public static String dateStrToDateStr(String dateStr, String pattern) {
         DateTimeFormatter formatterTo = DateTimeFormatter.ofPattern(pattern);
         List<DateTimeFormatter> dateFormatterList = Arrays.asList(
-                DateTimeFormatter.ofPattern("yyyyMMdd"),
-                DateTimeFormatter.ofPattern("yyyy-M-d"),
-                DateTimeFormatter.ofPattern("yyyy/M/d"),
                 DateTimeFormatter.ofPattern("yyyy年M月d日"),
                 DateTimeFormatter.ofPattern("yyyy年M月d号"),
-                DateTimeFormatter.ofPattern("yyyyMM"),
-                DateTimeFormatter.ofPattern("yyyy-M"),
-                DateTimeFormatter.ofPattern("yyyy/M"),
+                DateTimeFormatter.ofPattern("yyyy-M-d"),
+                DateTimeFormatter.ofPattern("yyyyMMdd"),
+                DateTimeFormatter.ofPattern("yyyy/M/d"),
                 DateTimeFormatter.ofPattern("yyyy年M月"),
-                DateTimeFormatter.ofPattern("yyyy"),
-                DateTimeFormatter.ofPattern("yyyy年")
+                DateTimeFormatter.ofPattern("yyyy-M"),
+                DateTimeFormatter.ofPattern("yyyyMM"),
+                DateTimeFormatter.ofPattern("yyyy/M"),
+                DateTimeFormatter.ofPattern("yyyy年"),
+                DateTimeFormatter.ofPattern("yyyy")
         );
         List<DateTimeFormatter> timeFormatterList = Arrays.asList(
                 DateTimeFormatter.ofPattern("yyyy-M-d H:m:s"),
