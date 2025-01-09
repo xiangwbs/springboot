@@ -8,7 +8,6 @@ import java.util.Scanner;
  * 创建日期: 2017年2月16日 下午5:27:23
  * 作者: xiangwb
  */
-
 public class StringDemo {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -88,7 +87,7 @@ public class StringDemo {
          */
         System.out.println(String.format("xwbing %s", "项伟兵"));
         System.out.println(String.format("xwbing %02d", 1));
-        System.out.println(String.join("-","xiang","wb"));
+        System.out.println(String.join("-", "xiang", "wb"));
         System.out.println(MessageFormat.format("xwbing {0}", "项伟兵"));
         //努力拉到需要的位数
         System.out.println(new DecimalFormat("#####.###").format(11.23));
