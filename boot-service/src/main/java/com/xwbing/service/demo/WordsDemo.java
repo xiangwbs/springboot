@@ -18,9 +18,9 @@ import java.nio.file.Files;
  * @since 2025年01月02日 14:24
  */
 @Slf4j
-public class DocDemo {
+public class WordsDemo {
     public static void main(String[] args) throws Exception {
-        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政政策/43193|正文|规范性文件正文.doc");
+        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政政策/43193|附件|7.《关于印发〈杭州市政府采购正面清单和负面清单〉 进一步优化营商环境的通知》政策解读.docx");
         String richText = toRichText(inputStream);
         System.out.println(richText);
     }

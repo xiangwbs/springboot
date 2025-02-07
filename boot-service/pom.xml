@@ -308,6 +308,11 @@
             <artifactId>aspose-words</artifactId>
             <version>23.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.luhuiguo</groupId>
+            <artifactId>aspose-pdf</artifactId>
+            <version>23.1</version>
+        </dependency>
 
     </dependencies>
     <build>

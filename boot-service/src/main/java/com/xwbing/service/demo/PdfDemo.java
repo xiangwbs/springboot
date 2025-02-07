@@ -1,74 +1,64 @@
 package com.xwbing.service.demo;
 
-import com.itextpdf.html2pdf.ConverterProperties;
-import com.itextpdf.html2pdf.HtmlConverter;
-import com.itextpdf.kernel.font.PdfFont;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.font.FontProvider;
-import org.apache.pdfbox.Loader;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.text.PDFTextStripper;
+import cn.hutool.http.HtmlUtil;
+import com.aspose.pdf.Document;
+import com.aspose.pdf.HtmlSaveOptions;
+import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 /**
  * @author daofeng
  * @version $
- * @since 2024年07月04日 3:29 PM
+ * @since 2025年01月02日 14:24
  */
+@Slf4j
 public class PdfDemo {
-
-    public static void main(String[] args) throws IOException {
-        String sourceHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
-                "<html>\n" +
-                "<head>\n" +
-                "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n" +
-                "</head>\n" +
-                "<body screen_capture_injected=\"true\" ryt11773=\"1\">\n" +
-                "    <p>\n" +
-                "        <span style=\"font-size:12.0pt; font-family:MS Mincho\">長空</span> <span\n" +
-                "            style=\"font-size:12.0pt; font-family:Times New Roman,serif\">(Broken\n" +
-                "            Sword),</span> <span style=\"font-size:12.0pt; font-family:MS Mincho\">秦王殘劍</span>\n" +
-                "        <span style=\"font-size:12.0pt; font-family:Times New Roman,serif\">(Flying\n" +
-                "            Snow),</span> <span style=\"font-size:12.0pt; font-family:MS Mincho\">飛雪</span>\n" +
-                "        <span style=\"font-size:12.0pt; font-family:Times New Roman,serif\">(Moon),\n" +
-                "        </span> <span style=\"font-size:12.0pt; font-family:MS Mincho\">如月</span> <span\n" +
-                "            style=\"font-size:12.0pt; font-family:Times New Roman,serif\">(the\n" +
-                "            King), and</span> <span style=\"font-size:12.0pt; font-family:MS Mincho\">秦王</span>\n" +
-                "        <span style=\"font-size:12.0pt; font-family:Times New Roman,serif\">(Sky).</span>\n" +
-                "    </p>\n" +
-                "</body>\n" +
-                "</html>";
-        String destPdf = "output.pdf";
-//        convertHtmlToPdf(sourceHtml, destPdf);
-        loadPDF();
+    public static void main(String[] args) throws Exception {
+        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/6浙江省城市道路管理办法 （省政府令第404号）.pdf");
+        String richText = toRichText(inputStream);
+        System.out.println(richText);
     }
 
-    private static void loadPDF() throws IOException {
-        File file = new File("/Users/xwbing/Documents/work/孚嘉/生态集成技术白皮书.pdf");
-        PDDocument document = Loader.loadPDF(file);
-        PDFTextStripper pdfStripper = new PDFTextStripper();
-        String text = pdfStripper.getText(document);
-        System.out.println("");
-
-
-    }
-    private static void convertHtmlToPdf(String htmlContent, String destPath) {
-        try (FileOutputStream outputStream = new FileOutputStream(destPath)) {
-            PdfWriter writer = new PdfWriter(outputStream);
-            PdfDocument pdf = new PdfDocument(writer);
-            ConverterProperties converterProperties = new ConverterProperties();
-            FontProvider fontProvider = new FontProvider();
-            PdfFont sysFont = PdfFontFactory.createFont("STSongStd-Light", "UniGB-UCS2-H");
-            fontProvider.addFont(sysFont.getFontProgram(), "UniGB-UCS2-H");
-            converterProperties.setFontProvider(fontProvider);
-            HtmlConverter.convertToPdf(htmlContent, pdf, converterProperties);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static String toHtml(InputStream inputStream) throws Exception {
+        Document doc = new Document(inputStream);
+        // doc转为html
+        HtmlSaveOptions options = new HtmlSaveOptions();
+        options.setSplitIntoPages(false);
+        options.setPartsEmbeddingMode(HtmlSaveOptions.PartsEmbeddingModes.EmbedAllIntoHtml);
+        options.setRasterImagesSavingMode(HtmlSaveOptions.RasterImagesSavingModes.AsEmbeddedPartsOfPngPageBackground);
+        File tmpFile = File.createTempFile("tmpPdf", ".html");
+        doc.save(tmpFile.getPath(), options);
+        String html = Jsoup.parse(tmpFile, "utf-8").body().html();
+        if (tmpFile.exists()) {
+            tmpFile.delete();
         }
+        return html;
+    }
+
+    public static String toRichText(InputStream inputStream) throws Exception {
+        String html = toHtml(inputStream);
+        // 去除a标签不包括内容
+        html = HtmlUtil.unwrapHtmlTag(html, "a");
+        org.jsoup.nodes.Document document = Jsoup.parse(html);
+        for (Element element : document.getAllElements()) {
+            // 去除所有样式
+            element.removeAttr("style");
+//            // 去除定位样式
+//            String style = element.attr("style");
+//            if (style != null && style.contains("position")) {
+//                style = style.replaceAll("position\\s*:\\s*[^;]+;?", "");
+//                element.attr("style", style);
+//            }
+            // 表格添加边框
+            if (element.is("table")) {
+                element.attr("border", "1");
+            }
+        }
+        return document.body().html();
     }
 }
