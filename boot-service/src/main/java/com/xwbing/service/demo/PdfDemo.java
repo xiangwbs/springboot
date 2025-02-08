@@ -19,7 +19,7 @@ import java.io.InputStream;
 @Slf4j
 public class PdfDemo {
     public static void main(String[] args) throws Exception {
-        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/6浙江省城市道路管理办法 （省政府令第404号）.pdf");
+        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/24关于印发《杭州市变电站“入公建”实施细则（试行）》的通知（杭电网建〔2020〕1 号）.pdf");
         String richText = toRichText(inputStream);
         System.out.println(richText);
     }
@@ -31,6 +31,7 @@ public class PdfDemo {
         options.setSplitIntoPages(false);
         options.setPartsEmbeddingMode(HtmlSaveOptions.PartsEmbeddingModes.EmbedAllIntoHtml);
         options.setRasterImagesSavingMode(HtmlSaveOptions.RasterImagesSavingModes.AsEmbeddedPartsOfPngPageBackground);
+        options.setFontSavingMode(HtmlSaveOptions.FontSavingModes.SaveInAllFormats);
         File tmpFile = File.createTempFile("tmpPdf", ".html");
         doc.save(tmpFile.getPath(), options);
         String html = Jsoup.parse(tmpFile, "utf-8").body().html();
