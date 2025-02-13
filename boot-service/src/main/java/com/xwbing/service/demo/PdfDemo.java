@@ -1,6 +1,7 @@
 package com.xwbing.service.demo;
 
 import cn.hutool.http.HtmlUtil;
+import com.aspose.pdf.DocSaveOptions;
 import com.aspose.pdf.Document;
 import com.aspose.pdf.HtmlSaveOptions;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +20,18 @@ import java.io.InputStream;
 @Slf4j
 public class PdfDemo {
     public static void main(String[] args) throws Exception {
-        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/24关于印发《杭州市变电站“入公建”实施细则（试行）》的通知（杭电网建〔2020〕1 号）.pdf");
-        String richText = toRichText(inputStream);
-        System.out.println(richText);
+        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政内存溢出pdf/关于印发杭州市全面深化服务贸易创新发展试点任务明细表的通知.pdf");
+//        String richText = toRichText(inputStream);
+//        System.out.println(richText);
+        toDoc(inputStream);
+        System.out.println("");
+    }
+
+    public static void toDoc(InputStream inputStream) {
+        Document doc = new Document(inputStream);
+        DocSaveOptions docSaveOptions = new DocSaveOptions();
+        docSaveOptions.setFormat(DocSaveOptions.DocFormat.Doc);
+        doc.save("/Users/xwbing/Downloads/财政内存溢出pdf/out.doc", docSaveOptions);
     }
 
     public static String toHtml(InputStream inputStream) throws Exception {

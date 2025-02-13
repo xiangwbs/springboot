@@ -239,23 +239,6 @@
             <version>2.11.0</version>
         </dependency>
 
-        <!-- pdf -->
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itext7-core</artifactId>
-            <version>8.0.4</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>html2pdf</artifactId>
-            <version>5.0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>font-asian</artifactId>
-            <version>8.0.4</version>
-        </dependency>
         <!-- 爬虫-->
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
@@ -313,6 +296,12 @@
             <artifactId>aspose-pdf</artifactId>
             <version>23.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.ofdrw</groupId>
+            <artifactId>ofdrw-full</artifactId>
+            <version>1.17.18</version>
+        </dependency>
+
 
     </dependencies>
     <build>

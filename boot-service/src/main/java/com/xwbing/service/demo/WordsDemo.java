@@ -7,10 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
+import java.util.Base64;
 
 /**
  * @author daofeng
@@ -20,7 +19,7 @@ import java.nio.file.Files;
 @Slf4j
 public class WordsDemo {
     public static void main(String[] args) throws Exception {
-        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政政策/43193|附件|7.《关于印发〈杭州市政府采购正面清单和负面清单〉 进一步优化营商环境的通知》政策解读.docx");
+        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政内存溢出pdf/out.doc");
         String richText = toRichText(inputStream);
         System.out.println(richText);
     }
@@ -80,6 +79,23 @@ public class WordsDemo {
             // 表格添加边框
             if (element.is("table")) {
                 element.attr("border", "1");
+            }
+            //图片处理
+            if (element.is("img")) {
+                String src = element.attr("src");
+                if (src.startsWith("data:image/")) {
+                    String[] parts = src.split(",", 2);
+                    if (parts.length != 2) {
+                        continue;
+                    }
+                    // 获取图片类型
+                    String imageSuffix = parts[0].split("/")[1].split(";")[0];
+                    // 获取Base64编码的图片数据
+                    byte[] imageBytes = Base64.getDecoder().decode(parts[1]);
+                    // 图片上传
+                    ByteArrayInputStream stream = IoUtil.toStream(imageBytes);
+//                    element.attr("src", ossUrl);
+                }
             }
         }
         return document.body().html();
