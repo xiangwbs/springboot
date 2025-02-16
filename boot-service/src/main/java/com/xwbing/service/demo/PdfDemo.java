@@ -1,16 +1,32 @@
 package com.xwbing.service.demo;
 
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.http.HtmlUtil;
 import com.aspose.pdf.DocSaveOptions;
 import com.aspose.pdf.Document;
 import com.aspose.pdf.HtmlSaveOptions;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDResources;
+import org.apache.pdfbox.pdmodel.graphics.PDXObject;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.text.PDFTextStripperByArea;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
+import technology.tabula.ObjectExtractor;
+import technology.tabula.Page;
+import technology.tabula.Table;
+import technology.tabula.extractors.SpreadsheetExtractionAlgorithm;
 
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author daofeng
@@ -19,6 +35,42 @@ import java.io.InputStream;
  */
 @Slf4j
 public class PdfDemo {
+
+    public static void pdfbox(InputStream inputStream) throws Exception {
+        PDDocument doc = PDDocument.load(IoUtil.readBytes(inputStream));
+        ObjectExtractor extractor = new ObjectExtractor(doc);
+        SpreadsheetExtractionAlgorithm tableExtractor = new SpreadsheetExtractionAlgorithm();
+        for (int pageNum = 0; pageNum < doc.getNumberOfPages(); pageNum++) {
+            PDPage page = doc.getPage(pageNum);
+            PDResources resources = page.getResources();
+            // 遍历页面中的所有 XObject
+            for (COSName xObjectName : resources.getXObjectNames()) {
+                PDXObject xObject = resources.getXObject(xObjectName);
+                // 检查 XObject 是否为图像
+                if (xObject instanceof PDImageXObject) {
+                    PDImageXObject image = (PDImageXObject) xObject;
+                    // 生成图像文件名
+                    String imageFileName = "image_page_" + (pageNum + 1) + "_" + xObjectName.getName() + ".png";
+                    // 保存图像到文件
+                }
+            }
+
+            Page page = extractor.extract(pageNum);
+            List<Table> tables = tableExtractor.extract(page);
+            Map<Rectangle2D, Table> tableAreas = new LinkedHashMap<>();
+            for (Table table : tables) {
+                Rectangle2D area = table.getBounds();
+                tableAreas.put(area, table);
+            }
+            PDFTextStripperByArea textStripper = new PDFTextStripperByArea();
+            textStripper.setSortByPosition(true);
+            for (Rectangle2D area : tableAreas.keySet()) {
+                textStripper.addRegion("exclude_" + area.hashCode(), area);
+            }
+            textStripper.extractRegions(doc.getPage(pageNum));
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政内存溢出pdf/关于印发杭州市全面深化服务贸易创新发展试点任务明细表的通知.pdf");
 //        String richText = toRichText(inputStream);
@@ -30,8 +82,9 @@ public class PdfDemo {
     public static void toDoc(InputStream inputStream) {
         Document doc = new Document(inputStream);
         DocSaveOptions docSaveOptions = new DocSaveOptions();
-        docSaveOptions.setFormat(DocSaveOptions.DocFormat.Doc);
-        doc.save("/Users/xwbing/Downloads/财政内存溢出pdf/out.doc", docSaveOptions);
+        docSaveOptions.setFormat(DocSaveOptions.DocFormat.DocX);
+        docSaveOptions.setMode(DocSaveOptions.RecognitionMode.Flow);
+        doc.save("/Users/xwbing/Downloads/财政内存溢出pdf/out.docx", docSaveOptions);
     }
 
     public static String toHtml(InputStream inputStream) throws Exception {
@@ -59,12 +112,6 @@ public class PdfDemo {
         for (Element element : document.getAllElements()) {
             // 去除所有样式
             element.removeAttr("style");
-//            // 去除定位样式
-//            String style = element.attr("style");
-//            if (style != null && style.contains("position")) {
-//                style = style.replaceAll("position\\s*:\\s*[^;]+;?", "");
-//                element.attr("style", style);
-//            }
             // 表格添加边框
             if (element.is("table")) {
                 element.attr("border", "1");

@@ -17,9 +17,9 @@ import java.util.Base64;
  * @since 2025年01月02日 14:24
  */
 @Slf4j
-public class WordsDemo {
+public class WordDemo {
     public static void main(String[] args) throws Exception {
-        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政内存溢出pdf/out.doc");
+        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政内存溢出pdf/out.docx");
         String richText = toRichText(inputStream);
         System.out.println(richText);
     }
