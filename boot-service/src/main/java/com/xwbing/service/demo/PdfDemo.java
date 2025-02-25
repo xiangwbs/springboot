@@ -1,21 +1,12 @@
 package com.xwbing.service.demo;
 
-import cn.hutool.core.io.IoUtil;
 import cn.hutool.http.HtmlUtil;
 import com.aspose.pdf.DocSaveOptions;
 import com.aspose.pdf.Document;
 import com.aspose.pdf.HtmlSaveOptions;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.pdfbox.cos.COSName;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDResources;
-import org.apache.pdfbox.pdmodel.graphics.PDXObject;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
-import technology.tabula.ObjectExtractor;
-import technology.tabula.extractors.SpreadsheetExtractionAlgorithm;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,31 +21,37 @@ import java.io.InputStream;
 public class PdfDemo {
     public static void main(String[] args) throws Exception {
         FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政内存溢出pdf/带表格.pdf");
-//        String richText = toRichText(inputStream);
-//        System.out.println(richText);
+        String richText = toRichText(inputStream);
+        System.out.println(richText);
 //        toDoc(inputStream);
-        pdfbox(inputStream);
+//        pdfbox(inputStream);
         System.out.println("");
     }
 
     public static void pdfbox(InputStream inputStream) throws Exception {
-        PDDocument doc = PDDocument.load(IoUtil.readBytes(inputStream));
-        ObjectExtractor extractor = new ObjectExtractor(doc);
-        SpreadsheetExtractionAlgorithm tableExtractor = new SpreadsheetExtractionAlgorithm();
-        for (int pageNum = 0; pageNum < doc.getNumberOfPages(); pageNum++) {
-            PDPage page = doc.getPage(pageNum);
-            PDResources resources = page.getResources();
-            // 遍历页面中的所有 XObject
-            for (COSName xObjectName : resources.getXObjectNames()) {
-                PDXObject xObject = resources.getXObject(xObjectName);
-                System.out.println("");
-                // 检查 XObject 是否为图像
-                if (xObject instanceof PDImageXObject) {
-                    PDImageXObject image = (PDImageXObject) xObject;
-                    System.out.println("");
-                }
-            }
-        }
+//        PDDocument doc = PDDocument.load(IoUtil.readBytes(inputStream));
+//        ObjectExtractor extractor = new ObjectExtractor(doc);
+//        SpreadsheetExtractionAlgorithm tableExtractor = new SpreadsheetExtractionAlgorithm();
+//        PDFTextStripper stripper = new PDFTextStripper();
+//        int pages = doc.getNumberOfPages();
+//        for (int pageNum = 1; pageNum < pages; pageNum++) {
+//            PDPage page = doc.getPage(pageNum);
+//            PDResources resources = page.getResources();
+//            stripper.setStartPage(pageNum);
+//            stripper.setEndPage(pageNum);
+//            String text = stripper.getText(doc);
+//            System.out.println("");
+//            // 遍历页面中的所有 XObject
+//            for (COSName xObjectName : resources.getXObjectNames()) {
+//                PDXObject xObject = resources.getXObject(xObjectName);
+//                System.out.println("");
+//                // 检查 XObject 是否为图像
+//                if (xObject instanceof PDImageXObject) {
+//                    PDImageXObject image = (PDImageXObject) xObject;
+//                    System.out.println("");
+//                }
+//            }
+//        }
     }
 
     public static void toDoc(InputStream inputStream) {
