@@ -287,9 +287,9 @@ public class EsHelper {
         try {
             log.info("elasticsearch search dsl:{}", source);
             SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
-            log.info("elasticsearch search response:{}", response.toString());
-            log.info("elasticsearch search took {}ms", response.getTook().getMillis());
-//            ParsedTerms issueDeptTerms = response.getAggregations().get("issueDeptCount");
+            log.info("elasticsearch search response:{} took {}ms", response.toString(), response.getTook().getMillis());
+//            Aggregations aggregations = response.getAggregations();
+//            Terms issueDeptTerms = aggregations.get("issueDeptCount");
 //            issueDeptTerms.getBuckets().stream()
 //                    .map(bucket -> {
 //                        String keyAsString = bucket.getKeyAsString();
