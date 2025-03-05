@@ -277,12 +277,21 @@ public class EsHelper {
         if (ObjectUtils.isNotEmpty(sorts)) {
             Arrays.stream(sorts).forEach(source::sort);
         }
+//        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms("issueDeptCount").field("issueDept").size(1000);
+//        source.aggregation(termsAggregationBuilder);
         request.source(source);
         try {
-            log.info("elasticsearch search dsl:{}", source.toString());
+            log.info("elasticsearch search dsl:{}", source);
             SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
             log.info("elasticsearch search response:{}", response.toString());
             log.info("elasticsearch search took {}ms", response.getTook().getMillis());
+//            ParsedTerms issueDeptTerms = response.getAggregations().get("issueDeptCount");
+//            issueDeptTerms.getBuckets().stream()
+//                    .map(bucket -> {
+//                        String keyAsString = bucket.getKeyAsString();
+//                        long docCount = bucket.getDocCount();
+//                        return null;
+//                    }).collect(Collectors.toList());
             SearchHits hits = response.getHits();
             List<T> collect = Arrays.stream(hits.getHits())
                     // .map(i -> Jackson.build().readValue(i.getSourceAsString(), clazz)
