@@ -34,7 +34,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.bucket.terms.ParsedTerms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
@@ -290,7 +289,7 @@ public class EsHelper {
             SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
             log.info("elasticsearch search response:{}", response.toString());
             log.info("elasticsearch search took {}ms", response.getTook().getMillis());
-            ParsedTerms issueDeptTerms = response.getAggregations().get("issueDeptCount");
+//            ParsedTerms issueDeptTerms = response.getAggregations().get("issueDeptCount");
 //            issueDeptTerms.getBuckets().stream()
 //                    .map(bucket -> {
 //                        String keyAsString = bucket.getKeyAsString();
