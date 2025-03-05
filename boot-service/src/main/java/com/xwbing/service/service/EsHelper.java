@@ -277,20 +277,20 @@ public class EsHelper {
         if (ObjectUtils.isNotEmpty(sorts)) {
             Arrays.stream(sorts).forEach(source::sort);
         }
-//        TermsAggregationBuilder issueAgg = AggregationBuilders.
+//        TermsAggregationBuilder issueTermsAgg = AggregationBuilders.
 //                terms("issueDeptCount")
 //                .field("issueDept")
 //                .size(1000)
 //                .subAggregation(AggregationBuilders.sum("operationStatus.code").field("operationStatusSum"));
-//        source.aggregation(issueAgg);
+//        source.aggregation(issueTermsAgg);
         request.source(source);
         try {
             log.info("elasticsearch search dsl:{}", source);
             SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
             log.info("elasticsearch search response:{} took {}ms", response.toString(), response.getTook().getMillis());
 //            Aggregations aggregations = response.getAggregations();
-//            Terms issueDeptTerms = aggregations.get("issueDeptCount");
-//            issueDeptTerms.getBuckets().stream()
+//            Terms issueTerms = aggregations.get("issueDeptCount");
+//            issueTerms.getBuckets().stream()
 //                    .map(bucket -> {
 //                        String keyAsString = bucket.getKeyAsString();
 //                        long docCount = bucket.getDocCount();
