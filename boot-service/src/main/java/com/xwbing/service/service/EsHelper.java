@@ -277,12 +277,12 @@ public class EsHelper {
         if (ObjectUtils.isNotEmpty(sorts)) {
             Arrays.stream(sorts).forEach(source::sort);
         }
-//        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.
+//        TermsAggregationBuilder issueAgg = AggregationBuilders.
 //                terms("issueDeptCount")
 //                .field("issueDept")
 //                .size(1000)
 //                .subAggregation(AggregationBuilders.sum("operationStatus.code").field("operationStatusSum"));
-//        source.aggregation(termsAggregationBuilder);
+//        source.aggregation(issueAgg);
         request.source(source);
         try {
             log.info("elasticsearch search dsl:{}", source);
