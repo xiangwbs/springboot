@@ -34,6 +34,8 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
@@ -244,6 +246,23 @@ public class EsHelper {
         return Math.toIntExact(response.getCount());
     }
 
+    public Aggregations agg(String index, QueryBuilder query, List<AggregationBuilder> aggList) {
+        SearchRequest request = new SearchRequest(index);
+        SearchSourceBuilder source = new SearchSourceBuilder();
+        source.query(query);
+        source.size(0);
+        source.from(0);
+        source.timeout(new TimeValue(3, TimeUnit.SECONDS));
+        aggList.forEach(source::aggregation);
+        request.source(source);
+        try {
+            SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
+            return response.getAggregations();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     /**
      * @param query 搜索条件
      * @param highlight 高亮条件
@@ -277,27 +296,11 @@ public class EsHelper {
         if (ObjectUtils.isNotEmpty(sorts)) {
             Arrays.stream(sorts).forEach(source::sort);
         }
-//        TermsAggregationBuilder issueTermsAgg = AggregationBuilders.
-//                terms("issueDeptCount")
-//                .field("issueDept")
-//                .size(1000)
-//                .subAggregation(AggregationBuilders.sum("operationStatus.code").field("operationStatusSum"));
-//        source.aggregation(issueTermsAgg);
         request.source(source);
         try {
             log.info("elasticsearch search dsl:{}", source);
             SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
             log.info("elasticsearch search response:{} took {}ms", response.toString(), response.getTook().getMillis());
-//            Aggregations aggregations = response.getAggregations();
-//            Terms issueTerms = aggregations.get("issueDeptCount");
-//            issueTerms.getBuckets().stream()
-//                    .map(bucket -> {
-//                        String keyAsString = bucket.getKeyAsString();
-//                        long docCount = bucket.getDocCount();
-//                        Sum operationStatusSum = bucket.getAggregations().get("operationStatusSum");
-//                        long l = new Double(operationStatusSum.getValue()).longValue();
-//                        return null;
-//                    }).collect(Collectors.toList());
             SearchHits hits = response.getHits();
             List<T> collect = Arrays.stream(hits.getHits())
                     // .map(i -> Jackson.build().readValue(i.getSourceAsString(), clazz)

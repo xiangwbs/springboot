@@ -21,12 +21,18 @@ import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
 import org.elasticsearch.index.query.functionscore.ScriptScoreFunctionBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -89,6 +95,25 @@ public class ArticleEsService {
 //        SortBuilder[] sorts = { SortBuilders.fieldSort("_score").order(SortOrder.DESC) };
         SortBuilder[] sorts = {SortBuilders.scoreSort()};
         return esHelper.search(functionScore, highlight, sorts, 1, 10, null, null, ArticleEsVO.class, INDEX);
+    }
+
+    public void agg(ArticleEsDTO dto) {
+        BoolQueryBuilder bool = this.bool(dto);
+        TermsAggregationBuilder issueTermsAgg = AggregationBuilders.
+                terms("issueDeptGroup")
+                .field("issueDept")
+                .size(1000)
+                .subAggregation(AggregationBuilders.sum("operationStatus.code").field("operationStatusSum"));
+        Aggregations aggregations = esHelper.agg(INDEX, bool, Collections.singletonList(issueTermsAgg));
+        Terms issueTerms = aggregations.get("issueDeptGroup");
+        issueTerms.getBuckets().stream()
+                .map(bucket -> {
+                    String issueDept = bucket.getKeyAsString();
+                    long count = bucket.getDocCount();
+                    Sum operationStatusSum = bucket.getAggregations().get("operationStatusSum");
+                    long sum = new Double(operationStatusSum.getValue()).longValue();
+                    return null;
+                }).collect(Collectors.toList());
     }
 
     private HighlightBuilder highlight() {
