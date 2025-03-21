@@ -16,6 +16,7 @@ public class SignDemo {
     public static void auth() {
         String appKey = "";
         String appSecret = "";
+        // 若要简化流程，appToken可以省略
         String appToken = "";
         long timestamp = System.currentTimeMillis();
         String sign = DigestUtil.md5Hex(appKey + appSecret + appToken + timestamp);
