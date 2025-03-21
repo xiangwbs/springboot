@@ -3,6 +3,7 @@ package com.xwbing.service.demo.sql;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.relational.Between;
 import net.sf.jsqlparser.expression.operators.relational.ComparisonOperator;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
@@ -28,7 +29,23 @@ import java.util.stream.Collectors;
  */
 public class SqlParserDemo {
     public static void main(String[] args) throws Exception {
-        base("select distinct r.name,count(a.id) from ROLE r left join AUTHORITY a on(r.id=a.roleId) where r.id in(1000,1001) group by r.id having count(a.id)>10 order by r.creationDate desc limit 10");
+        String s = "SELECT * from sys_user_info union all select * from sys_user_info union all select * from sys_user_info";
+        Statement statement = CCJSqlParserUtil.parse(s);
+        if (statement instanceof PlainSelect) {
+            PlainSelect statement1 = (PlainSelect) statement;
+        } else if (statement instanceof SetOperationList) {
+            SetOperationList statement1 = (SetOperationList) statement;
+            statement1.getSelects().forEach(select -> {
+                PlainSelect select1 = (PlainSelect) select;
+                Limit limit = new Limit();
+                limit.setRowCount(new LongValue(1000));
+                select1.setLimit(limit);
+                System.out.println("");
+            });
+            System.out.println("");
+        }
+        System.out.println("");
+//        base("select distinct r.name,count(a.id) from ROLE r left join AUTHORITY a on(r.id=a.roleId) where r.id in(1000,1001) group by r.id having count(a.id)>10 order by r.creationDate desc limit 10");
 //        formatDate("select region from region_data where date is not null and date!='2023' and (date in('2023','2024') and date between '2023' and '2024')");
         System.out.println("");
     }

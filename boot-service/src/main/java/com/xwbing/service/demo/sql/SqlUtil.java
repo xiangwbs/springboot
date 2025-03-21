@@ -179,7 +179,7 @@ public class SqlUtil {
             } else {
                 // 映射涉及计算列的字段类型
                 String expressionStr = expression.toString();
-                String key = Optional.ofNullable(selectItem.getAlias()).map(Alias::getName).orElse(expressionStr);
+                String key = Optional.ofNullable(selectItem.getAlias()).map(Alias::getName).map(alias -> alias.replaceAll("[`\"']", "")).orElse(expressionStr);
                 fieldList.stream().filter(chatBiFieldVO -> expressionStr.contains(chatBiFieldVO.getCode())).findFirst().ifPresent(matchField -> functionDataTypeMap.put(key, matchField.getDataType()));
                 // 汇总查询列
                 selectFieldList.add(key);
@@ -258,12 +258,21 @@ public class SqlUtil {
 //        List<String> fieldList = SqlUtil.listField("select region from region_data where date is not null and date!='2023' and (code in('2023','2024') and age between '10' and '20') group by code order by id desc");
 //        String addColumnSql = SqlUtil.addColumn("select name,age from user where id=1", "sex");
         SqlFieldVO sqlField = new SqlFieldVO();
-        sqlField.setCode("a");
-        sqlField.setName("我是a");
+        sqlField.setCode("disposal_destination");
+        sqlField.setName("消纳点");
         SqlFieldVO sqlField1 = new SqlFieldVO();
-        sqlField1.setCode("b");
-        sqlField1.setName("我是b");
-        SqlUtil.dealSql("表", "select a as `第一`,b from table1 where a=1 and b=1 group by `第一` having `第一`>0 order by `第一` limit 10", ListUtil.toList(sqlField, sqlField1), false);
+        sqlField1.setCode("allocation_volume");
+        sqlField1.setName("调拨量");
+        SqlFieldVO sqlField2 = new SqlFieldVO();
+        sqlField2.setCode("allocation_date");
+        sqlField2.setName("月份");
+        SqlUtil.dealSql("表", "SELECT \n" +
+                "    DATE_FORMAT(allocation_date, '%Y-%m') AS '月份',\n" +
+                "    disposal_destination AS '消纳点',\n" +
+                "    allocation_volume AS '调拨量'\n" +
+                "FROM sj_allocation\n" +
+                "WHERE project_name = '杭政储出（2024）43号地块项目-05地块' AND YEAR(allocation_date) = 2025\n" +
+                "GROUP BY month(allocation_date), disposal_destination;", ListUtil.toList(sqlField, sqlField1,sqlField2), false);
         System.out.println("");
     }
 }
