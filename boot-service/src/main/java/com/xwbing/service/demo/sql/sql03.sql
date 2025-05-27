@@ -95,7 +95,8 @@ WHERE中不允许使用聚合函数作为过滤条件,原因在于过滤时机�
 HAVING子句:HAVING必须跟在 GROUP BY 子句之后,可以使用聚合函数、GROUPBY指定的列名作为过滤条件。使之可以对分组进行过滤,将满足条件的分组保留,不满足的去掉
 SELECT AVG(sal),deptno FROM emp_xwbing GROUP BY deptno HAVING AVG(sal)>2000;
 
-
+id用逗号隔开
+select GROUP_CONCAT(id) from kbs_file where IS_DELETED =0;
 
 
 

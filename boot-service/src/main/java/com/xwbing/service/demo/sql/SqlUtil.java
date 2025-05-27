@@ -6,8 +6,11 @@ import com.github.vertical_blank.sqlformatter.core.FormatConfig;
 import com.github.vertical_blank.sqlformatter.languages.Dialect;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.*;
+import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
+import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
@@ -174,12 +177,27 @@ public class SqlUtil {
                 if (alias != null) {
                     columnAliasMap.put(alias.getName(), column.getColumnName());
                 }
+                String key = column.getColumnName().replaceAll("[`\"']", "");
                 // 汇总查询字段
-                selectFieldList.add(column.getColumnName());
-            } else {
+                selectFieldList.add(key);
+            } else{
                 // 映射涉及计算列的字段类型
                 String expressionStr = expression.toString();
                 String key = Optional.ofNullable(selectItem.getAlias()).map(Alias::getName).map(alias -> alias.replaceAll("[`\"']", "")).orElse(expressionStr);
+                if (expression instanceof Parenthesis) {
+                    Parenthesis parenthesis = (Parenthesis) expression;
+                    expression = parenthesis.getExpression();
+                }
+                if (expression instanceof Function) {
+                    Function function = (Function) expression;
+                    ExpressionList<?> parameters = function.getParameters();
+                    String name = function.getName();
+                    System.out.println("");
+                } else if (expression instanceof Addition||expression instanceof Subtraction) {
+
+
+                    System.out.println("");
+                }
                 fieldList.stream().filter(chatBiFieldVO -> expressionStr.contains(chatBiFieldVO.getCode())).findFirst().ifPresent(matchField -> functionDataTypeMap.put(key, matchField.getDataType()));
                 // 汇总查询列
                 selectFieldList.add(key);
@@ -258,21 +276,16 @@ public class SqlUtil {
 //        List<String> fieldList = SqlUtil.listField("select region from region_data where date is not null and date!='2023' and (code in('2023','2024') and age between '10' and '20') group by code order by id desc");
 //        String addColumnSql = SqlUtil.addColumn("select name,age from user where id=1", "sex");
         SqlFieldVO sqlField = new SqlFieldVO();
-        sqlField.setCode("disposal_destination");
+        sqlField.setCode("primary_industry");
         sqlField.setName("消纳点");
         SqlFieldVO sqlField1 = new SqlFieldVO();
-        sqlField1.setCode("allocation_volume");
+        sqlField1.setCode("gdp");
         sqlField1.setName("调拨量");
         SqlFieldVO sqlField2 = new SqlFieldVO();
         sqlField2.setCode("allocation_date");
         sqlField2.setName("月份");
-        SqlUtil.dealSql("表", "SELECT \n" +
-                "    DATE_FORMAT(allocation_date, '%Y-%m') AS '月份',\n" +
-                "    disposal_destination AS '消纳点',\n" +
-                "    allocation_volume AS '调拨量'\n" +
-                "FROM sj_allocation\n" +
-                "WHERE project_name = '杭政储出（2024）43号地块项目-05地块' AND YEAR(allocation_date) = 2025\n" +
-                "GROUP BY month(allocation_date), disposal_destination;", ListUtil.toList(sqlField, sqlField1,sqlField2), false);
+        SqlUtil.dealSql("表", "select region, statistics_date, (primary_industry + gdp) as total_value from bot_chat_bi_economic where statistics_date = 20211231 and region in ('杭州市', '宁波市', '温州市', '嘉兴市', '湖州市', '绍兴市', '金华市', '衢州市', '舟山市', '台州市', '丽水市') limit 1000", ListUtil.toList(sqlField, sqlField1,sqlField2), false);
+//        SqlUtil.dealSql("表", "select id-request_id-aa from bot_chat_response where request_id=18763458;", ListUtil.toList(sqlField, sqlField1,sqlField2), false);
         System.out.println("");
     }
 }
