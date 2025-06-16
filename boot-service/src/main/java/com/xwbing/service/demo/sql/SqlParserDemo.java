@@ -29,8 +29,16 @@ import java.util.stream.Collectors;
  */
 public class SqlParserDemo {
     public static void main(String[] args) throws Exception {
-        String s = "SELECT * from sys_user_info union all select * from sys_user_info union all select * from sys_user_info";
+//        String s = "SELECT * from sys_user_info union all select * from sys_user_info union all select * from sys_user_info";
+        String s = "SELECT a.name,b.aid from tablea a right join tableb b on(a.id=b.aid) where a.name=1";
         Statement statement = CCJSqlParserUtil.parse(s);
+        PlainSelect selectt = (PlainSelect) statement;
+        FromItem fromItem = selectt.getFromItem();
+        List<Join> joins = selectt.getJoins();
+        joins.forEach(join -> {
+            FromItem fromItem1 = join.getRightItem();
+        });
+        Set<String> tables = new TablesNamesFinder().getTables(statement);
         if (statement instanceof PlainSelect) {
             PlainSelect statement1 = (PlainSelect) statement;
         } else if (statement instanceof SetOperationList) {
