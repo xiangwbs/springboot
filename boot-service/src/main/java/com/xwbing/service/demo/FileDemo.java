@@ -1,8 +1,15 @@
 package com.xwbing.service.demo;
 
+import cn.hutool.core.codec.Base64Encoder;
+import cn.hutool.core.img.Img;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 
 /**
  * 说明: java.io.File File的每一个实例可以表示文件系统中的一个文件或目录 使用file可以：
@@ -82,5 +90,62 @@ public class FileDemo {
         String filePath = IODemo.class.getClassLoader().getResource("/redis.properties").getPath();
         InputStream in = IODemo.class.getResourceAsStream("/data/zjPublishJdZb.json");
         String treeStr = new String(IoUtil.readBytes(in), StandardCharsets.UTF_8);
+    }
+
+
+    public String zjxfAddFile(String url) {
+        File tmpFile;
+        try {
+            String suffix = url.substring(url.lastIndexOf("."));
+            tmpFile = File.createTempFile("zjxf119pic", suffix);
+            HttpUtil.downloadFile(url, tmpFile);
+            HashMap<String, Object> paramMap = new HashMap<>();
+            paramMap.put("imgsfile", tmpFile);
+            String result = HttpUtil.post("", paramMap);
+            if (tmpFile.exists()) {
+                tmpFile.delete();
+            }
+            JSONObject resultObj = JSONUtil.parseObj(result);
+            Boolean success = resultObj.getBool("success", false);
+            if (!success) {
+                return null;
+            }
+            return resultObj.getStr("data");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String zjxfUploadBase64Byte(byte[] imageBytes) {
+        try {
+            HashMap<String, Object> paramMap = new HashMap<>();
+            byte[] processedImageBytes = imageBytes;
+            if (imageBytes.length > 1024 * 1024) {
+                // 压缩
+                try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                    Img.from(IoUtil.toStream(imageBytes)).setQuality(0.8f).write(out);
+                    processedImageBytes = out.toByteArray();
+                    if (processedImageBytes.length >= imageBytes.length) {
+                        processedImageBytes = imageBytes;
+                    }
+                } catch (Exception e) {
+                    processedImageBytes = imageBytes;
+                }
+            }
+            paramMap.put("base64Code", "data:image/jpeg;base64," + Base64Encoder.encode(processedImageBytes));
+            String result = HttpRequest
+                    .post("")
+                    .form(paramMap)
+                    .execute()
+                    .body();
+            JSONObject resultObj = JSONUtil.parseObj(result);
+            Boolean success = resultObj.getBool("success", false);
+            if (!success) {
+                return null;
+            }
+            return resultObj.getStr("data");
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
