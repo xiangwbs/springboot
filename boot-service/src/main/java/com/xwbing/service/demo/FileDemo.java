@@ -2,16 +2,17 @@ package com.xwbing.service.demo;
 
 import cn.hutool.core.codec.Base64Encoder;
 import cn.hutool.core.img.Img;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -27,7 +28,19 @@ import java.util.HashMap;
  */
 
 public class FileDemo {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
+        byte[] processedImageBytes;
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Img.from(FileUtil.file("/Users/xwbing/Downloads/1245.png"))
+                    .setQuality(0.8)//压缩比率
+                    .write(FileUtil.file("/Users/xwbing/Downloads/1245632.jpg"));
+            processedImageBytes = out.toByteArray();
+            System.out.println("");
+//            zjxfUploadBase64Byte(processedImageBytes);
+        } catch (Exception e) {
+        }
+
+
         Path basedir = FileSystems.getDefault().getPath("/tmp");//文件夹必须存在存在，否则报错
         Path tempFileNamePath = Files.createTempFile(basedir, "boot", ".txt");//创建随机文件名
 
@@ -116,14 +129,18 @@ public class FileDemo {
         }
     }
 
-    public String zjxfUploadBase64Byte(byte[] imageBytes) {
+    public static JSONObject zjxfUploadBase64Byte(byte[] imageBytes, String authorization) {
         try {
             HashMap<String, Object> paramMap = new HashMap<>();
             byte[] processedImageBytes = imageBytes;
             if (imageBytes.length > 1024 * 1024) {
                 // 压缩
                 try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-                    Img.from(IoUtil.toStream(imageBytes)).setQuality(0.8f).write(out);
+                    Thumbnails.of(IoUtil.toStream(imageBytes))
+                            .scale(1.0)
+                            .outputQuality(0.6)
+//                            .outputFormat(suffix)
+                            .toOutputStream(out);
                     processedImageBytes = out.toByteArray();
                     if (processedImageBytes.length >= imageBytes.length) {
                         processedImageBytes = imageBytes;
@@ -134,16 +151,12 @@ public class FileDemo {
             }
             paramMap.put("base64Code", "data:image/jpeg;base64," + Base64Encoder.encode(processedImageBytes));
             String result = HttpRequest
-                    .post("")
+                    .post("https://xfzzgl.zjxf119.com/v1/xyxf/member/file/zzglUploadBase64")
                     .form(paramMap)
+                    .header("Authorization", authorization)
                     .execute()
                     .body();
-            JSONObject resultObj = JSONUtil.parseObj(result);
-            Boolean success = resultObj.getBool("success", false);
-            if (!success) {
-                return null;
-            }
-            return resultObj.getStr("data");
+            return JSONUtil.parseObj(result);
         } catch (Exception e) {
             return null;
         }
