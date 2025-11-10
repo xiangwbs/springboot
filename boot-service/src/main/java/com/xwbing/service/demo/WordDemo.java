@@ -19,7 +19,9 @@ import java.util.Base64;
 @Slf4j
 public class WordDemo {
     public static void main(String[] args) throws Exception {
-        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政内存溢出pdf/out.docx");
+        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/2022年度部门决算报表说明（杭州博物馆（杭州博物院（筹））.doc");
+        Document doc = new Document(inputStream);
+        String string = doc.getText();
         String richText = toRichText(inputStream);
         System.out.println(richText);
     }

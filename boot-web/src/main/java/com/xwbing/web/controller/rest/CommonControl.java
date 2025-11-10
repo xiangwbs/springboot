@@ -1,5 +1,8 @@
 package com.xwbing.web.controller.rest;
 
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.xwbing.service.service.rest.CommonService;
 import com.xwbing.service.util.JsonResult;
@@ -13,7 +16,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 项目名称: boot-module-pro
@@ -57,4 +65,38 @@ public class CommonControl {
         }
         return ApiResponseUtil.success();
     }
+
+    @GetMapping(value = "/freeLogin")
+    public void freeLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Map<String,Object> param = new HashMap<>();
+        param.put("email", "hzcz@test.com");
+        param.put("language", "zh-Hans");
+        param.put("password", "hzcz@123.");
+        param.put("remember_me", true);
+        HttpResponse loginResp = HttpRequest.post("http://10.40.70.175/console/api/login")
+                .body( JSONUtil.toJsonStr(param))
+                .contentType("application/json")
+                .execute();
+        loginResp.headerList("set-cookie").forEach(cookie -> {
+            response.addHeader("Set-Cookie",cookie);
+        });
+        response.sendRedirect("http://10.40.70.175/apps");
+
+
+    }
+
+    public static void main(String[] args) {
+        Map<String,Object> param = new HashMap<>();
+        param.put("email", "hzcz@test.com");
+        param.put("language", "zh-Hans");
+        param.put("password", "hzcz@123.");
+        param.put("remember_me", true);
+        HttpResponse loginResp = HttpRequest.post("http://10.40.70.175/console/api/login")
+                .body( JSONUtil.toJsonStr(param))
+                .contentType("application/json")
+                .execute();
+        String header = loginResp.header("Set-Cookie");
+        System.out.println("");
+    }
+
 }
