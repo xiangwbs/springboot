@@ -4,12 +4,12 @@ import cn.hutool.http.HtmlUtil;
 import com.aspose.pdf.DocSaveOptions;
 import com.aspose.pdf.Document;
 import com.aspose.pdf.HtmlSaveOptions;
+import com.aspose.pdf.TextAbsorber;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 
 /**
@@ -20,9 +20,17 @@ import java.io.InputStream;
 @Slf4j
 public class PdfDemo {
     public static void main(String[] args) throws Exception {
-        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/财政内存溢出pdf/带表格.pdf");
-        String richText = toRichText(inputStream);
-        System.out.println(richText);
+        try (Document pdfDocument = new Document("/Users/xwbing/Downloads/施工合同专用条款 (1).pdf")) {
+            TextAbsorber textAbsorber = new TextAbsorber();
+            pdfDocument.getPages().accept(textAbsorber);
+            String text = textAbsorber.getText();
+            System.out.println("");
+        } catch (Exception e) {
+
+        }
+//        FileInputStream inputStream = new FileInputStream("/Users/xwbing/Downloads/91.关于印发杭州市老旧小区住宅加装电梯与管线迁移财政补助资金使用管理办法（2025-2027年）的通知（杭房局〔2024〕94号）.pdf");
+//        String richText = toRichText(inputStream);
+//        System.out.println(richText);
 //        toDoc(inputStream);
 //        pdfbox(inputStream);
         System.out.println("");
