@@ -1,9 +1,9 @@
 package com.xwbing.service.demo.sql;
 
+import cn.hutool.core.collection.ListUtil;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.relational.Between;
 import net.sf.jsqlparser.expression.operators.relational.ComparisonOperator;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
@@ -30,31 +30,36 @@ import java.util.stream.Collectors;
 public class SqlParserDemo {
     public static void main(String[] args) throws Exception {
 //        String s = "SELECT * from sys_user_info union all select * from sys_user_info union all select * from sys_user_info";
-        String s = "SELECT a.name,b.aid from tablea a right join tableb b on(a.id=b.aid) where a.name=1";
-        Statement statement = CCJSqlParserUtil.parse(s);
-        PlainSelect selectt = (PlainSelect) statement;
-        FromItem fromItem = selectt.getFromItem();
-        List<Join> joins = selectt.getJoins();
-        joins.forEach(join -> {
-            FromItem fromItem1 = join.getRightItem();
-        });
-        Set<String> tables = new TablesNamesFinder().getTables(statement);
-        if (statement instanceof PlainSelect) {
-            PlainSelect statement1 = (PlainSelect) statement;
-        } else if (statement instanceof SetOperationList) {
-            SetOperationList statement1 = (SetOperationList) statement;
-            statement1.getSelects().forEach(select -> {
-                PlainSelect select1 = (PlainSelect) select;
-                Limit limit = new Limit();
-                limit.setRowCount(new LongValue(1000));
-                select1.setLimit(limit);
-                System.out.println("");
-            });
-            System.out.println("");
-        }
-        System.out.println("");
+//        String s = "SELECT a.name,b.aid from tablea a right join tableb b on(a.id=b.aid) where a.name=1";
+//        Statement statement = CCJSqlParserUtil.parse(s);
+//        PlainSelect selectt = (PlainSelect) statement;
+//        FromItem fromItem = selectt.getFromItem();
+//        List<Join> joins = selectt.getJoins();
+//        joins.forEach(join -> {
+//            FromItem fromItem1 = join.getRightItem();
+//        });
+//        Set<String> tables = new TablesNamesFinder().getTables(statement);
+//        if (statement instanceof PlainSelect) {
+//            PlainSelect statement1 = (PlainSelect) statement;
+//        } else if (statement instanceof SetOperationList) {
+//            SetOperationList statement1 = (SetOperationList) statement;
+//            statement1.getSelects().forEach(select -> {
+//                PlainSelect select1 = (PlainSelect) select;
+//                Limit limit = new Limit();
+//                limit.setRowCount(new LongValue(1000));
+//                select1.setLimit(limit);
+//                System.out.println("");
+//            });
+//            System.out.println("");
+//        }
+//        System.out.println("");
 //        base("select distinct r.name,count(a.id) from ROLE r left join AUTHORITY a on(r.id=a.roleId) where r.id in(1000,1001) group by r.id having count(a.id)>10 order by r.creationDate desc limit 10");
 //        formatDate("select region from region_data where date is not null and date!='2023' and (date in('2023','2024') and date between '2023' and '2024')");
+
+        ;
+        String s = SqlUtil.addWhereCondition("SELECT id, name FROM users limit 10", ListUtil.toList("age > 18", "name='测试'"));
+
+
         System.out.println("");
     }
 

@@ -4,11 +4,14 @@ import cn.hutool.http.HttpUtil;
 import com.xwbing.service.exception.UtilException;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.net.ssl.*;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 
 /**
  * @author daofeng
@@ -88,6 +91,27 @@ public class FileUtil {
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new UtilException("流转化为文件错误");
+        }
+    }
+
+    public static void disableSSLCertificateCheck() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }};
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init((KeyManager[]) null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+        } catch (Exception var2) {
         }
     }
 }

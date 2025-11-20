@@ -5,6 +5,7 @@ import com.github.vertical_blank.sqlformatter.SqlFormatter;
 import com.github.vertical_blank.sqlformatter.core.FormatConfig;
 import com.github.vertical_blank.sqlformatter.languages.Dialect;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
@@ -85,6 +86,21 @@ public class SqlUtil {
             SelectUtils.addExpression(select, new Column(field.toLowerCase()));
         }
         return select.toString().toLowerCase();
+    }
+
+    public static String addWhereCondition(String sql,List<String> conditionList) throws JSQLParserException {
+        Select selectStatement = (Select) CCJSqlParserUtil.parse(sql);
+        PlainSelect plainSelect = (PlainSelect) selectStatement;
+        for (String condition : conditionList) {
+            Expression where = plainSelect.getWhere();
+            Expression newExpr = CCJSqlParserUtil.parseCondExpression(condition);
+            if (where == null) {
+                plainSelect.setWhere(newExpr);
+            } else {
+                plainSelect.setWhere(new AndExpression(where, newExpr));
+            }
+        }
+        return selectStatement.toString();
     }
 
     public static List<String> listField(String sql) {
