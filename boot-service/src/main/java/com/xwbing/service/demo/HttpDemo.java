@@ -10,6 +10,7 @@ import org.apache.commons.collections4.MapUtils;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,6 +25,12 @@ public class HttpDemo {
     private static final Integer TIMEOUT = 15 * 1000;
 
     public static void main(String[] args) throws MalformedURLException {
+        URI uri = URLUtil.toURI("http://192.168.17.167:18082/group1/M00/0C/4E/rBgAAmkf3t2AEvMIAAAw4vhxXUk017.png?attname=111.png");
+        String path = uri.getPath();// /group1/M00/0C/4E/rBgAAmkf3t2AEvMIAAAw4vhxXUk017.png
+        String authority = uri.getAuthority();// 192.168.17.167:18082
+        String host = uri.getHost();// 192.168.17.167
+        System.out.println("");
+
         String url = UrlBuilder.create()
                 .setScheme("http")
                 .setHost("www.xwbing.com")
