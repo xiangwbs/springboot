@@ -53,7 +53,6 @@ public class OcrDemo {
                 .setMinHeight(10)
                 .setOutputProbability(true);
         com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-        // 复制代码运行请自行打印 API 的返回值
         RecognizeCharacterResponse response = client.recognizeCharacterAdvance(recognizeCharacterAdvanceRequest, runtime);
         StringBuilder text = new StringBuilder();
         for (RecognizeCharacterResponseBody.RecognizeCharacterResponseBodyDataResults result : response.getBody().getData().getResults()) {
