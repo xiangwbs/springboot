@@ -1,6 +1,5 @@
 package com.xwbing.service.demo;
 
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.aliyun.ocr20191230.models.RecognizeCharacterResponse;
 import com.aliyun.ocr20191230.models.RecognizeCharacterResponseBody;
@@ -39,43 +38,42 @@ public class OcrDemo {
         System.out.println(captcha2021);
     }
 
-    public static String captcha2021(String url, int length, int retry) {
+    public static String captcha2021(String url, int characterLength, int retry) {
         try {
             com.aliyun.ocr_api20210707.Client client = OcrDemo.client2021();
             com.aliyun.ocr_api20210707.models.RecognizeGeneralRequest recognizeGeneralRequest = new com.aliyun.ocr_api20210707.models.RecognizeGeneralRequest()
                     .setUrl(url);
             com.aliyun.teautil.models.RuntimeOptions runtime = new com.aliyun.teautil.models.RuntimeOptions();
-            RecognizeGeneralResponse resp = client.recognizeGeneralWithOptions(recognizeGeneralRequest, runtime);
-            if (resp.getStatusCode() != 200) {
+            RecognizeGeneralResponse response = client.recognizeGeneralWithOptions(recognizeGeneralRequest, runtime);
+            if (response.getStatusCode() != 200) {
                 return null;
             }
-            if (resp.getBody() == null) {
+            if (response.getBody() == null) {
                 return null;
             }
-            String data = resp.getBody().getData();
+            String data = response.getBody().getData();
             if (StringUtils.isBlank(data)) {
                 return null;
             }
-            JSONObject dateJson = JSONUtil.parseObj(data);
-            String content = dateJson.getStr("content");
+            String content = JSONUtil.parseObj(data).getStr("content");
             if (StringUtils.isBlank(content)) {
                 return null;
             }
             content = content.replaceAll("[^0-9a-zA-Z]", "");
-            if (content.length() == length) {
+            if (content.length() == characterLength) {
                 return content;
             } else {
                 if (retry <= 0) {
                     return null;
                 }
-                return captcha2021(url, length, --retry);
+                return captcha2021(url, characterLength, --retry);
             }
         } catch (Exception e) {
             return null;
         }
     }
 
-    public static String captcha2019(String url, int length, int retry) {
+    public static String captcha2019(String url, int characterLength, int retry) {
         try {
             com.aliyun.ocr20191230.Client client = OcrDemo.client2019();
             InputStream inputStream = new URL(url).openConnection().getInputStream();
@@ -93,13 +91,13 @@ public class OcrDemo {
                 text.append(result.getText());
             }
             text = new StringBuilder(text.toString().replaceAll("[^0-9a-zA-Z]", ""));
-            if (text.length() == length) {
+            if (text.length() == characterLength) {
                 return text.toString();
             } else {
                 if (retry <= 0) {
                     return null;
                 }
-                return captcha2019(url, length, --retry);
+                return captcha2019(url, characterLength, --retry);
             }
         } catch (Exception e) {
             return null;
