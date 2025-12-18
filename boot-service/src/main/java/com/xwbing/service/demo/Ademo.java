@@ -27,9 +27,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class Ademo {
     public static void main(String[] args) {
-
+        String appKey = "3a49f948b7834d6fbfea917f78a6cb60";
+        String appSecret = "35640bb51d7b47dd990262a2ac3778f1";
         TreeMap<String, Object> treeMap = new TreeMap<>();
-        treeMap.put("appkey", "3a49f948b7834d6fbfea917f78a6cb60");
+        treeMap.put("appkey", appKey);
         treeMap.put("t", "1758769334280");
         String param = "";
         for (Map.Entry<String, Object> entry : treeMap.entrySet()) {
@@ -37,9 +38,9 @@ public class Ademo {
             Object value = entry.getValue();
             param += key + value;
         }
-        param = "35640bb51d7b47dd990262a2ac3778f1" + param;
+        param = appSecret + param;
         String sign = DigestUtils.md5Hex(param);
-        System.out.println("");
+        System.out.println(sign);
 //        HashMap<String, Object> paramMap = new HashMap<>();
 //        paramMap.put("unitId", "3297AFA2756847D79E2D8D7CCDF38DEF");
 //        String result = HttpRequest
