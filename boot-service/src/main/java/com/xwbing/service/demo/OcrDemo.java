@@ -58,7 +58,7 @@ public class OcrDemo {
         for (RecognizeCharacterResponseBody.RecognizeCharacterResponseBodyDataResults result : response.getBody().getData().getResults()) {
             text.append(result.getText());
         }
-        text = new StringBuilder(text.toString().replaceAll("[^0-9]", ""));
+//        text = new StringBuilder(text.toString().replaceAll("[^0-9]", ""));
         return text.toString();
     }
 }
