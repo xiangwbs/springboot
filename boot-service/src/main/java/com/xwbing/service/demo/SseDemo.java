@@ -1,5 +1,6 @@
 package com.xwbing.service.demo;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONUtil;
 import com.xwbing.service.util.SseUtil;
@@ -31,21 +32,17 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 public class SseDemo {
     @GetMapping("/data")
-    public Object getData(@RequestParam(defaultValue = "false") boolean stream) throws IOException {
+    public Object getData(@RequestParam boolean stream) throws IOException {
         Map<String, Object> param = new HashMap<>();
+        param.put("inputs", MapUtil.of("query", "写一首诗"));
+        param.put("response_mode", stream ? "streaming" : "blocking");
         param.put("user", "测试人员");
-        param.put("response_mode", "streaming");
-        Map<String, Object> inputs = new HashMap<>();
-        inputs.put("query", "写一首诗");
-        param.put("inputs", inputs);
         if (stream) {
             SseEmitter sseEmitter = new SseEmitter(0L);
             sseEmitter.onError(throwable -> log.error("sseEvent sseEmitter error", throwable));
             sseEmitter.onTimeout(() -> log.info("sseEvent sseEmitter timeout"));
             sseEmitter.onCompletion(() -> log.info("sseEvent sseEmitter complete"));
-            Map<String, String> headMap = new HashMap<>();
-            headMap.put("Authorization", "Bearer app-zIUHZ3XRQoqIXQmCrUYsEmlu");
-            CompletableFuture.runAsync(() -> SseUtil.sse("http://10.40.70.175/v1/workflows/run", JSONUtil.toJsonStr(param), headMap, new EventSourceListener() {
+            CompletableFuture.runAsync(() -> SseUtil.sse("http://10.40.70.175/v1/workflows/run", JSONUtil.toJsonStr(param), MapUtil.of("Authorization", "Bearer app-zIUHZ3XRQoqIXQmCrUYsEmlu"), new EventSourceListener() {
                 @Override
                 public void onOpen(EventSource eventSource, Response response) {
                     log.info("sseEvent onOpen");
@@ -76,11 +73,10 @@ public class SseDemo {
             }));
             return sseEmitter;
         } else {
-            param.put("response_mode", "blocking");
             return HttpRequest
                     .post("http://10.40.70.175/v1/workflows/run")
-                    .header("Authorization", "Bearer app-zIUHZ3XRQoqIXQmCrUYsEmlu")
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer app-zIUHZ3XRQoqIXQmCrUYsEmlu")
                     .body(JSONUtil.toJsonStr(param))
                     .execute()
                     .body();
