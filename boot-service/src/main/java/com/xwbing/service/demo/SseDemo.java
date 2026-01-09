@@ -2,12 +2,12 @@ package com.xwbing.service.demo;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONUtil;
+import com.xwbing.service.util.SseUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.Response;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
-import okhttp3.sse.EventSources;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author daofeng
@@ -45,7 +45,7 @@ public class SseDemo {
             sseEmitter.onCompletion(() -> log.info("sseEvent sseEmitter complete"));
             Map<String, String> headMap = new HashMap<>();
             headMap.put("Authorization", "Bearer app-zIUHZ3XRQoqIXQmCrUYsEmlu");
-            sse("http://10.40.70.175/v1/workflows/run", JSONUtil.toJsonStr(param), headMap, new EventSourceListener() {
+            CompletableFuture.runAsync(() -> SseUtil.sse("http://10.40.70.175/v1/workflows/run", JSONUtil.toJsonStr(param), headMap, new EventSourceListener() {
                 @Override
                 public void onOpen(EventSource eventSource, Response response) {
                     log.info("sseEvent onOpen");
@@ -73,7 +73,7 @@ public class SseDemo {
                     log.error("sseEvent onFailure error:{}", t != null ? ExceptionUtils.getStackTrace(t) : response.message());
                     sseEmitter.complete();
                 }
-            });
+            }));
             return sseEmitter;
         } else {
             param.put("response_mode", "blocking");
@@ -85,24 +85,5 @@ public class SseDemo {
                     .execute()
                     .body();
         }
-    }
-
-    public static void sse(String url, String param, Map<String, String> headerMap, EventSourceListener eventSourceListener) {
-        log.info("sse url:{} param:{}", url, param);
-        headerMap.put("content-type", "application/json");
-        Headers headers = Headers.of(headerMap);
-        Request request = new Request.Builder()
-                .headers(headers)
-                .url(url)
-                .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), param))
-                .build();
-        OkHttpClient client = new OkHttpClient
-                .Builder()
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
-                .build();
-        EventSource.Factory factory = EventSources.createFactory(client);
-        factory.newEventSource(request, eventSourceListener);
     }
 }
