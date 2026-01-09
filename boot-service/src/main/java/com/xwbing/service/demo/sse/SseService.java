@@ -129,4 +129,27 @@ public class SseService {
 //            return null;
 //        }
 //    }
+
+//    public static void disableSSLCertificateCheck() {
+//        try {
+//            // 创建信任所有证书的信任管理器
+//            TrustManager[] trustAllCerts = new TrustManager[]{
+//                    new X509TrustManager() {
+//                        public X509Certificate[] getAcceptedIssuers() {
+//                            return null;
+//                        }
+//                        public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+//                        public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+//                    }
+//            };
+//
+//            // 使用信任所有证书的信任管理器初始化 SSLContext
+//            SSLContext sslContext = SSLContext.getInstance("TLS");
+//            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+//            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+//            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+//        } catch (Exception e) {
+//
+//        }
+//    }
 }
