@@ -1,7 +1,6 @@
 package com.xwbing.service.demo;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONUtil;
 import com.xwbing.service.util.SseUtil;
 import lombok.RequiredArgsConstructor;
@@ -73,13 +72,16 @@ public class SseDemo {
             }));
             return sseEmitter;
         } else {
-            return HttpRequest
-                    .post("http://10.40.70.175/v1/workflows/run")
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer app-zIUHZ3XRQoqIXQmCrUYsEmlu")
-                    .body(JSONUtil.toJsonStr(param))
-                    .execute()
-                    .body();
+            Map<String, Object> param1 = new HashMap<>();
+            param1.put("user", "测试人员");
+            return JSONUtil.toJsonStr(param1);
+//            return HttpRequest
+//                    .post("http://10.40.70.175/v1/workflows/run")
+//                    .header("Content-Type", "application/json")
+//                    .header("Authorization", "Bearer app-zIUHZ3XRQoqIXQmCrUYsEmlu")
+//                    .body(JSONUtil.toJsonStr(param))
+//                    .execute()
+//                    .body();
         }
     }
 }

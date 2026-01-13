@@ -1,9 +1,11 @@
 package com.xwbing.web.configuration;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import com.xwbing.web.handler.LoginInterceptor;
+import com.xwbing.web.handler.UrlPermissionsInterceptor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,13 +17,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.alibaba.fastjson.support.config.FastJsonConfig;
-import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
-import com.xwbing.web.handler.LoginInterceptor;
-import com.xwbing.web.handler.UrlPermissionsInterceptor;
-
-import lombok.extern.slf4j.Slf4j;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 说明: servlet上下文配置
@@ -108,7 +106,7 @@ public class DispatcherServletConfig implements WebMvcConfigurer {
      */
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(getFastJsonHttpMessageConverter());
+        converters.add(0, getFastJsonHttpMessageConverter());
     }
 
     /**
@@ -119,10 +117,11 @@ public class DispatcherServletConfig implements WebMvcConfigurer {
     @Bean
     public HttpMessageConverter getFastJsonHttpMessageConverter() {
         FastJsonHttpMessageConverter messageConverter = new FastJsonHttpMessageConverter();
-        messageConverter.setDefaultCharset(Charset.forName("utf-8"));
+        messageConverter.setDefaultCharset(StandardCharsets.UTF_8);
         //设置支持的Content-Type
         List<MediaType> mediaTypes = new ArrayList<>();
         mediaTypes.add(MediaType.APPLICATION_JSON);
+        mediaTypes.add(MediaType.APPLICATION_JSON_UTF8); // 兼容旧版FastJson
         mediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);
         // 多媒体，包含文件，post
         mediaTypes.add(MediaType.MULTIPART_FORM_DATA);
@@ -130,9 +129,10 @@ public class DispatcherServletConfig implements WebMvcConfigurer {
         mediaTypes.add(MediaType.APPLICATION_OCTET_STREAM);
         // 文本
         mediaTypes.add(MediaType.TEXT_HTML);
+//        mediaTypes.add(MediaType.TEXT_PLAIN);
         messageConverter.setSupportedMediaTypes(mediaTypes);
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
-        fastJsonConfig.setCharset(Charset.forName("UTF-8"));
+        fastJsonConfig.setCharset(StandardCharsets.UTF_8);
         //不忽略对象属性中的null值
         fastJsonConfig.setSerializerFeatures(
                 //@formatter:off
@@ -143,7 +143,8 @@ public class DispatcherServletConfig implements WebMvcConfigurer {
                 SerializerFeature.WriteNullStringAsEmpty,
                 SerializerFeature.WriteNullListAsEmpty,
                 SerializerFeature.WriteNullBooleanAsFalse,
-                SerializerFeature.WriteDateUseDateFormat
+                SerializerFeature.WriteDateUseDateFormat,
+                SerializerFeature.DisableCheckSpecialChar
                 // SerializerFeature.WriteEnumUsingName
                 //@formatter:on
         );
