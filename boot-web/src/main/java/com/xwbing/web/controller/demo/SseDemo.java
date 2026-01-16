@@ -1,4 +1,4 @@
-package com.xwbing.service.demo;
+package com.xwbing.web.controller.demo;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.HttpRequest;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -32,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 public class SseDemo {
     @GetMapping("/data")
-    public Object getData(@RequestParam boolean stream) throws IOException {
+    public Object getData(@RequestParam boolean stream) {
         Map<String, Object> param = new HashMap<>();
         param.put("inputs", MapUtil.of("query", "写一首诗"));
         param.put("response_mode", stream ? "streaming" : "blocking");
