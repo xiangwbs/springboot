@@ -3,6 +3,7 @@ package com.xwbing.web.configuration;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.Ordered;
 import org.springframework.http.MediaType;
@@ -111,7 +113,8 @@ public class DispatcherServletConfig implements WebMvcConfigurer {
      */
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-        converters.add(0, getFastJsonHttpMessageConverter());
+//        converters.removeIf(converter -> converter instanceof MappingJackson2HttpMessageConverter);
+//        converters.add(0, getFastJsonHttpMessageConverter());
 //        converters.add(0, getJackson2HttpMessageConverter());
     }
 
@@ -120,7 +123,6 @@ public class DispatcherServletConfig implements WebMvcConfigurer {
      *
      * @return
      */
-//    @Bean
     public HttpMessageConverter getFastJsonHttpMessageConverter() {
         FastJsonHttpMessageConverter messageConverter = new FastJsonHttpMessageConverter();
         messageConverter.setDefaultCharset(StandardCharsets.UTF_8);
@@ -159,22 +161,25 @@ public class DispatcherServletConfig implements WebMvcConfigurer {
         return messageConverter;
     }
 
+    @Bean
+    @Primary
     public HttpMessageConverter getJackson2HttpMessageConverter() {
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
         ObjectMapper objectMapper = new ObjectMapper();
-        // 忽略 JSON 中不存在的字段（避免反序列化时因字段缺失报错）
+        // 忽略JSON中不存在的字段（避免反序列化时因字段缺失报错）
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        // 禁用日期时间的时间戳序列化（默认 Jackson 会把 Date 转成时间戳，这里改为格式化字符串）
+        // 禁用日期时间的时间戳序列化（默认Jackson会把Date转成时间戳，这里改为格式化字符串）
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         // 注册 JDK8 时间模块（处理 LocalDateTime/LocalDate 等）
         objectMapper.registerModule(new JavaTimeModule());
+        // 对于值为空的属性不生成
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         converter.setObjectMapper(objectMapper);
         // 设置支持的媒体类型（解决某些场景下 Content-Type 不匹配的问题）
         List<MediaType> mediaTypes = new ArrayList<>();
         mediaTypes.add(MediaType.APPLICATION_JSON);
-        mediaTypes.add(MediaType.APPLICATION_JSON_UTF8); // 兼容旧版 UTF-8 声明
-        mediaTypes.add(MediaType.TEXT_PLAIN); // 可选：支持 text/plain 类型的 JSON 数据
+        mediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
         converter.setSupportedMediaTypes(mediaTypes);
         return converter;
     }
