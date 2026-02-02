@@ -10,6 +10,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -126,6 +127,24 @@ public class FileDemo {
             return resultObj.getStr("data");
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    public void zjxfAddFile(MultipartFile file) {
+        String name = file.getOriginalFilename();
+        try {
+            File tempFile = FileUtil.writeFromStream(file.getInputStream(), FileUtil.createTempFile(name.substring(name.lastIndexOf(".")), false));
+            HashMap<String, Object> paramMap = new HashMap<>();
+            paramMap.put("file", tempFile);
+            String result = HttpRequest
+                    .post("")
+                    .form(paramMap)
+                    .execute()
+                    .body();
+            if (tempFile.exists()) {
+                tempFile.delete();
+            }
+        } catch (Exception e) {
         }
     }
 
