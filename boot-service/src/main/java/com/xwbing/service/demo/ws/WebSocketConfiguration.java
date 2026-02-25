@@ -59,8 +59,9 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 注册一个名为 /ws 的端点，并启用 SockJS 以兼容不支持原生 WebSocket 的浏览器
-        // myWss?userId=xxx
-        registry.addEndpoint("/myWss").addInterceptors(new HttpHandshakeInterceptor()).setAllowedOrigins("*").withSockJS();
+        // myws?userId=xxx
+        registry.addEndpoint("/myws").addInterceptors(new HttpHandshakeInterceptor()).setAllowedOrigins("*");
+//                .withSockJS();
     }
 
     public static class HttpHandshakeInterceptor implements HandshakeInterceptor {

@@ -2,27 +2,35 @@ package com.xwbing.service.demo.ws;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.Map;
 
 /**
+ * ws连接地址：ws://localhost:8080/api/myws?userId=abc123
  * @author daofeng
  * @version $
  * @since 2026年02月24日 15:55
  */
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class WebSocketController {
     private final SimpMessagingTemplate messagingTemplate;
 
+    @GetMapping("test")
+    public void test(){
+        messagingTemplate.convertAndSend("/topic/messages", "ceshi");
+    }
+
     // 方式1：广播消息
     @MessageMapping("/chat")  // 客户端发送到/app/chat
 //    @SendTo("/topic/messages")  // 广播到所有订阅/topic/messages的客户端
-    public String broadcastMessage(String message) {
+    public String broadcastMessage(@Payload String message) {
         messagingTemplate.convertAndSend("/topic/messages", message);
         return message;
     }
