@@ -5,7 +5,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
@@ -21,11 +20,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WebSocketController {
     private final SimpMessagingTemplate messagingTemplate;
-
-    @GetMapping("test")
-    public void test(){
-        messagingTemplate.convertAndSend("/topic/messages", "ceshi");
-    }
 
     // 方式1：广播消息
     @MessageMapping("/chat")  // 客户端发送到/app/chat

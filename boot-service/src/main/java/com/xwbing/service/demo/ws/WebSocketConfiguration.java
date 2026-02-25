@@ -4,7 +4,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.messaging.simp.stomp.StompCommand;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -64,8 +70,13 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
 //                .withSockJS();
     }
 
-    public static class HttpHandshakeInterceptor implements HandshakeInterceptor {
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        MyChannelInterceptorAdapter channelInterceptorAdapter = new MyChannelInterceptorAdapter();
+        registration.interceptors(channelInterceptorAdapter);
+    }
 
+    public static class HttpHandshakeInterceptor implements HandshakeInterceptor {
         @Override
         public boolean beforeHandshake(ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse, WebSocketHandler webSocketHandler, Map<String, Object> attributes) throws Exception {
             if (serverHttpRequest instanceof ServletServerHttpRequest) {
@@ -97,5 +108,51 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
         public void afterHandshake(ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse, WebSocketHandler webSocketHandler, Exception e) {
             // 握手完成后
         }
+    }
+
+    public static class MyChannelInterceptorAdapter implements ChannelInterceptor {
+        @Override
+        public Message<?> preSend(Message<?> message, MessageChannel channel) {
+            StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+            StompCommand command = accessor.getCommand();
+            if (StompCommand.CONNECT.equals(command) || StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command)) {
+                System.out.println("");
+
+            }
+            return message;
+        }
+
+        @Override
+        public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
+            if (null != ex) {
+                throw new RuntimeException("websocket通道异常", ex);
+            }
+            StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+            if (null == accessor) {
+                throw new RuntimeException("StompHeaderAccessor 异常");
+            }
+            String wsSessionId = accessor.getSessionId();
+            StompCommand command = accessor.getCommand();
+            if (null == command) {
+                return;
+            }
+            switch (command) {
+                case MESSAGE:
+                    break;
+                case CONNECT:
+                    break;
+                case DISCONNECT:
+                    break;
+                case SUBSCRIBE:
+                    break;
+                case UNSUBSCRIBE:
+                    break;
+                case ERROR:
+                    break;
+                default:
+                    break;
+            }
+        }
+
     }
 }
