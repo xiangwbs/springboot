@@ -12,6 +12,21 @@ import java.util.Map;
 
 /**
  * ws连接地址：ws://localhost:8080/api/myws?userId=abc123
+ *
+ * 订阅：
+ * SUBSCRIBE
+ * id:sub-0
+ * destination:/topic/messages
+ *
+ * \u0000
+ *
+ * 发送消息：
+ * SEND
+ * destination:/app/chat
+ * content-type:text/plain
+ *
+ * Hello WebSocket!
+ * ^@
  * @author daofeng
  * @version $
  * @since 2026年02月24日 15:55
@@ -21,18 +36,13 @@ import java.util.Map;
 public class WebSocketController {
     private final SimpMessagingTemplate messagingTemplate;
 
-    // 方式1：广播消息
     @MessageMapping("/chat")  // 客户端发送到/app/chat
 //    @SendTo("/topic/messages")  // 广播到所有订阅/topic/messages的客户端
-    public String broadcastMessage(@Payload String message) {
+//    @SendToUser("/private") // 指定用户发送到订阅/user/{userId}/private的客户端
+    public void broadcastMessage(@Payload String message, SimpMessageHeaderAccessor accessor) {
+        // 广播消息
         messagingTemplate.convertAndSend("/topic/messages", message);
-        return message;
-    }
-
-    // 方式2：发送给特定用户
-    @MessageMapping("/private")
-//    @SendToUser("/private")
-    public String sendPrivateMessage(String msg, SimpMessageHeaderAccessor accessor) {
+        // 发送给特定用户
         String simpSessionId = accessor.getSessionId();
         Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
         String httpSessionId = (String) sessionAttributes.get("httpSessionId");
@@ -40,8 +50,7 @@ public class WebSocketController {
         messagingTemplate.convertAndSendToUser(
                 user.getName(),  // 目标用户id
                 "/private",  // 客户端订阅的地址：/user/{userId}/private
-                msg
+                message
         );
-        return msg;
     }
 }
