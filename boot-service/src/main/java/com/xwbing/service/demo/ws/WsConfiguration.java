@@ -94,12 +94,14 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                 }
                 // TODO: 2026/2/28  校验是否登录
                 // Spring WebSocket 会自动检测这个 Principal 并设置到 Session 中
-                Principal principal = () -> {
-                    return userId; // 这里的返回值就是 @SendToUser 获取的 ID
+                Principal principal = new Principal() {
+                    @Override
+                    public String getName() {
+                        return userId; // 这里的返回值就是 @SendToUser 获取的 ID
+                    }
                 };
-                // 将 Principal 放入 attributes，框架会自动处理
-//                attributes.put(Principal.class.getName(), principal);
                 attributes.put("user", principal);
+                attributes.put("userId", userId);
 
                 // 获取 HttpSession
                 HttpSession session = servletRequest.getSession(false);
@@ -160,7 +162,8 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                     connectHandler(accessor.getUser().getName(), wsSessionId);
                     break;
                 case DISCONNECT:
-                    disconnectHandler(accessor.getUser().getName());
+                    String userId = (String) sessionAttributes.get("userId");
+                    disconnectHandler(userId);
                     break;
                 case SUBSCRIBE:
                     break;
