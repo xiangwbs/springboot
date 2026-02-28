@@ -27,11 +27,9 @@ public class WsClientMessage implements Serializable {
         TOPIC_MSG
     }
 
-
     public static WsClientMessage buildTopicMsg(String destination, String msg) {
         return WsClientMessage.builder().msgType(MsgType.TOPIC_MSG).destination(destination).message(msg).build();
     }
-
 
     public static WsClientMessage buildUserMsg(String userId, String destination, String msg) {
         return WsClientMessage.builder().msgType(MsgType.USER_MSG).userId(userId).destination(destination).message(msg).build();

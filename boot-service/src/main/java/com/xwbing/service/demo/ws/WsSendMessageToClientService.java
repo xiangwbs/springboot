@@ -16,22 +16,16 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class WsSendMessageToClientService {
-
     @Value("${spring.profiles.active}")
     private String environment;
-
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    /**
-     * @param wsClientMessage
-     */
     public void send(WsClientMessage wsClientMessage) {
         stringRedisTemplate.convertAndSend(getChannel(), JSONUtil.toJsonStr(wsClientMessage));
     }
 
     public String getChannel() {
-        return this.environment + "_qyhc_manualWebsocket";
+        return this.environment + "_MyWebsocket";
     }
-
 }

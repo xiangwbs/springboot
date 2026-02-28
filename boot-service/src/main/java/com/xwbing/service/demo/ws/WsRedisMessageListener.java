@@ -19,10 +19,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class WsRedisMessageListener implements MessageListener {
-
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
-
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 

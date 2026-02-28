@@ -14,10 +14,9 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
  */
 @Configuration
 public class WsRedisSubscriberConfig {
-
     @Autowired
     private WsSendMessageToClientService wsSendMessageToClientService;
-    
+
     /**
      * 消息监听适配器，注入接受消息方法
      *
@@ -37,12 +36,10 @@ public class WsRedisSubscriberConfig {
      * @return
      */
     @Bean
-    public RedisMessageListenerContainer getRedisMessageListenerContainer(
-            RedisConnectionFactory redisConnectionFactory, MessageListenerAdapter messageListenerAdapter) {
+    public RedisMessageListenerContainer getRedisMessageListenerContainer(RedisConnectionFactory redisConnectionFactory, MessageListenerAdapter messageListenerAdapter) {
         RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
         redisMessageListenerContainer.setConnectionFactory(redisConnectionFactory);
         redisMessageListenerContainer.addMessageListener(messageListenerAdapter, new PatternTopic(wsSendMessageToClientService.getChannel()));
         return redisMessageListenerContainer;
     }
-
 }
