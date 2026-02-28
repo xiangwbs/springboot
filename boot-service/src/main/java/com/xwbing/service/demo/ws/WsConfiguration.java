@@ -98,7 +98,8 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                     return userId; // 这里的返回值就是 @SendToUser 获取的 ID
                 };
                 // 将 Principal 放入 attributes，框架会自动处理
-                attributes.put(Principal.class.getName(), principal);
+//                attributes.put(Principal.class.getName(), principal);
+                attributes.put("user", principal);
 
                 // 获取 HttpSession
                 HttpSession session = servletRequest.getSession(false);
@@ -145,6 +146,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                 throw new RuntimeException("websocket通道异常", ex);
             }
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+            Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
             String wsSessionId = accessor.getSessionId();
             boolean heartbeat = accessor.isHeartbeat();
             StompCommand command = accessor.getCommand();
