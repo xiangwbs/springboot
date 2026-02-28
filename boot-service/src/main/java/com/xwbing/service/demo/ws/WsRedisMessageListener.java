@@ -33,10 +33,14 @@ public class WsRedisMessageListener implements MessageListener {
         String value = valueSerializer.deserialize(message.getBody());
         if (StringUtils.isNotEmpty(value)) {
             WsClientMessage wsClientMessage = JSONUtil.toBean(value, WsClientMessage.class);
-            String wsSessionId = WsConfiguration.MyChannelInterceptorAdapter.wsSessionId(wsClientMessage.getUserId());
-            log.info("接收到客户端消息clientMessage={}", value);
-            if (StringUtils.isNotEmpty(wsSessionId)) {
-                simpMessagingTemplate.convertAndSendToUser(wsSessionId, wsClientMessage.getDestination(), wsClientMessage.getMessage());
+            if (wsClientMessage.getMsgType() == WsClientMessage.MsgType.USER_MSG) {
+                String userId = wsClientMessage.getUserId();
+                String wsSessionId = WsConfiguration.MyChannelInterceptorAdapter.wsSessionId(userId);
+                if (StringUtils.isNotEmpty(wsSessionId)) {
+                    simpMessagingTemplate.convertAndSendToUser(userId, wsClientMessage.getDestination(), wsClientMessage.getMessage());
+                }
+            } else if (wsClientMessage.getMsgType() == WsClientMessage.MsgType.TOPIC_MSG) {
+                simpMessagingTemplate.convertAndSend(wsClientMessage.getDestination(), wsClientMessage.getMessage());
             }
         }
     }
