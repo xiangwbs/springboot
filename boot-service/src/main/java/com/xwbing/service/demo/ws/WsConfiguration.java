@@ -72,8 +72,8 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 注册一个名为 /ws 的端点，并启用 SockJS 以兼容不支持原生 WebSocket 的浏览器
         // myws?userId=xxx
-        registry.addEndpoint("/myws").addInterceptors(new HttpHandshakeInterceptor()).setAllowedOrigins("*");
-//                .withSockJS();
+//        registry.addEndpoint("/myws").addInterceptors(new HttpHandshakeInterceptor()).setAllowedOrigins("*");
+        registry.addEndpoint("/myws").addInterceptors(new HttpHandshakeInterceptor()).setAllowedOrigins("*").withSockJS();
     }
 
     @Override
@@ -128,7 +128,15 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
         public Message<?> preSend(Message<?> message, MessageChannel channel) {
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
             StompCommand command = accessor.getCommand();
-            if (StompCommand.CONNECT.equals(command) || StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command)) {
+            if (StompCommand.CONNECT.equals(command)) {
+                Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+                String userId = (String) sessionAttributes.get("userId");
+                if (userId == null) {
+                    throw new AuthenticationException("用户授权过期：未获取到用户信息");
+                }
+                return message;
+            }
+            if (StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command)) {
                 Principal user = accessor.getUser();
                 if (user == null) {
                     throw new AuthenticationException("用户授权已经过期了");

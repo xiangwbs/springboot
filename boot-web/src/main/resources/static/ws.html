@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>STOMP测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+    <button onclick="connect()">连接</button>
+    <button onclick="sendMsg()">发送消息</button>
+    <div id="log"></div>
+
+    <script>
+        let stompClient;
+        function log(msg) {
+            document.getElementById('log').innerText += msg + '\n';
+        }
+
+        function connect() {
+            const socket = new SockJS('myws?userId=abc123');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function(frame) {
+                log('连接成功：' + frame);
+                // // 订阅广播
+                // stompClient.subscribe('/topic/messages', function(msg) {
+                //     log('收到广播：' + msg.body);
+                // });
+                // // 订阅点对点
+                // stompClient.subscribe('/user/abc123/private', function(msg) {
+                //     log('收到私信：' + msg.body);
+                // });
+            });
+        }
+
+        function sendMsg() {
+            stompClient.send('/app/chat', {}, 'Hello WebSocket!');
+            log('发送消息：Hello WebSocket!');
+        }
+    </script>
+</body>
+</html>
