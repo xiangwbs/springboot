@@ -146,6 +146,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
             }
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
             String wsSessionId = accessor.getSessionId();
+            boolean heartbeat = accessor.isHeartbeat();
             StompCommand command = accessor.getCommand();
             if (null == command) {
                 return;
