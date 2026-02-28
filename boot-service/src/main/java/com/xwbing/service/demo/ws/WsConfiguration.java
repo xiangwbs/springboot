@@ -1,5 +1,8 @@
 package com.xwbing.service.demo.ws;
 
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -18,10 +21,12 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
+import javax.naming.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Socket建立后，该类用于接收用户端(/user)向服务器端(/app)发送消息，以及处理完成后服务端向用户端发送消息。
@@ -39,9 +44,10 @@ import java.util.Map;
  * @version $
  * @since 2026年02月24日 15:24
  */
+@Slf4j
 @Configuration
 @EnableWebSocketMessageBroker
-public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
+public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
     private static long HEART_BEAT = 20000;
 
     @Override
@@ -86,6 +92,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                 if (userId == null) {
                     return false; // 拒绝非法连接
                 }
+                // TODO: 2026/2/28  校验是否登录
                 // Spring WebSocket 会自动检测这个 Principal 并设置到 Session 中
                 Principal principal = () -> {
                     return userId; // 这里的返回值就是 @SendToUser 获取的 ID
@@ -111,13 +118,23 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
     }
 
     public static class MyChannelInterceptorAdapter implements ChannelInterceptor {
+        private static Map<String, String> connectMap = new ConcurrentHashMap<>();
+
+        @SneakyThrows
         @Override
         public Message<?> preSend(Message<?> message, MessageChannel channel) {
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
             StompCommand command = accessor.getCommand();
             if (StompCommand.CONNECT.equals(command) || StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command)) {
-                System.out.println("");
-
+                Principal user = accessor.getUser();
+                if (user == null) {
+                    throw new AuthenticationException("用户授权已经过期了");
+                }
+                String userId = user.getName();
+                String wsSessionId = connectMap.get(userId);
+                if (StringUtils.isEmpty(wsSessionId)) {
+                    throw new AuthenticationException("用户授权已经过期了");
+                }
             }
             return message;
         }
@@ -128,9 +145,6 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                 throw new RuntimeException("websocket通道异常", ex);
             }
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-            if (null == accessor) {
-                throw new RuntimeException("StompHeaderAccessor 异常");
-            }
             String wsSessionId = accessor.getSessionId();
             StompCommand command = accessor.getCommand();
             if (null == command) {
@@ -140,8 +154,10 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
                 case MESSAGE:
                     break;
                 case CONNECT:
+                    connectHandler(accessor.getUser().getName(), wsSessionId);
                     break;
                 case DISCONNECT:
+                    disconnectHandler(accessor.getUser().getName());
                     break;
                 case SUBSCRIBE:
                     break;
@@ -154,5 +170,18 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer 
             }
         }
 
+        public void connectHandler(String userId, String wsSessionId) {
+            connectMap.put(userId, wsSessionId);
+            log.info("webSocket握手成功, userId:{}, wsSessionId:{}, 当前服务器连接数:{}", userId, wsSessionId, connectMap.size());
+        }
+
+        public void disconnectHandler(String userId) {
+            log.info("webSocket断开连接, userId:{}", userId);
+            connectMap.remove(userId);
+        }
+
+        public static String wsSessionId(String userId) {
+            return connectMap.get(userId);
+        }
     }
 }
