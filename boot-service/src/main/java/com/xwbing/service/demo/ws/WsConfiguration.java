@@ -54,13 +54,12 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
         taskScheduler.setPoolSize(1);
         taskScheduler.setThreadNamePrefix("wss-heartbeat-thread-");
         taskScheduler.initialize();
-        //这里使用的是内存模式，生产环境可以使用rabbitmq或者其他mq。
         //这里注册两个，主要是目的是将广播和队列分开。
         long HEART_BEAT = 20000;
         registry.enableSimpleBroker("/topic", "/user").setHeartbeatValue(new long[]{HEART_BEAT, HEART_BEAT}).setTaskScheduler(taskScheduler);
         // 客户端发送消息到以/app开头的地址，会被路由到@MessageMapping注解的方法
         registry.setApplicationDestinationPrefixes("/app");
-        // 指定用户发送（一对一）的前缀 /user/
+        // 指定用户发送（一对一）的前缀/user
         registry.setUserDestinationPrefix("/user/");
     }
 
@@ -130,7 +129,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
             // TODO: 2026/2/28  校验是否登录
             if (StompCommand.CONNECT.equals(command)) {
 
-            } else if (StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command)) {
+            } else if (StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command) || StompCommand.UNSUBSCRIBE.equals(command)) {
                 String wsSessionId = connectMap.get(userId);
                 if (StringUtils.isEmpty(wsSessionId)) {
                     throw new AuthenticationException("未连接");
@@ -141,7 +140,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
 
         @Override
         public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
-            if (null != ex) {
+            if (ex != null) {
                 throw new RuntimeException("websocket通道异常", ex);
             }
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
@@ -154,9 +153,9 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
             if (command == null) {
                 return;
             }
+            String wsSessionId = accessor.getSessionId();
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
             String userId = (String) sessionAttributes.get("userId");
-            String wsSessionId = accessor.getSessionId();
             switch (command) {
                 case SEND:
                     break;
@@ -168,8 +167,8 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                     break;
                 case SUBSCRIBE:
                 case UNSUBSCRIBE:
-                    String destination = (String)accessor.getHeader("simpDestination");
-                    String subscriptionId = (String)accessor.getHeader("simpSubscriptionId");
+                    String destination = (String) accessor.getHeader("simpDestination");
+                    String subscriptionId = (String) accessor.getHeader("simpSubscriptionId");
                     break;
                 default:
                     break;
