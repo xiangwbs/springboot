@@ -93,12 +93,12 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                 }
                 // TODO: 2026/2/28  校验是否登录
                 attributes.put("userId", userId);
+
                 HttpSession session = servletRequest.getSession(false);
                 if (session != null) {
                     String httpSessionId = session.getId();
                     attributes.put("httpSessionId", httpSessionId);
                 }
-
                 return true;// 放行握手
             }
             return false; // 拒绝握手
@@ -111,7 +111,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
     }
 
     public static class MyChannelInterceptorAdapter implements ChannelInterceptor {
-        private static Map<String, String> connectMap = new ConcurrentHashMap<>();
+        private static final Map<String, String> connectMap = new ConcurrentHashMap<>();
 
         @SneakyThrows
         @Override
@@ -152,7 +152,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
             if (heartbeat) {
                 return;
             }
-            if (null == command) {
+            if (command == null) {
                 return;
             }
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
@@ -169,9 +169,8 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                     break;
                 case SUBSCRIBE:
                 case UNSUBSCRIBE:
-                    MessageHeaders headers = message.getHeaders();
-                    String destination = (String) headers.get("simpDestination");
-                    String simpSubscriptionId = (String) headers.get("simpSubscriptionId");
+                    String destination = (String)accessor.getHeader("simpDestination");
+                    String subscriptionId = (String)accessor.getHeader("simpSubscriptionId");
                     break;
                 default:
                     break;
