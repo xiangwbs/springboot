@@ -45,7 +45,7 @@ public class WsController {
         wsSendMessageToClientService.send(WsClientMessage.buildTopicMsg("/topic/messages", message));
 //        messagingTemplate.convertAndSend("/topic/messages", message);
         // 发送给特定用户
-        String simpSessionId = accessor.getSessionId();
+        String wsSessionId = accessor.getSessionId();
         Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
         String httpSessionId = (String) sessionAttributes.get("httpSessionId");
         String userId = (String) sessionAttributes.get("userId");

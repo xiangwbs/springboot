@@ -46,17 +46,17 @@ import java.util.concurrent.ConcurrentHashMap;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
-    private static long HEART_BEAT = 20000;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        ThreadPoolTaskScheduler te = new ThreadPoolTaskScheduler();
-        te.setPoolSize(1);
-        te.setThreadNamePrefix("wss-heartbeat-thread-");
-        te.initialize();
+        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+        taskScheduler.setPoolSize(1);
+        taskScheduler.setThreadNamePrefix("wss-heartbeat-thread-");
+        taskScheduler.initialize();
         //这里使用的是内存模式，生产环境可以使用rabbitmq或者其他mq。
         //这里注册两个，主要是目的是将广播和队列分开。
-        registry.enableSimpleBroker("/topic", "/user").setHeartbeatValue(new long[]{HEART_BEAT, HEART_BEAT}).setTaskScheduler(te);
+        long HEART_BEAT = 20000;
+        registry.enableSimpleBroker("/topic", "/user").setHeartbeatValue(new long[]{HEART_BEAT, HEART_BEAT}).setTaskScheduler(taskScheduler);
         // 客户端发送消息到以/app开头的地址，会被路由到@MessageMapping注解的方法
         registry.setApplicationDestinationPrefixes("/app");
         // 指定用户发送（一对一）的前缀 /user/
@@ -68,7 +68,6 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // 注册一个名为 /ws 的端点，并启用 SockJS 以兼容不支持原生 WebSocket 的浏览器
         // myws?userId=xxx
         registry.addEndpoint("/myws").addInterceptors(new HttpHandshakeInterceptor()).setAllowedOrigins("*").withSockJS();
     }
