@@ -18,12 +18,22 @@
         button {
             margin-right: 10px;
             padding: 5px 15px;
+            display: block;
+            margin-bottom: 8px;
+        }
+        msgInput {
+            width: 300px;
+            padding: 5px;
+            margin-right: 10px;
+            display: block;
+            margin-bottom: 8px;
         }
     </style>
 </head>
 <body>
 <button onclick="connect()">连接WebSocket</button>
 <button onclick="sendMsg()">发送消息</button>
+<input type="text" id="msgInput" placeholder="请输入要发送的消息...">
 <button onclick="disconnect()">断开连接</button>
 <div id="log"></div>
 
@@ -76,7 +86,15 @@
             log("请先连接WebSocket！");
             return;
         }
-        const msg = "Hello WebSocket! " + Math.random();
+        // 获取输入框内容
+        const msgInput = document.getElementById('msgInput');
+        let msg = msgInput.value.trim();
+        // 如果输入为空，提示并返回
+        if (!msg) {
+            log("请输入要发送的消息！");
+            return;
+        }
+        // const msg = "Hello WebSocket! " + Math.random();
         stompClient.send('/app/chat', {}, msg);
         log("【发送消息】" + msg);
     }
