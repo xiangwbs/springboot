@@ -9,6 +9,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -158,7 +159,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
             String userId = (String) sessionAttributes.get("userId");
             String wsSessionId = accessor.getSessionId();
             switch (command) {
-                case MESSAGE:
+                case SEND:
                     break;
                 case CONNECT:
                     connectHandler(userId, wsSessionId);
@@ -167,10 +168,10 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                     disconnectHandler(userId);
                     break;
                 case SUBSCRIBE:
-                    break;
                 case UNSUBSCRIBE:
-                    break;
-                case ERROR:
+                    MessageHeaders headers = message.getHeaders();
+                    String destination = (String) headers.get("simpDestination");
+                    String simpSubscriptionId = (String) headers.get("simpSubscriptionId");
                     break;
                 default:
                     break;
