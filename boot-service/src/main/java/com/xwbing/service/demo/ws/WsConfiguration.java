@@ -2,6 +2,7 @@ package com.xwbing.service.demo.ws;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -22,7 +23,6 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import javax.naming.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -70,7 +70,6 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 注册一个名为 /ws 的端点，并启用 SockJS 以兼容不支持原生 WebSocket 的浏览器
         // myws?userId=xxx
-//        registry.addEndpoint("/myws").addInterceptors(new HttpHandshakeInterceptor()).setAllowedOrigins("*");
         registry.addEndpoint("/myws").addInterceptors(new HttpHandshakeInterceptor()).setAllowedOrigins("*").withSockJS();
     }
 
@@ -93,12 +92,6 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                 }
                 // TODO: 2026/2/28  校验是否登录
                 attributes.put("userId", userId);
-                // 获取 HttpSession
-//                HttpSession session = servletRequest.getSession(false);
-//                if (session != null) {
-//                    String httpSessionId = session.getId();
-//                    attributes.put("httpSessionId", httpSessionId);
-//                }
                 return true;// 放行握手
             }
             return false; // 拒绝握手
@@ -116,60 +109,54 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
         @SneakyThrows
         @Override
         public Message<?> preSend(Message<?> message, MessageChannel channel) {
-            log.info("preSend");
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
             boolean heartbeat = accessor.isHeartbeat();
+            StompCommand command = accessor.getCommand();
+            log.info("preSend heartbeat:{} command:{}", heartbeat, command);
             if (heartbeat) {
                 return message;
             }
-            StompCommand command = accessor.getCommand();
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
             String userId = (String) sessionAttributes.get("userId");
             if (userId == null) {
-                throw new AuthenticationException("用户授权过期：未获取到用户信息");
+                throw new AuthenticationException("未获取到用户id");
             }
             if (StompCommand.CONNECT.equals(command)) {
-                Principal principal = () -> userId;
-                accessor.setUser(principal);
-            }
-            if (StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command)) {
-//                Principal user = accessor.getUser();
-//                if (user == null) {
-//                    throw new AuthenticationException("用户授权已经过期了");
-//                }
-//                String wsSessionId = connectMap.get(userId);
-//                if (StringUtils.isEmpty(wsSessionId)) {
-//                    throw new AuthenticationException("用户授权已经过期了");
-//                }
+
+            } else if (StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command)) {
+                String wsSessionId = connectMap.get(userId);
+                if (StringUtils.isEmpty(wsSessionId)) {
+                    throw new AuthenticationException("未连接");
+                }
             }
             return message;
         }
 
         @Override
         public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
-            log.info("afterSendCompletion");
             if (null != ex) {
                 throw new RuntimeException("websocket通道异常", ex);
             }
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
             boolean heartbeat = accessor.isHeartbeat();
+            StompCommand command = accessor.getCommand();
+            log.info("afterSendCompletion heartbeat:{} command:{}", heartbeat, command);
             if (heartbeat) {
                 return;
             }
-            Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
-            String wsSessionId = accessor.getSessionId();
-            StompCommand command = accessor.getCommand();
             if (null == command) {
                 return;
             }
+            Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+            String userId = (String) sessionAttributes.get("userId");
+            String wsSessionId = accessor.getSessionId();
             switch (command) {
                 case MESSAGE:
                     break;
                 case CONNECT:
-                    connectHandler(accessor.getUser().getName(), wsSessionId);
+                    connectHandler(userId, wsSessionId);
                     break;
                 case DISCONNECT:
-                    String userId = (String) sessionAttributes.get("userId");
                     disconnectHandler(userId);
                     break;
                 case SUBSCRIBE:

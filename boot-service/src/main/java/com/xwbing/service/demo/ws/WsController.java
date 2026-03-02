@@ -7,7 +7,6 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.Principal;
 import java.util.Map;
 
 /**
@@ -49,8 +48,7 @@ public class WsController {
         String simpSessionId = accessor.getSessionId();
         Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
         String httpSessionId = (String) sessionAttributes.get("httpSessionId");
-        Principal user = accessor.getUser();
-        String userId = user.getName();
+        String userId = (String) sessionAttributes.get("userId");
         wsSendMessageToClientService.send(WsClientMessage.buildUserMsg(userId, "/private", message));
 //        messagingTemplate.convertAndSendToUser(
 //                simpSessionId,
