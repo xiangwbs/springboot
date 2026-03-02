@@ -1,41 +1,94 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>STOMP测试</title>
+    <title>WebSocket测试</title>
+    <meta charset="UTF-8">
+    <!-- SockJS和STOMP依赖 -->
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        #log {
+            width: 600px;
+            height: 400px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        button {
+            margin-right: 10px;
+            padding: 5px 15px;
+        }
+    </style>
 </head>
 <body>
-    <button onclick="connect()">连接</button>
-    <button onclick="sendMsg()">发送消息</button>
-    <div id="log"></div>
+<button onclick="connect()">连接WebSocket</button>
+<button onclick="sendMsg()">发送消息</button>
+<button onclick="disconnect()">断开连接</button>
+<div id="log"></div>
 
-    <script>
-        let stompClient;
-        function log(msg) {
-            document.getElementById('log').innerText += msg + '\n';
-        }
+<script>
+    let stompClient = null;
+    const userId = "abc123"; // 当前用户ID
 
-        function connect() {
-            const socket = new SockJS('myws?userId=abc123');
-            stompClient = Stomp.over(socket);
-            stompClient.connect({}, function(frame) {
-                log('连接成功：' + frame);
-                // // 订阅广播
-                // stompClient.subscribe('/topic/messages', function(msg) {
-                //     log('收到广播：' + msg.body);
-                // });
-                // // 订阅点对点
-                // stompClient.subscribe('/user/abc123/private', function(msg) {
-                //     log('收到私信：' + msg.body);
-                // });
-            });
-        }
+    // 日志输出
+    function log(msg) {
+        const logDiv = document.getElementById('log');
+        logDiv.innerText += new Date().toLocaleTimeString() + "：" + msg + "\n";
+        logDiv.scrollTop = logDiv.scrollHeight; // 自动滚动到底部
+    }
 
-        function sendMsg() {
-            stompClient.send('/app/chat', {}, 'Hello WebSocket!');
-            log('发送消息：Hello WebSocket!');
+    // 连接WebSocket
+    function connect() {
+        // SockJS连接地址（相对路径，避免跨域问题）
+        const socket = new SockJS('myws?userId=' + userId, null, {
+            transports: ['websocket', 'xhr-streaming', 'xhr-polling'] // 只启用这3种传输方式，排除iframe
+        });
+        stompClient = Stomp.over(socket);
+        // 关闭STOMP默认日志
+        stompClient.debug = null;
+
+        // 连接
+        stompClient.connect({},
+            // 连接成功回调
+            function(success) {
+                log("连接成功！：" + success);
+                // 订阅广播消息
+                stompClient.subscribe('/topic/messages', function(msg) {
+                    log("【广播】" + msg.body);
+                });
+                // 订阅点对点消息（/user/{userId}/private）
+                stompClient.subscribe('/user/' + userId + '/private', function(msg) {
+                    log("【私信】" + msg.body);
+                });
+            },
+            // 连接失败/断开回调
+            function(error) {
+                log("连接失败/断开：" + error);
+                stompClient = null;
+            }
+        );
+    }
+
+    // 发送消息
+    function sendMsg() {
+        if (!stompClient || !stompClient.connected) {
+            log("请先连接WebSocket！");
+            return;
         }
-    </script>
+        const msg = "Hello WebSocket! " + Math.random();
+        stompClient.send('/app/chat', {}, msg);
+        log("【发送消息】" + msg);
+    }
+
+    // 断开连接
+    function disconnect() {
+        if (stompClient) {
+            stompClient.disconnect();
+            stompClient = null;
+            log("已断开连接");
+        }
+    }
+</script>
 </body>
 </html>

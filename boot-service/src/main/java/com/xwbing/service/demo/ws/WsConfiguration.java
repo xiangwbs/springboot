@@ -2,7 +2,6 @@ package com.xwbing.service.demo.ws;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -23,7 +22,6 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import javax.naming.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,26 +87,18 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                 ServletServerHttpRequest req = (ServletServerHttpRequest) serverHttpRequest;
                 HttpServletRequest servletRequest = req.getServletRequest();
                 String userId = servletRequest.getParameter("userId");
+                log.info("beforeHandshake userId:{}", userId);
                 if (userId == null) {
                     return false; // 拒绝非法连接
                 }
                 // TODO: 2026/2/28  校验是否登录
-                // Spring WebSocket 会自动检测这个 Principal 并设置到 Session 中
-                Principal principal = new Principal() {
-                    @Override
-                    public String getName() {
-                        return userId; // 这里的返回值就是 @SendToUser 获取的 ID
-                    }
-                };
-                attributes.put("user", principal);
                 attributes.put("userId", userId);
-
                 // 获取 HttpSession
-                HttpSession session = servletRequest.getSession(false);
-                if (session != null) {
-                    String httpSessionId = session.getId();
-                    attributes.put("httpSessionId", httpSessionId);
-                }
+//                HttpSession session = servletRequest.getSession(false);
+//                if (session != null) {
+//                    String httpSessionId = session.getId();
+//                    attributes.put("httpSessionId", httpSessionId);
+//                }
                 return true;// 放行握手
             }
             return false; // 拒绝握手
@@ -126,39 +116,48 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
         @SneakyThrows
         @Override
         public Message<?> preSend(Message<?> message, MessageChannel channel) {
+            log.info("preSend");
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-            StompCommand command = accessor.getCommand();
-            if (StompCommand.CONNECT.equals(command)) {
-                Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
-                String userId = (String) sessionAttributes.get("userId");
-                if (userId == null) {
-                    throw new AuthenticationException("用户授权过期：未获取到用户信息");
-                }
+            boolean heartbeat = accessor.isHeartbeat();
+            if (heartbeat) {
                 return message;
             }
+            StompCommand command = accessor.getCommand();
+            Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+            String userId = (String) sessionAttributes.get("userId");
+            if (userId == null) {
+                throw new AuthenticationException("用户授权过期：未获取到用户信息");
+            }
+            if (StompCommand.CONNECT.equals(command)) {
+                Principal principal = () -> userId;
+                accessor.setUser(principal);
+            }
             if (StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command)) {
-                Principal user = accessor.getUser();
-                if (user == null) {
-                    throw new AuthenticationException("用户授权已经过期了");
-                }
-                String userId = user.getName();
-                String wsSessionId = connectMap.get(userId);
-                if (StringUtils.isEmpty(wsSessionId)) {
-                    throw new AuthenticationException("用户授权已经过期了");
-                }
+//                Principal user = accessor.getUser();
+//                if (user == null) {
+//                    throw new AuthenticationException("用户授权已经过期了");
+//                }
+//                String wsSessionId = connectMap.get(userId);
+//                if (StringUtils.isEmpty(wsSessionId)) {
+//                    throw new AuthenticationException("用户授权已经过期了");
+//                }
             }
             return message;
         }
 
         @Override
         public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
+            log.info("afterSendCompletion");
             if (null != ex) {
                 throw new RuntimeException("websocket通道异常", ex);
             }
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+            boolean heartbeat = accessor.isHeartbeat();
+            if (heartbeat) {
+                return;
+            }
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
             String wsSessionId = accessor.getSessionId();
-            boolean heartbeat = accessor.isHeartbeat();
             StompCommand command = accessor.getCommand();
             if (null == command) {
                 return;
