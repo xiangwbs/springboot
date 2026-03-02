@@ -42,14 +42,14 @@ public class WsController {
 //    @SendToUser("/private") // 指定用户发送到订阅/user/{userId}/private的客户端
     public void broadcastMessage(@Payload String message, SimpMessageHeaderAccessor accessor) {
         // 广播消息
-        wsSendMessageToClientService.send(WsClientMessage.buildTopicMsg("/topic/messages", message));
+        wsSendMessageToClientService.send(WsClientMessage.buildTopicMsg("/topic/messages", "服务端广播消息：" + message));
 //        messagingTemplate.convertAndSend("/topic/messages", message);
         // 发送给特定用户
         String wsSessionId = accessor.getSessionId();
         Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
         String httpSessionId = (String) sessionAttributes.get("httpSessionId");
         String userId = (String) sessionAttributes.get("userId");
-        wsSendMessageToClientService.send(WsClientMessage.buildUserMsg(userId, "/private", message));
+        wsSendMessageToClientService.send(WsClientMessage.buildUserMsg(userId, "/private", "服务端私发消息：" + message));
 //        messagingTemplate.convertAndSendToUser(
 //                simpSessionId,
 //                "/private",  // 客户端订阅的地址：/user/{userId}/private
