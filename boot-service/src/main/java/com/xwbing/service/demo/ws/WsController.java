@@ -39,7 +39,7 @@ public class WsController {
 
     @MessageMapping("/chat")  // 客户端发送到/app/chat
 //    @SendTo("/topic/messages")  // 广播到所有订阅/topic/messages的客户端
-//    @SendToUser("/private") // 指定用户发送到订阅/user/{userId}/private的客户端
+//    @SendToUser("/private") // 指定用户发送到订阅/user/{userName}/private的客户端
     public void broadcastMessage(@Payload String message, SimpMessageHeaderAccessor accessor) {
         // 广播消息
         wsSendMessageToClientService.send(WsClientMessage.buildTopicMsg("/topic/messages", "服务端广播消息：" + message));
@@ -52,7 +52,7 @@ public class WsController {
         wsSendMessageToClientService.send(WsClientMessage.buildUserMsg(userId, "/private", "服务端私发消息：" + message));
 //        messagingTemplate.convertAndSendToUser(
 //                simpSessionId,
-//                "/private",  // 客户端订阅的地址：/user/{userId}/private
+//                "/private",  // 客户端订阅的地址：/user/{userName}/private
 //                message
 //        );
     }
