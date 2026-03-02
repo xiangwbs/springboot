@@ -23,6 +23,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import javax.naming.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -91,6 +92,12 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                 }
                 // TODO: 2026/2/28  校验是否登录
                 attributes.put("userId", userId);
+                HttpSession session = servletRequest.getSession(false);
+                if (session != null) {
+                    String httpSessionId = session.getId();
+                    attributes.put("httpSessionId", httpSessionId);
+                }
+
                 return true;// 放行握手
             }
             return false; // 拒绝握手
@@ -120,6 +127,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
             if (userId == null) {
                 throw new AuthenticationException("未获取到用户id");
             }
+            // TODO: 2026/2/28  校验是否登录
             if (StompCommand.CONNECT.equals(command)) {
 
             } else if (StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command)) {
