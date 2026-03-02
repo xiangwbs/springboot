@@ -33,7 +33,7 @@ public class WsRedisMessageListener implements MessageListener {
             WsClientMessage wsClientMessage = JSONUtil.toBean(value, WsClientMessage.class);
             if (wsClientMessage.getMsgType() == WsClientMessage.MsgType.USER_MSG) {
                 String userId = wsClientMessage.getUserId();
-                String wsSessionId = WsConfiguration.MyChannelInterceptorAdapter.wsSessionId(userId);
+                String wsSessionId = WsConfiguration.MyChannelInterceptorAdapter.getWsSessionId(userId);
                 if (StringUtils.isNotEmpty(wsSessionId)) {
                     simpMessagingTemplate.convertAndSendToUser(userId, wsClientMessage.getDestination(), wsClientMessage.getMessage());
                 }

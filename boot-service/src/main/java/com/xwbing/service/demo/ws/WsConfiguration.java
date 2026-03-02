@@ -188,7 +188,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
             connectMap.remove(userId);
         }
 
-        public static String wsSessionId(String userId) {
+        public static String getWsSessionId(String userId) {
             return connectMap.get(userId);
         }
     }
