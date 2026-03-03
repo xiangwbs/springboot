@@ -64,11 +64,8 @@ public class WsController {
         Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
         String httpSessionId = (String) sessionAttributes.get("httpSessionId");
         String userId = (String) sessionAttributes.get("userId");
+        // 客户端订阅的地址：/user/{userId}/private
         wsSendMessageToClientService.send(WsClientMessage.buildUserMsg(userId, "/private", "服务端私发消息：" + message));
-//        messagingTemplate.convertAndSendToUser(
-//                simpSessionId,
-//                "/private",  // 客户端订阅的地址：/user/{userName}/private
-//                message
-//        );
+//        messagingTemplate.convertAndSendToUser(userId, "/private", message);
     }
 }
