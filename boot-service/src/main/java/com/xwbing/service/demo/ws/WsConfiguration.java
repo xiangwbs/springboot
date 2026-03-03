@@ -1,6 +1,5 @@
 package com.xwbing.service.demo.ws;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +20,6 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
-import javax.naming.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
@@ -50,22 +48,20 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
+        // 配置心跳任务调度器
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.setPoolSize(1);
         taskScheduler.setThreadNamePrefix("wss-heartbeat-thread-");
         taskScheduler.initialize();
-        //这里注册两个，主要是目的是将广播和队列分开。
-        long HEART_BEAT = 20000;
-        registry.enableSimpleBroker("/topic", "/user").setHeartbeatValue(new long[]{HEART_BEAT, HEART_BEAT}).setTaskScheduler(taskScheduler);
-        // 客户端发送消息到以/app开头的地址，会被路由到@MessageMapping注解的方法
+        // 配置消息代理：/topic为广播 /user为点对点
+        long heartBeat = 20000;
+        registry.enableSimpleBroker("/topic", "/user").setHeartbeatValue(new long[]{heartBeat, heartBeat}).setTaskScheduler(taskScheduler);
+        // 配置应用目的地前缀，会被路由到@MessageMapping注解的方法
         registry.setApplicationDestinationPrefixes("/app");
-        // 指定用户发送（一对一）的前缀/user
-        registry.setUserDestinationPrefix("/user/");
+        // 配置用户目的地前缀
+        registry.setUserDestinationPrefix("/user");
     }
 
-    /**
-     * 注册 STOMP 协议的 WebSocket 端点
-     */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // myws?userId=xxx
@@ -74,8 +70,8 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        MyChannelInterceptorAdapter channelInterceptorAdapter = new MyChannelInterceptorAdapter();
-        registration.interceptors(channelInterceptorAdapter);
+        MyChannelInterceptor channelInterceptor = new MyChannelInterceptor();
+        registration.interceptors(channelInterceptor);
     }
 
     public static class HttpHandshakeInterceptor implements HandshakeInterceptor {
@@ -86,17 +82,19 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                 HttpServletRequest servletRequest = req.getServletRequest();
                 String userId = servletRequest.getParameter("userId");
                 log.info("beforeHandshake userId:{}", userId);
-                if (userId == null) {
+                if (StringUtils.isEmpty(userId)) {
                     return false; // 拒绝非法连接
                 }
-                // TODO: 2026/2/28  校验是否登录
                 attributes.put("userId", userId);
-
+                // TODO: 2026/2/28  校验是否登录
                 HttpSession session = servletRequest.getSession(false);
                 if (session != null) {
                     String httpSessionId = session.getId();
                     attributes.put("httpSessionId", httpSessionId);
                 }
+//                else {
+//                    return false;
+//                }
                 return true;// 放行握手
             }
             return false; // 拒绝握手
@@ -108,32 +106,32 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
         }
     }
 
-    public static class MyChannelInterceptorAdapter implements ChannelInterceptor {
+    public static class MyChannelInterceptor implements ChannelInterceptor {
         private static final Map<String, String> connectMap = new ConcurrentHashMap<>();
 
-        @SneakyThrows
         @Override
         public Message<?> preSend(Message<?> message, MessageChannel channel) {
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
             boolean heartbeat = accessor.isHeartbeat();
             StompCommand command = accessor.getCommand();
             log.info("preSend heartbeat:{} command:{}", heartbeat, command);
-            if (heartbeat) {
+            if (heartbeat || command == null) {
                 return message;
             }
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
             String userId = (String) sessionAttributes.get("userId");
             if (userId == null) {
-                throw new AuthenticationException("未获取到用户id");
+                return null;
             }
-            // TODO: 2026/2/28  校验是否登录
-            if (StompCommand.CONNECT.equals(command)) {
-
-            } else if (StompCommand.SEND.equals(command) || StompCommand.SUBSCRIBE.equals(command) || StompCommand.UNSUBSCRIBE.equals(command)) {
-                String wsSessionId = connectMap.get(userId);
-                if (StringUtils.isEmpty(wsSessionId)) {
-                    throw new AuthenticationException("未连接");
-                }
+            switch (command) {
+                case CONNECT:
+                case SEND:
+                case SUBSCRIBE:
+                case UNSUBSCRIBE:
+                    // TODO: 2026/2/28  校验是否登录
+                    break;
+                default:
+                    break;
             }
             return message;
         }
@@ -141,16 +139,14 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
         @Override
         public void afterSendCompletion(Message<?> message, MessageChannel channel, boolean sent, Exception ex) {
             if (ex != null) {
+                log.error("消息发送失败", ex);
                 throw new RuntimeException("websocket通道异常", ex);
             }
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
             boolean heartbeat = accessor.isHeartbeat();
             StompCommand command = accessor.getCommand();
             log.info("afterSendCompletion heartbeat:{} command:{}", heartbeat, command);
-            if (heartbeat) {
-                return;
-            }
-            if (command == null) {
+            if (heartbeat || command == null) {
                 return;
             }
             String wsSessionId = accessor.getSessionId();
