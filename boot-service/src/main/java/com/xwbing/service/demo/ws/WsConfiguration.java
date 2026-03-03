@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -21,6 +22,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
+import javax.annotation.Resource;
 import javax.naming.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -36,6 +38,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         // 配置心跳任务调度器
@@ -60,7 +65,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        MyChannelInterceptor channelInterceptor = new MyChannelInterceptor();
+        MyChannelInterceptor channelInterceptor = new MyChannelInterceptor(stringRedisTemplate);
         registration.interceptors(channelInterceptor);
     }
 
@@ -97,7 +102,13 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
     }
 
     public static class MyChannelInterceptor implements ChannelInterceptor {
-        private static final Map<String, String> connectMap = new ConcurrentHashMap<>();
+        private static final Map<String, String> CONNECT_MAP = new ConcurrentHashMap<>();
+        public static final String CONNECT_KEEP_ALIVE = "myws:keep:alive";
+        private final StringRedisTemplate stringRedisTemplate;
+
+        public MyChannelInterceptor(StringRedisTemplate stringRedisTemplate) {
+            this.stringRedisTemplate = stringRedisTemplate;
+        }
 
         @SneakyThrows
         @Override
@@ -136,13 +147,17 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
             boolean heartbeat = accessor.isHeartbeat();
             StompCommand command = accessor.getCommand();
-            log.info("afterSendCompletion heartbeat:{} command:{}", heartbeat, command);
-            if (heartbeat || command == null) {
-                return;
-            }
             String wsSessionId = accessor.getSessionId();
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
             String userId = (String) sessionAttributes.get("userId");
+            log.info("afterSendCompletion heartbeat:{} command:{}", heartbeat, command);
+            if (heartbeat) {
+                stringRedisTemplate.opsForHash().put(CONNECT_KEEP_ALIVE, userId, String.valueOf(System.currentTimeMillis()));
+                return;
+            }
+            if (command == null) {
+                return;
+            }
             switch (command) {
                 case SEND:
                     break;
@@ -163,17 +178,19 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
         }
 
         public void connectHandler(String userId, String wsSessionId) {
-            connectMap.put(userId, wsSessionId);
-            log.info("webSocket握手成功, userId:{}, wsSessionId:{}, 当前服务器连接数:{}", userId, wsSessionId, connectMap.size());
+            CONNECT_MAP.put(userId, wsSessionId);
+            stringRedisTemplate.opsForHash().put(CONNECT_KEEP_ALIVE, userId, String.valueOf(System.currentTimeMillis()));
+            log.info("webSocket握手成功, userId:{}, wsSessionId:{}, 当前服务器连接数:{}", userId, wsSessionId, CONNECT_MAP.size());
         }
 
         public void disconnectHandler(String userId) {
             log.info("webSocket断开连接, userId:{}", userId);
-            connectMap.remove(userId);
+            CONNECT_MAP.remove(userId);
+            stringRedisTemplate.opsForHash().delete(CONNECT_KEEP_ALIVE, userId);
         }
 
         public static String getWsSessionId(String userId) {
-            return connectMap.get(userId);
+            return CONNECT_MAP.get(userId);
         }
     }
 }
