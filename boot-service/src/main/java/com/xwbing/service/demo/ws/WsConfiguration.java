@@ -1,5 +1,6 @@
 package com.xwbing.service.demo.ws;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
+import javax.naming.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
@@ -109,6 +111,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
     public static class MyChannelInterceptor implements ChannelInterceptor {
         private static final Map<String, String> connectMap = new ConcurrentHashMap<>();
 
+        @SneakyThrows
         @Override
         public Message<?> preSend(Message<?> message, MessageChannel channel) {
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
@@ -121,7 +124,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
             String userId = (String) sessionAttributes.get("userId");
             if (userId == null) {
-                return null;
+                throw new AuthenticationException("未获取到用户id");
             }
             switch (command) {
                 case CONNECT:
