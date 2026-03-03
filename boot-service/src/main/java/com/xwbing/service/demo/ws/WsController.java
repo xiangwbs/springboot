@@ -48,7 +48,7 @@ public class WsController {
     }
 
     @GetMapping("/hasConnectList")
-    public List<String> hasConnect(@RequestParam List<String> userIds) {
+    public List<String> hasConnectList(@RequestParam List<String> userIds) {
         return wsSendMessageToClientService.hasConnect(userIds);
     }
 
