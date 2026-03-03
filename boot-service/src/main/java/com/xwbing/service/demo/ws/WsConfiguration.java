@@ -23,7 +23,6 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -80,12 +79,11 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
                 }
                 attributes.put("userId", userId);
                 // TODO: 2026/2/28  校验是否登录
-                HttpSession session = servletRequest.getSession(false);
-                if (session != null) {
-                    String httpSessionId = session.getId();
-                    attributes.put("httpSessionId", httpSessionId);
-                }
-//                else {
+//                HttpSession session = servletRequest.getSession(false);
+//                if (session != null) {
+//                    String httpSessionId = session.getId();
+//                    attributes.put("httpSessionId", httpSessionId);
+//                } else {
 //                    return false;
 //                }
                 return true;// 放行握手
