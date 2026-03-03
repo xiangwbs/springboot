@@ -37,6 +37,7 @@ public class WsSendMessageToClientService {
         String connectTime = (String) stringRedisTemplate.opsForHash().get(WsConfiguration.MyChannelInterceptor.CONNECT_KEEP_ALIVE, userId);
         if (connectTime != null) {
             long diffTime = System.currentTimeMillis() - NumberUtil.parseLong(connectTime);
+            // 增加5秒容错
             return diffTime <= WsConfiguration.HEART_BEAT + 5000;
         }
         return false;
@@ -50,6 +51,7 @@ public class WsSendMessageToClientService {
             Object connectTime = connects.get(i);
             if (connectTime != null) {
                 long diffTime = System.currentTimeMillis() - NumberUtil.parseLong((String) connectTime);
+                // 增加5秒容错
                 if (diffTime <= WsConfiguration.HEART_BEAT + 5000) {
                     connectList.add(userId);
                 }
