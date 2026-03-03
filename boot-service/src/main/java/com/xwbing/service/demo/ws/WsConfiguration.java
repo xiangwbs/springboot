@@ -28,17 +28,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Socket建立后，该类用于接收用户端(/user)向服务器端(/app)发送消息，以及处理完成后服务端向用户端发送消息。
- * ========== ApplicationDestinationPrefixes("/app")的消息，服务端订阅以及客户端发送的形式
- * 服务端订阅：@MessageMapping("/broadcast")、客户端发送：stomp.send("/app/broadcast")
- * 服务端发送：@SendTo("/topic/broadcast") + return消息体、客户端订阅：stomp.subscribe("/topic/broadcast")
- * 服务端发送：simpMessagingTemplate.convertAndSend("/topic/broadcast")、客户端订阅：stomp.subscribe("/topic/broadcast")
- * <p>
- * ========== UserDestinationPrefix("/user")的消息，服务端订阅以及客户端发送的形式
- * 服务端订阅：@MessageMapping("/one")、客户端发送：stomp.send("/user/one")
- * 服务端发送：@SendToUser("/queue/one") + return消息体、客户端订阅：stomp.subscribe("/user/queue/one")
- * 服务端发送：simpMessagingTemplate.convertAndSendToUser("/queue/one")、客户端订阅：stomp.subscribe("/user/queue/one")
- *
  * @author daofeng
  * @version $
  * @since 2026年02月24日 15:24
@@ -47,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         // 配置心跳任务调度器
