@@ -20,7 +20,6 @@ import java.util.List;
  */
 @Component
 public class WsSendMessageToClientService {
-    private static long expireTime = 60000;
     @Value("${spring.profiles.active}")
     private String environment;
     @Autowired
@@ -31,14 +30,14 @@ public class WsSendMessageToClientService {
     }
 
     public String getChannel() {
-        return this.environment + ":MyWebsocket";
+        return "myws:message:" + this.environment;
     }
 
     public boolean hasConnect(String userId) {
         String connectTime = (String) stringRedisTemplate.opsForHash().get(WsConfiguration.MyChannelInterceptor.CONNECT_KEEP_ALIVE, userId);
         if (connectTime != null) {
             long diffTime = System.currentTimeMillis() - NumberUtil.parseLong(connectTime);
-            return diffTime < expireTime;
+            return diffTime <= WsConfiguration.HEART_BEAT;
         }
         return false;
     }
@@ -51,7 +50,7 @@ public class WsSendMessageToClientService {
             Object connectTime = connects.get(i);
             if (connectTime != null) {
                 long diffTime = System.currentTimeMillis() - NumberUtil.parseLong((String) connectTime);
-                if (diffTime < expireTime) {
+                if (diffTime <= WsConfiguration.HEART_BEAT) {
                     connectList.add(userId);
                 }
             }

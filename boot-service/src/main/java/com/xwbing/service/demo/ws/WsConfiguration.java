@@ -1,6 +1,5 @@
 package com.xwbing.service.demo.ws;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +22,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import javax.annotation.Resource;
-import javax.naming.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
@@ -38,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
+    public static final long HEART_BEAT = 20000;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
@@ -49,8 +48,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
         taskScheduler.setThreadNamePrefix("wss-heartbeat-thread-");
         taskScheduler.initialize();
         // 配置消息代理：/topic为广播 /user为点对点
-        long heartBeat = 20000;
-        registry.enableSimpleBroker("/topic", "/user").setHeartbeatValue(new long[]{heartBeat, heartBeat}).setTaskScheduler(taskScheduler);
+        registry.enableSimpleBroker("/topic", "/user").setHeartbeatValue(new long[]{HEART_BEAT, HEART_BEAT}).setTaskScheduler(taskScheduler);
         // 配置应用目的地前缀，会被路由到@MessageMapping注解的方法
         registry.setApplicationDestinationPrefixes("/app");
         // 配置用户目的地前缀
@@ -110,20 +108,17 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
             this.stringRedisTemplate = stringRedisTemplate;
         }
 
-        @SneakyThrows
         @Override
         public Message<?> preSend(Message<?> message, MessageChannel channel) {
             StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
             boolean heartbeat = accessor.isHeartbeat();
             StompCommand command = accessor.getCommand();
-            log.info("preSend heartbeat:{} command:{}", heartbeat, command);
-            if (heartbeat || command == null) {
-                return message;
-            }
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
             String userId = (String) sessionAttributes.get("userId");
-            if (userId == null) {
-                throw new AuthenticationException("未获取到用户id");
+            String httpSessionId = (String) sessionAttributes.get("httpSessionId");
+            log.info("preSend userId:{} heartbeat:{} command:{}", userId, heartbeat, command);
+            if (heartbeat || command == null) {
+                return message;
             }
             switch (command) {
                 case CONNECT:
@@ -150,7 +145,7 @@ public class WsConfiguration implements WebSocketMessageBrokerConfigurer {
             String wsSessionId = accessor.getSessionId();
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
             String userId = (String) sessionAttributes.get("userId");
-            log.info("afterSendCompletion heartbeat:{} command:{}", heartbeat, command);
+            log.info("afterSendCompletion userId:{} heartbeat:{} command:{}", userId, heartbeat, command);
             if (heartbeat) {
                 stringRedisTemplate.opsForHash().put(CONNECT_KEEP_ALIVE, userId, String.valueOf(System.currentTimeMillis()));
                 return;
