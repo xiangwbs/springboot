@@ -15,21 +15,6 @@ import java.util.Map;
 
 /**
  * ws连接地址：ws://localhost:8080/api/myws?userId=abc123
- * <p>
- * 订阅：
- * SUBSCRIBE
- * id:sub-0
- * destination:/topic/messages
- * <p>
- * \u0000
- * <p>
- * 发送消息：
- * SEND
- * destination:/app/chat
- * content-type:text/plain
- * <p>
- * Hello WebSocket!
- * ^@
  *
  * @author daofeng
  * @version $
@@ -54,7 +39,7 @@ public class WsController {
 
     @MessageMapping("/chat")  // 客户端发送到/app/chat
 //    @SendTo("/topic/messages")  // 广播到所有订阅/topic/messages的客户端
-//    @SendToUser("/private") // 指定用户发送到订阅/user/{userName}/private的客户端
+//    @SendToUser("/private") // 指定用户发送到订阅/user/{userName}/private的客户端:SimpMessageHeaderAccessor.getUser=Principal principal.getName()
     public void broadcastMessage(@Payload String message, SimpMessageHeaderAccessor accessor) {
         // 广播消息
         wsSendMessageToClientService.send(WsClientMessage.buildTopicMsg("/topic/messages", "服务端广播消息：" + message));
