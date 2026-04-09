@@ -22,15 +22,19 @@ public class JsonPathDemo {
     }
 
     public static String parse(String jsonStr, String path) {
-        JSON parse = JSONUtil.parse(jsonStr);
-        Object byPath = parse.getByPath(path);
-        if (byPath == null) {
+        try {
+            JSON parse = JSONUtil.parse(jsonStr);
+            Object byPath = parse.getByPath(path);
+            if (byPath == null) {
+                return "";
+            }
+            if (byPath instanceof String || byPath instanceof Number || byPath instanceof Boolean) {
+                return byPath.toString();
+            } else {
+                return JSONUtil.toJsonStr(byPath);
+            }
+        } catch (Exception e) {
             return "";
-        }
-        if (byPath instanceof String || byPath instanceof Number || byPath instanceof Boolean) {
-            return byPath.toString();
-        } else {
-            return JSONUtil.toJsonStr(byPath);
         }
     }
 }
