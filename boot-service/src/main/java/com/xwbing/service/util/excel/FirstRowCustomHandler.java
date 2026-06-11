@@ -8,14 +8,14 @@ import org.apache.poi.ss.util.CellRangeAddress;
 
 public class FirstRowCustomHandler implements SheetWriteHandler {
     private final String firstRowText;
-    private final int maxColumnNum; // 最大列索引（用于合并第一行）
-    private final int columnWidth;  // 新增：列宽（与@ColumnWidth保持一致）
+    private final int maxColumnNum; // 最大列索引（用于合并第一行），索引从0开始，传表头个数-1
+    private final int columnWidth;  // 新增：列宽（与@ColumnWidth保持一致），默认为20
 
     // 构造器：新增 columnWidth 参数，接收@ColumnWidth的值
     public FirstRowCustomHandler(String firstRowText, int maxColumnNum, int columnWidth) {
         this.firstRowText = firstRowText;
         this.maxColumnNum = maxColumnNum;
-        this.columnWidth = columnWidth; // 例如传入140
+        this.columnWidth = columnWidth;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class FirstRowCustomHandler implements SheetWriteHandler {
 
         // 5. 关键修复：为所有列设置宽度（覆盖表头行和数据行）
         // 循环所有列，设置宽度（单位：字符宽度 × 256，与EasyExcel默认一致）
-        for (int i = 0; i < maxColumnNum; i++) {
+        for (int i = 0; i <= maxColumnNum; i++) {
             sheet.setColumnWidth(i, columnWidth * 256);
         }
     }
