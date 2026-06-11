@@ -6,14 +6,14 @@ import com.alibaba.excel.write.metadata.holder.WriteWorkbookHolder;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 
-public class FirstRowCustomHandler implements SheetWriteHandler {
-    private final String firstRowText;
+public class NoteRowCustomHandler implements SheetWriteHandler {
+    private final String noteText;
     private final int maxColumnNum; // 最大列索引（用于合并第一行），索引从0开始，传表头个数-1
     private final int columnWidth;  // 新增：列宽（与@ColumnWidth保持一致），默认为20
 
     // 构造器：新增 columnWidth 参数，接收@ColumnWidth的值
-    public FirstRowCustomHandler(String firstRowText, int maxColumnNum, int columnWidth) {
-        this.firstRowText = firstRowText;
+    public NoteRowCustomHandler(String noteText, int maxColumnNum, int columnWidth) {
+        this.noteText = noteText;
         this.maxColumnNum = maxColumnNum;
         this.columnWidth = columnWidth;
     }
@@ -26,7 +26,7 @@ public class FirstRowCustomHandler implements SheetWriteHandler {
         // 1. 创建第一行（标题行，索引0）
         Row firstRow = sheet.createRow(0);
         Cell cell = firstRow.createCell(0);
-        cell.setCellValue(firstRowText);
+        cell.setCellValue(noteText);
 
         // 2. 合并第一行的所有列
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, maxColumnNum));

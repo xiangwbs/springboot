@@ -366,16 +366,16 @@ public class ExcelUtil {
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
-            boolean hasFirstRow = false;
+            boolean hasNoteRow = false;
             if (pageFunction != null) {
                 ExcelWriterBuilder writerBuilder = EasyExcel.write(outputStream).head(head).password(password);
                 if (writeHandler != null) {
                     writerBuilder.registerWriteHandler(writeHandler);
-                    if (writeHandler instanceof FirstRowCustomHandler) {
-                        hasFirstRow = true;
+                    if (writeHandler instanceof NoteRowCustomHandler) {
+                        hasNoteRow = true;
                     }
                 }
-                ExcelWriter excelWriter = writerBuilder.relativeHeadRowIndex(hasFirstRow ? 1 : 0).build();
+                ExcelWriter excelWriter = writerBuilder.relativeHeadRowIndex(hasNoteRow ? 1 : 0).build();
                 WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
                 int pageNumber = 1;
                 while (true) {
@@ -391,11 +391,11 @@ public class ExcelUtil {
                 ExcelWriterSheetBuilder writerSheetBuilder = EasyExcel.write(outputStream).head(head).password(password).sheet("Sheet1").autoTrim(Boolean.TRUE);
                 if (writeHandler != null) {
                     writerSheetBuilder.registerWriteHandler(writeHandler);
-                    if (writeHandler instanceof FirstRowCustomHandler) {
-                        hasFirstRow = true;
+                    if (writeHandler instanceof NoteRowCustomHandler) {
+                        hasNoteRow = true;
                     }
                 }
-                if (hasFirstRow) {
+                if (hasNoteRow) {
                     writerSheetBuilder.relativeHeadRowIndex(1);
                 }
                 writerSheetBuilder.doWrite(allData);
@@ -423,16 +423,16 @@ public class ExcelUtil {
             response.setHeader("Pragma", "No-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setDateHeader("Expires", 0);
-            boolean hasFirstRow = false;
+            boolean hasNoteRow = false;
             if (pageFunction != null) {
                 ExcelWriterBuilder writerBuilder = EasyExcel.write(outputStream).head(head).password(password);
                 if (writeHandler != null) {
                     writerBuilder.registerWriteHandler(writeHandler);
-                    if (writeHandler instanceof FirstRowCustomHandler) {
-                        hasFirstRow = true;
+                    if (writeHandler instanceof NoteRowCustomHandler) {
+                        hasNoteRow = true;
                     }
                 }
-                ExcelWriter excelWriter = writerBuilder.relativeHeadRowIndex(hasFirstRow ? 1 : 0).build();
+                ExcelWriter excelWriter = writerBuilder.relativeHeadRowIndex(hasNoteRow ? 1 : 0).build();
                 WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
                 int pageNumber = 1;
                 while (true) {
@@ -448,11 +448,11 @@ public class ExcelUtil {
                 ExcelWriterSheetBuilder writerSheetBuilder = EasyExcel.write(outputStream).head(head).password(password).sheet("Sheet1").autoTrim(Boolean.TRUE);
                 if (writeHandler != null) {
                     writerSheetBuilder.registerWriteHandler(writeHandler);
-                    if (writeHandler instanceof FirstRowCustomHandler) {
-                        hasFirstRow = true;
+                    if (writeHandler instanceof NoteRowCustomHandler) {
+                        hasNoteRow = true;
                     }
                 }
-                if (hasFirstRow) {
+                if (hasNoteRow) {
                     writerSheetBuilder.relativeHeadRowIndex(1);
                 }
                 writerSheetBuilder.doWrite(allData);
@@ -473,16 +473,16 @@ public class ExcelUtil {
      */
     private static <T> void writeToLocal(WriteHandler writeHandler, String basedir, Class<T> head, String fileName, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName);
-        boolean hasFirstRow = false;
+        boolean hasNoteRow = false;
         if (pageFunction != null) {
             ExcelWriterBuilder writerBuilder = EasyExcel.write(path.toString()).head(head).password(password);
             if (writeHandler != null) {
                 writerBuilder.registerWriteHandler(writeHandler);
-                if (writeHandler instanceof FirstRowCustomHandler) {
-                    hasFirstRow = true;
+                if (writeHandler instanceof NoteRowCustomHandler) {
+                    hasNoteRow = true;
                 }
             }
-            ExcelWriter excelWriter = writerBuilder.relativeHeadRowIndex(hasFirstRow ? 1 : 0).build();
+            ExcelWriter excelWriter = writerBuilder.relativeHeadRowIndex(hasNoteRow ? 1 : 0).build();
             WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
             int pageNumber = 1;
             while (true) {
@@ -498,11 +498,11 @@ public class ExcelUtil {
             ExcelWriterSheetBuilder writerSheetBuilder = EasyExcel.write(path.toString()).head(head).password(password).sheet("Sheet1").autoTrim(Boolean.TRUE);
             if (writeHandler != null) {
                 writerSheetBuilder.registerWriteHandler(writeHandler);
-                if (writeHandler instanceof FirstRowCustomHandler) {
-                    hasFirstRow = true;
+                if (writeHandler instanceof NoteRowCustomHandler) {
+                    hasNoteRow = true;
                 }
             }
-            if (hasFirstRow) {
+            if (hasNoteRow) {
                 writerSheetBuilder.relativeHeadRowIndex(1);
             }
             writerSheetBuilder.doWrite(allData);
@@ -520,16 +520,16 @@ public class ExcelUtil {
      */
     private static void writeToLocal(WriteHandler writeHandler, String basedir, List<List<String>> head, String fileName, String password, List<?> allData, Function<Integer, List<?>> pageFunction) {
         Path path = FileSystems.getDefault().getPath(basedir, fileName);
-        boolean hasFirstRow = false;
+        boolean hasNoteRow = false;
         if (pageFunction != null) {
             ExcelWriterBuilder writerBuilder = EasyExcel.write(path.toString()).head(head).password(password);
             if (writeHandler != null) {
                 writerBuilder.registerWriteHandler(writeHandler);
-                if (writeHandler instanceof FirstRowCustomHandler) {
-                    hasFirstRow = true;
+                if (writeHandler instanceof NoteRowCustomHandler) {
+                    hasNoteRow = true;
                 }
             }
-            ExcelWriter excelWriter = writerBuilder.relativeHeadRowIndex(hasFirstRow ? 1 : 0).build();
+            ExcelWriter excelWriter = writerBuilder.relativeHeadRowIndex(hasNoteRow ? 1 : 0).build();
             WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
             int pageNumber = 1;
             while (true) {
@@ -545,11 +545,11 @@ public class ExcelUtil {
             ExcelWriterSheetBuilder writerSheetBuilder = EasyExcel.write(path.toString()).head(head).password(password).sheet("Sheet1").autoTrim(Boolean.TRUE);
             if (writeHandler != null) {
                 writerSheetBuilder.registerWriteHandler(writeHandler);
-                if (writeHandler instanceof FirstRowCustomHandler) {
-                    hasFirstRow = true;
+                if (writeHandler instanceof NoteRowCustomHandler) {
+                    hasNoteRow = true;
                 }
             }
-            if (hasFirstRow) {
+            if (hasNoteRow) {
                 writerSheetBuilder.relativeHeadRowIndex(1);
             }
             writerSheetBuilder.doWrite(allData);
