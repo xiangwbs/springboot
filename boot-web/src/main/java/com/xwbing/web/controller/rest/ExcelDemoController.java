@@ -141,7 +141,7 @@ public class ExcelDemoController {
     public void writeToBrowser(HttpServletResponse response) {
         NoteRowCustomHandler noteRowCustomHandler = new NoteRowCustomHandler("注意事项：\n" +
                 "所属相关方：填写相关方人员对应的所属相关方。\n" +
-                "证件类型：目前仅支持身份证。", 3, 20);
+                "证件类型：目前仅支持身份证。", 3, 40);
         ExcelUtil.write(noteRowCustomHandler,response, ExcelHeaderVo.class, "下载excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
