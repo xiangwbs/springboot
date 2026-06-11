@@ -13,6 +13,7 @@ import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 import com.xwbing.service.domain.mapper.rest.DynamicMapper;
 import com.xwbing.service.util.excel.ExcelRowMergeStrategy;
 import com.xwbing.service.util.excel.ExcelUtil;
+import com.xwbing.service.util.excel.FirstRowCustomHandler;
 import com.xwbing.starter.aliyun.oss.OssService;
 import com.xwbing.starter.aliyun.oss.enums.ContentTypeEnum;
 import com.xwbing.web.response.ApiResponse;
@@ -138,7 +139,10 @@ public class ExcelDemoController {
     @ApiOperation("下载excel到浏览器")
     @GetMapping("writeToBrowser")
     public void writeToBrowser(HttpServletResponse response) {
-        ExcelUtil.write(response, ExcelHeaderVo.class, "下载excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, pageNumber -> {
+        FirstRowCustomHandler firstRowCustomHandler = new FirstRowCustomHandler("注意事项：\n" +
+                "所属相关方：填写相关方人员对应的所属相关方。\n" +
+                "证件类型：目前仅支持身份证。", 4, 30);
+        ExcelUtil.write(firstRowCustomHandler,response, ExcelHeaderVo.class, "下载excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
             }

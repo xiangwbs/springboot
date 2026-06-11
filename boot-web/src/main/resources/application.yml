@@ -96,9 +96,9 @@ xxl:
     executor-log-path: logs/jobhandler
 
 alipay:
-  app-cert-public-key-path: /apps/alipay/appCertPublicKey.crt
-  alipay-public-cert-path: /apps/alipay/alipayCertPublicKey_RSA2.crt
-  alipay-root-cert-path: /apps/alipay/alipayRootCert.crt
+  app-cert-public-key-path: /etc/pay/alipay/appCertPublicKey.crt
+  alipay-public-cert-path: /etc/pay/alipay/alipayCertPublicKey_RSA2.crt
+  alipay-root-cert-path: /etc/pay/alipay/alipayRootCert.crt
   notify-url: /pay/alipay/notify
   return—url: /app/#/pay/result?orderNo=%s
   quit-url: /app/#/order?orderNo=%s
