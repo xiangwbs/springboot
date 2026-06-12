@@ -28,6 +28,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -151,6 +152,23 @@ public class ExcelUtil {
     public static <T> Integer read(String fullPath, String password, Class<T> head, int sheetNo, int headRowNum, int exampleNum, int batchDealNum,
                                    Consumer<Map<Integer, String>> headConsumer, Consumer<List<T>> dataConsumer, Consumer<ReadError<T>> errorConsumer) {
         return read(null, fullPath, password, head, sheetNo, headRowNum, exampleNum, batchDealNum, headConsumer, dataConsumer, errorConsumer);
+    }
+
+    // ---------------------- write outputStream ----------------------
+    public static <T> void write(OutputStream outputStream, Class<T> head, String password, List<T> allData) {
+        write(null, outputStream, head, password, allData, null);
+    }
+
+    public static <T> void write(OutputStream outputStream, Class<T> head, String password, Function<Integer, List<T>> pageFunction) {
+        write(null, outputStream, head, password, null, pageFunction);
+    }
+
+    public static <T> void write(WriteHandler writeHandler, OutputStream outputStream, Class<T> head, String password, List<T> allData) {
+        write(writeHandler, outputStream, head, password, allData, null);
+    }
+
+    public static <T> void write(WriteHandler writeHandler, OutputStream outputStream, Class<T> head, String password, Function<Integer, List<T>> pageFunction) {
+        write(writeHandler, outputStream, head, password, null, pageFunction);
     }
 
     // ---------------------- write browser ----------------------
@@ -459,6 +477,43 @@ public class ExcelUtil {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static <T> void write(WriteHandler writeHandler, OutputStream outputStream, Class<T> head, String password, List<T> allData, Function<Integer, List<T>> pageFunction) {
+        boolean hasNoteRow = false;
+        if (pageFunction != null) {
+            ExcelWriterBuilder writerBuilder = EasyExcel.write(outputStream).head(head).password(password);
+            if (writeHandler != null) {
+                writerBuilder.registerWriteHandler(writeHandler);
+                if (writeHandler instanceof NoteRowCustomHandler) {
+                    hasNoteRow = true;
+                }
+            }
+            ExcelWriter excelWriter = writerBuilder.relativeHeadRowIndex(hasNoteRow ? 1 : 0).build();
+            WriteSheet writeSheet = EasyExcel.writerSheet("Sheet1").autoTrim(Boolean.TRUE).build();
+            int pageNumber = 1;
+            while (true) {
+                List<T> data = pageFunction.apply(pageNumber);
+                excelWriter.write(data, writeSheet);
+                if (CollectionUtils.isEmpty(data)) {
+                    break;
+                }
+                pageNumber++;
+            }
+            excelWriter.finish();
+        } else {
+            ExcelWriterSheetBuilder writerSheetBuilder = EasyExcel.write(outputStream).head(head).password(password).sheet("Sheet1").autoTrim(Boolean.TRUE);
+            if (writeHandler != null) {
+                writerSheetBuilder.registerWriteHandler(writeHandler);
+                if (writeHandler instanceof NoteRowCustomHandler) {
+                    hasNoteRow = true;
+                }
+            }
+            if (hasNoteRow) {
+                writerSheetBuilder.relativeHeadRowIndex(1);
+            }
+            writerSheetBuilder.doWrite(allData);
         }
     }
 

@@ -6,7 +6,6 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.xwbing.service.demo.NationalExcelReadDemo;
 import com.xwbing.service.domain.entity.vo.ExcelFailHeadVo;
@@ -259,10 +258,7 @@ public class ExcelDemoController {
                 log.info("writeToOss");
                 List<ExcelFailHeadVo> failList = Collections.singletonList(ExcelFailHeadVo.builder().name("巷子").age(18).introduction("这是一条简介").remark("手机号不能为空").build());
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                EasyExcel.write(out, ExcelFailHeadVo.class)
-                        .registerWriteHandler(new NoteRowCustomHandler("注意事项：\n姓名：请填真实姓名。\n手机号：需要正确的手机号格式。", 4, 40))
-                        .sheet("sheet1")
-                        .doWrite(failList);
+                ExcelUtil.write(new NoteRowCustomHandler("注意事项：\n姓名：请填真实姓名。\n手机号：需要正确的手机号格式。", 4, 40), out, ExcelFailHeadVo.class, null, failList);
                 log.info("writeToOss putOss");
                 ossService.putFile(new ByteArrayInputStream(out.toByteArray()), ContentTypeEnum.FILE.getCode(), ExcelTypeEnum.XLSX.getValue());
             } catch (Exception e) {
