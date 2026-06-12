@@ -6,6 +6,7 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.xwbing.service.demo.NationalExcelReadDemo;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
@@ -28,6 +29,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -142,7 +145,7 @@ public class ExcelDemoController {
         NoteRowCustomHandler noteRowCustomHandler = new NoteRowCustomHandler("注意事项：\n" +
                 "所属相关方：填写相关方人员对应的所属相关方。\n" +
                 "证件类型：目前仅支持身份证。", 3, 40);
-        ExcelUtil.write(noteRowCustomHandler,response, ExcelHeaderVo.class, "下载excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, pageNumber -> {
+        ExcelUtil.write(noteRowCustomHandler, response, ExcelHeaderVo.class, "下载excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
             }
@@ -241,6 +244,29 @@ public class ExcelDemoController {
                     boolean delete = tmpFile.delete();
                     log.info("writeToOss delete tmpFile:{}", delete);
                 }
+            } catch (Exception e) {
+                log.error("writeToOss error", e);
+            }
+        });
+        return ossService.getUrl(objectKey);
+    }
+
+    @ApiOperation("下载excel到oss")
+    @GetMapping("writeToOss2")
+    public String writeToOss2() {
+        String objectKey = ossService.generateObjectKey(ContentTypeEnum.FILE);
+        CompletableFuture.runAsync(() -> {
+            try {
+                log.info("writeToOss");
+                List<ExcelHeaderVo> excelData = new ArrayList<>();
+                ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介").build();
+                excelData.add(data);
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                EasyExcel.write(out, ExcelHeaderVo.class)
+                        .sheet("sheet1")
+                        .doWrite(excelData);
+                ossService.putFile(new ByteArrayInputStream(out.toByteArray()), ContentTypeEnum.FILE.getCode(), ExcelTypeEnum.XLSX.getValue());
+                log.info("writeToOss putOss");
             } catch (Exception e) {
                 log.error("writeToOss error", e);
             }
