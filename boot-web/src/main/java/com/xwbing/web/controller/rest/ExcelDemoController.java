@@ -9,6 +9,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.xwbing.service.demo.NationalExcelReadDemo;
+import com.xwbing.service.domain.entity.vo.ExcelFailHeadVo;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderDemoVo;
 import com.xwbing.service.domain.entity.vo.ExcelHeaderVo;
 import com.xwbing.service.domain.mapper.rest.DynamicMapper;
@@ -142,9 +143,7 @@ public class ExcelDemoController {
     @ApiOperation("下载excel到浏览器")
     @GetMapping("writeToBrowser")
     public void writeToBrowser(HttpServletResponse response) {
-        NoteRowCustomHandler noteRowCustomHandler = new NoteRowCustomHandler("注意事项：\n" +
-                "姓名：请填真实姓名。\n" +
-                "手机号：需要正确的手机号格式。", 3, 40);
+        NoteRowCustomHandler noteRowCustomHandler = new NoteRowCustomHandler("用户信息：\n姓名：真实姓名。\n手机号：联系方式。", 3, 40);
         ExcelUtil.write(noteRowCustomHandler, response, ExcelHeaderVo.class, "下载excel到浏览器" + ExcelTypeEnum.XLSX.getValue(), null, pageNumber -> {
             if (pageNumber == 2) {
                 return Collections.emptyList();
@@ -251,22 +250,21 @@ public class ExcelDemoController {
         return ossService.getUrl(objectKey);
     }
 
-    @ApiOperation("下载excel到oss")
-    @GetMapping("writeToOss2")
-    public String writeToOss2() {
+    @ApiOperation("下载失败数据到oss")
+    @GetMapping("writeErrorToOss")
+    public String writeErrorToOss() {
         String objectKey = ossService.generateObjectKey(ContentTypeEnum.FILE);
         CompletableFuture.runAsync(() -> {
             try {
                 log.info("writeToOss");
-                List<ExcelHeaderVo> excelData = new ArrayList<>();
-                ExcelHeaderVo data = ExcelHeaderVo.builder().name("巷子").age(18).tel("13488888888").introduction("这是一条简介").build();
-                excelData.add(data);
+                List<ExcelFailHeadVo> failList = Collections.singletonList(ExcelFailHeadVo.builder().name("巷子").age(18).introduction("这是一条简介").remark("手机号不能为空").build());
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                EasyExcel.write(out, ExcelHeaderVo.class)
+                EasyExcel.write(out, ExcelFailHeadVo.class)
+                        .registerWriteHandler(new NoteRowCustomHandler("注意事项：\n姓名：请填真实姓名。\n手机号：需要正确的手机号格式。", 4, 40))
                         .sheet("sheet1")
-                        .doWrite(excelData);
-                ossService.putFile(new ByteArrayInputStream(out.toByteArray()), ContentTypeEnum.FILE.getCode(), ExcelTypeEnum.XLSX.getValue());
+                        .doWrite(failList);
                 log.info("writeToOss putOss");
+                ossService.putFile(new ByteArrayInputStream(out.toByteArray()), ContentTypeEnum.FILE.getCode(), ExcelTypeEnum.XLSX.getValue());
             } catch (Exception e) {
                 log.error("writeToOss error", e);
             }
