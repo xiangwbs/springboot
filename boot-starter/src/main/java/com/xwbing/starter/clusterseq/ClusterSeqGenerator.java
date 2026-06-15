@@ -1,12 +1,11 @@
 package com.xwbing.starter.clusterseq;
 
+import com.xwbing.starter.redis.RedisService;
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
-
-import com.xwbing.starter.redis.RedisService;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 集群序列号生成器，用于订单号
@@ -43,8 +42,8 @@ public class ClusterSeqGenerator {
     public Long getSeqId(String bizType) {
         String date = getDateInfo();
         String key = KEY_PREFIX + bizType + date;
-        redisService.expire(key, 90);
         Long seq = redisService.incrBy(key, ThreadLocalRandom.current().nextInt(1, RANDOM_NEXT_OFFSET));
+        redisService.expire(key, 90);
         if (seq <= MAX_SEQ) {
             return Long.valueOf(envType + date + String.format("%0" + SEQ_SIZE + "d", seq));
         } else {
