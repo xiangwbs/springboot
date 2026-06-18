@@ -182,7 +182,7 @@ public class LambdaDemo {
             list.add(i);
         }
         List<CompletableFuture<Void>> futureList = list.stream()
-                .map(i -> CompletableFuture.runAsync(System.out::println, ThreadUtil.build().singleThreadPool()))
+                .map(i -> CompletableFuture.runAsync(System.out::println, ThreadUtil.SINGLE_THREAD_POOL))
                 .collect(Collectors.toList());
         futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
     }

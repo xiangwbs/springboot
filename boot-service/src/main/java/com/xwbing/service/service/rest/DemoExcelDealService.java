@@ -1,26 +1,6 @@
 package com.xwbing.service.service.rest;
 
-import java.io.File;
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
+import cn.hutool.core.util.IdUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.cache.MapCache;
 import com.alibaba.excel.support.ExcelTypeEnum;
@@ -34,10 +14,23 @@ import com.xwbing.service.enums.ImportStatusEnum;
 import com.xwbing.service.exception.BusinessException;
 import com.xwbing.service.util.Jackson;
 import com.xwbing.service.util.ThreadUtil;
-
-import cn.hutool.core.util.IdUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author daofeng
@@ -90,7 +83,7 @@ public class DemoExcelDealService {
             CompletableFuture.runAsync(() -> EasyExcel.read(tmpFile, ExcelHeaderVo.class,
                     new DemoExcelReadListener(importNo, userName, tmpFile, this, redisTemplate))
                             .readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(1).sheet(0).doRead(),
-                    ThreadUtil.build().excelThreadPool()).exceptionally(throwable -> {
+                    ThreadUtil.EXCEL_THREAD_POOL).exceptionally(throwable -> {
                 log.error("readByStream importNo:{} error", importNo, throwable);
                 ImportTask task = (ImportTask)redisTemplate.opsForValue().get(String.format(IMPORT_TASK, importNo));
                 if (ImportStatusEnum.EXPORT.equals(task.getStatus())) {

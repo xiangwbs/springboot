@@ -1,23 +1,5 @@
 package com.xwbing.service.service.rest;
 
-import java.io.File;
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.cache.MapCache;
 import com.alibaba.excel.support.ExcelTypeEnum;
@@ -34,8 +16,23 @@ import com.xwbing.service.util.RestMessage;
 import com.xwbing.service.util.SensitiveWordEngine;
 import com.xwbing.service.util.ThreadUtil;
 import com.xwbing.starter.redis.RedisService;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * excel 处理
@@ -130,7 +127,7 @@ public class EasyExcelDealService {
             CompletableFuture.runAsync(() -> EasyExcel.read(tmpFile, ExcelHeaderVo.class,
                     new EasyExcelReadListener(importId, tmpFile, this, importTaskService, importFailLogService))
                     .readCache(new MapCache()).ignoreEmptyRow(Boolean.FALSE).headRowNumber(headRowNum).sheet(sheetNo)
-                    .doRead(), ThreadUtil.build().excelThreadPool()).exceptionally(throwable -> {
+                    .doRead(), ThreadUtil.EXCEL_THREAD_POOL).exceptionally(throwable -> {
                 log.error("readByStream importId:{} error", importId, throwable);
                 ImportTask task = importTaskService.getById(importId);
                 if (ImportStatusEnum.EXPORT.equals(task.getStatus())) {

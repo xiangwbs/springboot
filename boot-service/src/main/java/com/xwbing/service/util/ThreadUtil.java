@@ -1,10 +1,10 @@
 package com.xwbing.service.util;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
  * ThreadUtil.build().xxxPool()
@@ -16,32 +16,11 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * @since 2020年03月31日 07:24
  */
 public class ThreadUtil {
-    private static volatile ThreadUtil threadUtil;
-    private ThreadPoolExecutor singleThreadPool = new MdcThreadPoolExecutor(1, 1, 0L, TimeUnit.MICROSECONDS,
-            new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("singlePool").build());
-    private ThreadPoolExecutor excelThreadPool = new MdcThreadPoolExecutor(5, 5, 600L, TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("excel").build());
-
     private ThreadUtil() {
 
     }
-
-    public static ThreadUtil build() {
-        if (threadUtil == null) {
-            synchronized (ThreadUtil.class) {
-                if (threadUtil == null) {
-                    threadUtil = new ThreadUtil();
-                }
-            }
-        }
-        return threadUtil;
-    }
-
-    public ThreadPoolExecutor singleThreadPool() {
-        return singleThreadPool;
-    }
-
-    public ThreadPoolExecutor excelThreadPool() {
-        return excelThreadPool;
-    }
+    public static final ThreadPoolExecutor SINGLE_THREAD_POOL = new MdcThreadPoolExecutor(1, 1, 0L, TimeUnit.MICROSECONDS,
+            new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("singlePool").build(),new ThreadPoolExecutor.CallerRunsPolicy());
+    public static final ThreadPoolExecutor EXCEL_THREAD_POOL = new MdcThreadPoolExecutor(4, 8, 60L, TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(), new ThreadFactoryBuilder().setNameFormat("excel").build(),new ThreadPoolExecutor.CallerRunsPolicy());
 }
