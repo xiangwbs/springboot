@@ -46,7 +46,7 @@ public class LambdaDemo {
         lists.sort(Comparator.reverseOrder());//降序，不需要收集
         lists.sort(Comparator.comparingInt(o -> o));//升序，不需要收集
         lists = lists.stream().sorted((o1, o2) -> o2 - o1).collect(Collectors.toList());// 降序，需要收集
-        listAll().stream().sorted(Comparator.comparing(SysUser::getAge).thenComparing(SysUser::getId)).collect(Collectors.toList());
+        listAll().stream().sorted(Comparator.comparing(SysUser::getAge).thenComparing(SysUser::getId)).collect(Collectors.toList());// 多字段排序
 
         System.out.println("map:" + lists.stream().map(o1 -> o1 * 2).collect(Collectors.toList()));//转换成新元素
         System.out.println("flatMap:" + Stream.of("hello welcome", "world hello", "hello world", "hello world welcome")
