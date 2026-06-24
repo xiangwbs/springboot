@@ -1,13 +1,12 @@
 package com.xwbing.service.demo;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.IntSummaryStatistics;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeSet;
+import com.alibaba.fastjson.JSONObject;
+import com.xwbing.service.util.ThreadUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import javax.annotation.Resource;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BinaryOperator;
@@ -16,14 +15,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
-import com.alibaba.fastjson.JSONObject;
-import com.xwbing.service.util.ThreadUtil;
 
 /**
  * Date: 2017/6/15 17:09
@@ -55,6 +46,7 @@ public class LambdaDemo {
         lists.sort(Comparator.reverseOrder());//降序，不需要收集
         lists.sort(Comparator.comparingInt(o -> o));//升序，不需要收集
         lists = lists.stream().sorted((o1, o2) -> o2 - o1).collect(Collectors.toList());// 降序，需要收集
+        listAll().stream().sorted(Comparator.comparing(SysUser::getAge).thenComparing(SysUser::getId)).collect(Collectors.toList());
 
         System.out.println("map:" + lists.stream().map(o1 -> o1 * 2).collect(Collectors.toList()));//转换成新元素
         System.out.println("flatMap:" + Stream.of("hello welcome", "world hello", "hello world", "hello world welcome")
