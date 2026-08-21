@@ -41,7 +41,25 @@ public class Ademo {
         String accessToken = AESUtil.decryptWithUnzipFromBase64(getTokenData, appSecret);
         // 添加设备
         params = new HashMap<>();
-        params.put("code", "1212");
+        params.put("code", "869318060317159");
+        params.put("system", "fc_system_wxgy");
+        params.put("systemName", "无线感烟");
+        params.put("deviceType", 334);
+        params.put("deviceTypeName", "爱德-4G烟感");
+        params.put("deviceModel", 343);
+        params.put("deviceModelName", "AI-DE-4G-YG");
+        params.put("deviceLabelCode", "fc_system_wxgy");
+        params.put("deviceLabelName", "无线烟感报警器");
+        params.put("buildId", 0);
+        params.put("buildName", "所属建筑");
+        params.put("floor", 3);
+        params.put("addressDesc", "柳市镇蟾东村振学路1号大一班午睡室");
+        params.put("deptId", 188);
+        params.put("deptName", "柳市镇应急消防管理所");
+        params.put("createTime", "2026-08-19 15:27:12");
+        params.put("status", 2);
+        params.put("inoutFlag", 2);
+        params.put("latitudeLongitude", "120.87029,28.052696");
         String aesBody = AESUtil.encryptWithZipToBase64(JSONUtil.toJsonStr(params), appSecret);
         String deviceUpsertRes = HttpRequest.post("http://127.0.0.1:8030/dsb/yqarw/api/oapi/yqa/ls/device/upsert?access_token=" + accessToken)
                 .header("Content-Type", "application/json;charset=UTF-8")
