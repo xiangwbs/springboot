@@ -1,6 +1,7 @@
 package com.xwbing.service.demo;
 
 import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.dashscope.app.Application;
@@ -12,6 +13,7 @@ import com.aliyun.broadscope.bailian.sdk.AccessTokenClient;
 import com.aliyun.broadscope.bailian.sdk.ApplicationClient;
 import com.aliyun.broadscope.bailian.sdk.BaiLianSdkException;
 import com.aliyun.broadscope.bailian.sdk.models.*;
+import com.ifugle.util.export.AESUtil;
 import io.reactivex.Flowable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -26,9 +28,32 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class Ademo {
-    public static void main(String[] args) {
-        String appKey = "3a49f948b7834d6fbfea917f78a6cb60";
-        String appSecret = "35640bb51d7b47dd990262a2ac3778f1";
+    public static void main(String[] args) throws Exception {
+        HashMap<String, Object> params = new HashMap<>();
+        String appKey = "idSHhpyDQ7ED8kWdWxW3DCtW";
+        String appSecret = "LTN224TrZcTbdzops2yWyKWuEREbFKWwpxJaRu1KxKk=";
+        // 获取access_token
+        params.put("app_key", appKey);
+        params.put("app_secret", appSecret);
+        String getTokenRes = HttpUtil.get("https://api-test.17an.com/dsb/api/oapi/get_token", params);
+        JSONObject getTokenObj = JSONUtil.parseObj(getTokenRes);
+        String getTokenData = getTokenObj.getStr("data");
+        String accessToken = AESUtil.decryptWithUnzipFromBase64(getTokenData, appSecret);
+        // 添加设备
+        params = new HashMap<>();
+        params.put("code", "1212");
+        String aesBody = AESUtil.encryptWithZipToBase64(JSONUtil.toJsonStr(params), appSecret);
+        String deviceUpsertRes = HttpRequest.post("http://127.0.0.1:8030/dsb/yqarw/api/oapi/yqa/ls/device/upsert?access_token=" + accessToken)
+                .header("Content-Type", "application/json;charset=UTF-8")
+                .body(aesBody)
+                .execute().body();
+        JSONObject deviceUpsertObj = JSONUtil.parseObj(deviceUpsertRes);
+        String deviceUpsertData = deviceUpsertObj.getStr("data");
+        String deviceUpsertDecryptData = AESUtil.decryptWithUnzipFromBase64(deviceUpsertData, appSecret);
+
+
+//        String appKey = "3a49f948b7834d6fbfea917f78a6cb60";
+//        String appSecret = "35640bb51d7b47dd990262a2ac3778f1";
         TreeMap<String, Object> treeMap = new TreeMap<>();
         treeMap.put("appkey", appKey);
         treeMap.put("t", "1758769334280");
