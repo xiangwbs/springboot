@@ -1,5 +1,7 @@
 package com.xwbing.service.util;
 
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import okhttp3.sse.EventSource;
@@ -106,6 +108,32 @@ public class SseUtil {
             HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
         } catch (Exception e) {
 
+        }
+    }
+
+    public static HttpRequest createHttpsRequest(String url) {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[0];
+                        }
+
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        }
+
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        }
+                    }
+            };
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new SecureRandom());
+            return HttpUtil.createGet(url)
+                    .setSSLSocketFactory(sslContext.getSocketFactory())
+                    .setHostnameVerifier((hostname, session) -> true)
+                    .header("User-Agent", "Mozilla/5.0");
+        } catch (Exception e) {
+            throw new RuntimeException("SSL初始化失败", e);
         }
     }
 }
